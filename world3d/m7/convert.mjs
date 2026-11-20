@@ -62,20 +62,25 @@ async function convert(id) {
   const RAISED = rows.map((r, j) => [...r].map((c, i) => MASSC.includes(c) && (cornerMass(i, j) || cornerMass(i + 1, j) || cornerMass(i, j + 1) || cornerMass(i + 1, j + 1))));
   // what a 'T', a 't' and an 'f' are in each biome (the 2D game's art/tiles.js and the maps' headers)
   const TREEK = { desert: 'cactus', 'desert-town': 'palm', oasis: 'palm', canyon: 'palm', 'mine-camp': 'dead', mine: 'prop', crystal: 'spire', dunes: 'spire', ash: 'charred', vault: 'column', tundra: 'frostdead' }[BIO];
-  const YK = { monastery: 'column', mountain: 'statue', 'dwarf-hall': 'column', forge: 'anvil', 'ice-cave': 'icecol' }[BIO];
-  const SMALLK = { desert: 'shrub', oasis: 'shrub', canyon: 'shrub', 'desert-town': 'jar', 'mine-camp': 'crate', mine: 'cart', crystal: 'cluster', dunes: 'shard', ash: 'stump', vault: 'urn', tundra: 'sledge', 'frozen-lake': 'sledge', outpost: 'crate', 'dwarf-hall': 'barrel', forge: 'barrel', monastery: 'shrub', mountain: 'shrub', scree: 'shrub' }[BIO];
-  const GLOWK = { mine: 'amber', 'mine-camp': 'amber', canyon: 'amber', crystal: 'frost', dunes: 'glint', desert: 'glint', ash: 'ember', vault: 'ember', oasis: 'wisp', 'dwarf-hall': 'rune', forge: 'ember', 'ice-cave': 'frost' }[BIO];
+  const YK = { monastery: 'column', mountain: 'statue', 'dwarf-hall': 'column', forge: 'anvil', 'ice-cave': 'icecol', 'sunken-city': 'column', belfry: 'column' }[BIO];
+  const SMALLK = { desert: 'shrub', oasis: 'shrub', canyon: 'shrub', 'desert-town': 'jar', 'mine-camp': 'crate', mine: 'cart', crystal: 'cluster', dunes: 'shard', ash: 'stump', vault: 'urn', tundra: 'sledge', 'frozen-lake': 'sledge', outpost: 'crate', 'dwarf-hall': 'barrel', forge: 'barrel', monastery: 'shrub', mountain: 'shrub', scree: 'shrub', fen: 'reedbed', bog: 'reedbed', causeway: 'reedbed', channel: 'shrub', 'stilt-town': 'crate', 'willow-village': 'crate', boardwalk: 'crate', mudflat: 'crate', 'sunken-city': 'crate', 'drowned-grove': 'stump' }[BIO];
+  const GLOWK = { mine: 'amber', 'mine-camp': 'amber', canyon: 'amber', crystal: 'frost', dunes: 'glint', desert: 'glint', ash: 'ember', vault: 'ember', oasis: 'wisp', 'dwarf-hall': 'rune', forge: 'ember', 'ice-cave': 'frost', belfry: 'wisp', bog: 'wisp' }[BIO];
   const PADK = map.region === 'sunscorch' ? 'rocks' : 'woods';
+  // the Gloomfen: plank streets, piers and porches stand on stilts over the water ('_', and ':' in a stilt town, near
+  // water); 'x' there is broken planks over water, not a drop; '|' are rails and fences, not palisades; '*' a lantern on a pole
+  const GLOOM = map.region === 'gloomfen';
+  const nearWet = (i, j) => { for (let b = -2; b <= 2; b++) for (let a = -2; a <= 2; a++) { const c = at(i + a, j + b); if (c === '~' || c === 'w' || c === 'x') return true; } return false; };
 
   // an indoor map: walls nearly all round its edge (the Great Hall, a vault, a mine's gallery). Indoors the walls are low
   // (a doll's house seen from above, as the 2D game shows it), pillars stand full height, and there's nothing outside
   const edge = [...rows[0], ...rows[h - 1], ...rows.map((r) => r[0]), ...rows.map((r) => r[w - 1])];
   const interior = edge.filter((c) => '#*+R^xY'.includes(c)).length / edge.length > 0.85;
+  const DECK = rows.map((r, j) => [...r].map((c, i) => GLOOM && !interior && (c === '_' || (c === ':' && BIO === 'stilt-town')) && nearWet(i, j)));
   // ---- which tiles are wet: water, bridges over it, rocks standing in it ----
-  const isW = (c) => c === '~';
+  const isW = (c) => c === '~' || (GLOOM && !interior && c === 'x');
   const wetAt = (i, j) => { const c = at(i, j); if (c === null) return true; return isW(c); };
   const WET = rows.map((r, j) => [...r].map((c, i) => {
-    if (c === '~' || c === 'b' || c === 'w') return true;
+    if (c === '~' || c === 'b' || c === 'w' || isW(c) || DECK[j][i]) return true;
     if (c === 'o') return [[1, 0], [-1, 0], [0, 1], [0, -1]].filter(([a, b]) => wetAt(i + a, j + b)).length >= 2;
     return false;
   }));
@@ -185,7 +190,7 @@ async function convert(id) {
   });
 
   // ---- the walls: runs of # and * that aren't a house's front ----
-  let WALL = rows.map((r, j) => [...r].map((c, i) => '#*'.includes(c) && !BLD[j][i]));
+  let WALL = rows.map((r, j) => [...r].map((c, i) => (GLOOM ? '#' : '#*').includes(c) && !BLD[j][i]));
   // a wall piece of four tiles or fewer, on its own (a fire pit's kerb, a well's wall), is a low wall with no crenels
   const LOW = rows.map((r) => [...r].map(() => false));
   { const seen = rows.map((r) => [...r].map(() => false));
@@ -268,10 +273,17 @@ async function convert(id) {
     return { r: [x0, y0, x1, y1], y: 0.08, boards: ns ? 'ns' : 'ew', rails: { kind: 'wood', sides: ns ? 'ew' : 'ns' }, stilts: true };
   });
 
+  // (Places) the Gloomfen's plank streets and piers, on stilts, no rails
+  for (const [i0, j0, i1, j1] of rects(DECK)) {
+    let x0 = i0 * TX, y0 = j0 * TY, x1 = (i1 + 1) * TX, y1 = (j1 + 1) * TY;
+    if (j0 === 0) y0 -= PAD * TY; if (j1 === h - 1) y1 += PAD * TY; if (i0 === 0) x0 -= PAD * TX; if (i1 === w - 1) x1 += PAD * TX;
+    decks.push({ r: [x0, y0, x1, y1], y: 0.08, boards: (y1 - y0) >= (x1 - x0) ? 'ns' : 'ew', stilts: true, spacing: 3 });
+  }
   // ---- trees, bushes, rocks, flowers ----
   const region = map.region || 'verdant';
-  const treeKind = ACT2 && BIO === 'wilds' ? 0 : /iron|frost|peak/.test(region) ? 1 : /gloom|fen/.test(region) ? 2 : 0;
+  const treeKind = ACT2 && /^(wilds|willow-village|causeway|channel)$/.test(BIO) ? 0 : /iron|frost|peak/.test(region) ? 1 : /gloom|fen/.test(region) ? 2 : 0;
   let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const lamps = [];
   const extraTrees = [], props = [], flowers = [], cliffs = [], roots = [], firsts = [], glows = [], stand = [], smalls = [], faces = [];
   for (let j = 0; j < h; j++) for (let i = 0; i < w; i++) {
     const c = rows[j][i], x = (i + 0.5) * TX, y = (j + 0.5) * TY;
@@ -286,6 +298,8 @@ async function convert(id) {
     else if (ACT2 && c === 'Y' && YK) stand.push([x, y, YK, Math.floor(rnd() * 900), 1]);
     else if (ACT2 && c === 't' && SMALLK) smalls.push([Math.round(x + (rnd() - 0.5) * 10), Math.round(y + (rnd() - 0.5) * 8), SMALLK, Math.floor(rnd() * 900)]);
     else if (ACT2 && c === 'f' && GLOWK) glows.push([x, y, GLOWK]);
+    else if (GLOOM && c === '"' && rnd() < 0.7) smalls.push([Math.round(x + (rnd() - 0.5) * 12), Math.round(y + (rnd() - 0.5) * 10), 'reeds', Math.floor(rnd() * 900)]);
+    else if (GLOOM && c === '*' && !BLD[j][i]) lamps.push({ at: [x, y], kind: 'wood' });
     else if (c === 'T') extraTrees.push([Math.round(x + (rnd() - 0.5) * 10), Math.round(y + (rnd() - 0.5) * 8), +(([[1,0],[-1,0],[0,1],[0,-1]].some(([a, b]) => at(i + a, j + b) === 'T') ? 0.92 : 1.5) + rnd() * 0.25).toFixed(2), treeKind, Math.floor(rnd() * 900)]);
     else if (c === 't') flowers.push([x, y, 0.95, 'mix']);
     else if (c === '^') cliffs.push([x, y, +(1.7 + rnd() * 0.8).toFixed(2)]);
@@ -306,7 +320,6 @@ async function convert(id) {
   }
 
   // ---- lamps: light entities, hearthfires ----
-  const lamps = [];
   for (const e of map.entities || []) {
     if (!e.at) continue; const [x, y] = [(e.at[0] + 0.5) * TX, (e.at[1] + 0.5) * TY];
     if (e.kind === 'light' || e.kind === 'hearthfire') lamps.push({ at: [x, y], kind: 'pillar', h: 1.1 });
@@ -335,7 +348,8 @@ async function convert(id) {
     painting: `art/m7/${id}.webp`, extent: [-PAD * TX, -PAD * TY, (w + PAD) * TX, (h + PAD) * TY],
     start: first.at, startFace: first.face, anchors, exits, people,
     water: water.map((p) => ({ poly: p })), decks, buildings, walls: segs, towers, torches, lamps, props, flowers, extraTrees, lawns, groundPatches,
-    tileH: rows.map((r, j) => [...r].map((c, i) => c === 'x' ? 3 : c === 'w' ? 2 : WET[j][i] ? 1 : ACT2 && MASSC.includes(c) ? 4 : 0).join('')),
+    fence: GLOOM || undefined,
+    tileH: rows.map((r, j) => [...r].map((c, i) => c === 'x' && !(GLOOM && !interior) ? 3 : c === 'w' ? 2 : WET[j][i] ? 1 : ACT2 && MASSC.includes(c) ? 4 : 0).join('')),
   };
   const mapsEntry = { walk, block: [] };
   // pictures are written as "art/..." in double quotes so the build puts them inside the page

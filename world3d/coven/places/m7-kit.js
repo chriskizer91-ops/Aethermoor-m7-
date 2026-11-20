@@ -46,6 +46,13 @@
       surfaces: { stone: 'iron_dwarf_stone', dry: 'shared_stone_wall_frosted_b', rock: 'shared_stone_wall_frosted_b' },
       rock: ['shared_stone_wall_frosted_b', 0xd8dce4], mass: 6, roofs: {}, tints: { stone: 0xe0e0e6, firs: 0xdce8e4 }, light: COLD, water: 0x8ca0b4,
     },
+    gloomfen: {
+      ground: { pave: 'gloom_boardwalk_old', grassTint: [0.42, 0.48, 0.4] },
+      surfaces: { deck: 'gloom_boardwalk_old', planks: 'gloom_boardwalk_old', wood: 'gloom_boardwalk_old', timber: 'gloom_stilt_wood', rock: 'thorn_rock_mossy' },
+      houses: 'timber', rock: ['thorn_rock_mossy', 0xd0d8c8], mass: 4, roofs: {}, tints: { deck: 0xffffff, wood: 0xffffff },
+      light: { day: 0.75, sky: [0.8, 0.86, 0.8], moon: [0.4, 0.42, 0.38], ground: [0.26, 0.28, 0.24], fog: [0.55, 0.61, 0.57], fogNear: 16, fogFar: 95, hills: false },
+      water: 0xa8b8a0, waterTex: 'gloom_bog_water',
+    },
     sunscorch: {
       ground: { grass: 'sun_sand_ground', dirt: 'shared_dirt_track', cob: 'shared_cobbles_town', pave: 'sun_sandstone_wall', rep: [2.6, 4.2, 3.6, 3.0] },
       surfaces: { stone: 'sun_sandstone_wall', dry: 'sun_sandstone_wall', timber: 'sun_adobe_plaster', rock: 'sun_sandstone_wall' },
@@ -67,6 +74,9 @@
     'dwarf-hall': { mass: 4, ground: { grass: 'iron_dwarf_stone', dirt: 'iron_dwarf_stone' }, rock: ['iron_dwarf_stone', 0x9a9690], light: FORGE },
     forge: { mass: 4, ground: { grass: 'iron_dwarf_stone', dirt: 'iron_dwarf_stone', cob: 'iron_forge_brick' }, surfaces: { stone: 'iron_forge_brick', dry: 'iron_forge_brick' }, rock: ['iron_dwarf_stone', 0x6a625e], light: FORGE },
     'ice-cave': { mass: 4, ground: { grass: 'iron_ice_lake', dirt: 'iron_ice_lake' }, rock: ['iron_ice_lake', 0xa8c4e0], light: Object.assign({}, CAVE, { sky: [0.5, 0.6, 0.75], fog: [0.02, 0.03, 0.06] }) },
+    // the Gloomfen (the two dark maps: the Mother's Hollow and the drowned belfry, by night in a green mist)
+    'drowned-grove': { light: { day: 0, sky: [0.6, 0.66, 0.62], moon: [0.36, 0.4, 0.42], ground: [0.12, 0.14, 0.12], fog: [0.1, 0.14, 0.12], fogNear: 14, fogFar: 70, hills: false } },
+    belfry: { light: Object.assign({}, CAVE, { sky: [0.5, 0.62, 0.56], fog: [0.03, 0.06, 0.05] }) },
     // the Sunscorch
     dunes: { mass: 2.6, mound: 1.3, ground: { cob: 'sun_glass_flats' }, roofs: { slate: ['sun_awning_canvas', 0xffffff], red: ['sun_awning_canvas', 0xffd0c0] } },
     canyon: { mass: 6.5, rock: ['sun_sandstone_wall', 0xb87860] },
@@ -141,6 +151,7 @@
       glowR: { emis: 0x70b8ff, lit: 0, tint: 0x70b8ff, cut: false },
       iceL: { tex: 'shared_water_dark', rep: 1, tint: 0xd8ecff, spec: 1, shade: 0.3 },
       frosted: { tex: 'thorn_bark_black', rep: 1.4, tint: 0xc8ccd4, shade: 0.5 },
+      reed: { tex: 'shared_grass_meadow', rep: 1, tint: 0xc8c088, shade: 0.4 },
     });
     extraMats.roots = { tex: 'shared_bark_oak', rep: 1.6, tint: 0xd8c0a8, shade: 0.5 };
     extraMats.rockM = { tex: 'thorn_rock_mossy', rep: 2.2, tint: 0xffffff, shade: 0.5 };
@@ -169,7 +180,7 @@
       // the M7 places are by day in the 2D game: their leaves a little lighter than the borrowed night woods
       tints: Object.assign({ leaves: 0xf0fff4, bough: 0xc4d6c4, boughFir: 0xb0c4bc, bush: 0xf0fff0 }, KEEP ? { stone: 0x9c9ca8 } : {}, LOOK ? LOOK.tints : {}),
       ground_h: ground, walk_h: ground,
-      water: d.water.map((wt) => ({ poly: wt.poly, level: () => -0.5, tex: 'shared_water_dark', rep: 6, flow: [0.004, 0.002], bed: -2.3, tint: LOOK && LOOK.water })),
+      water: d.water.map((wt) => ({ poly: wt.poly, level: () => -0.5, tex: 'shared_water_dark', rep: 6, flow: [0.004, 0.002], bed: -2.3, tint: LOOK && LOOK.water, ...(LOOK && LOOK.waterTex ? { tex: LOOK.waterTex, rep: 8 } : {}) })),
       night: LOOK ? Object.assign({}, d.interior && !LOOK.light.day ? CAVE : LOOK.light, d.night || {}) : Object.assign(d.interior ? { sky: [0.62, 0.52, 0.5], moon: [0.3, 0.26, 0.26], ground: [0.12, 0.08, 0.06], fog: [0.02, 0.018, 0.03], fogNear: 30, fogFar: 90, hills: false } : {}, { sky: [0.86, 0.8, 0.84], moon: [0.62, 0.56, 0.6], ground: [0.16, 0.13, 0.14], fog: [0.16, 0.15, 0.24], fogNear: 40, fogFar: 140 }, d.night || {}),
       paintingSrc: d.painting,
       extra: (K) => extra(K, d),
@@ -204,6 +215,12 @@
     const UP = new THREE.Vector3(0, 1, 0);
     const rod = (k, a, b, r0, r1) => { const dir = new THREE.Vector3(b[0] - a[0], b[1] - a[1], b[2] - a[2]), L = dir.length(); const g = new THREE.CylinderGeometry(r1, r0, L, 7, 1, false); g.translate(0, L / 2, 0); const q = new THREE.Quaternion().setFromUnitVectors(UP, dir.normalize()); B.geom(k, g, new THREE.Matrix4().compose(new THREE.Vector3(...a), q, new THREE.Vector3(1, 1, 1)), null, [Math.PI * (r0 + r1), L]); g.dispose(); };
     for (const [[ax, ay], [bx, by]] of d.palisades || []) {
+      if (d.fence) {   // (Places) the Gloomfen's rails and fences: posts with two rails, waist high
+        const A = [X(ax), Z(ay)], Bp = [X(bx), Z(by)], L = Math.hypot(Bp[0] - A[0], Bp[1] - A[1]), n = Math.max(1, Math.round(L / 1.4)), ry = Math.atan2(-(Bp[1] - A[1]), Bp[0] - A[0]);
+        for (let i = 0; i <= n; i++) { const f = i / n, x = A[0] + (Bp[0] - A[0]) * f, z = A[1] + (Bp[1] - A[1]) * f; B.box('wood', x, gh(ax + (bx - ax) * f, ay + (by - ay) * f) - 0.4, z, 0.14, 1.45, 0.14, ry, [0.7, 0.6, 0.5]); }
+        const g = gh((ax + bx) / 2, (ay + by) / 2); for (const hy of [0.45, 0.9]) B.box('wood', (A[0] + Bp[0]) / 2, Math.max(g, 0.08) + hy, (A[1] + Bp[1]) / 2, L, 0.08, 0.08, ry, [0.72, 0.62, 0.52], NS);
+        continue;
+      }
       const A = [X(ax), Z(ay)], Bp = [X(bx), Z(by)], L = Math.hypot(Bp[0] - A[0], Bp[1] - A[1]), n = Math.max(2, Math.round(L / 0.34));
       for (let i = 0; i < n; i++) {
         const f = (i + 0.5) / n, x = A[0] + (Bp[0] - A[0]) * f, z = A[1] + (Bp[1] - A[1]) * f, g = gh(ax + (bx - ax) * f, ay + (by - ay) * f), hh = 2.3 + R() * 0.5;
@@ -361,6 +378,7 @@
       else if (kind === 'cart') { B.box('wood', x, g + 0.35, z, 0.9, 0.6, 1.3, 0, [0.8, 0.66, 0.52]); for (const sx of [-1, 1]) for (const sz of [-1, 1]) B.cyl('iron', x + sx * 0.48, g, z + sz * 0.4, 0.2, 0.2, 0.08, 8); }
       else if (kind === 'cluster' || kind === 'shard') { const k = kind === 'cluster' ? 'crystalG' : 'glassL'; for (let i = 0; i < 4; i++) cone(k, x + (R() - 0.5) * 0.8, g - 0.1, z + (R() - 0.5) * 0.8, 0.12 + R() * 0.12, 0.5 + R() * 0.7, (R() - 0.5) * 0.8, (R() - 0.5) * 0.8, 4); }
       else if (kind === 'sledge') { B.box('wood', x, g + 0.25, z, 0.9, 0.3, 1.8, 0.3, [0.85, 0.72, 0.58]); for (const sx of [-1, 1]) B.box('iron', x + sx * 0.42, g, z, 0.06, 0.12, 2.0, 0.3, [0.6, 0.6, 0.65], NS); }
+      else if (kind === 'reeds' || kind === 'reedbed') { const n = kind === 'reeds' ? 7 : 14, sp = kind === 'reeds' ? 0.9 : 1.6; for (let i = 0; i < n; i++) cone('reed', x + (R() - 0.5) * sp, g - 0.3, z + (R() - 0.5) * sp, 0.04, 1.0 + R() * 0.9, (R() - 0.5) * 0.3, (R() - 0.5) * 0.3, 3); }
       else if (kind === 'stump') { B.cyl('charred', x, g - 0.1, z, 0.4, 0.32, 0.6, 8); }
     }
     for (const [px, py, kind] of d.glows || []) {
