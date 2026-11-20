@@ -10,6 +10,7 @@
 // view showing: 'front', 'side' or 'back').
 import * as THREE from 'three';
 import { STANDEES } from './standees/pack.js';
+import { BEASTS, buildBeast } from './beasts.js';
 
 export const hasStandee = key => !!STANDEES[key];
 // creatures that hover above the ground
@@ -106,7 +107,8 @@ export function buildStandee(key, { tall = 1 } = {}) {
       const fade = F > 0.45 ? 1 - (F - 0.45) / 0.55 : 1;
       for (const v of Object.keys(mats)) { const m = mats[v]; m.emissiveIntensity = flash * 1.2; m.emissive.setRGB(1, 0.85 + flash * 0.15, 0.8); if (fade < 1 !== m.transparent) { m.transparent = fade < 1; m.needsUpdate = true; } m.opacity = fade; }
       shadow.material.opacity = fade * (fly ? 0.55 : 1) * (1 - F * 0.5);
-      for (const v of Object.values(views)) v.mesh.castShadow = fade > 0.5;
+      // the page decides whether it casts a shadow (the arena turns them off); a fading standee stops casting
+      for (const v of Object.values(views)) { const m = v.mesh; if (m.userData.cast === undefined) m.userData.cast = m.castShadow; m.castShadow = m.userData.cast && fade > 0.5; }
       const ss = fly ? 0.75 + Math.sin(t * 1.8) * 0.05 : 1; shadow.scale.set(views.front.w * 1.05 * ss, views.side.w * 0.95 * ss, 1);
     },
   };
@@ -125,4 +127,10 @@ export function buildStandee(key, { tall = 1 } = {}) {
   };
   for (const v of Object.values(views)) v.mesh.onBeforeRender = onBefore;
   return self;
+}
+
+// For the Fight (world3d/battle/arena.js setBeastLook): fn(key, sprite, opts) -> the painted standee, at the beast's own
+// size, or the code-built beast if a creature has no sheet.  setBeastLook(standeeLook)
+export function standeeLook(key, sprite, opts = {}) {
+  return hasStandee(key) ? buildStandee(key, { tall: BEASTS[key]?.[2] || 1 }) : buildBeast(key, sprite, opts);
 }
