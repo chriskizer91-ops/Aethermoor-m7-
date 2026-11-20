@@ -34,6 +34,17 @@ What Act Two adds to the converter and the kit (Act One is made exactly as befor
 - In the Gloomfen, plank streets and piers stand on stilts over the water, `|` are waist-high rails and `*` lanterns
   on poles.
 
+## The Atlas, and the light (step 3)
+
+- **The Atlas** (https://claude.ai/artifact/MXyu3A9zTjoCavHFKXCbpi): the continent with M7's 32 stops and 35 Hearthfires.
+  `m7/atlas.js` (`M7_ATLAS.open({ at, kindled }) -> Promise<{ place, hearthfire } | null>`), its data `m7/atlas-data.js`
+  (made by `node m7/atlas-data.mjs` from `docs/lore/places.json` and M7's maps), the page `coven/pages/m7-atlas.html`.
+  Each place has an anchor `hearthfire:<id>` at the fire's stand.
+- **The light**: each place names its light (`light` in its data: day, dusk, night or indoor; `convert.mjs` `LIGHT`;
+  presets in `m7-kit.js` `LIGHTS`). The **Light** button on the pages tries day, dusk and night on every place.
+- **Batch 4**: Chris's paintings go in `art-in/` as `map-<id>.png`; the converter finds them there.
+- `sh m7/pages.sh` builds every page.
+
 ## How a map becomes a place
 
 `node m7/convert.mjs <map ids>` reads each map from `game/src/data/maps/` and its painting from

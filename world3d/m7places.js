@@ -67,7 +67,7 @@
     $('load').style.display = 'grid'; $('load').style.opacity = 1; $('load').querySelector('h1').textContent = next.name; $('loadmsg').textContent = 'Walking on…';
     await new Promise((r) => setTimeout(r, 40));
     await W.switchTo(next, a.at[0], a.at[1], a.face);
-    cur = to; leader = W3D.witch(lead.id); setFollowers(); list();
+    cur = to; leader = W3D.witch(lead.id); setFollowers(); list(); setLight();
     $('load').style.opacity = 0; setTimeout(() => { $('load').style.display = 'none'; }, 600);
     toast(next.name, true);
   }
@@ -80,10 +80,22 @@
   $('where').addEventListener('click', () => box.classList.toggle('on'));
   let guide = false;
   $('guide').addEventListener('click', () => { guide = !guide; W.guide(guide); $('guide').textContent = guide ? 'Back to 3D' : 'The painting'; });
+  // ---- (Places, step 3) the light: the place's own (from its data), or day, dusk or night laid over it to compare ----
+  const LIGHT_ORDER = ['own', 'day', 'dusk', 'night'], LIGHT_WORD = { own: 'its own', day: 'day', dusk: 'dusk', night: 'night', dark: 'dark', indoor: 'indoors' };
+  let lightPick = 'own';
+  function setLight() {
+    const U = W.P.U, pl = PL['m7-' + cur], o = lightPick === 'own' ? pl.night : window.M7_GAINED(window.M7_LIGHTS[lightPick], pl.lightGain || 1);
+    const rgb = (c, v) => { if (v) c.setRGB(v[0], v[1], v[2]); };
+    rgb(U.uSky.value, o.sky); rgb(U.uMoon.value, o.moon); rgb(U.uGround.value, o.ground); rgb(U.uFog.value, o.fog);
+    if (o.fogNear) U.uFogNear.value = o.fogNear; if (o.fogFar) U.uFogFar.value = o.fogFar; if (U.uDay) U.uDay.value = o.day || 0;
+    $('light').textContent = 'Light: ' + (lightPick === 'own' ? (LIGHT_WORD[pl.lightName] || '') + ' (its own)' : LIGHT_WORD[lightPick]);
+  }
+  $('light').addEventListener('click', () => { lightPick = LIGHT_ORDER[(LIGHT_ORDER.indexOf(lightPick) + 1) % LIGHT_ORDER.length]; setLight(); toast(lightPick === 'own' ? 'Each place in its own light' : 'Every place at ' + LIGHT_WORD[lightPick]); });
+  setLight();
   $('nums').addEventListener('click', () => { const on = $('numbers').classList.toggle('more'); $('nums').classList.toggle('on', on); });
   $('load').style.opacity = 0; setTimeout(() => { $('load').style.display = 'none'; }, 700);
   setTimeout(() => toast(PL['m7-' + cur].name, true), 800);
   setTimeout(() => toast(PHONE ? 'Drag on the left to walk · Places to jump' : 'W A S D walk · Shift runs · Places to jump'), 4200);
-  window.__m7 = { W, go, get cur() { return cur; }, get leader() { return leader; } };
+  window.__m7 = { W, go, setLightPick: (k) => { lightPick = k; setLight(); }, get cur() { return cur; }, get leader() { return leader; } };
   window.__ready = true;
 })();
