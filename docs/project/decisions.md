@@ -4,6 +4,9 @@ Written by the hub. His newer word beats anything older, here or anywhere in the
 
 ## November 20
 
+- **The foes in full detail, the way session 6 made Briarmaw** ("already looking fantastic; I'm excited to see other
+  foes rendered with the techniques it learned"), with more sessions building them: sessions 7 (beasts) and 8
+  (walkers) join session 6 (`docs/project/jobs/foes.md`).
 - **To session 6, on the full-detail foe** (relayed in its slip): start with a 100,000-triangle shape model, then add
   the detail; no fuzz of tiny hairs ("that'll look fuzzy, but it won't look like it's supposed to").
 - **A sixth session builds one foe in full detail**: a 600,000 to 1,000,000-triangle sculpt baked onto a
