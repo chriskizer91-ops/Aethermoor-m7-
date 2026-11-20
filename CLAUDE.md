@@ -23,8 +23,8 @@
   which matches this one's for `game/`, `docs/` and `art-requests/`).
 - `game/dist/aethermoor-m7.html`: the M7 file Chris got, frozen (a test pins its bytes). A new build is a new file.
 - `docs/DESIGN-BRIEF.md`: the game's design. `docs/3d-options.md`: going 3D or upgrading the 2D (November 20).
-- `prototypes/`: try-outs that import the real game code. `prototypes/hd2d-thornhollow/`: Thornhollow as a lit 3D
-  diorama.
+- `prototypes/`: try-outs that import the real game code. `prototypes/hd2d-world/`: four places as lit 3D
+  dioramas (`npm install && node build.mjs` there; published at the link in its README).
 - `art-requests/`: picture prompts for Chris. Batch 4 (the four Act III maps) is still waiting.
 
 ## The game's rules (from New-game, still in force)

@@ -1,0 +1,38 @@
+<title>Aethermoor in 3D</title>
+<style>
+:root{color-scheme:dark;--ink:#0b0910;--soot:#120e0c;--panel:rgba(18,14,12,.82);--seam:#5a4838;--parchment:#ecdfc3;--ash:#b5a58e;--hearth:#ffcb66}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--soot);color:var(--parchment);font:15px/1.4 "Trebuchet MS",system-ui,sans-serif;-webkit-tap-highlight-color:transparent}
+#view{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none}
+.bar{position:fixed;left:0;right:0;top:0;display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:calc(10px + env(safe-area-inset-top)) 16px 10px;pointer-events:none}
+.bar>*{pointer-events:auto}
+.title{margin-right:auto;background:var(--panel);box-shadow:0 0 0 2px var(--ink),0 0 0 4px var(--seam);padding:6px 12px}
+.title b{display:block;font-family:Georgia,serif;font-size:19px;color:#fff3d6}
+.title span{font-size:12px;color:var(--ash);letter-spacing:.06em}
+button,select{min-height:44px;min-width:44px;padding:0 12px;font:inherit;font-size:14px;color:var(--parchment);background:var(--panel);border:2px solid var(--seam);box-shadow:0 0 0 2px var(--ink);cursor:pointer}
+button:hover,select:hover{border-color:var(--hearth)}
+.lab{font-size:11px;color:var(--ash);display:block;line-height:1;margin-top:4px}
+.btn{display:flex;flex-direction:column;align-items:flex-start;justify-content:center}
+#hint{position:fixed;left:50%;bottom:calc(14px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--panel);padding:6px 12px;font-size:13px;color:var(--ash);white-space:nowrap;pointer-events:none}
+#fps{position:fixed;right:16px;bottom:calc(14px + env(safe-area-inset-bottom));font-size:12px;color:var(--ash);background:var(--panel);padding:4px 8px;pointer-events:none}
+#plates{position:fixed;inset:0;pointer-events:none}
+.plate{position:absolute;transform:translate(-50%,-100%);background:rgba(11,9,16,.8);color:#fff3d6;font-size:12px;padding:2px 8px;white-space:nowrap}
+#stick{position:fixed;width:92px;height:92px;margin:-46px 0 0 -46px;border-radius:50%;border:2px solid rgba(236,223,195,.45);background:rgba(18,14,12,.25);pointer-events:none}
+#knob{position:absolute;left:50%;top:50%;width:40px;height:40px;border-radius:50%;background:rgba(255,203,102,.75);transform:translate(-50%,-50%)}
+[hidden]{display:none!important}
+#loading{position:fixed;inset:0;display:grid;place-items:center;background:var(--soot);font-family:Georgia,serif;font-size:20px}
+@media (max-width:520px){.title b{font-size:16px}.bar{gap:6px}button,select{padding:0 9px;font-size:13px}#hint{font-size:12px}}
+</style>
+<canvas id="view"></canvas>
+<div id="plates"></div>
+<div class="bar">
+  <div class="title"><b id="place">Thornhollow</b><span>AETHERMOOR IN 3D · A TRY-OUT</span></div>
+  <select id="b-map" aria-label="Place"></select>
+  <button id="b-time" aria-label="Time of day">Morning</button>
+  <button id="b-cam" aria-label="Camera">Close</button>
+  <button id="b-detail" aria-label="Detail">High</button>
+</div>
+<div id="stick" hidden><div id="knob"></div></div>
+<div id="hint"></div>
+<div id="fps"></div>
+<div id="loading">Raising the town…</div>
+<script>/*SCRIPT*/</script>

@@ -1,0 +1,8 @@
+{
+  "name": "aethermoor-hd2d-world",
+  "private": true,
+  "type": "module",
+  "description": "Four places of the game as lit 3D dioramas, drawn with three.js from the game's own map, painting and sprites.",
+  "scripts": { "build": "node build.mjs" },
+  "devDependencies": { "esbuild": "0.28.2", "three": "0.170.0" }
+}
