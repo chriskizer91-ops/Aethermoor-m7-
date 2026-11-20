@@ -147,7 +147,7 @@ async function main() {
       game = makeGame(++seed, SC.level); for (const k of Object.keys(made)) delete made[k];
       W.setWho('pip'); W.setWho('warden'); leader = W3D.witch('warden'); setFollowers();
       const a = PL[SC.place].anchors[SC.anchor]; W.setIo(a.at[0], a.at[1], a.face);
-      toast('The hearth wakes you at the gate');
+      toast('The hearth wakes you');
     } else if (result === 'victory') toast(`Victory: +${outcome?.xp || 0} XP, +${outcome?.gold || 0} gold`);
     else toast('You break away from the fight.');
     W.pause(false); party.set(leader, followers);

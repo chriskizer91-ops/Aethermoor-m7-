@@ -20,6 +20,13 @@
   - Victory: the party cheers. Defeat: the party falls, then wakes at the town gate. Test with `?lose=1`.
   - Commit: see `git log job/fight` ("The Fight, step 1").
 
+- **Briarmaw in his den** (same page, the **To Briarmaw's den** button, or `?fight=briarmaw`): walk into the den and
+  Briarmaw (M7's own `briarmaw-den` fight, the party at level 7) comes at you. His grip meters sit on his plate, he
+  swells a little at each new phase, the briarlings he calls up rise into the line, and the foes share the line by size.
+  Headless, an Auto fight runs start to end (Auto lost to him, as it can in M7; the party wakes at the den's mouth).
+  Same link, 11 MB.
+- The phone page builds lighter heroes when `?quality=phone` (163 thousand triangles in a fight, down from 287).
+
 ## For Together: starting a fight from outside
 
 `world3d/battle/run.js` exports one function. It pauses the walk, swings the camera round, plays M7's battle screen
@@ -49,8 +56,8 @@ I'll add a switch on the page (`?foes=cutout`).
 
 ## Next
 
-- Briarmaw in his den (`m7-briarmaw-den`): his phases, grip and the relics snapping off.
-- Then step 2, the spoils.
+- Step 2, the spoils: drops on the ground, M7's card reveal, gear changing the 3D outfit, XP and levels, the Party screen.
+- When Models' and session 6's looks land: `?foes=cutout`, and Briarmaw's full model through `setBeastLook`.
 
 ## Changed outside my files
 
@@ -79,5 +86,5 @@ I'll add a switch on the page (`?foes=cutout`).
 ## Build
 
 ```
-cd world3d && node build.mjs --page=m7-fight --places=thornhollow --tex=768 --entry=fight.js --plugin=battle/swap.mjs
+cd world3d && node build.mjs --page=m7-fight --places=thornhollow,briarmaw-den --tex=768 --entry=fight.js --plugin=battle/swap.mjs
 ```
