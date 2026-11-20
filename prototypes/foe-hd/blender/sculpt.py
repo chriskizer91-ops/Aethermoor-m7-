@@ -26,7 +26,7 @@ LV = int(sys.argv[2]) if len(sys.argv) > 2 else 1
 os.makedirs(OUT, exist_ok=True)
 T0 = time.time()
 def log(*a): print(f'[{time.time() - T0:6.1f}s]', *a, flush=True)
-VOX = {1: 0.021, 2: 0.0095, 3: 0.0058}[LV]
+VOX = {1: 0.021, 2: 0.012, 3: 0.0076}[LV]
 SIDES = {1: 6, 2: 10, 3: 16}[LV]; SEG = {1: 6, 2: 10, 3: 14}[LV]
 
 # ---- signed distance helpers ---------------------------------------------------------------------------------------
@@ -138,14 +138,14 @@ def mc(f, h):
     vals = np.empty(len(P), np.float32)
     for i in range(0, len(P), 2_000_000): vals[i:i + 2_000_000] = f(P[i:i + 2_000_000])
     v, fc, _, _ = marching_cubes(vals.reshape(shp), 0.0, spacing=(h, h, h))
-    return (v + lo).astype(np.float32), fc[:, ::-1].astype(np.int32)
+    return (v + lo).astype(np.float32), fc.astype(np.int32)   # skimage winds them outward for an SDF
 
 # ---- 2. the tufts: where, how big, which way, what colour (the same at every pass) ------------------------------
-GREEN = np.array([0.24, 0.34, 0.09]); DKGREEN = np.array([0.12, 0.21, 0.05]); OLIVE = np.array([0.36, 0.38, 0.12])
-YGREEN = np.array([0.42, 0.50, 0.14]); BROWN = np.array([0.42, 0.26, 0.12]); DKBROWN = np.array([0.26, 0.15, 0.07])
+GREEN = np.array([0.25, 0.33, 0.09]); DKGREEN = np.array([0.13, 0.20, 0.05]); OLIVE = np.array([0.35, 0.35, 0.11])
+YGREEN = np.array([0.45, 0.47, 0.13]); BROWN = np.array([0.42, 0.26, 0.12]); DKBROWN = np.array([0.26, 0.15, 0.07])
 GOLD = np.array([0.80, 0.52, 0.18]); PALEGOLD = np.array([0.93, 0.74, 0.38]); BONE = np.array([0.88, 0.84, 0.72])
 FACE = np.array([0.30, 0.31, 0.13]); EYE = np.array([0.55, 1.0, 0.35]); CLAW = np.array([0.22, 0.14, 0.08])
-VINE = np.array([0.44, 0.32, 0.16])
+VINE = np.array([0.40, 0.31, 0.15])
 
 def zones(P):
     x, y, z = P[:, 0], P[:, 1], P[:, 2]
@@ -154,9 +154,9 @@ def zones(P):
     legs = 1 - sstep(0.30, 0.62, z)
     paws = 1 - sstep(0.12, 0.28, z)
     spine = np.exp(-(x / 0.12) ** 2) * sstep(0.98, 1.1, z) * (1 - sstep(0.45, 0.6, y))
-    shoulder = np.exp(-(((ax - 0.56) / 0.16) ** 2 + ((y - 0.40) / 0.24) ** 2 + ((z - 0.86) / 0.24) ** 2))
-    haunch = np.exp(-(((ax - 0.50) / 0.18) ** 2 + ((y + 0.86) / 0.26) ** 2 + ((z - 0.74) / 0.24) ** 2))
-    cheek = np.exp(-(((ax - 0.30) / 0.13) ** 2 + ((y - 0.82) / 0.16) ** 2 + ((z - 0.95) / 0.22) ** 2))
+    shoulder = np.exp(-(((ax - 0.66) / 0.2) ** 2 + ((y - 0.38) / 0.26) ** 2 + ((z - 0.88) / 0.26) ** 2))
+    haunch = np.exp(-(((ax - 0.60) / 0.2) ** 2 + ((y + 0.80) / 0.28) ** 2 + ((z - 0.78) / 0.26) ** 2))
+    cheek = np.exp(-(((ax - 0.44) / 0.14) ** 2 + ((y - 0.82) / 0.18) ** 2 + ((z - 0.95) / 0.22) ** 2))
     beard = np.exp(-((x / 0.14) ** 2 + ((y - 0.96) / 0.12) ** 2 + ((z - 0.78) / 0.09) ** 2))
     tail = sstep(0.98, 1.08, -y) * (1 - sstep(0.9, 1.0, z))
     return dict(face=face, legs=legs, paws=paws, spine=spine, shoulder=shoulder, haunch=haunch, cheek=cheek, tail=tail, beard=beard)
@@ -227,10 +227,10 @@ TW = TL * (0.46 + 0.1 * rng.random(nT)) * mix(1, 0.85, Z['shoulder'] + Z['haunch
 TH = np.minimum(TL * (0.17 + 0.05 * rng.random(nT)), 0.07) * mix(1, 0.5, Z['face'])
 TS = np.round(mix(3, 5, np.clip(TL / 0.4, 0, 1)) + rng.integers(0, 2, nT)).astype(int)   # strands per tuft
 brown = np.clip(np.maximum.reduce([Z['spine'], Z['shoulder'], Z['haunch'], Z['cheek'] * 1.3, Z['tail'], Z['beard'] * 1.3,
-                                    np.clip((fbm(TP, 2.6) - 0.6) * 5, 0, 1) * 0.8]), 0, 1)
+                                    np.clip((fbm(TP, 2.6) - 0.5) * 5, 0, 1) * 0.8]), 0, 1)
 pick = rng.random(nT)
-TC = mix(mix(GREEN, DKGREEN, rng.random(nT)[:, None] * 0.8), mix(OLIVE, YGREEN, rng.random(nT)[:, None]), (pick < 0.22)[:, None] * 0.8)
-TC = mix(TC, mix(BROWN, DKBROWN, rng.random(nT)[:, None] * 0.6), (brown > 0.45)[:, None] * 1.0)
+TC = mix(mix(GREEN, DKGREEN, rng.random(nT)[:, None] * 0.8), mix(OLIVE, YGREEN, rng.random(nT)[:, None]), (pick < 0.3)[:, None] * 0.8)
+TC = mix(TC, mix(BROWN, DKBROWN, rng.random(nT)[:, None] * 0.6), (brown > 0.38)[:, None] * 1.0)
 TC = mix(TC, FACE, (Z['face'] * (1 - np.maximum(Z['cheek'], Z['beard'])))[:, None] * 0.85)
 ttree = cKDTree(TP)
 HMAX = float(TH.max())
@@ -249,13 +249,15 @@ def coat(P, want_id=False):
     nrm = np.einsum('nkj,nkj->nk', D, TN[idx])
     ss = np.clip((s + 0.2) / 1.2, 0, 1)
     width = np.sin(np.pi * ss ** 0.62) ** 0.7
-    nS = TS[idx]
-    q = (w + 1) * 0.5 * nS
+    # feather barbs: strands leave the midrib and run out toward the tip at about 45 degrees
+    wl = np.abs(w) * TW[idx] * 0.5; sl = s * TL[idx]
+    q = (sl - 0.95 * wl) / (0.012 + 0.07 * TL[idx])
     if LV >= 2:
-        tipend = 1 - 0.16 * tri(q + 0.5)          # each strand comes to its own point
+        tipend = 1 - 0.10 * tri(q + 0.5)          # the tip broken into strand points
+        jag = 1 - 0.16 * tri(q + 0.5)             # and the sides saw-toothed where the strands end
     else:
-        tipend = np.ones_like(s)
-    e = np.abs(w) / np.maximum(width, 1e-3)
+        tipend = np.ones_like(s); jag = 1
+    e = np.abs(w) / np.maximum(width * jag, 1e-3)
     ew = max(VOX * 1.4, 0.006)
     inside_s = np.clip((tipend - s) * TL[idx] / ew, 0, 1) * np.clip((s + 0.2) * TL[idx] / (ew * 4), 0, 1)
     inside_w = np.clip((1 - e) * TW[idx] * 0.5 / ew, 0, 1)
@@ -263,9 +265,10 @@ def coat(P, want_id=False):
     ramp = 0.2 + 0.8 * ss ** 1.3
     h = TH[idx] * ramp * dome * inside_s * inside_w
     if LV >= 2:
-        h = h * (1 - 0.22 * tri(q + 0.5) ** 2 * sstep(0.1, 0.6, ss))            # grooves between strands
+        h = h * (1 - 0.20 * tri(q + 0.5) ** 2 * sstep(0.05, 0.4, ss))           # partings between strands
+        h = h * (1 - 0.10 * np.exp(-(wl / 0.006) ** 2) * sstep(0.1, 0.5, ss))   # a groove down the midrib
     if LV >= 3:
-        h = h * (1 - 0.08 * tri(q * 3 + 0.5) ** 2 * sstep(0.2, 0.7, ss))         # fine strands
+        h = h * (1 - 0.07 * tri(q * 3 + 0.5) ** 2 * sstep(0.2, 0.7, ss))         # fine strands within
     h = np.where(np.abs(nrm) < 0.25, h, 0)
     h = np.where(np.isfinite(dist), h, 0)
     j = np.argmax(h, 1)
@@ -437,9 +440,9 @@ def vine(path, r=0.04, strands=2, thorns=14, thorn_len=0.07):
     P = np.stack([np.interp(s, L_, path[:, i]) for i in range(3)], 1)
     t, N, B = frames(P)
     for k in range(strands):
-        a = s / 0.055 + k * 2 * np.pi / strands
-        off = (np.cos(a)[:, None] * N + np.sin(a)[:, None] * B) * r * 0.62
-        V, F = tube(P + off, np.full(len(P), r * 0.66), SIDES)
+        a = s / 0.075 + k * 2 * np.pi / strands
+        off = (np.cos(a)[:, None] * N + np.sin(a)[:, None] * B) * r * 0.42
+        V, F = tube(P + off, np.full(len(P), r * 0.64), SIDES)
         M.add(V, F, np.clip(mix(VINE, DKBROWN, 0.3 * k) * (0.9 + 0.2 * vrng.random()), 0, 1), 3)
     for j in vrng.choice(len(P), thorns, replace=False):
         a = vrng.random() * 2 * np.pi
@@ -472,14 +475,13 @@ for k in LEGS:
         tt = 0.5 + 0.5 * (b[2] - zz) / (b[2] - c[2]) if zz < b[2] else 0.5 * (a[2] - zz) / (a[2] - b[2])
         ang = u * turns * 2 * np.pi + (0 if sx > 0 else np.pi)
         pts.append(leg_point(k, float(np.clip(tt, 0, 1))) + [math.cos(ang) * 0.3, math.sin(ang) * 0.3, 0])
-    vine(lay(pts, 0.04), r=0.042, thorns=14)
+    vine(lay(pts, 0.045), r=0.048, thorns=9, thorn_len=0.08)
 for s in (1, -1):
     for path in [
         [(s * 0.2, 0.62, 1.24), (s * 0.5, 0.45, 1.06), (s * 0.66, 0.35, 0.78), (s * 0.55, 0.30, 0.55), (s * 0.3, 0.32, 0.42)],
         [(s * 0.25, -0.45, 1.27), (s * 0.55, -0.55, 1.03), (s * 0.62, -0.72, 0.80), (s * 0.55, -0.92, 0.62), (s * 0.3, -1.05, 0.62)],
     ]:
-        vine(lay(resample(path), 0.04), r=0.042, thorns=16)
-vine(lay(resample([(0.45, 0.75, 0.62), (0.2, 0.94, 0.68), (-0.05, 0.97, 0.66), (-0.3, 0.9, 0.62), (-0.48, 0.72, 0.6)]), 0.036), r=0.036, thorns=12)
+        vine(lay(resample(path), 0.045), r=0.048, thorns=10, thorn_len=0.08)
 
 # ---- 8. tusks, teeth, claws, nose, eyes ----------------------------------------------------------------------
 log('tusks, teeth, claws, eyes')
