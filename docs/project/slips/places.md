@@ -64,34 +64,41 @@
 ### Step 4
 
 - **True to the paintings.** From above, the places now wear their paintings wherever the painting shows the top of
-  something: every **roof** (its painted slates, tiles, thatch, dormers, chimneys and stall awnings), the **water**
+  something: every roof's colour (see below), the **water**
   (Bogmire's lily pads, boats and stilts, the Keep's moat), the **decks and bridges** (Bogmire's planks and lanterns,
   the Old Bridge's stone) and the **rocks**. Walls keep their own textures. The maps' own things now stand as
   themselves: 90 signposts, 6 notice boards with their papers, 63 chests with iron bands, 66 relic pedestals, the war
   table and 3 bell frames. Trees the painting shows as pines are firs (Thornhollow's, the East Road's higher woods).
-  Roofs take their painting only from the building's roof rows: `convert.mjs` writes each place a roofs-only painting
-  (`coven/art/m7/<id>-roofs.webp`, each building's H rows stretched over its whole footprint, blank elsewhere; 624 KB
-  for all 28), so a front wall's painted doors, windows or a stall's wares no longer lie on the roof (hub's catch).
+  **Roofs (changed after the hub's review):** they keep their own crisp textures (Chris's slate, the tile, thatch and
+  moss kinds) and take only their colour from the painting. `convert.mjs` writes each place a roofs-colour picture
+  (`coven/art/m7/<id>-roofs.webp`), with each building in one flat colour taken from its roof rows (116 KB for all 28). So a
+  blue roof stays blue and a red one red, and no painted dormer, gable, window or stall's wares is stretched over a roof.
+  Houses get a real stone chimney near one end of the ridge. (Water, decks, rocks and everything else still wear the
+  full painting.)
   Gates and locks are left to the game, because they open and close with the story. Towns checked against their paintings:
   the Keep, Thornhollow, Sandspire, Dusthaven, Ironhold, Stormwatch, Bogmire.
 - **Phones.** On phone detail, the trees deep inside a wood (hidden by the outer ones) and many of the woods past the
   map's edge are left out, every tree is the lighter kind, and trees are drawn in bigger batches. All pages use smaller
-  textures and paintings now: Act One 7.4 MB (was 14.9), Sunscorch 6.6, Ironspire 10.3, Gloomfen 8.9, Act Three 5.1,
+  textures and paintings now: Act One 7.4 MB (was 14.9), Sunscorch 7.2, Ironspire 11.0, Gloomfen 9.7, Act Three 5.7 (with the figures),
   the Atlas 7.2.
 - **Draw calls and triangles** (headless, every place from the walker's own view, with the party; "place alone" is
   the same view without the four heroes; a real phone's frame rate is not checked):
 
   | Page | Phone detail: median (heaviest) | Laptop detail: median (heaviest) | The place alone, phone / laptop (median) |
   |---|---|---|---|
-  | Act One | 82 calls, 101k tris (Hearth Road 244, 268k) | 112, 228k (Thornway 327, 568k) | 34, 56k / 46, 79k |
-  | Sunscorch | 60, 59k (Glass Flats 150, 119k) | 77, 172k (Dust Trail 181, 264k) | 22, 25k / 27, 32k |
-  | Ironspire | 75, 82k (Old Bridge 185, 196k) | 138, 225k (Old Bridge 235, 411k) | 33, 41k / 44, 51k |
-  | Gloomfen | 74, 104k (Willowmurk 107, 150k) | 101, 242k (Willowmurk 289, 421k) | 36, 71k / 53, 96k |
-  | Act Three | 72, 84k (Sunscorch Gallery 160, 127k) | 116, 218k (Ash Stair 176, 257k) | 16, 22k / 18, 25k |
+  | Act One | 42 calls, 102k tris (Hearth Road 108, 204k) | 106, 230k (Thornway 335, 567k) | 34, 56k / 47, 78k |
+  | Sunscorch | 30, 71k (Miragewell 35, 71k) | 77, 172k (Dust Trail 181, 264k) | 22, 25k / 27, 32k |
+  | Ironspire | 43, 87k (Plankford 55, 146k) | 113, 225k (Shrinewood 222, 469k) | 35, 41k / 43, 52k |
+  | Gloomfen | 43, 118k (Willowmurk 78, 163k) | 101, 242k (Long Boardwalk 195, 308k) | 35, 71k / 53, 96k |
+  | Act Three | 26, 69k (Worldforge 31, 86k) | 98, 198k (Ash Stair 177, 257k) | 17, 23k / 19, 26k |
 
+  With Models' light figures (the hub's d96e11e; m7places.js: the leader 'auto' and the followers 'lite' on a phone,
+  'auto-high' and 'auto' on a laptop) the party costs about 9 draw calls on phone detail, where it took about 144.
+  Phone medians fell from 60-82 calls to 26-43. The heaviest places are now the long wooded roads (the Hearth Road,
+  99 calls for the place alone), not the party.
   The Thornway on phone went from 105 to 82 calls and 279k to 168k triangles for the place alone; the Hindwood from
   128k to 75k.
-- **Needs (for Models, through the hub):** the four heroes are now most of the cost. On phone detail they take about
+- **(Done by Models, d96e11e.)** Before their light figures, the four heroes were most of the cost. On phone detail they take about
   144 draw calls and 110k triangles together whenever they're in view (about 36 calls each, already merged by
   moving part and material). A lighter phone version of the followers (fewer materials or parts, or one mesh each)
   would roughly halve a town's draw calls. That's in `world3d/heroes.js` / `prototypes/hero-3d/`, not mine.

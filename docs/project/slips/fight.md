@@ -43,6 +43,12 @@
   the hero is rebuilt in it; back on the walk they wear it. `battle/party-room.js` `openParty({ host, ctx, input,
   figure })`.
 
+- **Briarmaw in full detail** (same link): the Foes button now goes 3D, Painted, **Full detail**; Full detail puts One
+  Foe's baked Briarmaw (`prototypes/foe-hd`, session 6) in his den, making his own moves (roar, swipe, bite, hurt,
+  fall); every other beast stays as it is. His assets go in through my build plugin with his two big pictures at
+  1024 px; the page is 14.6 MB. `?foes=hd` starts there.
+- On phones the three who follow the leader are Models' lite heroes (two draws each).
+
 ## For Together: starting a fight from outside
 
 `world3d/battle/run.js` exports one function. It pauses the walk, swings the camera round, plays M7's battle screen
@@ -72,7 +78,6 @@ I'll add a switch on the page (`?foes=cutout`).
 
 ## Next
 
-- "Full detail" Briarmaw (session 6's model) as a third Foes setting in the den, if the page stays under 16 MB.
 - When session 6's Briarmaw lands: his full model through `setBeastLook`.
 
 ## Changed outside my files

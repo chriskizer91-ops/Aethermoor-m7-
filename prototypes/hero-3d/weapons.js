@@ -402,6 +402,7 @@ export function buildOffhand(O, art, fx, u) {
   } else if (look === 'lantern' || look === 'censer' || look === 'chalice') {
     g.userData.upright = true;
     const l = new THREE.Group(); l.position.set(0.03 * u, -0.06 * u, 0.04 * u); g.add(l);
+    if (look === 'chalice') l.scale.setScalar(0.8); // (audit: it stood taller than her head)
     const m = mat(has(p.metal) ? p.metal : O.metal || 'iron'), fr = mat(has(p.frame) ? p.frame : has(p.metal) ? p.metal : 'iron');
     const glowKey = p.glow || p.core || p.flame || O.glow || 'ember';
     if (look === 'chalice') {
