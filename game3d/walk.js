@@ -132,6 +132,7 @@ export function createWorld(o) {
       await Wk.switchTo(pl, px, py, YAW[face] ?? 0);
       Wk.setIo(px, py, YAW[face] ?? 0);
     }
+    if (hold) hold = { px: Wk.io.px, py: Wk.io.py };   // a new place mid-flow: hold the leader where they now stand
     dressParty();
     stand();
     dom.load.style.opacity = 0; setTimeout(() => { dom.load.style.display = 'none'; }, 600);
@@ -230,7 +231,9 @@ export function createWorld(o) {
   }
 
   // ---- each frame: the leader's tile, and the engine's step ----
+  let hold = null;
   function onFrame(dt) {
+    if (hold && Wk) { Wk.io.px = hold.px; Wk.io.py = hold.py; Wk.io.speed = 0; }
     if (dead || !walk || lock || overlayOpen() || o.fighting() || Wk.isBusy()) return;
     const io = Wk.io;
     const [tx, ty] = tileAt(io.px, io.py);
@@ -375,9 +378,12 @@ export function createWorld(o) {
   }
   // a flow: the walk stops (the land is still) while M7's boxes and sheets are up; errors never leave it stuck
   async function flow(fn) {
-    lock++; if (Wk) Wk.pause(true); document.body.classList.add('g3-busy');
+    // the land keeps drawing (people talk, packs idle) but the party stays put: the leader is held where they stand
+    if (!lock && Wk) hold = { px: Wk.io.px, py: Wk.io.py };
+    lock++; document.body.classList.add('g3-busy');
     try { return await fn(); } catch (err) { console.error(err); } finally {
       lock = Math.max(0, lock - 1);
+      if (!lock) hold = null;
       if (!lock && !dead && Wk && !o.fighting() && !o.away()) { Wk.pause(false); document.body.classList.remove('g3-busy'); idleMs = 0; shownA = ''; stand(); }
     }
   }
@@ -394,7 +400,12 @@ export function createWorld(o) {
       case 'gate': return gateFlow(e);
       case 'lock': return lockFlow(e);
       case 'trigger': return dialogueFlow(e.dialogue);
-      case 'talk': return dialogueFlow(e.dialogue, { enc: e.enc });
+      case 'talk': {
+        // the one spoken to turns to the party and talks (Models' townsfolk gesture while .talking is true)
+        const who = e.npc && [...standing.values()].find((q) => q.e.npc === e.npc);
+        if (who) { who.fig.talking = true; if (leader) { const p = who.fig.root.position, L = leader.root.position; who.fig.root.rotation.y = Math.atan2(L.x - p.x, L.z - p.z); } }
+        try { return await dialogueFlow(e.dialogue, { enc: e.enc }); } finally { if (who) who.fig.talking = false; }
+      }
       case 'sign': await openMessage(ctx, { text: e.text }); return null;
       case 'use': return useFlow(e);
       case 'chest': return chestFlow(e);
