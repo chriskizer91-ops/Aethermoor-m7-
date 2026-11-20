@@ -7,12 +7,12 @@ Where the 3D game stands. Written by the hub only. Last updated November 20, lat
 | # | Job | Session | Branch | State | Latest link |
 |---|---|---|---|---|---|
 | 1 | the hub | `session_01DgbUKb6orvjjc1cMgBGPJK` | `claude/brave-davinci-790efm` | running | (the board) |
-| 2 | The Fight | `session_01DgbUKYR9qmKyBdACUWGViw` | `job/fight` | step 3 well along: every Act One fight on one page (28), cameras clear indoors, status auras, swallow, guest ally, charm, the Legend Strike close-up, phone fight 152 draws (was 278); next: Twinned splits, the toll, the region event fights | https://claude.ai/artifact/Q9T8quXCTVgiVUZoMuUaP4 |
-| 3 | Models | `session_01DgbUKcWh5MEvjHnxzp4HHo` | `job/models` | things that swing done and brought in (capes, hair, skirts, quivers, pouches and charms on springs, in every detail level, no extra draws) | https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL |
+| 2 | The Fight | `session_01DgbUKYR9qmKyBdACUWGViw` | `job/fight` | step 3 nearly done: every Act One fight, indoor cameras, statuses, swallow, guest ally, charm, Legend Strike, Hodge's toll and Twinned splits; the fight page builds again | https://claude.ai/artifact/Q9T8quXCTVgiVUZoMuUaP4 |
+| 3 | Models | `session_01DgbUKcWh5MEvjHnxzp4HHo` | `job/models` | swinging gear in; next: the heroes and people at the full-detail foes' level (sculpted detail baked onto every switchable piece) | https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL |
 | 4 | Places | `session_01DgbUKZVFBfm1dVautXEw5f` | `job/places` | roofs back to crisp textures coloured from the painting, chimneys; the light figures on every page; all brought in, Act One republished | https://claude.ai/artifact/GBxRVSqwMwYUTy1xLNjATA |
 | 5 | Together | `session_01DgbUKbyjzZFe1BXHHxzHBn` | `job/together` | version 3 brought in: **Act One playable start to end** (both playthroughs pass: the prologue to Thornhollow, and the Rotwarden, the second Brand, home, the Council); next: Briarmaw's den in the game, then the Sunscorch behind the Keep's south-east gate | https://claude.ai/artifact/RaeSK5hezqb3qH7jmuM5aj |
-| 6 | One Foe | `session_01DgbUKZCNBFY7zwSzwAXR8y` | `job/foe-hd` | the foe kit done and brought in (`prototypes/foe-hd/README.md`: sculpt helpers, sheet checks, bake, rigs, packing, loader, moves, one `setBeastLook` for every finished foe, the sculpt viewer); Briarmaw rebuilt through it; next: its lane, the briarling first | https://claude.ai/artifact/5iUqJsPw3NGrvun4Ng73eh |
-| 7 | Foes: beasts | `session_01DgbUKZ4qEpafSazysExsYV` | `job/foes-beasts` | starting: the thornhound, then Act One's other beasts, in full detail | - |
+| 6 | One Foe | `session_01DgbUKZCNBFY7zwSzwAXR8y` | `job/foe-hd` | the kit in; the briarling made with it (589k sculpt → 16,640); forwarding copies fixed the fight's build; next: glowcap, boglurcher, the willows, the sparks, rockling, Mother Anvil, the wraiths | https://claude.ai/artifact/DorMujhAe9d1XNwLGYV4ae |
+| 7 | Foes: beasts | `session_01DgbUKZ4qEpafSazysExsYV` | `job/foes-beasts` | the thornhound brought in (606k sculpt kept as an asset → ~20k); next: onto the kit, then the rotstag, Old Snag, the Mirelord, the rotgrub, the Gloamwing | https://claude.ai/artifact/64Ukg3yQAAb8DWz69xqvxs |
 | 8 | Foes: walkers | `session_01DgbUKcTDUjKDVHw3sPhu7R` | `job/foes-walkers` | the Rotwarden (1.07M sculpt → 47,500) and the sapwight (900k → 19,913) done and brought in, sculpts kept as assets; `walkersLook` for the Fight; next: lighter phone copies, then Old Horn and the rest | https://claude.ai/artifact/YBLUHaLG3bNdfcjBdeq3aj |
 
 ## What's built (on the hub's branch)
@@ -31,6 +31,8 @@ Where the 3D game stands. Written by the hub only. Last updated November 20, lat
 | The Gear Room: a hero whose outfit is built from M7's gear, in Chris's 47 textures and the four faces | `prototypes/hero-3d/` | https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL |
 | Briarmaw three ways: code-built, painted, full detail (baked from a sculpt), with a crowd test | `prototypes/foe-hd/` | https://claude.ai/artifact/5iUqJsPw3NGrvun4Ng73eh |
 | Every Act One fight, from M7's own map data (28) | `world3d/battle/` | https://claude.ai/artifact/Q9T8quXCTVgiVUZoMuUaP4 |
+| The briarling, the first foe made with the kit (three ways; its sculpt) | `prototypes/foe-hd/foes/briarling/` | https://claude.ai/artifact/DorMujhAe9d1XNwLGYV4ae · https://claude.ai/artifact/LAjxUMG9Aoj2UPw7DuyHtB |
+| The beasts in full detail: the thornhound (phone gallery; laptop page with the sculpt) | `prototypes/foe-hd/pages/beasts/` | https://claude.ai/artifact/64Ukg3yQAAb8DWz69xqvxs · https://claude.ai/artifact/8pCvG7xuqHuCcARiUYa9SX |
 | The walkers in full detail: the Rotwarden and the sapwight | `prototypes/foe-hd/pages/walkers/` | https://claude.ai/artifact/YBLUHaLG3bNdfcjBdeq3aj |
 | The walkers' sculpts, for a laptop | `prototypes/foe-hd/foes/` | https://claude.ai/artifact/JCdvpAPKT781gZiU49jTh2 |
 | Briarmaw's full sculpt (982,634 triangles) beside his light version, for a laptop | `prototypes/foe-hd/` | https://claude.ai/artifact/AVSmLbEu3jz1NVnohgqT9P |
@@ -71,9 +73,6 @@ Where the 3D game stands. Written by the hub only. Last updated November 20, lat
 - **The foes, from now:** every beast in full detail (sessions 6, 7, 8; `docs/project/jobs/foes.md`). Models' sculpted
   and painted beasts stand in until each full-detail one lands; Models keeps the heroes and the people.
 
-- **Known break on the hub's branch:** the fight page doesn't build since the foe kit moved Briarmaw's assets
-  (`prototypes/foe-hd/assets/` → `foes/briarmaw/`); the Fight is switching to the kit's `foeLook`. The published
-  fight page is unaffected.
 
 - **Pages beyond 16 MB (hub, being tried):** `world3d/build.mjs --files` puts the pictures beside the page as files
   (published with the `files` map in `dist/<name>.files.json`) instead of inside it; the 3D engine accepts them
