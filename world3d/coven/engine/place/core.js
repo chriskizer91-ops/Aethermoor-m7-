@@ -280,6 +280,7 @@
     if (o.cutw) defs.CUTW = '';
     if (o.water) defs.WATER = '';
     if (o.nofog) defs.NOFOG = '';
+    if (o.paint) defs.PAINTMAP = '';   // (Aethermoor, Places) the place's painting laid over the faces that look up (roofs)
     // the reskin job (November 17): vary: no two stretches of a surface quite the same tone, so a repeated picture doesn't
     // read as a pattern; and on the laptop (W3D.quality 'high'), grain: fine grain close up, where a picture would go soft;
     // bump: relief from the picture's own light and dark (mortar lines sink, stones and beams stand out) under the moon
@@ -296,9 +297,11 @@
       uLit: { value: o.lit == null ? 1 : o.lit }, uGlowUse: { value: o.glow == null ? 1 : o.glow }, uSpec: { value: o.spec || 0 }, uShadeK: { value: o.shade == null ? 1 : o.shade },
       uAlpha: { value: o.alphaTest || 0.5 },
       uVary: { value: o.vary || 0 }, uGrain: { value: o.grain || 0 }, uBump: { value: o.bump || 0 }, uRepG: { value: 1 / (o.rep || 1) },
+      tPaintM: { value: o.paint || null }, uPK: { value: o.paintK || new THREE.Vector4() }, uPaintMix: { value: o.paintMix == null ? 0.85 : o.paintMix },
     });
     const frag = CHUNK_F_HEAD + `
       uniform sampler2D map; uniform float uAlpha, uVary, uGrain, uBump, uRepG;
+      uniform sampler2D tPaintM; uniform vec4 uPK; uniform float uPaintMix;
       void main() {
         #ifdef CUT
           cutAway(vW);
@@ -338,6 +341,15 @@
             float bf = 1.0 - smoothstep(18.0, 45.0, distance(vW, cameraPosition));
             n = normalize(abs(det) * n - bg * bf);
           #endif
+        #endif
+        #ifdef PAINTMAP
+          // (Aethermoor, Places) a roof as the painting shows it from above: its colour from the painting, the texture's own
+          // light and dark as grain; only on faces that look up, and only over the painting
+          vec2 pu = vec2(vW.x * uPK.x + uPK.z, vW.z * uPK.y + uPK.w);
+          vec3 pcol = toLin(texture2D(tPaintM, vec2(pu.x, 1.0 - pu.y)).rgb);
+          float own = dot(sqrt(max(alb, vec3(0.0))), vec3(0.3333)) / max(dot(sqrt(toLin(uTint)), vec3(0.3333)), 0.05);
+          float upk = smoothstep(0.25, 0.6, n.y) * step(0.0, pu.x) * step(pu.x, 1.0) * step(0.0, pu.y) * step(pu.y, 1.0);
+          alb = mix(alb, pcol * clamp(0.55 + own * 0.9, 0.7, 1.35), uPaintMix * upk);
         #endif
         float sh = shade(vW);
         vec3 c = alb * (nightLight(vW, n, sh) + lampLight(vW, n) * uGlowUse) * uLit + alb * (1.0 - uLit) + toLin(uEmis);
@@ -434,16 +446,24 @@
   W3D.waterMat = function (U, t) {
     const uni = Object.assign({}, U, {
       tWater: { value: t.water }, uRep: { value: new THREE.Vector2(1 / (t.rep || 5), 1 / (t.rep || 5)) }, uFlow: { value: new THREE.Vector2(t.flow ? t.flow[0] : 0.01, t.flow ? t.flow[1] : 0.004) },
-      uTint: { value: new THREE.Color(t.tint || 0xffffff) }, uEmis: { value: new THREE.Color(t.emis || 0) }, uLit: { value: 1 },   // (Aethermoor, Places) t.emis: molten metal glows by itself uGlowUse: { value: 1 }, uSpec: { value: 0 }, uShadeK: { value: 1 },
+      uTint: { value: new THREE.Color(t.tint || 0xffffff) }, uEmis: { value: new THREE.Color(t.emis || 0) }, uLit: { value: 1 },   // (Aethermoor, Places) t.emis: molten metal glows by itself
+      tPaintW: { value: t.paint || null }, uPKW: { value: t.paintK || new THREE.Vector4() }, uPaintMixW: { value: t.paint ? (t.paintMix == null ? 0.6 : t.paintMix) : 0 },   // (Aethermoor, Places) the painting seen through the water uGlowUse: { value: 1 }, uSpec: { value: 0 }, uShadeK: { value: 1 },
     });
     const frag = CHUNK_F_HEAD + `
       uniform sampler2D tWater; uniform vec2 uFlow; uniform float uDay;
+      uniform sampler2D tPaintW; uniform vec4 uPKW; uniform float uPaintMixW;
       void main() {
         vec3 n = normalize(vN);
         float fall = 1.0 - smoothstep(0.55, 0.92, n.y);
         vec2 fl = uFlow * uTime * (1.0 + fall * 30.0);
         vec3 a = toLin(texture2D(tWater, vUv + fl).rgb), b = toLin(texture2D(tWater, vUv * 0.61 - fl * 0.7 + 0.3).rgb);
         vec3 c = (a + b) * 0.5 * toLin(uTint) * (1.0 + uDay * 0.9);
+        if (uPaintMixW > 0.0) {   // (Aethermoor, Places) what the painting shows in the water (lilies, boats, stilts), under the ripples
+          vec2 pw = vec2(vW.x * uPKW.x + uPKW.z, vW.z * uPKW.y + uPKW.w);
+          float inP = step(0.0, pw.x) * step(pw.x, 1.0) * step(0.0, pw.y) * step(pw.y, 1.0);
+          vec3 pcw = toLin(texture2D(tPaintW, vec2(pw.x, 1.0 - pw.y)).rgb) * (0.8 + (a.r + b.g) * 2.0) * (0.75 + uDay * 0.5);
+          c = mix(c, pcw, uPaintMixW * inP);
+        }
         vec3 v = normalize(cameraPosition - vW);
         float fres = pow(1.0 - max(v.y, 0.0), 3.0);
         vec3 sky = mix(vec3(0.16, 0.14, 0.32), vec3(0.42, 0.56, 0.74), uDay) * (0.06 + fres * 1.3);   // (Aethermoor, Places) a day sky on the water
