@@ -1,0 +1,653 @@
+{
+ "cutpurse": {
+  "name": "Cutpurse",
+  "kind": "humanoid",
+  "tier": "rabble",
+  "text": "Road-rats of the Hearth Road. They run when it goes badly.",
+  "relic": null
+ },
+ "bandit": {
+  "name": "Thornhollow Bandit",
+  "kind": "humanoid",
+  "tier": "rabble",
+  "text": "Thornhollow deserters and worse. Every Waking they come back better armed.",
+  "relic": null
+ },
+ "tallyman": {
+  "name": "Tallyman",
+  "kind": "humanoid",
+  "tier": "rabble",
+  "text": "A relic-thief cult with ink-stained fingers. They keep accounts of everything they steal.",
+  "relic": null
+ },
+ "briarling": {
+  "name": "Briarling",
+  "kind": "beast",
+  "tier": "rabble",
+  "text": "Bramble that learned to walk the night the hearth flickered.",
+  "relic": null
+ },
+ "thornhound": {
+  "name": "Thornhound",
+  "kind": "beast",
+  "tier": "rabble",
+  "text": "Lean hunting dogs gone feral in the bramble, burrs matted into their hides.",
+  "relic": null
+ },
+ "rotstag": {
+  "name": "The Rot-Stag",
+  "kind": "beast",
+  "tier": "relic-bearer",
+  "text": "Once the white stag of Fawnrest. The Rot got into its antlers, and something tangled a crown there.",
+  "relic": "Rotwood Circlet"
+ },
+ "oldsnag": {
+  "name": "Old Snag",
+  "kind": "beast",
+  "tier": "relic-bearer",
+  "text": "A boar the size of a cart with a ranger's hatchet buried in its shoulder. It has not forgotten the ranger.",
+  "relic": "Thornsplitter Hatchet"
+ },
+ "briarmaw": {
+  "name": "Briarmaw",
+  "kind": "beast",
+  "tier": "champion",
+  "text": "The beast on Captain Dael's bounty board that nobody could name. It wears a crown of thorns that grew there.",
+  "relic": "Thornwreath"
+ },
+ "smuggler": {
+  "name": "Smuggler",
+  "kind": "humanoid",
+  "tier": "rabble",
+  "text": "Fen-runners with kerchiefs over their faces. They know every dry path, and every way out.",
+  "relic": null
+ },
+ "mags": {
+  "name": "Mags Kestrel",
+  "kind": "humanoid",
+  "tier": "relic-bearer",
+  "text": "",
+  "relic": "Lightfingers"
+ },
+ "feral-druid": {
+  "name": "Feral Druid",
+  "kind": "humanoid",
+  "tier": "veteran",
+  "text": "Eldergrove druids who stopped listening to the trees and started answering the Rot.",
+  "relic": null
+ },
+ "oda": {
+  "name": "Oda the Thornmother",
+  "kind": "humanoid",
+  "tier": "relic-bearer",
+  "text": "",
+  "relic": "Rootsong"
+ },
+ "hollowed-ranger": {
+  "name": "Hollowed Ranger",
+  "kind": "humanoid",
+  "tier": "veteran",
+  "text": "The last Thornwatch patrol. The Rot kept them walking after they stopped being themselves.",
+  "relic": null
+ },
+ "corra": {
+  "name": "Sgt Corra Thistle",
+  "kind": "humanoid",
+  "tier": "relic-bearer",
+  "text": "",
+  "relic": "Oathshield"
+ },
+ "haskett": {
+  "name": "Haskett",
+  "kind": "humanoid",
+  "tier": "relic-bearer",
+  "text": "",
+  "relic": "Hartshorn"
+ },
+ "hollis": {
+  "name": "Hollis Fairweight",
+  "kind": "humanoid",
+  "tier": "relic-bearer",
+  "text": "",
+  "relic": "Mosswatch Lantern"
+ },
+ "dun": {
+  "name": "Dun the Counter",
+  "kind": "humanoid",
+  "tier": "relic-bearer",
+  "text": "",
+  "relic": "Isolde's Oath"
+ },
+ "vesper": {
+  "name": "Vesper",
+  "kind": "humanoid",
+  "tier": "veteran",
+  "text": "",
+  "relic": null
+ },
+ "tamsin": {
+  "name": "Tamsin",
+  "kind": "humanoid",
+  "tier": "relic-bearer",
+  "text": "The Keep's other Warden. Isolde sent her in first. She has not forgiven anyone for that yet.",
+  "relic": null
+ },
+ "boglurcher": {
+  "name": "Boglurcher",
+  "kind": "beast",
+  "tier": "rabble",
+  "text": "A heap of bog with eyes in it. It was lying in wait before you knew it was there.",
+  "relic": null
+ },
+ "glowcap": {
+  "name": "Glowcap",
+  "kind": "beast",
+  "tier": "rabble",
+  "text": "Mushrooms the size of children that walk toward light. Any light.",
+  "relic": null
+ },
+ "rotgrub": {
+  "name": "Rotgrub",
+  "kind": "beast",
+  "tier": "rabble",
+  "text": "Pale grubs as long as your arm, fat on the black sap of the eldest trees.",
+  "relic": null
+ },
+ "sapwight": {
+  "name": "Sapwight",
+  "kind": "beast",
+  "tier": "veteran",
+  "text": "A ghoul of bark and black sap. It used to be someone the Heartroot drank.",
+  "relic": null
+ },
+ "gloamwing": {
+  "name": "The Gloamwing",
+  "kind": "beast",
+  "tier": "relic-bearer",
+  "text": "A pale moth the size of a cart, with the Fawnrest bell spun into the silk on its thorax.",
+  "relic": "Dawnbell"
+ },
+ "mirelord": {
+  "name": "Gorrow the Mire-King",
+  "kind": "beast",
+  "tier": "relic-bearer",
+  "text": "A frog-king as wide as a hut, with the Mire Pearl set in a crown of reeds.",
+  "relic": "Mire Pearl"
+ },
+ "rotwarden": {
+  "name": "The Rotwarden",
+  "kind": "beast",
+  "tier": "champion",
+  "text": "A First-Age warden of the root, bark grown through its plate, wearing a smith's mask that is not its face.",
+  "relic": "Ichor Mask"
+ },
+ "sand-skink": {
+  "name": "Sand-Skink",
+  "kind": "beast",
+  "tier": "rabble",
+  "text": "Quick little lizards the colour of hot sand. They bite, they spit, and they run.",
+  "relic": null
+ },
+ "glass-scorpion": {
+  "name": "Glass Scorpion",
+  "kind": "beast",
+  "tier": "veteran",
+  "text": "A scorpion the size of a dog, its shell gone to cloudy glass in the heat. It clicks when it is hungry. It is always clicking.",
+  "relic": null
+ },
+ "glass-matriarch": {
+  "name": "The Glass Matriarch",
+  "kind": "beast",
+  "tier": "relic-bearer",
+  "text": "",
+  "relic": null
+ },
+ "mirage-wisp": {
+  "name": "Mirage Wisp",
+  "kind": "beast",
+  "tier": "veteran",
+  "text": "A shimmer that walks on its own. It looks like water until it bites, and it bites cold.",
+  "relic": null
+ },
+ "wisp-queen": {
+  "name": "The Wisp-Queen",
+  "kind": "beast",
+  "tier": "relic-bearer",
+  "text": "",
+  "relic": "The Mirage Glass"
+ },
+ "sand-wyrm": {
+  "name": "The Sand Wyrm",
+  "kind": "beast",
+  "tier": "relic-bearer",
+  "text": "It swims in the sand under the Dust Trail and waits for the wagons. One scale in its hide is the size of a door, and it glints.",
+  "relic": "Wyrmscale"
+ },
+ "kharzul": {
+  "name": "Kharzul the Glass Scorpion",
+  "kind": "beast",
+  "tier": "champion",
+  "text": "A scorpion of living glass the size of a wagon, with a scimitar lodged in its tail for three hundred years. The blade has been warm the whole time.",
+  "relic": "Cinderfang"
+ },
+ "ashen-warden": {
+  "name": "The Ashen Warden",
+  "kind": "beast",
+  "tier": "champion",
+  "text": "The last Warden of Scorchgate, still guarding a vault of ash. The Aegis on its arm and the Crown on its brow are all that did not burn.",
+  "relic": "The Ashen Aegis"
+ },
+ "scavenger": {
+  "name": "Dune Scavenger",
+  "kind": "humanoid",
+  "tier": "rabble",
+  "text": "Wreck-pickers of the caravan roads, wrapped to the eyes against the sun. They run when it goes badly.",
+  "relic": null
+ },
+ "dune-raider": {
+  "name": "Dune Raider",
+  "kind": "humanoid",
+  "tier": "veteran",
+  "text": "Riders of the deep dunes, faces wrapped, blades curved like the moon. The caravans pay them or pray.",
+  "relic": null
+ },
+ "rasa": {
+  "name": "Rasa the Dune-Rider",
+  "kind": "humanoid",
+  "tier": "relic-bearer",
+  "text": "",
+  "relic": "Sandwalkers"
+ },
+ "gnash": {
+  "name": "Gnash the Raider-King",
+  "kind": "humanoid",
+  "tier": "relic-bearer",
+  "text": "",
+  "relic": "Dunebreaker"
+ },
+ "ash-wight": {
+  "name": "Ash-Wight",
+  "kind": "humanoid",
+  "tier": "veteran",
+  "text": "A soldier of Scorchgate still on watch, three hundred years after the fire. The ash holds the shape of the man.",
+  "relic": null
+ },
+ "ash-captain": {
+  "name": "The Ash-Captain",
+  "kind": "humanoid",
+  "tier": "relic-bearer",
+  "text": "",
+  "relic": "The Scorchgate Key"
+ },
+ "brask": {
+  "name": "Foreman Brask",
+  "kind": "humanoid",
+  "tier": "relic-bearer",
+  "text": "",
+  "relic": "Sunstone Lantern"
+ },
+ "quartermaster": {
+  "name": "The Quartermaster",
+  "kind": "humanoid",
+  "tier": "veteran",
+  "text": "",
+  "relic": null
+ },
+ "vell": {
+  "name": "Vell Saltglass",
+  "kind": "humanoid",
+  "tier": "relic-bearer",
+  "text": "",
+  "relic": "Saltglass"
+ },
+ "brigand": {
+  "name": "Pass Brigand",
+  "kind": "humanoid",
+  "tier": "rabble",
+  "text": "Stormwatch deserters working the pass for tolls. They still wear the army's coats, with the storm badge picked off.",
+  "relic": null
+ },
+ "rhune": {
+  "name": "Rhune the Pass-Warden",
+  "kind": "humanoid",
+  "tier": "relic-bearer",
+  "text": "",
+  "relic": "Windstep Boots"
+ },
+ "cutter-chief": {
+  "name": "The Cutter-Chief",
+  "kind": "humanoid",
+  "tier": "relic-bearer",
+  "text": "",
+  "relic": "The Cutter's Pick"
+ },
+ "sawyer": {
+  "name": "Sawyer",
+  "kind": "humanoid",
+  "tier": "rabble",
+  "text": "",
+  "relic": null
+ },
+ "rime-wolf": {
+  "name": "Rime Wolf",
+  "kind": "beast",
+  "tier": "rabble",
+  "text": "Grey wolves of the high passes with frost in their ruffs. They run the snow crust faster than you can wade it, and the bite stays cold.",
+  "relic": null
+ },
+ "rockling": {
+  "name": "Rockling",
+  "kind": "beast",
+  "tier": "rabble",
+  "text": "A heap of scree that stood up. A hammer breaks it; a sword just gets blunt.",
+  "relic": null
+ },
+ "forge-spark": {
+  "name": "Forge-Spark",
+  "kind": "beast",
+  "tier": "rabble",
+  "text": "A living cinder the size of a fist, in a cage of slag. Harrow's bellows still breathe them out, down in the Deeps.",
+  "relic": null
+ },
+ "iron-sentinel": {
+  "name": "Iron Sentinel",
+  "kind": "beast",
+  "tier": "veteran",
+  "text": "A dwarven automaton of riveted iron, still keeping the stair against whoever the Thane told it to keep out. A sword skids off it; a hammer rings it like a bell.",
+  "relic": null
+ },
+ "sentinel-captain": {
+  "name": "The Sentinel-Captain",
+  "kind": "beast",
+  "tier": "relic-bearer",
+  "text": "",
+  "relic": "Ironwall"
+ },
+ "forgeborn": {
+  "name": "Forgeborn",
+  "kind": "beast",
+  "tier": "veteran",
+  "text": "One of Harrow's molten servants: a man-shape of black slag with the heat showing through the cracks, still tending forges nobody lights.",
+  "relic": null
+ },
+ "bellows": {
+  "name": "The Bellows",
+  "kind": "beast",
+  "tier": "veteran",
+  "text": "",
+  "relic": null
+ },
+ "journeyman": {
+  "name": "Harrow's Journeyman",
+  "kind": "beast",
+  "tier": "relic-bearer",
+  "text": "",
+  "relic": "Harrow's Runestaff"
+ },
+ "peak-troll": {
+  "name": "Peak-Troll",
+  "kind": "beast",
+  "tier": "veteran",
+  "text": "A troll of the high passes, grey-green and mossed like a boulder. Cut it and it grows back; the old ones wear the hides of the young.",
+  "relic": null
+ },
+ "old-horn": {
+  "name": "Old Horn",
+  "kind": "beast",
+  "tier": "relic-bearer",
+  "text": "",
+  "relic": "The Trollhide Mantle"
+ },
+ "rime-wraith": {
+  "name": "Rime-Wraith",
+  "kind": "beast",
+  "tier": "veteran",
+  "text": "A drowned monk of Frostmere, still wet under the frost and still singing. It remembers the office, and nothing else.",
+  "relic": null
+ },
+ "drowned-abbess": {
+  "name": "The Drowned Abbess",
+  "kind": "beast",
+  "tier": "relic-bearer",
+  "text": "",
+  "relic": "The Drowned Censer"
+ },
+ "choir-wraith": {
+  "name": "Choir-Wraith",
+  "kind": "beast",
+  "tier": "veteran",
+  "text": "",
+  "relic": null
+ },
+ "thunder-roc": {
+  "name": "The Thunder-Roc",
+  "kind": "beast",
+  "tier": "relic-bearer",
+  "text": "A bird the size of a barn, nesting on the Highfold crags. It carries off goats, and sometimes shepherds; one shepherd's cloak of its own feathers is still caught on its talon.",
+  "relic": "The Roc-Feather Cloak"
+ },
+ "mother-anvil": {
+  "name": "Mother Anvil",
+  "kind": "beast",
+  "tier": "champion",
+  "text": "Harrow's first forge-golem: an anvil the size of a cart on four iron legs, with his hammer in one arm and a heart of fire in her ribs. Her plate turns a hammer; cold water finds the flaws in it.",
+  "relic": "The Worldforge Hammer"
+ },
+ "rime-abbot": {
+  "name": "The Rime-Abbot",
+  "kind": "beast",
+  "tier": "champion",
+  "text": "Brother Aurel of Peak's Veil, who went down to listen to Hush and did not come up. The Crozier froze to his hand; the Cowl was woven down there, by someone who was listening.",
+  "relic": "The Rime Crozier"
+ },
+ "mire-leech": {
+  "name": "Mire Leech",
+  "kind": "beast",
+  "tier": "rabble",
+  "text": "A leech as long as your arm, black and patient, lying in the fords of the safe paths. It fastens on, and it drinks.",
+  "relic": null
+ },
+ "marsh-light": {
+  "name": "Marsh-Light",
+  "kind": "beast",
+  "tier": "rabble",
+  "text": "A light over the black water, the size and colour of a lantern flame. The fen folk know better than to follow one. Children do not.",
+  "relic": null
+ },
+ "lamp-moth": {
+  "name": "Lamp-Moth",
+  "kind": "beast",
+  "tier": "rabble",
+  "text": "A moth the size of a hand, pale gold, drawn to the Lantern Mother's light. Where she walks they come in clouds; she calls them to her.",
+  "relic": null
+ },
+ "blackwater-gar": {
+  "name": "Blackwater Gar",
+  "kind": "beast",
+  "tier": "rabble",
+  "text": "A gar out of the Blackwater as long as a man, all jaw and armour. It lies still under the surface, and then it leaps.",
+  "relic": null
+ },
+ "old-jaws": {
+  "name": "Old Jaws",
+  "kind": "beast",
+  "tier": "relic-bearer",
+  "text": "",
+  "relic": "The Gar's Tooth"
+ },
+ "willow-wight": {
+  "name": "Willow-Wight",
+  "kind": "beast",
+  "tier": "veteran",
+  "text": "A willow that pulled up its roots and walked when Willowmurk's wards went dark. It weeps as it comes, and its switches hold on.",
+  "relic": null
+ },
+ "grandfather-willow": {
+  "name": "Grandfather Willow",
+  "kind": "beast",
+  "tier": "relic-bearer",
+  "text": "",
+  "relic": "The Weeping Bow"
+ },
+ "drowned": {
+  "name": "Drowned",
+  "kind": "beast",
+  "tier": "veteran",
+  "text": "One of Misthollow's drowned, grey and swollen and still going about its business under the water: ringing its bell, singing its hymn, walking its old street.",
+  "relic": null
+ },
+ "bell-ringer": {
+  "name": "Drowned Bell-Ringer",
+  "kind": "beast",
+  "tier": "veteran",
+  "text": "",
+  "relic": null
+ },
+ "drowned-choir": {
+  "name": "Drowned Chorister",
+  "kind": "beast",
+  "tier": "veteran",
+  "text": "",
+  "relic": null
+ },
+ "drowned-cantor": {
+  "name": "The Drowned Cantor",
+  "kind": "beast",
+  "tier": "relic-bearer",
+  "text": "",
+  "relic": "The Cantor's Staff"
+ },
+ "lantern-mother": {
+  "name": "The Lantern Mother",
+  "kind": "beast",
+  "tier": "champion",
+  "text": "The last lamplighter of Misthollow, who led its children out along the boardwalk the night the city sank, and went back for the last of them. The Tallymen's dredging woke her, and she is leading children out again, to the drowned city, where she thinks they are safe. Water finds her; the lamps are hers.",
+  "relic": "The Lamplighter's Lantern"
+ },
+ "blackwater-leviathan": {
+  "name": "The Blackwater Leviathan",
+  "kind": "beast",
+  "tier": "champion",
+  "text": "The thing that lives in the Blackwater, as long as the channel is wide. The Tallymen hooked it with a stolen harpoon and chained it by an iron collar to tow their barges up from the sea, and chained and maddened it sinks every other boat. Lightning finds it; the harpoon is still in its side and the pearl in its brow.",
+  "relic": "Corvus's Harpoon"
+ },
+ "bog-hag": {
+  "name": "Bog-Hag",
+  "kind": "humanoid",
+  "tier": "veteran",
+  "text": "A hag of the eastern bogs with a pot on the boil and a curse on the tip of her tongue. She rots what she touches, and she knows your name.",
+  "relic": null
+ },
+ "mother-grue": {
+  "name": "Mother Grue",
+  "kind": "humanoid",
+  "tier": "relic-bearer",
+  "text": "",
+  "relic": "The Hag-Stone"
+ },
+ "hodge": {
+  "name": "Hodge",
+  "kind": "humanoid",
+  "tier": "relic-bearer",
+  "text": "The toll-keeper of Rotbridge, who is not actually a troll: just an extremely unpleasant old man with a cudgel, a lantern and a toll-book. He is much harder than he looks, and he has never once paid a toll himself.",
+  "relic": "Hodge's Unfair Toll"
+ },
+ "salvage-master": {
+  "name": "The Salvage-Master",
+  "kind": "humanoid",
+  "tier": "relic-bearer",
+  "text": "",
+  "relic": "The Salvager's Helm"
+ },
+ "bargemaster": {
+  "name": "The Bargemaster",
+  "kind": "humanoid",
+  "tier": "relic-bearer",
+  "text": "",
+  "relic": "The Barge-Chain Gauntlets"
+ },
+ "reedcutter": {
+  "name": "Reed-Cutter",
+  "kind": "humanoid",
+  "tier": "rabble",
+  "text": "",
+  "relic": null
+ },
+ "salvage-diver": {
+  "name": "Salvage Diver",
+  "kind": "humanoid",
+  "tier": "rabble",
+  "text": "",
+  "relic": null
+ },
+ "bargehand": {
+  "name": "Bargehand",
+  "kind": "humanoid",
+  "tier": "rabble",
+  "text": "",
+  "relic": null
+ },
+ "hollow-miravel": {
+  "name": "Hollow Miravel",
+  "kind": "humanoid",
+  "tier": "champion",
+  "text": "Elder Miravel of Eldergrove, before the chair carved with the tree, wearing the Hollow Wreath the Unsmith sent her. It has hollowed her: she is grey from her hair to her feet, and only the wreath has any colour left.",
+  "relic": "The Hollow Wreath"
+ },
+ "hollow-qasim": {
+  "name": "Hollow Qasim",
+  "kind": "humanoid",
+  "tier": "champion",
+  "text": "Cistern Lord Qasim of Sandspire, before the chair carved with the sun, holding the Hollow Chalice the Unsmith sent him. It has hollowed him: he is grey from his turban to his boots, and the chalice is never full.",
+  "relic": "The Hollow Chalice"
+ },
+ "hollow-brundar": {
+  "name": "Hollow Brundar",
+  "kind": "humanoid",
+  "tier": "champion",
+  "text": "Thane Brundar of Ironhold, before the chair carved with the anvil under the mountain, in the Hollow Gauntlet the Unsmith sent him. It has hollowed him: he is grey as the Deeps, and the gauntlet holds on to everything.",
+  "relic": "The Hollow Gauntlet"
+ },
+ "hollow-gretch": {
+  "name": "Hollow Gretch",
+  "kind": "humanoid",
+  "tier": "champion",
+  "text": "Mayor Gretch of Bogmire, before the chair carved with the lantern among the reeds, wearing the Hollow Chain the Unsmith sent her. It has hollowed her: she is grey as the fen at dawn, and the chain is always a little too tight.",
+  "relic": "The Hollow Chain"
+ },
+ "unsmith": {
+  "name": "The Unsmith",
+  "kind": "beast",
+  "tier": "champion",
+  "text": "Harrow Ironvein, Hilda's twin and Ironhold's master smith, who stole the Worldforge's plans from under Ironhold and built it: the Unsmith. He has kept the fire in for you. Two dice, two hands, three pieces, and whatever relics you left behind.",
+  "relic": "The Unmaking Hammer"
+ },
+ "cinder-thrall": {
+  "name": "Cinder-Thrall",
+  "kind": "beast",
+  "tier": "rabble",
+  "text": "One of the Unsmith's ash-men, shaped from the hearth's own ash with a coal for a heart. It remembers being a fire, and it would like to be one again.",
+  "relic": null
+ },
+ "thrall-overseer": {
+  "name": "Thrall-Overseer",
+  "kind": "beast",
+  "tier": "veteran",
+  "text": "",
+  "relic": null
+ },
+ "unmade": {
+  "name": "The Unmade",
+  "kind": "beast",
+  "tier": "veteran",
+  "text": "A relic-bearer the Worldforge unmade: a grey husk still carrying the shape of the thing it held, and still reaching for it.",
+  "relic": null
+ },
+ "forge-warden": {
+  "name": "Forge-Warden",
+  "kind": "beast",
+  "tier": "veteran",
+  "text": "A kiln of firebrick as tall as a door, with an anvil for a head, a hammer for an arm and a bellows that breathes like a forge, set at the near end of the Worldforge's bridge to keep it. Its thralls keep it fed.",
+  "relic": null
+ }
+}

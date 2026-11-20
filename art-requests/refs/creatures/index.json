@@ -1,0 +1,374 @@
+{
+ "cutpurse": {
+  "name": "Cutpurse",
+  "what": "Rabble · a person, dressed by the gear builder · 1.8 m tall"
+ },
+ "bandit": {
+  "name": "Thornhollow Bandit",
+  "what": "Rabble · a person, dressed by the gear builder · 1.8 m tall"
+ },
+ "tallyman": {
+  "name": "Tallyman",
+  "what": "Rabble · a person, dressed by the gear builder · 1.8 m tall"
+ },
+ "briarling": {
+  "name": "Briarling",
+  "what": "Rabble · a beast: sapling plan · 0.6 m tall"
+ },
+ "thornhound": {
+  "name": "Thornhound",
+  "what": "Rabble · a beast: quad plan · 0.9 m tall"
+ },
+ "rotstag": {
+  "name": "The Rot-Stag",
+  "what": "Relic-Bearers · a beast: quad plan · 2 m tall"
+ },
+ "oldsnag": {
+  "name": "Old Snag",
+  "what": "Relic-Bearers · a beast: quad plan · 1.3 m tall"
+ },
+ "briarmaw": {
+  "name": "Briarmaw",
+  "what": "Champions · a beast: quad plan · 1.7 m tall"
+ },
+ "smuggler": {
+  "name": "Smuggler",
+  "what": "Rabble · a person, dressed by the gear builder · 1.8 m tall"
+ },
+ "mags": {
+  "name": "Mags Kestrel",
+  "what": "Relic-Bearers · a person, dressed by the gear builder · 1.8 m tall"
+ },
+ "feral-druid": {
+  "name": "Feral Druid",
+  "what": "Veterans · a person, dressed by the gear builder · 1.8 m tall"
+ },
+ "oda": {
+  "name": "Oda the Thornmother",
+  "what": "Relic-Bearers · a person, dressed by the gear builder · 1.8 m tall"
+ },
+ "hollowed-ranger": {
+  "name": "Hollowed Ranger",
+  "what": "Veterans · a person, dressed by the gear builder · 1.8 m tall"
+ },
+ "corra": {
+  "name": "Sgt Corra Thistle",
+  "what": "Relic-Bearers · a person, dressed by the gear builder · 1.8 m tall"
+ },
+ "haskett": {
+  "name": "Haskett",
+  "what": "Relic-Bearers · a person, dressed by the gear builder · 1.8 m tall"
+ },
+ "hollis": {
+  "name": "Hollis Fairweight",
+  "what": "Relic-Bearers · a person, dressed by the gear builder · 1.8 m tall"
+ },
+ "dun": {
+  "name": "Dun the Counter",
+  "what": "Relic-Bearers · a person, dressed by the gear builder · 1.8 m tall"
+ },
+ "vesper": {
+  "name": "Vesper",
+  "what": "Veterans · a person, dressed by the gear builder · 1.8 m tall"
+ },
+ "tamsin": {
+  "name": "Tamsin",
+  "what": "Relic-Bearers · a person, dressed by the gear builder · 1.8 m tall"
+ },
+ "boglurcher": {
+  "name": "Boglurcher",
+  "what": "Rabble · a beast: mound plan · 1 m tall"
+ },
+ "glowcap": {
+  "name": "Glowcap",
+  "what": "Rabble · a beast: mushroom plan · 0.8 m tall"
+ },
+ "rotgrub": {
+  "name": "Rotgrub",
+  "what": "Rabble · a beast: serpent plan · 0.4 m tall"
+ },
+ "sapwight": {
+  "name": "Sapwight",
+  "what": "Veterans · a beast: biped plan · 1.6 m tall"
+ },
+ "gloamwing": {
+  "name": "The Gloamwing",
+  "what": "Relic-Bearers · a beast: winged plan · 1.2 m tall"
+ },
+ "mirelord": {
+  "name": "Gorrow the Mire-King",
+  "what": "Relic-Bearers · a beast: frog plan · 1.1 m tall"
+ },
+ "rotwarden": {
+  "name": "The Rotwarden",
+  "what": "Champions · a beast: biped plan · 2.1 m tall"
+ },
+ "sand-skink": {
+  "name": "Sand-Skink",
+  "what": "Rabble · a beast: quad plan · 0.4 m tall"
+ },
+ "glass-scorpion": {
+  "name": "Glass Scorpion",
+  "what": "Veterans · a beast: scorpion plan · 0.6 m tall"
+ },
+ "glass-matriarch": {
+  "name": "The Glass Matriarch",
+  "what": "Relic-Bearers · a beast: scorpion plan · 1 m tall"
+ },
+ "mirage-wisp": {
+  "name": "Mirage Wisp",
+  "what": "Veterans · a beast: wraith plan · 1.3 m tall"
+ },
+ "wisp-queen": {
+  "name": "The Wisp-Queen",
+  "what": "Relic-Bearers · a beast: wraith plan · 1.8 m tall"
+ },
+ "sand-wyrm": {
+  "name": "The Sand Wyrm",
+  "what": "Relic-Bearers · a beast: serpent plan · 1.6 m tall"
+ },
+ "kharzul": {
+  "name": "Kharzul the Glass Scorpion",
+  "what": "Champions · a beast: scorpion plan · 1.5 m tall"
+ },
+ "ashen-warden": {
+  "name": "The Ashen Warden",
+  "what": "Champions · a beast: biped plan · 2.2 m tall"
+ },
+ "scavenger": {
+  "name": "Dune Scavenger",
+  "what": "Rabble · a person, dressed by the gear builder · 1.8 m tall"
+ },
+ "dune-raider": {
+  "name": "Dune Raider",
+  "what": "Veterans · a person, dressed by the gear builder · 1.8 m tall"
+ },
+ "rasa": {
+  "name": "Rasa the Dune-Rider",
+  "what": "Relic-Bearers · a person, dressed by the gear builder · 1.8 m tall"
+ },
+ "gnash": {
+  "name": "Gnash the Raider-King",
+  "what": "Relic-Bearers · a person, dressed by the gear builder · 1.8 m tall"
+ },
+ "ash-wight": {
+  "name": "Ash-Wight",
+  "what": "Veterans · a person, dressed by the gear builder · 1.8 m tall"
+ },
+ "ash-captain": {
+  "name": "The Ash-Captain",
+  "what": "Relic-Bearers · a person, dressed by the gear builder · 1.8 m tall"
+ },
+ "brask": {
+  "name": "Foreman Brask",
+  "what": "Relic-Bearers · a person, dressed by the gear builder · 1.8 m tall"
+ },
+ "quartermaster": {
+  "name": "The Quartermaster",
+  "what": "Veterans · a person, dressed by the gear builder · 1.8 m tall"
+ },
+ "vell": {
+  "name": "Vell Saltglass",
+  "what": "Relic-Bearers · a person, dressed by the gear builder · 1.8 m tall"
+ },
+ "brigand": {
+  "name": "Pass Brigand",
+  "what": "Rabble · a person, dressed by the gear builder · 1.8 m tall"
+ },
+ "rhune": {
+  "name": "Rhune the Pass-Warden",
+  "what": "Relic-Bearers · a person, dressed by the gear builder · 1.8 m tall"
+ },
+ "cutter-chief": {
+  "name": "The Cutter-Chief",
+  "what": "Relic-Bearers · a person, dressed by the gear builder · 1.8 m tall"
+ },
+ "sawyer": {
+  "name": "Sawyer",
+  "what": "Rabble · a person, dressed by the gear builder · 1.8 m tall"
+ },
+ "rime-wolf": {
+  "name": "Rime Wolf",
+  "what": "Rabble · a beast: quad plan · 1 m tall"
+ },
+ "rockling": {
+  "name": "Rockling",
+  "what": "Rabble · a beast: rocks plan · 0.6 m tall"
+ },
+ "forge-spark": {
+  "name": "Forge-Spark",
+  "what": "Rabble · a beast: spark plan · 0.5 m tall"
+ },
+ "iron-sentinel": {
+  "name": "Iron Sentinel",
+  "what": "Veterans · a beast: biped plan · 1.9 m tall"
+ },
+ "sentinel-captain": {
+  "name": "The Sentinel-Captain",
+  "what": "Relic-Bearers · a beast: biped plan · 2.1 m tall"
+ },
+ "forgeborn": {
+  "name": "Forgeborn",
+  "what": "Veterans · a beast: biped plan · 1.9 m tall"
+ },
+ "bellows": {
+  "name": "The Bellows",
+  "what": "Veterans · a beast: biped plan · 2 m tall"
+ },
+ "journeyman": {
+  "name": "Harrow's Journeyman",
+  "what": "Relic-Bearers · a beast: biped plan · 1.8 m tall"
+ },
+ "peak-troll": {
+  "name": "Peak-Troll",
+  "what": "Veterans · a beast: biped plan · 2.4 m tall"
+ },
+ "old-horn": {
+  "name": "Old Horn",
+  "what": "Relic-Bearers · a beast: biped plan · 2.7 m tall"
+ },
+ "rime-wraith": {
+  "name": "Rime-Wraith",
+  "what": "Veterans · a beast: wraith plan · 1.8 m tall"
+ },
+ "drowned-abbess": {
+  "name": "The Drowned Abbess",
+  "what": "Relic-Bearers · a beast: wraith plan · 1.8 m tall"
+ },
+ "choir-wraith": {
+  "name": "Choir-Wraith",
+  "what": "Veterans · a beast: wraith plan · 1.8 m tall"
+ },
+ "thunder-roc": {
+  "name": "The Thunder-Roc",
+  "what": "Relic-Bearers · a beast: winged plan · 2 m tall"
+ },
+ "mother-anvil": {
+  "name": "Mother Anvil",
+  "what": "Champions · a beast: anvil plan · 1.6 m tall"
+ },
+ "rime-abbot": {
+  "name": "The Rime-Abbot",
+  "what": "Champions · a beast: wraith plan · 2.2 m tall"
+ },
+ "mire-leech": {
+  "name": "Mire Leech",
+  "what": "Rabble · a beast: serpent plan · 0.3 m tall"
+ },
+ "marsh-light": {
+  "name": "Marsh-Light",
+  "what": "Rabble · a beast: spark plan · 0.6 m tall"
+ },
+ "lamp-moth": {
+  "name": "Lamp-Moth",
+  "what": "Rabble · a beast: winged plan · 0.8 m tall"
+ },
+ "blackwater-gar": {
+  "name": "Blackwater Gar",
+  "what": "Rabble · a beast: serpent plan · 0.4 m tall"
+ },
+ "old-jaws": {
+  "name": "Old Jaws",
+  "what": "Relic-Bearers · a beast: serpent plan · 0.6 m tall"
+ },
+ "willow-wight": {
+  "name": "Willow-Wight",
+  "what": "Veterans · a beast: willow plan · 1.8 m tall"
+ },
+ "grandfather-willow": {
+  "name": "Grandfather Willow",
+  "what": "Relic-Bearers · a beast: willow plan · 2.8 m tall"
+ },
+ "drowned": {
+  "name": "Drowned",
+  "what": "Veterans · a beast: wraith plan · 1.7 m tall"
+ },
+ "bell-ringer": {
+  "name": "Drowned Bell-Ringer",
+  "what": "Veterans · a beast: wraith plan · 1.7 m tall"
+ },
+ "drowned-choir": {
+  "name": "Drowned Chorister",
+  "what": "Veterans · a beast: wraith plan · 1.6 m tall"
+ },
+ "drowned-cantor": {
+  "name": "The Drowned Cantor",
+  "what": "Relic-Bearers · a beast: wraith plan · 1.8 m tall"
+ },
+ "lantern-mother": {
+  "name": "The Lantern Mother",
+  "what": "Champions · a beast: wraith plan · 2.1 m tall"
+ },
+ "blackwater-leviathan": {
+  "name": "The Blackwater Leviathan",
+  "what": "Champions · a beast: serpent plan · 2.2 m tall"
+ },
+ "bog-hag": {
+  "name": "Bog-Hag",
+  "what": "Veterans · a person, dressed by the gear builder · 1.8 m tall"
+ },
+ "mother-grue": {
+  "name": "Mother Grue",
+  "what": "Relic-Bearers · a person, dressed by the gear builder · 1.8 m tall"
+ },
+ "hodge": {
+  "name": "Hodge",
+  "what": "Relic-Bearers · a person, dressed by the gear builder · 1.8 m tall"
+ },
+ "salvage-master": {
+  "name": "The Salvage-Master",
+  "what": "Relic-Bearers · a person, dressed by the gear builder · 1.8 m tall"
+ },
+ "bargemaster": {
+  "name": "The Bargemaster",
+  "what": "Relic-Bearers · a person, dressed by the gear builder · 1.8 m tall"
+ },
+ "reedcutter": {
+  "name": "Reed-Cutter",
+  "what": "Rabble · a person, dressed by the gear builder · 1.8 m tall"
+ },
+ "salvage-diver": {
+  "name": "Salvage Diver",
+  "what": "Rabble · a person, dressed by the gear builder · 1.8 m tall"
+ },
+ "bargehand": {
+  "name": "Bargehand",
+  "what": "Rabble · a person, dressed by the gear builder · 1.8 m tall"
+ },
+ "hollow-miravel": {
+  "name": "Hollow Miravel",
+  "what": "Champions · a person, dressed by the gear builder · 1.8 m tall"
+ },
+ "hollow-qasim": {
+  "name": "Hollow Qasim",
+  "what": "Champions · a person, dressed by the gear builder · 1.8 m tall"
+ },
+ "hollow-brundar": {
+  "name": "Hollow Brundar",
+  "what": "Champions · a person, dressed by the gear builder · 1.8 m tall"
+ },
+ "hollow-gretch": {
+  "name": "Hollow Gretch",
+  "what": "Champions · a person, dressed by the gear builder · 1.8 m tall"
+ },
+ "unsmith": {
+  "name": "The Unsmith",
+  "what": "Champions · a beast: biped plan · 1.9 m tall"
+ },
+ "cinder-thrall": {
+  "name": "Cinder-Thrall",
+  "what": "Rabble · a beast: biped plan · 1.7 m tall"
+ },
+ "thrall-overseer": {
+  "name": "Thrall-Overseer",
+  "what": "Veterans · a beast: biped plan · 1.9 m tall"
+ },
+ "unmade": {
+  "name": "The Unmade",
+  "what": "Veterans · a beast: biped plan · 1.7 m tall"
+ },
+ "forge-warden": {
+  "name": "Forge-Warden",
+  "what": "Veterans · a beast: biped plan · 2.3 m tall"
+ }
+}

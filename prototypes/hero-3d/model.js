@@ -114,10 +114,13 @@ const strHash = str => { let h = 2166136261; for (const ch of String(str)) h = M
 
 /* ------------------------------------------------------------------ the hero */
 export function buildHero(heroKey, gear, o = {}) {
-  const A = HERO_ART[heroKey] || HERO_ART.warden, H = A.H;
+  // o.H: anyone's identity (a foe's, art/foes.js foeLooks); o.looks: gear already turned into looks (foeLooks gives these)
+  const A = HERO_ART[heroKey] || HERO_ART.warden, H = o.H || A.H;
   const S = specOf(H, o.build || 'hero'); S.unit = S.total / 1.72; const u = S.unit, uw = S.chibi ? 0.95 : u; // u: sizes of small details scale with the build
+  if (H.build === 'brute') { S.keys = S.keys.map(([y, w, d]) => [y, w * 1.16, d]); S.shX *= 1.14; S.armR *= 1.2; S.legR *= 1.12; S.neckR *= 1.2; }
   const L = {}, arts = {};
-  for (const s of SLOTS) { const a = gear[s] ? itemArt(gear[s]) : null; arts[s] = a; const l = a ? lookFor(s, a) : null; if (l) L[s] = l; }
+  if (o.looks) for (const s of SLOTS) { const l = o.looks[s]; if (l && typeof l === 'object') { L[s] = l; arts[s] = { p: l.p || l, r: l.r }; } }
+  else for (const s of SLOTS) { const a = gear[s] ? itemArt(gear[s]) : null; arts[s] = a; const l = a ? lookFor(s, a) : null; if (l) L[s] = l; }
   const group = new THREE.Group(), root = new THREE.Group(); group.add(root);
   const rig = { root, S }, fx = { glows: [], aura: null, flame: false };
   const body = L.body, kind = body?.kind, robe = kind === 'robe';

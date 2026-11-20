@@ -37,8 +37,11 @@
   engine, places and downsized textures, unchanged; `hero-entry.js` joins our heroes and three.js to it).
 - `world3d/`: **the 3D world**: Coven's zone 1 and Envoi's 3D continent, copied in, with our party, the small and big
   maps and the continent (`node build.mjs --tex=512` there; link and sources in its README).
+- `prototypes/bestiary/`: all 93 foes in 3D (people by the hero builder, beasts by `beasts.js`; link in its README).
 - `art-requests/`: picture prompts for Chris. Batch 4 (the four Act III maps) is still waiting, and so is
-  `texture-pack-gear.md` (the seamless surfaces the 3D gear is made of).
+  `texture-pack-gear.md` (the seamless surfaces the 3D gear is made of). Everything asked for is gathered in one page,
+  `aethermoor-art-requests.html`, built by `build_requests.py` (prompts, reference pictures from `refs/`, palettes);
+  Chris sends the pictures back as a zip, named as the cards say.
 - Chris's choices for the 3D heroes (November 20): the storybook shape at High detail only; item surfaces come
   from a texture pack, not pictures printed on the models.
 
