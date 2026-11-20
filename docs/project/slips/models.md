@@ -5,7 +5,7 @@ Last updated November 20.
 ## Done
 
 **Step 1, the heroes in Chris's textures and faces.** The Gear Room: https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL
-(commit: see the branch's latest "Models step 1" commit).
+(commit 08cbf2e; page version 5).
 
 - Every item's surface now comes from Chris's 43 material pictures (metals, mail and scale, leathers, hides, cloth,
   woods, bone, horn, stone, skin, hair). Each is a grey grain picture tinted by the item's own game colour, so a gold
