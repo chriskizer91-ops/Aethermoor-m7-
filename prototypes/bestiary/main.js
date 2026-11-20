@@ -6,7 +6,8 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import { FOE_ART, renderFoe, foeLooks } from '../../game/src/art/foes.js';
 import { buildHero, setPose } from '../hero-3d/model.js';
-import { Q } from '../hero-3d/kit.js';
+import { Q, TEXTURES } from '../hero-3d/kit.js';
+window.__T = TEXTURES;
 import { buildBeast, BEASTS } from './beasts.js';
 
 Q.d = 2;
@@ -82,6 +83,6 @@ function resize() { const r = canvas.parentElement.getBoundingClientRect(); rend
 new ResizeObserver(resize).observe(canvas.parentElement);
 const clock = new THREE.Clock(); let step = 0;
 (function loop() { requestAnimationFrame(loop); const dt = Math.min(clock.getDelta(), 0.05), t = clock.elapsedTime; if (S.walk) step += dt * 7; if (cur) cur.update(t, S.walk ? step : 0); controls.update(); renderer.render(scene, camera); })();
-window.__best = { show, keys, S };
+window.__best = { show, keys, S, controls, camera, get cur() { return cur; } };
 drawList(); show('briarmaw'); resize();
 $('loading').hidden = true;

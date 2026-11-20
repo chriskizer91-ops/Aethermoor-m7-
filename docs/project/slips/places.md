@@ -4,7 +4,7 @@
 
 - **The Sunscorch** (all ten: the Sun Road, Sandspire, the Dust Trail, Dusthaven, the Deep Shaft, the Glass Heart, the
   Glass Flats, Miragewell, the Scorchgate Ruins and Vaults), by day, from M7's maps and paintings:
-  https://claude.ai/artifact/Awn5YJ761bD7rPyp4AkEdf (7.6 MB). What's new in them:
+  https://claude.ai/artifact/Awn5YJ761bD7rPyp4AkEdf (10.9 MB with the heroes in Chris's textures). What's new in them:
   - Cliffs, scarps, mesas and a mine's rock walls rise out of the ground (thick runs of `^`, and `R` in a mine), with
     rock wrapped round their faces; dune crests are soft sand humps; a lone `^` is a boulder as before.
   - Chris's sand, sandstone, adobe, awning canvas and glass flats; flat adobe roofs, terracotta roofs and striped
@@ -14,16 +14,36 @@
     sunstone veins, crystals and embers.
   - Day light and a blue sky (the mines and the vaults stay dark).
 
+- **The Ironspire** (all seventeen, with the East Road): https://claude.ai/artifact/BPcAuRLL3njp1Q3ZHPTUWQ (12.6 MB). Snow
+  and frosted crags rising from the ground, Chris's dwarf stone, forge brick, ice and snow; the monastery in pale stone,
+  the Tallymen's canvas tents, frost-dead trees, carved kings on the Iron Stair, anvils in the forges, ice columns
+  Beneath Frostmere; the halls and forges lit by their fires, the rest by a cold day.
+- **The Gloomfen** (all twelve): https://claude.ai/artifact/RkoGBME3ANqwAVLnwKLbj8 (11.2 MB). Bogmire's plank streets and
+  the piers stand on stilts over Chris's bog water; waist-high rails, lanterns on poles, reeds, a green mist by day;
+  the Mother's Hollow and the drowned belfry by night.
+- Act Two is done: one page per region, every place built.
+- **Act Three**: https://claude.ai/artifact/HMZiN2rDQThhvvsJqwmE56 (8.0 MB). The Keep's three galleries, the Great Hall,
+  and the Hearth Below: the Hollow Hall (violet stone, pillars, the round council table), the Ash Stair (rock rising
+  round the drop, ember seams, a red glow far down), the Chained Deep (great chains up into the dark, iron rails) and
+  the Worldforge (molten channels that glow and light the room, hooks and racks). The four Hearth Below maps have no
+  painting yet: they stand on **stand-ins drawn from the 2D game's own tiles** (`world3d/m7/standin.mjs`, kept in
+  `world3d/m7/standins/`). When Chris's batch 4 lands in `game/src/ui/assets/paint/`, `node m7/convert.mjs <id>` picks
+  his painting up instead.
+- Every one of M7's 61 maps is now a 3D place.
+
 ## Next
 
-- The Ironspire (built and loading; tuning its look), then the Gloomfen.
+- Waiting for the hub. Ideas if wanted: tune by feel on a phone; Chris's batch 4 paintings when they come.
+
+- Merged the hub's branch (39fe4ab and on) and rebuilt all four pages with the heroes in Chris's textures; each
+  still loads with no errors and is under 16 MB.
 
 ## Changed outside my files
 
 - `world3d/build.mjs` (rule 7, added only): `--name=` puts a region's name where the page says "Act One", `--out=` names
   the file, `--paint=0.75` shrinks the game's paintings for a page with many of them. Nothing existing changed.
 - Coven's engine (mine to change, additive, marked "Aethermoor, Places"): `core.js` a day sky (`night.day`) and a day sky on
-  the water; steep ground wears a rock texture instead of the painting stretched down it (`ground.rock`, only when a
+  the water, and molten metal that glows (`waterMat` `emis`); steep ground wears a rock texture instead of the painting stretched down it (`ground.rock`, only when a
   place asks); `world.js` passes `ground.rock` through. Act One asks for neither, so it looks as it did.
 
 ## Needs
@@ -38,7 +58,8 @@
 
 - Each page loads headless (Chromium, SwiftShader) with no errors; a still from above, one from the walk and one from
   high behind for every place (`world3d/m7/check.mjs`, kept in `world3d/.cache/shots/`).
-- Every way out of the Sunscorch taken in the page (19): each lands at its anchor on walkable ground
+- Every way out taken in the page, each landing at its anchor on walkable ground: the Sunscorch 19, the Ironspire 32,
+  the Gloomfen 22, Act Three 14 (the few left lead to Act One's places, on their own page; checked from the data)
   (`EXITS=1 node m7/check.mjs ...`); `node m7/exits.mjs` checks the same from the data.
 - Act One rebuilt (11.6 MB at `--tex=768`) and all 14 places load with no errors; its place files unchanged apart from
   a `dark` flag on the two dark maps. Anchors, exits, people and walk boxes untouched.

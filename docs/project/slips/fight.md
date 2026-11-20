@@ -2,7 +2,7 @@
 
 ## Done
 
-- **Step 1, one fight on Thornhollow's road**: https://claude.ai/artifact/NpeXL5Pf4RxNfkQsguTnEK (7.5 MB)
+- **Step 1, one fight on Thornhollow's road**: https://claude.ai/artifact/NpeXL5Pf4RxNfkQsguTnEK (10.8 MB, with Chris's hero textures since the hub's merge)
   - The party walks Act One's Thornhollow in 3D. A pack (a thornhound and two briarlings, M7's own Thornhollow patrol)
     waits on the road. Walk up to it (or tap **Meet the pack**) and the camera swings round; the fight plays out on
     that spot. After it, the camera swings back and the party walks on; another pack comes down the road.
@@ -19,6 +19,33 @@
   - The dice: real 3D d20s tumble in the tray and land on the face M7 rolled.
   - Victory: the party cheers. Defeat: the party falls, then wakes at the town gate. Test with `?lose=1`.
   - Commit: see `git log job/fight` ("The Fight, step 1").
+
+## For Together: starting a fight from outside
+
+`world3d/battle/run.js` exports one function. It pauses the walk, swings the camera round, plays M7's battle screen
+over the 3D, then the cheer (or the fall), swings back and returns:
+
+```js
+import { runFight } from './battle/run.js';
+const { result, battle, outcome } = await runFight({ W, battle, center, yaw, heroes, foes, ctx, host, auto, resume });
+```
+
+- `W` the walk (`W3D.walk`), `battle` M7's state (`startBattle(game, ...).battle`), `center` the leader's spot
+  (THREE.Vector3), `yaw` the way to the foes, `heroes` `{ heroId: actor }` (the walking actors), `foes` optional
+  figures already standing there (`arena.js foeFigure(artKey)`), `ctx` M7's screen toolkit (game, settings, audio,
+  input, services, reduced, toast; call `installCardServices(ctx)` first), `host` a fixed full-screen element.
+- `result` is 'victory', 'defeat' or 'fled'; `battle` the finished state, ready for M7's aftermath screen or
+  `resolveBattle`; `outcome` is M7's `outcome(battle)`. XP, loot and waking at the hearth are the caller's.
+- The page must be built with `--entry=<your module> --plugin=battle/swap.mjs` and import `battle/fight.css`.
+  `world3d/fight.js` is a working example.
+
+## For Models: another look for the foes
+
+`world3d/battle/arena.js` exports `setBeastLook(fn)`. `fn(key, sprite, opts)` returns the bestiary's shape:
+`{ group or g, height, plan?, parts?, update?(t, step) }`. The fight only turns, lifts, leans and squashes the whole
+figure (its group) and calls `update()` for its own idle and walk; it never reaches into the meshes. So a painted
+cut-out drops in with one call, and `setBeastLook(null)` brings the code-built beasts back. Once your builder lands,
+I'll add a switch on the page (`?foes=cutout`).
 
 ## Next
 

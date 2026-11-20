@@ -434,7 +434,7 @@
   W3D.waterMat = function (U, t) {
     const uni = Object.assign({}, U, {
       tWater: { value: t.water }, uRep: { value: new THREE.Vector2(1 / (t.rep || 5), 1 / (t.rep || 5)) }, uFlow: { value: new THREE.Vector2(t.flow ? t.flow[0] : 0.01, t.flow ? t.flow[1] : 0.004) },
-      uTint: { value: new THREE.Color(t.tint || 0xffffff) }, uEmis: { value: new THREE.Color(0) }, uLit: { value: 1 }, uGlowUse: { value: 1 }, uSpec: { value: 0 }, uShadeK: { value: 1 },
+      uTint: { value: new THREE.Color(t.tint || 0xffffff) }, uEmis: { value: new THREE.Color(t.emis || 0) }, uLit: { value: 1 },   // (Aethermoor, Places) t.emis: molten metal glows by itself uGlowUse: { value: 1 }, uSpec: { value: 0 }, uShadeK: { value: 1 },
     });
     const frag = CHUNK_F_HEAD + `
       uniform sampler2D tWater; uniform vec2 uFlow; uniform float uDay;
@@ -457,6 +457,7 @@
         float glint = pow(max(dot(normalize(vec3(wob.x * 0.25, 1.0, wob.y * 0.25)), h), 0.0), 220.0) * (1.0 - smoothstep(0.55, 0.85, v.y));
         vec3 col = (c * 1.4 + sky * 0.6 + g * (0.16 + fres * 0.45) + uMoon * glint * 0.8) * mix(1.0, texture2D(uShade, paintUv(vW)).r, 0.85);
         col = mix(col, vec3(0.55, 0.6, 0.75) * (0.6 + 0.4 * a.b * 3.0), fall * 0.85);
+        col += toLin(uEmis) * (0.75 + 0.5 * sin(dot(vW.xz, vec2(0.7, 0.4)) + uTime * 0.8) * 0.5 + (b.r + a.g) * 4.0);   // (Aethermoor, Places) molten: its own glow
         gl_FragColor = outC(fogged(col, vW));
       }`;
     return new THREE.ShaderMaterial({ uniforms: uni, vertexShader: CHUNK_V, fragmentShader: frag, vertexColors: true });

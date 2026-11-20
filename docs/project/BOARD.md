@@ -7,10 +7,11 @@ Where the 3D game stands. Written by the hub only. Last updated November 20.
 | # | Job | Session | Branch | State | Latest link |
 |---|---|---|---|---|---|
 | 1 | the hub | `session_01DgbUKb6orvjjc1cMgBGPJK` | `claude/brave-davinci-790efm` | running | (the board) |
-| 2 | The Fight | `session_01DgbUKYR9qmKyBdACUWGViw` | `job/fight` | step 1 done and brought in (a full fight on Thornhollow's road, to victory or defeat); on Briarmaw, then the spoils | https://claude.ai/artifact/NpeXL5Pf4RxNfkQsguTnEK |
-| 3 | Models | `session_01DgbUKcWh5MEvjHnxzp4HHo` | `job/models` | step 1 done and brought in (the heroes in Chris's textures and faces); on step 2, the creatures | https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL |
-| 4 | Places | `session_01DgbUKZVFBfm1dVautXEw5f` | `job/places` | the Sunscorch done and brought in (all ten maps, by day); on the Ironspire, then the Gloomfen | https://claude.ai/artifact/Awn5YJ761bD7rPyp4AkEdf |
-| 5 | Together | (starting) | `job/together` | starting: Act One playable, M7's world engine under the 3D walk | - |
+| 2 | The Fight | `session_01DgbUKYR9qmKyBdACUWGViw` | `job/fight` | step 1 done and brought in; `runFight()` (one call plays a fight, for Together) and `setBeastLook()` (the foes' look switched in one call) in; on Briarmaw, then the spoils | https://claude.ai/artifact/NpeXL5Pf4RxNfkQsguTnEK |
+| 3 | Models | `session_01DgbUKcWh5MEvjHnxzp4HHo` | `job/models` | step 1 in (textures, faces); Act One's 12 foes sculpted to Chris's sheets and skins, brought in; next: the painted cut-out side-by-side for Chris to choose | https://claude.ai/artifact/CA6CcAKVHSxGPB5TAZF5sY |
+| 4 | Places | `session_01DgbUKZVFBfm1dVautXEw5f` | `job/places` | Acts Two and Three done and brought in: all 61 of M7's maps are 3D places; on step 3 (the Atlas, Act One by day) | (see below) |
+| 5 | Together | `session_01DgbUKbyjzZFe1BXHHxzHBn` | `job/together` | starting: Act One playable, M7's world engine under the 3D walk | - |
+| 6 | One Foe | `session_01DgbUKZCNBFY7zwSzwAXR8y` | `job/foe-hd` | starting: Briarmaw in full detail, side by side | - |
 
 ## What's built (on the hub's branch)
 
@@ -18,10 +19,13 @@ Where the 3D game stands. Written by the hub only. Last updated November 20.
 |---|---|---|
 | Act One's 14 places, from M7's own maps and paintings, the party walking as a group | `world3d/m7/` | https://claude.ai/artifact/GBxRVSqwMwYUTy1xLNjATA |
 | The Sunscorch's 10 places, by day, in Chris's desert textures | `world3d/m7/` | https://claude.ai/artifact/Awn5YJ761bD7rPyp4AkEdf |
+| The Ironspire with the East Road (17 places), in snow, ice, dwarf stone and forge brick | `world3d/m7/` | https://claude.ai/artifact/BPcAuRLL3njp1Q3ZHPTUWQ |
+| The Gloomfen (12 places), plank streets on stilts over bog water | `world3d/m7/` | https://claude.ai/artifact/RkoGBME3ANqwAVLnwKLbj8 |
+| Act Three: the Keep's galleries and the Hearth Below (stand-in paintings for four until batch 4) | `world3d/m7/` | https://claude.ai/artifact/HMZiN2rDQThhvvsJqwmE56 |
 | A fight on Thornhollow's road: M7's battle screen over the 3D, the party on the field, 3D dice | `world3d/battle/`, `world3d/fight.js` | https://claude.ai/artifact/NpeXL5Pf4RxNfkQsguTnEK |
 | The Verdant Wilds (Coven's zone 1, borrowed), the small and big maps, the 3D continent | `world3d/` | https://claude.ai/artifact/R3Ecr7e1VVbb9Qi7GXEPpx |
 | The Gear Room: a hero whose outfit is built from M7's gear, in Chris's 47 textures and the four faces | `prototypes/hero-3d/` | https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL |
-| The Bestiary: all 93 foes, first pass | `prototypes/bestiary/` | https://claude.ai/artifact/CA6CcAKVHSxGPB5TAZF5sY |
+| The Bestiary: all 93 foes; Act One's 12 sculpted to Chris's sheets | `prototypes/bestiary/` | https://claude.ai/artifact/CA6CcAKVHSxGPB5TAZF5sY |
 | The story on the atlas: M7's places on the map of Aethermoor | `docs/lore/` | https://claude.ai/artifact/XTicYjY9EcZ4V54cjSzJcZ |
 | Chris's 136 pictures | `art-in/3d/` | `art-requests/RECEIVED.md` |
 
@@ -39,8 +43,9 @@ Where the 3D game stands. Written by the hub only. Last updated November 20.
 
 ## Asks between jobs
 
-- **For Models, from the Fight:** `buildBeast` returning named parts (head, tail, legs) so a beast can turn its head to
-  bite; today the whole body leans. Not blocking.
+- Done: `buildBeast` returns named parts (Models' slip lists them); the Fight's `setBeastLook(fn)` takes any foe look
+  (`fn(key, sprite, opts) -> { group or g, height, plan?, parts?, update? }`): Models' cut-outs and session 6's
+  Briarmaw aim at it.
 
 ## Next for the hub
 
