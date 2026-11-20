@@ -9,8 +9,11 @@ import { makeShared, makeFoe, cloneFoe } from './loader.js';
 import * as quad from './moves/quad.js';
 import * as biped from './moves/biped.js';
 import * as sapling from './moves/sapling.js';
+import * as serpent from './moves/serpent.js';
+import * as frog from './moves/frog.js';
+import * as winged from './moves/winged.js';
 
-export const PLANS = { quad, biped, sapling };          // more as the lanes add them (serpent, frog, winged, wraith...)
+export const PLANS = { quad, biped, sapling, serpent, frog, winged };          // more as the lanes add them (serpent, frog, winged, wraith...)
 const reg = new Map();
 
 export function register(A, { res = A.tex[2048] ? 2048 : Number(Object.keys(A.tex)[0]), moves } = {}) {
