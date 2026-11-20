@@ -31,14 +31,14 @@
     });
   } catch (e) { console.error(e); $('loadmsg').textContent = 'Something went wrong: ' + e.message; window.__err = String(e && e.stack || e); return; }
 
-  // ---- the party: the leader walks; the other three follow the leader's steps ----
-  let followers = [], trail = [], leader = W3D.witch('warden');
+  // ---- the party: the leader walks; the other three keep loose spots round them (party.js), not in single file ----
+  let followers = [], leader = W3D.witch('warden');
+  const party = window.M7_PARTY.create(W);
   function setFollowers() {
     for (const f of followers) W.P.scene.remove(f.root);
     followers = H.HEROES.filter(([id]) => id !== lead.id).map(([id]) => get(id, 'light'));
-    const p = leader.root.position, ry = leader.root.rotation.y;
-    followers.forEach((f, i) => { f.root.position.set(p.x - (i + 1) * 1.1 * Math.sin(ry), p.y, p.z - (i + 1) * 1.1 * Math.cos(ry)); f.root.rotation.y = ry; W.P.scene.add(f.root); });
-    trail = [];
+    for (const f of followers) W.P.scene.add(f.root);
+    party.set(leader, followers);
   }
   setFollowers();
   let last = performance.now();
@@ -46,18 +46,7 @@
     requestAnimationFrame(follow);
     const now = performance.now(), dt = Math.min(0.05, (now - last) / 1000), t = now / 1000; last = now;
     if (W.paused || W.isBusy()) return;
-    const p = leader.root.position, l0 = trail[0];
-    if (!l0 || l0.distanceTo(p) > 0.05) { trail.unshift(p.clone()); if (trail.length > 400) trail.length = 400; }
-    if (l0 && l0.distanceTo(p) > 6) trail = [p.clone()];
-    followers.forEach((f, i) => {
-      let need = (i + 1) * 1.1, q = p.clone();
-      for (let k = 0; k < trail.length - 1 && need > 0; k++) { const d = trail[k].distanceTo(trail[k + 1]); if (d >= need) { q = trail[k].clone().lerp(trail[k + 1], need / d); need = 0; break; } need -= d; q = trail[k + 1].clone(); }
-      if (need > 0) { const ry = leader.root.rotation.y; q.x -= Math.sin(ry) * need; q.z -= Math.cos(ry) * need; }
-      const fp = f.root.position, dx = q.x - fp.x, dz = q.z - fp.z, d = Math.hypot(dx, dz), moving = d > 0.04;
-      if (d > 8) { fp.copy(q); } else { fp.x += dx * Math.min(1, dt * 8); fp.z += dz * Math.min(1, dt * 8); fp.y += (q.y - fp.y) * Math.min(1, dt * 10); }
-      if (moving) { let a = Math.atan2(dx, dz) - f.root.rotation.y; a = Math.atan2(Math.sin(a), Math.cos(a)); f.root.rotation.y += a * Math.min(1, dt * 10); }
-      f.walkRun = leader.walkRun; f.animate(0, moving ? 1 : 0, t + i, dt * (moving ? Math.min(2.3, Math.max(0.6, d * 6)) : 1));
-    });
+    party.step(dt, t);
   })();
   const bar = $('party');
   (function draw() {

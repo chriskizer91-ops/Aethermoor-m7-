@@ -37,7 +37,7 @@ node m7/convert.mjs keep keep-hall hearth-road ...      # after a map or the con
 node build.mjs --page=m7-places --places=keep,keep-hall,hearth-road,...    # dist/m7-places.html (open it), .artifact.html (publish it)
 ```
 
-All fourteen of Act One make a 14 MB page (`--tex=512` makes it 9 MB). The other 43 maps convert the same way; their
+All fourteen of Act One make a 14 MB page; the published one is built with `--tex=768` (12 MB), `--tex=512` makes 9 MB. The other 43 maps convert the same way; their
 own surfaces (sand, snow, bog, molten iron) want their own textures, and those come with the texture pack.
 
 ## Not yet

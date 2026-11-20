@@ -27,6 +27,10 @@
     shared_bark_oak: "./../texture-packs/made-web/shared_bark_oak.webp",
     thorn_rock_mossy: "./../texture-packs/made-web/thorn_rock_mossy.webp",
     thorn_bark_black: "./../texture-packs/made-web/thorn_bark_black.webp",
+    // Chris's own world textures for Hearth & Heirloom (art-requests, section E; web copies of art-in/3d/world/)
+    keep_wall_hearthstone: "./../texture-packs/aeth-web/keep_wall_hearthstone.webp",
+    keep_roof_slate: "./../texture-packs/aeth-web/keep_roof_slate.webp",
+    keep_banner_red: "./../texture-packs/aeth-web/keep_banner_red.webp",
   };
   const mul32 = (a) => () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
   const ss = (a, b, v) => { const t = Math.max(0, Math.min(1, (v - a) / (b - a))); return t * t * (3 - 2 * t); };
@@ -50,7 +54,8 @@
       return (a * (1 - fu) + b * fu) * (1 - fv) + (c * (1 - fu) + e * fu) * fv;
     }
     // the roofs: the painting's kind for each house (slate, red tiles, thatch or moss), from Coven's roof pictures
-    const ROOF = { slate: ['shared_roof_shingle', 0xc8d4ff], red: ['shared_roof_tiles_red', 0xffffff], thatch: ['shared_roof_thatch', 0xffffff], moss: ['cottage_roof_moss', 0xffffff] };
+    // Chris's textures are painted by day; the borrowed ones by night, so his are tinted down to sit with them
+    const ROOF = { slate: ['keep_roof_slate', 0xb4b8c4], red: ['shared_roof_tiles_red', 0xffffff], thatch: ['shared_roof_thatch', 0xffffff], moss: ['cottage_roof_moss', 0xffffff] };
     const extraMats = {};
     for (const [k, [tex, tint]] of Object.entries(ROOF)) extraMats['roof_' + k] = { tex, rep: 2.6, shade: 0.15, tint, side: 'double' };
     extraMats.roots = { tex: 'shared_bark_oak', rep: 1.6, tint: 0xd8c0a8, shade: 0.5 };
@@ -58,17 +63,20 @@
     extraMats.stake = { tex: 'shared_bark_oak', rep: 1.2, tint: 0xe0d0c0, shade: 0.5 };
     extraMats.glowF = { emis: 0x66ffcc, lit: 0, tint: 0x66ffcc, cut: false };
     extraMats.glowI = { emis: 0xc070ff, lit: 0, tint: 0xc070ff, cut: false };
-    d.buildings.forEach((b) => { b.roof = Object.assign({}, b.roof, { mat: 'roof_' + (b.roof.kind || 'slate') }); });
+    extraMats.banner = { tex: 'keep_banner_red', rep: 1, tint: 0x9a9090, side: 'double', shade: 0.3 };
+    // the Keep's own stone (Hearthstone Keep, the Great Hall and the Keep's galleries)
+    const KEEP = d.biome === 'keep';
+    d.buildings.forEach((b) => { b.roof = Object.assign({}, b.roof, { mat: 'roof_' + (b.roof.kind || 'slate') }); if (KEEP) delete b.wear; });
     const textures = Object.entries(LIST).map(([id, src]) => ({ id, made: src, stand: src }));
     textures.push({ id: 'm7_paint', made: d.painting, stand: d.painting, clamp: true });
     const place = Object.assign({}, d, {
       mapId: d.id, pathsOnly: true, thicket: false, noRocks: [[-1e5, -1e5, 1e5, 1e5]],
       ground: { cob: 'shared_cobbles_town', grass: 'shared_grass_meadow', dirt: 'shared_dirt_track', pave: 'wick_bridge_paving', rep: [2.6, 3.6, 3.6, 2.4], paint: 'm7_paint', paintGain: 0.62 },
-      surfaces: { stone: 'shared_stone_wall_rough', dry: 'shared_drystone', timber: 'wick_wall_timber_plaster', planks: 'shared_boardwalk_planks', roof: 'shared_roof_shingle',
+      surfaces: { stone: KEEP ? 'keep_wall_hearthstone' : 'shared_stone_wall_rough', dry: 'shared_drystone', timber: 'wick_wall_timber_plaster', planks: 'shared_boardwalk_planks', roof: 'shared_roof_shingle',
         wood: 'shared_boardwalk_planks', deck: 'shared_boardwalk_planks', pave: 'wick_bridge_paving', soil: 'shared_dirt_track', rock: 'thorn_rock_mossy', leaves: 'wick_leaf_canopy', bark: 'shared_bark_oak' },
       textures, extraMats,
       // the M7 places are by day in the 2D game: their leaves a little lighter than the borrowed night woods
-      tints: { leaves: 0xf0fff4, bough: 0xc4d6c4, boughFir: 0xb0c4bc, bush: 0xf0fff0 },
+      tints: Object.assign({ leaves: 0xf0fff4, bough: 0xc4d6c4, boughFir: 0xb0c4bc, bush: 0xf0fff0 }, KEEP ? { stone: 0x9c9ca8 } : {}),
       ground_h: ground, walk_h: ground,
       water: d.water.map((wt) => ({ poly: wt.poly, level: () => -0.5, tex: 'shared_water_dark', rep: 6, flow: [0.004, 0.002], bed: -2.3 })),
       night: Object.assign(d.interior ? { sky: [0.62, 0.52, 0.5], moon: [0.3, 0.26, 0.26], ground: [0.12, 0.08, 0.06], fog: [0.02, 0.018, 0.03], fogNear: 30, fogFar: 90, hills: false } : {}, { sky: [0.86, 0.8, 0.84], moon: [0.62, 0.56, 0.6], ground: [0.16, 0.13, 0.14], fog: [0.16, 0.15, 0.24], fogNear: 40, fogFar: 140 }, d.night || {}),
@@ -145,6 +153,30 @@
       B.cyl('stone', x, g + 0.35, z, 0.5, 0.5, 4.2, 12, [0.95, 0.94, 1]);
       B.box('stone', x, g + 4.55, z, 1.2, 0.3, 1.2, 0, [0.85, 0.84, 0.9], NS);
     }
+    // the Keep's red banners: either side of a hall's great door, and along the Great Hall's walls
+    if (d.biome === 'keep') {
+      const banner = (x, y, z, n) => {   // a banner 1.1 m wide hanging 2.4 m from a pole, its face toward n ([nx, nz])
+        const t = [n[1], -n[0]], w = 0.55, top = y, bot = y - 2.4, o = 0.06;
+        const P = (a, b) => [x + t[0] * a + n[0] * o, b, z + t[1] * a + n[1] * o];
+        B.quad('banner', P(-w, bot), P(w, bot), P(w, top), P(-w, top), [0, 0, 1, 1]);
+        B.box('iron', x + n[0] * 0.1, top + 0.02, z + n[1] * 0.1, Math.abs(n[1]) > 0.5 ? 1.3 : 0.05, 0.05, Math.abs(n[0]) > 0.5 ? 1.3 : 0.05, 0, null, NS);
+      };
+      for (const b of d.buildings) {
+        if (!/^hall/.test(b.id)) continue;
+        const door = (b.doors || [])[0]; if (!door) continue;
+        const z = Z(b.fp[3]), g = gh(door.x, b.fp[3] + 4), top = g + Math.min(b.walls[0].h - 0.3, 4.6);
+        for (const s of [-1, 1]) banner(X(door.x) + s * 2.1, top, z, [0, 1]);
+      }
+      if (d.interior) {
+        for (const wl of d.walls) {
+          const [[ax, ay], [bx, by]] = wl.pts; if (ay !== by || bx - ax < 150) continue;
+          // which side of this wall is the room: the side that is walkable just past its face
+          const yS = ay + 30, yN = ay - 30, mid = (ax + bx) / 2;
+          const n = (yS < d.size[1] && !isWallAt(d, mid, yS)) ? [0, 1] : [0, -1];
+          for (let x = ax + 75; x < bx - 50; x += 200) banner(X(x), gh(x, ay) + wl.h - 0.15, Z(ay) + n[1] * (wl.t / 2 + 0.02), n);
+        }
+      }
+    }
     for (const [px, py] of d.towers) {
       const x = X(px), z = Z(py), g = gh(px, py), H = 5.4, s = 2.5;
       B.box('stone', x, g - 0.4, z, s, H + 0.4, s, 0, [0.95, 0.94, 0.98]);
@@ -178,6 +210,8 @@
     }
   }
 
+  // is there a wall (or anything not walkable) at this painting pixel? (from the place's walking map)
+  function isWallAt(d, x, y) { const m = (G.MAPS || {})[d.id]; if (!m) return false; return !m.walk.some((q) => x >= q[0][0] && x <= q[1][0] && y >= q[0][1] && y <= q[2][1]); }
   const P = G.W3D_PLACES = G.W3D_PLACES || {};
   for (const [id, d] of Object.entries(G.M7_PLACES || {})) P['m7-' + id] = make(d);
   G.M7_MAKE = make;

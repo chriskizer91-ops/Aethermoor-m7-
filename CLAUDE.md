@@ -42,10 +42,10 @@
 - `world3d/m7/`: **the game's own places in 3D**, each built from its M7 map and painting (`node m7/convert.mjs <ids>`,
   then `node build.mjs --page=m7-places --places=<ids>`; Act One is published, link in its README).
 - `prototypes/bestiary/`: all 93 foes in 3D (people by the hero builder, beasts by `beasts.js`; link in its README).
-- `art-requests/`: picture prompts for Chris. Batch 4 (the four Act III maps) is still waiting, and so is
-  `texture-pack-gear.md` (the seamless surfaces the 3D gear is made of). Everything asked for is gathered in one page,
-  `aethermoor-art-requests.html`, built by `build_requests.py` (prompts, reference pictures from `refs/`, palettes);
-  Chris sends the pictures back as a zip, named as the cards say.
+- `art-requests/`: picture prompts for Chris, gathered in one page, `aethermoor-art-requests.html` (built by
+  `build_requests.py`). Chris sent all 136 back on November 20 (`RECEIVED.md`); `take_in.py <zips>` files a zip into
+  `art-in/3d/` (gear, skins, model sheets, world; README there). Batch 4 (the four Act III maps) is still waiting.
+- `docs/3d-game-plan.md`: M7's battle, loot and levelling in 3D, a milestone at a time (3D-1 "The Fight" first).
 - Chris's choices for the 3D heroes (November 20): the storybook shape at High detail only; item surfaces come
   from a texture pack, not pictures printed on the models.
 
