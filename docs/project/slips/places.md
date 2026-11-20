@@ -64,14 +64,17 @@
 ### Step 4
 
 - **True to the paintings.** From above, the places now wear their paintings wherever the painting shows the top of
-  something: every **roof** (its painted slates, tiles, thatch, dormers, chimneys and stall awnings), the **water**
+  something: every roof's colour (see below), the **water**
   (Bogmire's lily pads, boats and stilts, the Keep's moat), the **decks and bridges** (Bogmire's planks and lanterns,
   the Old Bridge's stone) and the **rocks**. Walls keep their own textures. The maps' own things now stand as
   themselves: 90 signposts, 6 notice boards with their papers, 63 chests with iron bands, 66 relic pedestals, the war
   table and 3 bell frames. Trees the painting shows as pines are firs (Thornhollow's, the East Road's higher woods).
-  Roofs take their painting only from the building's roof rows: `convert.mjs` writes each place a roofs-only painting
-  (`coven/art/m7/<id>-roofs.webp`, each building's H rows stretched over its whole footprint, blank elsewhere; 624 KB
-  for all 28), so a front wall's painted doors, windows or a stall's wares no longer lie on the roof (hub's catch).
+  **Roofs (changed after the hub's review):** they keep their own crisp textures (Chris's slate, the tile, thatch and
+  moss kinds) and take only their colour from the painting. `convert.mjs` writes each place a roofs-colour picture
+  (`coven/art/m7/<id>-roofs.webp`), with each building in one flat colour taken from its roof rows (116 KB for all 28). So a
+  blue roof stays blue and a red one red, and no painted dormer, gable, window or stall's wares is stretched over a roof.
+  Houses get a real stone chimney near one end of the ridge. (Water, decks, rocks and everything else still wear the
+  full painting.)
   Gates and locks are left to the game, because they open and close with the story. Towns checked against their paintings:
   the Keep, Thornhollow, Sandspire, Dusthaven, Ironhold, Stormwatch, Bogmire.
 - **Phones.** On phone detail, the trees deep inside a wood (hidden by the outer ones) and many of the woods past the
