@@ -59,7 +59,7 @@ async function main() {
   const host = $('screen'), fhost = $('fight');
   const ctx = {
     get game() { return game; },
-    setGame(g) { game = g || null; if (g && !held) saveLive(g); },
+    setGame(g) { game = g || null; if (g && !held) saveLive(g); if (g && spoils && world) { try { world.redress(g, arena); } catch (e) { console.warn(e); } } },
     get carry() { return null; }, get carryFrom() { return null; }, get adopting() { return held; },
     adopt(g) { if (g) { game = g; held = true; } },
     commitAdopted() { if (!held || !game) return false; held = false; return saveLive(game); },
@@ -128,20 +128,49 @@ async function main() {
     setTimeout(() => toast(PHONE ? 'Drag on the left to walk · A to talk and open' : 'W A S D walk · Shift runs · E or Enter is A'), 3800);
   }
 
-  // ---- a fight on the spot: the Fight's own way in (world3d/battle/run.js runFight), then M7's after-fight screen ----
+  // ---- a fight on the spot: the Fight's own way in (world3d/battle/run.js runFight, keep: true), then the spoils on the
+  // field (the drops lie as chests where the foes fell) with M7's own after-fight screen over it; equipping from a card
+  // re-dresses that hero on the spot (ctx.setGame -> redress). Then the camera swings back and the walk goes on.
+  let spoils = false;
   async function fightOn(info) {
     if (fighting || !info.battle) return;
     fighting = true;
     arena.speed = settings.battleSpeed || 1;
     window.__g3.battle = info.battle; window.__g3.fights = (window.__g3.fights || 0) + 1;
     let r;
-    try { r = await runFight({ ...world.fightSetup(info), battle: info.battle, ctx, host: fhost, auto: Q.get('auto') === '1', resume: false }); }
+    try { r = await runFight({ ...world.fightSetup(info), battle: info.battle, ctx, host: fhost, auto: Q.get('auto') === '1', resume: false, keep: true }); }
     catch (e) { console.error(e); fighting = false; world.afterFight(); go('world'); return; }
-    fighting = false;
     window.__g3.lastResult = r.result;
+    const items = r.result === 'victory' ? [...(r.outcome?.claimed || []), ...(r.outcome?.drops || [])] : [];
+    let params = {};
+    try {
+      if (arena.spoilsView) arena.spoilsView();
+      if (items.length && arena.loot) arena.loot(items);
+      await new Promise((res) => setTimeout(res, items.length ? 1600 : 700));
+      params = await afterOnField(r.battle);
+    } catch (e) { console.error(e); }
+    if (r.end) await r.end();
+    fighting = false;
     world.afterFight();
-    // M7's own after-fight screen (XP, level-ups, gold, the chests and their cards), over the 3D
-    go('aftermath', { battle: r.battle, returnTo: 'world' });
+    world.back(params);
+  }
+  // M7's after-fight screen over the field; it resolves with what it hands the world (result, brand, wokeAt...)
+  function afterOnField(battle) {
+    return new Promise((resolve) => {
+      spoils = true;
+      fhost.replaceChildren(); fhost.hidden = false; fhost.classList.add('spoils');
+      const main = document.createElement('main'); main.className = 'screen screen-aftermath'; fhost.append(main);
+      let screen = null, off = null;
+      const onChest = (e) => { const b = e.target.closest && e.target.closest('button.chest'); if (b && arena.openLoot) arena.openLoot(+b.dataset.pick - 1); };
+      const actx = Object.create(ctx, { go: { value: (name, p = {}) => {
+        if (screen && screen.unmount) screen.unmount(); if (off) off();
+        fhost.removeEventListener('click', onChest, true); fhost.hidden = true; fhost.classList.remove('spoils'); fhost.replaceChildren();
+        spoils = false; window.__g3.aftermaths = (window.__g3.aftermaths || 0) + 1; resolve(p || {});
+      } } });
+      fhost.addEventListener('click', onChest, true);
+      screen = aftermath.mount(main, actx, { battle, returnTo: 'world' }) || {};
+      if (screen.onAction) off = input.onAction(screen.onAction);
+    });
   }
 
   // ---- the Atlas on the 3D continent: the Places job's piece (world3d/m7/atlas.js), M7_ATLAS.open({ at, kindled }) ->

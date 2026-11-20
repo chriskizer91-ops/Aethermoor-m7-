@@ -24,7 +24,7 @@ const shot = async (n) => { await page.screenshot({ path: path.join(out, String(
 const results = [];
 const check = (ok, what) => { results.push([ok, what]); log(ok ? 'PASS' : 'FAIL', what); };
 const E = (fn, a) => page.evaluate(fn, a);
-const state = () => E(() => { const w = window.__g3.world; return w && w.walk ? { map: w.walk.map, x: w.walk.x, y: w.walk.y, busy: w.busy, fighting: document.body.classList.contains('fighting'), away: !document.getElementById('screen').hidden } : null; });
+const state = () => E(() => { const w = window.__g3.world; return w && w.walk ? { map: w.walk.map, x: w.walk.x, y: w.walk.y, busy: w.busy, fighting: document.body.classList.contains('fighting') && !document.querySelector('#fight.spoils'), away: !document.getElementById('screen').hidden || !!document.querySelector('#fight.spoils') } : null; });
 
 // ---- M7's boxes and screens, as a player taps them ----
 async function playDialogue(pick = /Leave|Not yet|Go|Farewell|Done/i) {
@@ -56,9 +56,9 @@ async function settle({ fight = true, rest = false, max = 400 } = {}) {
       await page.click('.ov-hearth .btn.ghost').catch(() => {}); continue;
     }
     if (s && s.away) {
-      const chest = await page.$('#screen .af-loot .chest:not(.opened)');
+      const chest = await page.$('.screen-aftermath .af-loot .chest:not(.opened)');
       if (chest) { await chest.click().catch(() => {}); await page.waitForTimeout(800); continue; }
-      const nx = await page.$('#screen .af-foot .btn.primary');
+      const nx = await page.$('.screen-aftermath .af-foot .btn.primary');
       if (nx) { await nx.click().catch(() => {}); await page.waitForTimeout(500); continue; }
     }
     const p = await page.$('.ov [data-primary]:not([disabled]), .ov .cont');
@@ -130,11 +130,11 @@ if (await page.$('.ov-prefight')) { await shot('prefight'); await page.click('.p
 await page.waitForFunction(() => document.body.classList.contains('fighting'), null, { timeout: 30000 }).catch(() => {});
 check(await E(() => document.body.classList.contains('fighting')), 'Sneck\'s fight starts in 3D, in the hall');
 await page.waitForTimeout(4000); await shot('fight');
-await page.waitForFunction(() => !document.body.classList.contains('fighting'), null, { timeout: 400000 }).catch(() => {});
+await page.waitForFunction(() => !!document.querySelector('#fight.spoils') || !document.body.classList.contains('fighting'), null, { timeout: 400000 }).catch(() => {});
 const res1 = await E(() => window.__g3.lastResult);
 check(res1 === 'victory', `the fight is won (${res1})`);
 await page.waitForTimeout(1500); await shot('after-fight');
-check(await E(() => !document.getElementById('screen').hidden && !!document.querySelector('#screen .screen-aftermath')), 'M7\'s after-fight screen comes up over the 3D');
+check(await E(() => !!document.querySelector('#fight.spoils .screen-aftermath')), 'the spoils: M7\'s after-fight screen over the 3D field');
 await settle();
 s = await state();
 check(s.map === 'keep-hall' && !s.away, `back walking in the hall (${s.map} ${s.x},${s.y})`);

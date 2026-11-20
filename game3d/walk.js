@@ -678,6 +678,18 @@ export function createWorld(o) {
       for (const s of [...standing.values()]) { if (!Wk.P.scene.children.includes(s.fig.root)) standing.delete(s.e.id); }
     },
     pause(on) { if (Wk) Wk.pause(on); },
+    // the spoils: a hero who put something on is re-dressed on the field there and then (arena.swapHero)
+    redress(g, arena) {
+      const before = {}; for (const id of game.party.active) before[id] = gearKey(id);
+      game = g;
+      for (const id of game.party.active) {
+        if (before[id] === gearKey(id)) continue;
+        const A = id === leadId() ? W3D.witch(id) : actor(id, 'light');
+        if (arena && arena.on) arena.swapHero(id, A);
+        if (id === leadId()) leader = A; else { const i = game.party.active.indexOf(id) - 1; if (i >= 0) followers[i] = A; }
+        o.toast(`${game.party.roster[id]?.name?.split(' ')[0] || id} puts it on`);
+      }
+    },
     pressA, openMenu, save, target,
     // the headless playthrough's hooks (tools/play.mjs)
     teleport(x, y, face) { const [px, py] = centre(x, y); walk = { ...walk, x, y, face: face || walk.face }; Wk.setIo(px, py, YAW[face] ?? Wk.io.yaw); blocked = null; },
