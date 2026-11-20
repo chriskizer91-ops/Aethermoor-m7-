@@ -4,7 +4,7 @@
 
 - **The Sunscorch** (all ten: the Sun Road, Sandspire, the Dust Trail, Dusthaven, the Deep Shaft, the Glass Heart, the
   Glass Flats, Miragewell, the Scorchgate Ruins and Vaults), by day, from M7's maps and paintings:
-  https://claude.ai/artifact/Awn5YJ761bD7rPyp4AkEdf (7.6 MB). What's new in them:
+  https://claude.ai/artifact/Awn5YJ761bD7rPyp4AkEdf (10.9 MB with the heroes in Chris's textures). What's new in them:
   - Cliffs, scarps, mesas and a mine's rock walls rise out of the ground (thick runs of `^`, and `R` in a mine), with
     rock wrapped round their faces; dune crests are soft sand humps; a lone `^` is a boulder as before.
   - Chris's sand, sandstone, adobe, awning canvas and glass flats; flat adobe roofs, terracotta roofs and striped
@@ -14,15 +14,15 @@
     sunstone veins, crystals and embers.
   - Day light and a blue sky (the mines and the vaults stay dark).
 
-- **The Ironspire** (all seventeen, with the East Road): https://claude.ai/artifact/BPcAuRLL3njp1Q3ZHPTUWQ (9.4 MB). Snow
+- **The Ironspire** (all seventeen, with the East Road): https://claude.ai/artifact/BPcAuRLL3njp1Q3ZHPTUWQ (12.6 MB). Snow
   and frosted crags rising from the ground, Chris's dwarf stone, forge brick, ice and snow; the monastery in pale stone,
   the Tallymen's canvas tents, frost-dead trees, carved kings on the Iron Stair, anvils in the forges, ice columns
   Beneath Frostmere; the halls and forges lit by their fires, the rest by a cold day.
-- **The Gloomfen** (all twelve): https://claude.ai/artifact/RkoGBME3ANqwAVLnwKLbj8 (8.0 MB). Bogmire's plank streets and
+- **The Gloomfen** (all twelve): https://claude.ai/artifact/RkoGBME3ANqwAVLnwKLbj8 (11.2 MB). Bogmire's plank streets and
   the piers stand on stilts over Chris's bog water; waist-high rails, lanterns on poles, reeds, a green mist by day;
   the Mother's Hollow and the drowned belfry by night.
 - Act Two is done: one page per region, every place built.
-- **Act Three**: https://claude.ai/artifact/HMZiN2rDQThhvvsJqwmE56 (4.7 MB). The Keep's three galleries, the Great Hall,
+- **Act Three**: https://claude.ai/artifact/HMZiN2rDQThhvvsJqwmE56 (8.0 MB). The Keep's three galleries, the Great Hall,
   and the Hearth Below: the Hollow Hall (violet stone, pillars, the round council table), the Ash Stair (rock rising
   round the drop, ember seams, a red glow far down), the Chained Deep (great chains up into the dark, iron rails) and
   the Worldforge (molten channels that glow and light the room, hooks and racks). The four Hearth Below maps have no
