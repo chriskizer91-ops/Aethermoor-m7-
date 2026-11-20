@@ -8,9 +8,11 @@
 # sculpted INTO one continuous surface: at every point of his skin the topmost tuft decides the height, so the tufts
 # overlap like shingles, each with a hard lip at its tip. The same tufts (same seed) are used at every pass:
 #
+#   level 0 light    the shape for the game's light version: the parts at low roundness, each vine one tube
 #   pass 1  shape    ~100k triangles: the masses, the head, the tufts as plain forms, thorns, crown, vines, tusks
 #   pass 2  form     ~350k: each tuft splits into strands at its tip, with grooves between them; finer parts
 #   pass 3  detail   ~1M:   fine strands within the strands, a little grain; the parts at full roundness
+#   pass 4  full     ~2.5M: Chris, November 20: his laptop does 2 to 3 million; this is the asset kept in the repo
 #
 # Measurements come from Chris's sheet (art-in/3d/sheets/sheet-briarmaw.webp: front, side, back), at 1.7 m to the
 # top of his thorns. While shaping: x is his right side, y forward (to the nose), z up; bake.py turns him to face -Y.
@@ -26,8 +28,8 @@ LV = int(sys.argv[2]) if len(sys.argv) > 2 else 1
 os.makedirs(OUT, exist_ok=True)
 T0 = time.time()
 def log(*a): print(f'[{time.time() - T0:6.1f}s]', *a, flush=True)
-VOX = {1: 0.021, 2: 0.012, 3: 0.0076}[LV]
-SIDES = {1: 6, 2: 10, 3: 16}[LV]; SEG = {1: 6, 2: 10, 3: 14}[LV]
+VOX = {0: 0.021, 1: 0.021, 2: 0.012, 3: 0.0078, 4: 0.0049}[LV]
+SIDES = {0: 5, 1: 6, 2: 10, 3: 16, 4: 22}[LV]; SEG = {0: 4, 1: 6, 2: 10, 3: 14, 4: 20}[LV]
 
 # ---- signed distance helpers ---------------------------------------------------------------------------------------
 def smin(a, b, k):
@@ -66,19 +68,19 @@ def sstep(a, b, x): x = np.clip((x - a) / (b - a), 0, 1); return x * x * (3 - 2 
 
 # ---- 1. the shape: masses measured off the sheet ------------------------------------------------------------------
 LEGS = {
-    'fl': [(0.44, 0.44, 0.82), (0.46, 0.40, 0.38), (0.47, 0.46, 0.10)],
-    'fr': [(-0.44, 0.44, 0.82), (-0.46, 0.40, 0.38), (-0.47, 0.46, 0.10)],
+    'fl': [(0.44, 0.40, 0.82), (0.46, 0.36, 0.38), (0.47, 0.42, 0.10)],
+    'fr': [(-0.44, 0.40, 0.82), (-0.46, 0.36, 0.38), (-0.47, 0.42, 0.10)],
     'bl': [(0.42, -0.72, 0.74), (0.44, -0.78, 0.36), (0.45, -0.72, 0.10)],
     'br': [(-0.42, -0.72, 0.74), (-0.44, -0.78, 0.36), (-0.45, -0.72, 0.10)],
 }
 HEAD = np.array([0, 0.84, 1.10], np.float32)
 EYES = [np.array([s * 0.15, 1.05, 1.11], np.float32) for s in (1, -1)]
-TAIL = ((0, -0.98, 1.06), (0, -1.36, 0.30))
+TAIL = ((0, -1.0, 1.0), (0, -1.36, 0.44))
 
 def body_sdf(P):
     d = ell(P, (0, -0.08, 0.90), (0.58, 0.88, 0.55))                      # the barrel
     d = smin(d, ell(P, (0, -0.12, 1.14), (0.46, 0.66, 0.36)), 0.18)        # the hump over the middle of his back
-    d = smin(d, ell(P, (0, 0.30, 0.92), (0.62, 0.44, 0.50)), 0.16)         # chest and shoulders, wide
+    d = smin(d, ell(P, (0, 0.26, 0.92), (0.62, 0.44, 0.50)), 0.16)         # chest and shoulders, wide
     d = smin(d, ell(P, (0, 0.52, 1.08), (0.46, 0.38, 0.32)), 0.12)         # shoulder hump the head sinks into
     d = smin(d, ell(P, (0, -0.68, 0.80), (0.54, 0.44, 0.48)), 0.16)        # haunches
     d = smin(d, ell(P, (0, 0.0, 0.58), (0.46, 0.78, 0.22)), 0.20)          # belly
@@ -91,8 +93,8 @@ def body_sdf(P):
     h = smin(h, ell(P, (0, 1.02, 1.10), (0.10, 0.12, 0.06)), 0.05)                          # bridge of the nose
     for s in (1, -1):
         h = smin(h, ell(P, (s * 0.11, 1.02, 0.925), (0.12, 0.12, 0.06)), 0.04)              # upper lip, heavy
-        h = smin(h, ell(P, (s * 0.16, 1.01, 1.185), (0.12, 0.08, 0.04)), 0.03)              # brow ridge, outer
-        h = smin(h, ell(P, (s * 0.07, 1.05, 1.165), (0.07, 0.06, 0.035)), 0.03)             # brow ridge, inner, lower: angry
+        h = smin(h, ell(P, (s * 0.16, 1.03, 1.18), (0.13, 0.085, 0.05)), 0.03)              # brow ridge, outer, heavy
+        h = smin(h, ell(P, (s * 0.07, 1.07, 1.16), (0.075, 0.06, 0.04)), 0.03)              # brow ridge, inner, lower: angry
         h = smin(h, ell(P, (s * 0.30, 0.82, 0.98), (0.17, 0.18, 0.23)), 0.08)               # cheek ruffs
         h = smin(h, ell(P, (s * 0.20, 0.95, 0.83), (0.10, 0.11, 0.10)), 0.06)               # jowls round the tusk roots
         h = smax(h, -ell(P, EYES[0 if s > 0 else 1], (0.072, 0.045, 0.04)), 0.012)         # eye sockets
@@ -116,7 +118,7 @@ def body_sdf(P):
         if not front:
             d = smin(d, ell(P, (a[0], a[1] + 0.04, a[2] - 0.08), (0.24, 0.34, 0.34)), 0.12)
     # the tail: a wide pointed bunch hanging down behind the rump (side and back views)
-    d = smin(d, cap(P, TAIL[0], TAIL[1], 0.22, 0.02, scale=(1.3, 1.0, 1.0)), 0.22)
+    d = smin(d, cap(P, TAIL[0], TAIL[1], 0.18, 0.02, scale=(1.35, 1.0, 1.0)), 0.2)
     return np.maximum(d, -P[:, 2])
 
 def grad(f, P, e=1.5e-3):
@@ -133,11 +135,15 @@ def grid(h, lo=(-0.86, -1.48, -0.02), hi=(0.86, 1.34, 1.62)):
     xs = [np.arange(lo[i], hi[i] + h, h, dtype=np.float32) for i in range(3)]
     X, Y, Z = np.meshgrid(*xs, indexing='ij')
     return np.stack([X.ravel(), Y.ravel(), Z.ravel()], 1), X.shape, np.asarray(lo, np.float32)
-def mc(f, h):
-    P, shp, lo = grid(h)
-    vals = np.empty(len(P), np.float32)
-    for i in range(0, len(P), 2_000_000): vals[i:i + 2_000_000] = f(P[i:i + 2_000_000])
-    v, fc, _, _ = marching_cubes(vals.reshape(shp), 0.0, spacing=(h, h, h))
+def mc(f, h, lo=(-0.86, -1.48, -0.02), hi=(0.86, 1.34, 1.62)):
+    # evaluated a slab of x at a time, so the finest pass fits in memory
+    xs = [np.arange(lo[i], hi[i] + h, h, dtype=np.float32) for i in range(3)]
+    vol = np.empty((len(xs[0]), len(xs[1]), len(xs[2])), np.float32)
+    Y, Zz = np.meshgrid(xs[1], xs[2], indexing='ij'); Y = Y.ravel(); Zz = Zz.ravel()
+    for i, x in enumerate(xs[0]):
+        vol[i] = f(np.stack([np.full_like(Y, x), Y, Zz], 1)).reshape(len(xs[1]), len(xs[2]))
+    lo = np.asarray(lo, np.float32)
+    v, fc, _, _ = marching_cubes(vol, 0.0, spacing=(h, h, h))
     return (v + lo).astype(np.float32), fc.astype(np.int32)   # skimage winds them outward for an SDF
 
 # ---- 2. the tufts: where, how big, which way, what colour (the same at every pass) ------------------------------
@@ -166,7 +172,7 @@ def tuft_len(P):
     L = np.full(len(P), 0.30)
     L = mix(L, 0.19, Z['legs']); L = mix(L, 0.11, Z['paws'])
     L = mix(L, 0.30, Z['spine']); L = mix(L, 0.46, Z['shoulder']); L = mix(L, 0.44, Z['haunch'])
-    L = mix(L, 0.19, Z['cheek']); L = mix(L, 0.42, Z['tail'])
+    L = mix(L, 0.23, Z['cheek']); L = mix(L, 0.42, Z['tail'])
     L = mix(L, 0.06, Z['face'] * (1 - Z['cheek']))
     L = mix(L, 0.13, Z['beard'])
     return L
@@ -224,7 +230,7 @@ TT = flow(TP, TN); TB = np.cross(TN, TT)
 Z = zones(TP)
 TL = tuft_len(TP) * (0.85 + 0.3 * rng.random(nT))
 TW = TL * (0.46 + 0.1 * rng.random(nT)) * mix(1, 0.85, Z['shoulder'] + Z['haunch'])
-TH = np.minimum(TL * (0.17 + 0.05 * rng.random(nT)), 0.07) * mix(1, 0.5, Z['face'])
+TH = np.minimum(TL * (0.17 + 0.05 * rng.random(nT)), 0.07) * mix(1, 0.5, Z['face'] * (1 - Z['cheek'])) * mix(1, 1.5, Z['cheek'])
 TS = np.round(mix(3, 5, np.clip(TL / 0.4, 0, 1)) + rng.integers(0, 2, nT)).astype(int)   # strands per tuft
 brown = np.clip(np.maximum.reduce([Z['spine'], Z['shoulder'], Z['haunch'], Z['cheek'] * 1.3, Z['tail'], Z['beard'] * 1.3,
                                     np.clip((fbm(TP, 2.6) - 0.5) * 5, 0, 1) * 0.8]), 0, 1)
@@ -238,8 +244,9 @@ log('tufts', nT, 'longest', round(float(TL.max()), 3))
 
 def tri(x): f = x - np.floor(x); return 1 - np.abs(2 * f - 1)        # 0 at strand centres... 1 at the partings
 
-def coat(P, want_id=False):
+def coat(P, want_id=False, lv=None):
     """height of the topmost tuft at each point (and which tuft, and how far along it)"""
+    LV_ = LV if lv is None else lv
     K = 12
     dist, idx = ttree.query(P, K, distance_upper_bound=0.5)
     idx = np.where(np.isfinite(dist), idx, 0)
@@ -252,7 +259,7 @@ def coat(P, want_id=False):
     # feather barbs: strands leave the midrib and run out toward the tip at about 45 degrees
     wl = np.abs(w) * TW[idx] * 0.5; sl = s * TL[idx]
     q = (sl - 0.95 * wl) / (0.012 + 0.07 * TL[idx])
-    if LV >= 2:
+    if LV_ >= 2:
         tipend = 1 - 0.10 * tri(q + 0.5)          # the tip broken into strand points
         jag = 1 - 0.16 * tri(q + 0.5)             # and the sides saw-toothed where the strands end
     else:
@@ -264,10 +271,10 @@ def coat(P, want_id=False):
     dome = np.sqrt(np.clip(1 - e ** 2, 0, 1)) ** 0.6
     ramp = 0.2 + 0.8 * ss ** 1.3
     h = TH[idx] * ramp * dome * inside_s * inside_w
-    if LV >= 2:
+    if LV_ >= 2:
         h = h * (1 - 0.20 * tri(q + 0.5) ** 2 * sstep(0.05, 0.4, ss))           # partings between strands
         h = h * (1 - 0.10 * np.exp(-(wl / 0.006) ** 2) * sstep(0.1, 0.5, ss))   # a groove down the midrib
-    if LV >= 3:
+    if LV_ >= 3:
         h = h * (1 - 0.07 * tri(q * 3 + 0.5) ** 2 * sstep(0.2, 0.7, ss))         # fine strands within
     h = np.where(np.abs(nrm) < 0.25, h, 0)
     h = np.where(np.isfinite(dist), h, 0)
@@ -277,6 +284,14 @@ def coat(P, want_id=False):
         return top, idx[np.arange(len(P)), j], ss[np.arange(len(P)), j], q[np.arange(len(P)), j]
     return top
 
+def place_sdf(P):
+    # the coat without its fine grooves: where the parts are placed, so they sit the same at every level of detail
+    d = body_sdf(P)
+    band = np.abs(d) < HMAX + 0.04
+    if band.any():
+        d = d.copy(); d[band] -= coat(P[band], lv=1)
+    return d
+
 def full_sdf(P):
     d = body_sdf(P)
     band = np.abs(d) < HMAX + 0.04
@@ -284,6 +299,8 @@ def full_sdf(P):
         d = d.copy(); d[band] -= coat(P[band])
     if LV >= 3:
         d = d - 0.0025 * (vnoise(P, 90.0) - 0.5)
+    if LV >= 4:
+        d = d - 0.0014 * (vnoise(P + 5.1, 210.0) - 0.5)       # the finest grain
     return d
 
 # ---- 3. the body with its coat ------------------------------------------------------------------------------------
@@ -322,7 +339,7 @@ for e in EYES:
 M.add(Vb, Fb, np.clip(col, 0, 1), 0)
 
 def surf(p, out=0.0):
-    Pp, Nn = project(np.array([p], np.float32), full_sdf)
+    Pp, Nn = project(np.array([p], np.float32), place_sdf)
     return Pp[0].astype(float) + Nn[0] * out, Nn[0].astype(float)
 
 # ---- 4. building blocks for the parts ----------------------------------------------------------------------------
@@ -365,13 +382,13 @@ def thorn_col(V, base, length):
 def add_thorn(base, d, length, r0, bend, amt=0.35, seg=None, sides=None, sink=0.04, ridges=0, power=0.9):
     d = np.asarray(d, float); d /= np.linalg.norm(d)
     b = np.asarray(base, float) - d * sink
-    V, F = horn(b, d, length + sink, r0, bend, amt, seg or SEG, sides or SIDES + 2, ridges=ridges, power=power)
+    V, F = horn(b, d, length + sink, r0, bend, amt, seg or SEG, sides or SIDES + (1 if LV == 0 else 2), ridges=ridges, power=power)
     M.add(V, F, thorn_col(V, b, length + sink), 2)
 
 # ---- 5. thorns: the ridge down his back, the row between, the flank rows ------------------------------------------
 log('thorns')
-ridge_y = np.linspace(0.62, -1.00, 12)
-ridge_h = np.interp(ridge_y, [-1.0, -0.8, -0.4, 0.0, 0.3, 0.62], [0.16, 0.24, 0.32, 0.35, 0.30, 0.2])
+ridge_y = np.linspace(0.68, -1.00, 13)
+ridge_h = np.interp(ridge_y, [-1.0, -0.8, -0.4, 0.0, 0.3, 0.68], [0.16, 0.24, 0.32, 0.35, 0.31, 0.24])
 for yv, hh in zip(ridge_y, ridge_h):
     p, nrm = surf([0, yv, 1.8])
     add_thorn(p, nrm * 0.3 + np.array([0, 0.05, 1.0]), hh, hh * 0.32, [0, -1, 0], 0.65, sink=0.06, ridges=5, power=1.15)
@@ -382,12 +399,12 @@ def drop(xy, z0=1.75):
     # come down from above until we meet him
     P_ = np.column_stack([xy, np.full(len(xy), z0)]).astype(np.float32)
     for _ in range(60):
-        d_ = full_sdf(P_); P_[:, 2] -= np.maximum(d_, 0.002) * 0.9
+        d_ = place_sdf(P_); P_[:, 2] -= np.maximum(d_, 0.002) * 0.9
     return P_
 # the upper flank rows: up and out from either side of the ridge (the crown of horns round him, front and back views)
 for s in (1, -1):
     for yv, hh in [(0.42, 0.2), (0.15, 0.26), (-0.15, 0.28), (-0.45, 0.27), (-0.75, 0.22)]:
-        p = drop(np.array([[s * 0.30, yv]]))[0].astype(float); nrm = grad(full_sdf, p[None].astype(np.float32))[0]
+        p = drop(np.array([[s * 0.30, yv]]))[0].astype(float); nrm = grad(place_sdf, p[None].astype(np.float32))[0]
         add_thorn(p, np.array([s * 0.55, -0.1, 1.0]), hh, hh * 0.3, [s * -0.3, -0.5, 0.2], 0.45, sink=0.05, power=1.1)
 for s in (1, -1):
     for yv, zv, hh, up in [(0.30, 1.30, 0.2, 1.0), (-0.42, 1.32, 0.21, 1.0),
@@ -405,9 +422,9 @@ na = 240; aa = np.linspace(0, 2 * np.pi, na, endpoint=False)
 # a level wreath round the brow (front 1.21 up, back 1.30 where it sinks into his shoulder hump, as the sheet shows)
 ringP = np.stack([CRX * np.sin(aa), CROWN_C[1] + CRY * np.cos(aa), 1.255 - 0.045 * np.cos(aa)], 1).astype(np.float32)
 # sit it on his skin where it would float: come down until it touches
-fl = full_sdf(ringP) > 0.0
+fl = place_sdf(ringP) > 0.0
 if fl.any(): ringP[fl] = drop(ringP[fl, :2], 1.6)
-ringN = grad(full_sdf, ringP)
+ringN = grad(place_sdf, ringP)
 log("crown ring z", ringP[:, 2].min(), ringP[:, 2].max(), "y", ringP[:, 1].min(), ringP[:, 1].max())
 ringP = ringP + ringN * 0.02
 for _ in range(8): ringP = (np.roll(ringP, 1, 0) + 2 * ringP + np.roll(ringP, -1, 0)) / 4
@@ -433,22 +450,29 @@ for i in range(28):
 # ---- 7. bramble vines: twisted pairs wound round legs and body, thorned ------------------------------------------
 log('vines')
 vrng = np.random.default_rng(9)
+VINE_N = [0]
 def vine(path, r=0.04, strands=2, thorns=14, thorn_len=0.07):
+    VINE_N[0] += 1
+    tr = np.random.default_rng(1000 + VINE_N[0])     # its own dice: the same thorns at every level of detail
     path = np.asarray(path, float)
     L_ = np.r_[0, np.cumsum(np.linalg.norm(np.diff(path, axis=0), axis=1))]
-    s = np.linspace(0, L_[-1], max(24, int(L_[-1] / {1: 0.03, 2: 0.015, 3: 0.009}[LV])))
+    s = np.linspace(0, L_[-1], max(24, int(L_[-1] / {0: 0.06, 1: 0.03, 2: 0.015, 3: 0.009, 4: 0.006}[LV])))
     P = np.stack([np.interp(s, L_, path[:, i]) for i in range(3)], 1)
     t, N, B = frames(P)
-    for k in range(strands):
+    if LV == 0:
+        V, F = tube(P, np.full(len(P), r * 1.02), SIDES)
+        M.add(V, F, VINE, 3)
+    for k in range(strands if LV > 0 else 0):
         a = s / 0.075 + k * 2 * np.pi / strands
         off = (np.cos(a)[:, None] * N + np.sin(a)[:, None] * B) * r * 0.42
         V, F = tube(P + off, np.full(len(P), r * 0.64), SIDES)
         M.add(V, F, np.clip(mix(VINE, DKBROWN, 0.3 * k) * (0.9 + 0.2 * vrng.random()), 0, 1), 3)
-    for j in vrng.choice(len(P), thorns, replace=False):
-        a = vrng.random() * 2 * np.pi
+    for fr in tr.random(thorns):
+        j = int(np.clip(round(fr * (len(P) - 1)), 1, len(P) - 2))
+        a = tr.random() * 2 * np.pi
         dirn = np.cos(a) * N[j] + np.sin(a) * B[j]
         if dirn @ (P[j] - [0, 0, 0.8]) < -0.1: dirn = -dirn
-        add_thorn(P[j] + dirn * r * 1.1, dirn + t[j] * 0.3, thorn_len * (0.7 + 0.6 * vrng.random()), 0.017, t[j], 0.25,
+        add_thorn(P[j] + dirn * r * 1.1, dirn + t[j] * 0.3, thorn_len * (0.7 + 0.6 * tr.random()), 0.017, t[j], 0.25,
                   seg=max(4, SEG - 5), sides=max(5, SIDES - 1), sink=0.015)
 
 def resample(pts, n=90):
@@ -457,7 +481,7 @@ def resample(pts, n=90):
     ss = np.linspace(0, L_[-1], n)
     return np.stack([np.interp(ss, L_, pts[:, i]) for i in range(3)], 1)
 def lay(pts, r):
-    Pp, Nn = project(np.asarray(pts, np.float32), full_sdf)
+    Pp, Nn = project(np.asarray(pts, np.float32), place_sdf)
     Pp = Pp + Nn * (r * 0.9)
     for _ in range(3): Pp[1:-1] = (Pp[:-2] + 2 * Pp[1:-1] + Pp[2:]) / 4
     return Pp
@@ -487,9 +511,9 @@ for s in (1, -1):
 log('tusks, teeth, claws, eyes')
 for s in (1, -1):
     # the tusks: out of the sides of the lower jaw, down, bowing forward, the tip back again (side view), a little out
-    base = np.array([s * 0.17, 1.02, 0.86])
-    u = np.linspace(0, 1, {1: 14, 2: 24, 3: 36}[LV])
-    pts = np.array([base + [s * (0.04 * x + 0.03 * x * x), 0.30 * x - 0.34 * x * x, -0.56 * x] for x in u])
+    base = np.array([s * 0.17, 1.06, 0.86])
+    u = np.linspace(0, 1, {0: 12, 1: 14, 2: 24, 3: 36, 4: 56}[LV])
+    pts = np.array([base + [s * (0.04 * x + 0.03 * x * x), 0.40 * x - 0.38 * x * x, -0.58 * x] for x in u])
     pts = np.vstack([base + [0, -0.03, 0.06], pts])
     radii = np.r_[0.06, 0.07 * (1 - u) ** 0.75 + 0.004]
     if LV >= 2: radii[1:] = radii[1:] * (1 - 0.025 * (np.sin(u * 46) > 0.6))
@@ -507,11 +531,11 @@ for s in (1, -1):
 # teeth: fangs along the grin, upper ones hanging down, a few lower ones up (sheet: gold-tinted)
 for i, x0 in enumerate(np.linspace(-0.15, 0.15, 9)):
     y0 = 1.07 - 2.6 * x0 * x0 + 0.012; z0 = 0.885 + 0.4 * x0 * x0
-    L_ = 0.07 if i in (1, 7) else (0.045 + 0.015 * (i % 2))
-    V, F = horn(np.array([x0, y0, z0 + 0.03]), [0, 0.12, -1], L_ + 0.03, 0.014 + 0.004 * (L_ > 0.04), [0, 1, 0], 0.1, max(4, SEG - 4), max(5, SIDES - 1))
-    M.add(V, F, mix(BONE, PALEGOLD, 0.35), 5)
+    L_ = 0.095 if i in (1, 7) else (0.06 + 0.02 * (i % 2))
+    V, F = horn(np.array([x0, y0, z0 + 0.03]), [0, 0.12, -1], L_ + 0.03, 0.019 + 0.005 * (L_ > 0.08), [0, 1, 0], 0.1, max(4, SEG - 4), max(5, SIDES - 1))
+    M.add(V, F, thorn_col(V, np.array([x0, y0, z0 + 0.03]), L_ + 0.03) * 1.05, 5)
     if i % 2 == 0:
-        V, F = horn(np.array([x0, y0 - 0.012, z0 - 0.03]), [0, 0.1, 1], 0.06, 0.014, [0, 1, 0], 0.1, max(4, SEG - 4), max(5, SIDES - 1))
+        V, F = horn(np.array([x0, y0 - 0.012, z0 - 0.03]), [0, 0.1, 1], 0.075, 0.017, [0, 1, 0], 0.1, max(4, SEG - 4), max(5, SIDES - 1))
         M.add(V, F, mix(BONE, PALEGOLD, 0.35) * 0.95, 5)
 for k, (a, b, c) in LEGS.items():
     sx = 1 if a[0] > 0 else -1
@@ -522,7 +546,7 @@ for k, (a, b, c) in LEGS.items():
         V, F = horn(p, [math.sin(ang) * 0.7, math.cos(ang), 0.2], 0.13, 0.04, [0, 0, -1], 0.7, SEG, SIDES + 2)
         M.add(V, F, mix(CLAW, CLAW * 1.8, np.clip((V[:, 2] - 0.02) * -8 + 0.5, 0, 1)[:, None]), 6)
 for e in EYES:
-    nt, npp = {1: 8, 2: 12, 3: 16}[LV], {1: 14, 2: 20, 3: 28}[LV]
+    nt, npp = {0: 8, 1: 8, 2: 12, 3: 16, 4: 22}[LV], {0: 12, 1: 14, 2: 20, 3: 28, 4: 40}[LV]
     th, ph = np.meshgrid(np.linspace(0, np.pi, nt), np.linspace(0, 2 * np.pi, npp, endpoint=False), indexing='ij')
     sp = np.stack([np.sin(th) * np.cos(ph), np.sin(th) * np.sin(ph), np.cos(th)], -1).reshape(-1, 3)
     F = []

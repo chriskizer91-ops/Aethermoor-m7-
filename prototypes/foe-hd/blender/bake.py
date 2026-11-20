@@ -2,8 +2,8 @@
 #
 #   blender -b -P bake.py -- HIGH.npz SHAPE.npz OUT_DIR [RES]
 #
-# 1. The light mesh: the pass-1 shape (same tufts, same thorns), each kind of part brought down on its own (the coat
-#    to about 36,000 triangles, thorns, vines and claws to a few thousand each), so it lands near 50,000 in all.
+# 1. The light mesh: sculpt.py's level 0 (same tufts, same thorns, the parts built light), the coat reduced to
+#    about 29,500 triangles, so it lands near 50,000 in all.
 # 2. UVs by Smart UV Project.
 # 3. Cycles bakes from the sculpt onto it, selected-to-active: the surface (tangent-space normal map), the shading in
 #    the folds (ambient occlusion), his colour (diffuse colour only) and the glow of his eyes (emission).
@@ -27,7 +27,8 @@ blib.clear()
 sc = bpy.context.scene
 
 # ---- 1. the light mesh -----------------------------------------------------------------------------------------
-TARGET = {0: 36000, 2: 6200, 3: 4400, 4: 600, 5: 1300, 6: 1300, 7: 400}
+# the coat is reduced; the parts come already light (sculpt.py level 0) and keep their shape
+TARGET = {0: 29500, 2: 10**9, 3: 10**9, 4: 10**9, 5: 10**9, 6: 10**9, 7: 10**9}
 s = np.load(SHAPE)
 V0, F0, K0 = s['V'], s['F'], s['K']
 fk = K0[F0[:, 0]]
@@ -68,33 +69,53 @@ bpy.ops.object.mode_set(mode='OBJECT')
 log('uvs done')
 
 # ---- 3. the bake -----------------------------------------------------------------------------------------------
+# Two runs into the same pictures: the coat (light coat <- sculpt coat, a long reach for the tufts' height) and the
+# parts (light parts <- sculpt parts, a short reach, so a thin vine never picks up the coat or a thorn beside it).
 h = np.load(HIGH)
-hi = blib.mesh_from('sculpt', h['V'], h['F'], h['C'], h['K'])
-hi.data.materials.append(blib.vcol_material('sculpt_mat', rough=0.8))
+hk = h['K'][h['F'][:, 0]]
+def sub(name, keep):
+    F = h['F'][keep]; used, inv = np.unique(F, return_inverse=True)
+    ob = blib.mesh_from(name, h['V'][used], inv.reshape(-1, 3), h['C'][used], h['K'][used])
+    ob.data.materials.append(smat); return ob
+smat = blib.vcol_material('sculpt_mat', rough=0.8)
+hi_coat, hi_parts = sub('sculpt_coat', hk == 0), sub('sculpt_parts', hk != 0)
 log('sculpt', len(h['F']), 'triangles')
 
 mat = bpy.data.materials.new('light'); mat.use_nodes = True; lo.data.materials.append(mat)
 tex = mat.node_tree.nodes.new('ShaderNodeTexImage')
 mat.node_tree.nodes.active = tex
+# the light mesh split the same way (same UVs, same material and pictures)
+import bmesh
+def lo_part(name, keep_kinds):
+    ob = lo.copy(); ob.data = lo.data.copy(); ob.name = name; sc.collection.objects.link(ob)
+    bm = bmesh.new(); bm.from_mesh(ob.data)
+    kv = KL   # kind per vertex, in the light mesh's own vertex order
+    bmesh.ops.delete(bm, geom=[f for f in bm.faces if kv[f.verts[0].index] not in keep_kinds], context='FACES')
+    bm.to_mesh(ob.data); bm.free(); return ob
+lo_coat, lo_parts = lo_part('light_coat', {0}), lo_part('light_parts', {2, 3, 4, 5, 6, 7})
+lo.hide_render = True
+
 sc.render.engine = 'CYCLES'; sc.cycles.device = 'CPU'
 sc.cycles.use_denoising = False   # this Blender has no denoiser, and asking for one cancels every bake
 w = bpy.data.worlds.new('w'); sc.world = w; w.light_settings.distance = 0.35
-bk = sc.render.bake
-bk.use_selected_to_active = True; bk.cage_extrusion = 0.04; bk.max_ray_distance = 0.12; bk.margin = 6
-for o in sc.objects: o.select_set(o in (hi, lo))
-bpy.context.view_layer.objects.active = lo
+# the eyes glow at strength 1 while baking (the page sets the brightness), so the colour isn't clipped to white
+for n in smat.node_tree.nodes:
+    if n.type == 'MATH' and n.operation == 'MULTIPLY': n.inputs[1].default_value = 1.0
 
+RUNS = [(lo_coat, hi_coat, 0.07, 0.2), (lo_parts, hi_parts, 0.02, 0.05)]
 def bake(name, btype, samples=1, colorspace='sRGB', res=RES, **kw):
     img = bpy.data.images.new(name, res, res, alpha=False)
     img.colorspace_settings.name = colorspace
     tex.image = img
     sc.cycles.samples = samples
-    bpy.ops.object.bake(type=btype, use_selected_to_active=True, cage_extrusion=0.04, max_ray_distance=0.12,
-                        margin=6, use_clear=True, **kw)
+    for i, (l, hh, cage, reach) in enumerate(RUNS):
+        for o in sc.objects: o.select_set(o in (l, hh))
+        bpy.context.view_layer.objects.active = l
+        bpy.ops.object.bake(type=btype, use_selected_to_active=True, cage_extrusion=cage, max_ray_distance=reach,
+                            margin=6, use_clear=(i == 0), **kw)
     px = np.empty(res * res * 4, np.float32); img.pixels.foreach_get(px); px = px.reshape(-1, 4)
-    log(name, 'mean', px[:, :3].mean(0).round(3), 'min', px[:, :3].min(0).round(3), 'max', px[:, :3].max(0).round(3))
+    log(name, 'mean', px[:, :3].mean(0).round(3), 'max', px[:, :3].max(0).round(3))
     img.filepath_raw = os.path.join(OUT, f'{name}.png'); img.file_format = 'PNG'; img.save()
-    log('baked', name)
 
 bake('normal', 'NORMAL', 1, 'Non-Color', normal_space='TANGENT')
 bake('color', 'DIFFUSE', 1, pass_filter={'COLOR'})
@@ -104,8 +125,8 @@ bake('ao', 'AO', int(os.environ.get('AO_SAMPLES', 48)), 'Non-Color')
 # ---- 4. the rig ------------------------------------------------------------------------------------------------
 # joints in sculpt coordinates (x right, y forward, z up); each bone runs from its head to its tail
 LEG = {
-    'fl': [(0.44, 0.44, 0.86), (0.46, 0.40, 0.38), (0.47, 0.46, 0.10)],
-    'fr': [(-0.44, 0.44, 0.86), (-0.46, 0.40, 0.38), (-0.47, 0.46, 0.10)],
+    'fl': [(0.44, 0.40, 0.86), (0.46, 0.36, 0.38), (0.47, 0.42, 0.10)],
+    'fr': [(-0.44, 0.40, 0.86), (-0.46, 0.36, 0.38), (-0.47, 0.42, 0.10)],
     'bl': [(0.42, -0.72, 0.80), (0.44, -0.78, 0.36), (0.45, -0.72, 0.10)],
     'br': [(-0.42, -0.72, 0.80), (-0.44, -0.78, 0.36), (-0.45, -0.72, 0.10)],
 }
