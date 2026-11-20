@@ -7,10 +7,10 @@ Where the 3D game stands. Written by the hub only. Last updated November 20, eve
 | # | Job | Session | Branch | State | Latest link |
 |---|---|---|---|---|---|
 | 1 | the hub | `session_01DgbUKb6orvjjc1cMgBGPJK` | `claude/brave-davinci-790efm` | running | (the board) |
-| 2 | The Fight | `session_01DgbUKYR9qmKyBdACUWGViw` | `job/fight` | step 2 first cut brought in: the spoils (chests in their rarity's colour on the field, M7's aftermath and card reveal over it, equipping re-dresses the hero in 3D; `runFight({ keep: true })`); next: the Party screen with the hero turning, then Full-detail Briarmaw | https://claude.ai/artifact/NpeXL5Pf4RxNfkQsguTnEK |
+| 2 | The Fight | `session_01DgbUKYR9qmKyBdACUWGViw` | `job/fight` | step 2 complete and brought in: the spoils and M7's Party screen with the hero turning in 3D (`openParty()` for Together); next: Full-detail Briarmaw as a third Foes setting | https://claude.ai/artifact/NpeXL5Pf4RxNfkQsguTnEK |
 | 3 | Models | `session_01DgbUKcWh5MEvjHnxzp4HHo` | `job/models` | the townsfolk done and brought in (all 53, `person()` / `personFigure()` for Together); the painted / 3D comparison waits on Chris | https://claude.ai/artifact/CA6CcAKVHSxGPB5TAZF5sY |
 | 4 | Places | `session_01DgbUKZVFBfm1dVautXEw5f` | `job/places` | step 4 brought in (phones: Act One ~82 draw calls on phone; the paintings on roofs, water, decks, rocks; signposts, chests, pedestals); fixing: roofs over a house's front row show the painted front | https://claude.ai/artifact/MXyu3A9zTjoCavHFKXCbpi |
-| 5 | Together | `session_01DgbUKbyjzZFe1BXHHxzHBn` | `job/together` | step 1 done and brought in: Act One as one playable game (M7's world engine under the 3D walk, people, packs, fights, chests, Hearthfires, the Atlas, its own save); the playthrough continues | https://claude.ai/artifact/RaeSK5hezqb3qH7jmuM5aj |
+| 5 | Together | `session_01DgbUKbyjzZFe1BXHHxzHBn` | `job/together` | version 2 brought in: the townsfolk talk and turn, the light Atlas; the playthrough passed 15 of 16 (the chest step being re-run) | https://claude.ai/artifact/RaeSK5hezqb3qH7jmuM5aj |
 | 6 | One Foe | `session_01DgbUKZCNBFY7zwSzwAXR8y` | `job/foe-hd` | first look done and brought in: Briarmaw three ways (a 407k sculpt baked onto 50,167 triangles, 19 bones, 7 moves, the crowd test); next: pass 3 (~1M), the face, smoother moves | https://claude.ai/artifact/5iUqJsPw3NGrvun4Ng73eh |
 
 ## What's built (on the hub's branch)

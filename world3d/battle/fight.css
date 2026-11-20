@@ -26,3 +26,7 @@ body.fighting #world > button, body.fighting #party, body.fighting #toast.hidefi
 /* the spoils: M7's after-fight screen over the field, the field still showing above and round it */
 #fight.spoils { overflow-y: auto; background: linear-gradient(180deg, rgba(10, 8, 12, 0) 0, rgba(10, 8, 12, 0) 36vh, rgba(10, 8, 12, .6) 48vh, rgba(14, 10, 9, .92) 70vh); }
 #fight.spoils .screen-aftermath { padding-top: 40vh; background: transparent; }
+/* the Party screen over the walk, its hero box holding the hero in 3D */
+#fight.party-room { overflow-y: auto; background: rgba(14, 10, 9, .9); }
+#fight .f3-has-turn > canvas:not(.f3-turn) { display: none; }
+#fight .f3-turn { display: block; margin: 0 auto; touch-action: none; cursor: grab; }
