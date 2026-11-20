@@ -17,7 +17,8 @@ until Chris answers. When he does, it moves to `decisions.md`.
     flashing when hit) *(suggested: they look like his art at once, for all 54 beasts)*; or the code-built models
     reshaped to the sheets; or real 3D models Chris makes from his sheets with an AI 3D tool (as he makes the pictures),
     which we bring in; or each foe sculpted in full detail and baked onto a light model (session 6 is doing Briarmaw
-    this way). Models is building the painted side-by-side in the Bestiary, and session 6 shows all three for Briarmaw.
+    this way). All three can now be seen: the Bestiary's Painted / 3D switch, the fight's Foes button, and session 6's
+    Briarmaw three ways. Session 6 suggests full detail for the Champions, and deciding the rest after the crowd test.
 5b. **Small beasts on the field** (briarlings, hounds) stand 1.3 times life size so they read beside the heroes. Keep
     it *(suggested)*?
 

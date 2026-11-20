@@ -113,7 +113,11 @@
     const surfOf = (k) => VAR_ID[k] || SURF[k.split('~')[0]];   // the picture a wall key wears
     for (const k of FLOWER_KINDS) MAT['fl_' + k] = m({ map: pics['fl_' + k], alphaTest: 0.5, side: DS, cut: true, shade: 0.5 });
     // a place's own materials: { tex (none: a plain colour), rep, tint, emis, lit, glow, spec, cut (false: never thins away near Io), side, shade }
-    for (const k in place.extraMats || {}) { const e = place.extraMats[k]; MAT[k] = m({ map: e.tex ? T(e.tex) : null, rep: e.rep || 2, tint: e.tint, emis: e.emis, lit: e.lit, glow: e.glow, spec: e.spec, cut: e.cut !== false, side: e.side === 'double' ? DS : THREE.FrontSide, shade: e.shade == null ? 0.4 : e.shade }); }
+    // (Aethermoor, Places) e.paint: the place's painting laid over the faces of this material that look up (core.js PAINTMAP)
+    const PK = place.size ? new THREE.Vector4(1 / (M.SX * place.size[0]), 1 / (M.SZ * place.size[1]), M.CX / place.size[0], M.CY / place.size[1]) : null;
+    // (Aethermoor, Places) place.paintOn: the engine's own surfaces (decks, bridges) that wear the painting where they look up
+    if (PK && place.paintOn) for (const k of place.paintOn.keys || []) { const mt = MAT[k]; if (!mt || !mt.uniforms || !mt.uniforms.tPaintM) continue; mt.defines = Object.assign({}, mt.defines, { PAINTMAP: '' }); mt.uniforms.tPaintM.value = T(place.paintOn.paint); mt.uniforms.uPK.value = PK; mt.uniforms.uPaintMix.value = place.paintOn.mix == null ? 0.75 : place.paintOn.mix; mt.needsUpdate = true; }
+    for (const k in place.extraMats || {}) { const e = place.extraMats[k]; MAT[k] = m({ map: e.tex ? T(e.tex) : null, rep: e.rep || 2, tint: e.tint, emis: e.emis, lit: e.lit, glow: e.glow, spec: e.spec, cut: e.cut !== false, side: e.side === 'double' ? DS : THREE.FrontSide, shade: e.shade == null ? 0.4 : e.shade, paint: e.paint && PK ? T(e.paint) : null, paintK: PK, paintMix: e.paintMix }); }
     // the trees, with and without the thinning-away (it costs a little, so only the patches near Io's line of sight get it)
     // (short list, group D) Crowns built of Chris's painted boughs, where the page carries the bough for the place's kind of
     // leaf: BOUGH.leaf for its broadleaf trees, BOUGH.fir for its firs, BOUGH.bare for its bare ones; BUSH for flower beds.
@@ -251,7 +255,7 @@
         const ya = w.level(py), yb = w.level(py + sy), xa = X(px), xb = X(px + sx), za = Z(py), zb = Z(py + sy);
         WB2.quad('w', [xa, yb, zb], [xb, yb, zb], [xb, ya, za], [xa, ya, za], [xa, zb, xb, za]);
       }
-      const mesh = WB2.build({ w: W3D.waterMat(U, { water: T(w.tex), rep: w.rep, flow: w.flow, tint: w.tint, emis: w.emis /* (Aethermoor, Places) */ }) }).w;
+      const mesh = WB2.build({ w: W3D.waterMat(U, { water: T(w.tex), rep: w.rep, flow: w.flow, tint: w.tint, emis: w.emis, paint: w.paint && PK ? T(w.paint) : null, paintK: PK, paintMix: w.paintMix /* (Aethermoor, Places) */ }) }).w;
       if (mesh) { mesh.name = 'water'; waterMeshes.push(mesh); scene.add(mesh); }
     }
 
@@ -826,7 +830,7 @@
 
     // ---- the trees, in patches ----
     const trees = ((window.W3D_TREES || {})[place.trees] || []).concat(place.extraTrees || []);
-    const patches = {}, PATCH = 22;
+    const patches = {}, PATCH = place.treePatch || 22;   // (Aethermoor, Places) a place may ask for bigger patches (fewer draws on a phone)
     const cone = new THREE.ConeGeometry(1, 1, 9, 1, true), trunk = new THREE.CylinderGeometry(0.6, 1, 1, 6, 1, true);
     const limbG = new THREE.CylinderGeometry(0.22, 1, 1, 5, 1, true); limbG.translate(0, 0.5, 0);
     const UPV = new THREE.Vector3(0, 1, 0), _d = new THREE.Vector3(), _q = new THREE.Quaternion();
@@ -909,7 +913,8 @@
     };
     for (const [tx, ty, size, kind, seed] of trees) {
       const key = Math.floor(X(tx) / PATCH) + ',' + Math.floor(Z(ty) / PATCH);
-      plantOne(patches[key] || (patches[key] = W3D.Builder()), tx, ty, size, kind, seed, tx < 0 || tx > place.size[0] || ty < 0 || ty > place.size[1], terrain(tx, ty));
+      // (Aethermoor, Places) place.lightTrees: every tree in its lighter version (a phone)
+      plantOne(patches[key] || (patches[key] = W3D.Builder()), tx, ty, size, kind, seed, !!place.lightTrees || tx < 0 || tx > place.size[0] || ty < 0 || ty > place.size[1], terrain(tx, ty));
     }
     // (Coven: the shapes stay, so plantPatch can use them after the place is built)
     // every trunk is solid: Io walks round it

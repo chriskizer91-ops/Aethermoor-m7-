@@ -768,6 +768,7 @@
         return g;
       };
       for (const [id, m] of Object.entries(src)) {
+        if (m.near === 'mid') m.near = m.mid;   // (Aethermoor, Places) tree-models-lite.js: the mid model stands in for the near one
         const make = (lod, cap) => { const mesh = new THREE.InstancedMesh(unpack(m[lod]), mat, cap); mesh.setColorAt(0, C); mesh.count = 0; mesh.frustumCulled = false; scene.add(mesh); return mesh; };
         models[id] = { tall: m.tall, leaf: m.near.leaf, near: make('near', MD.near), mid: make('mid', MD.mid), far: make('far', MD.far) };
       }

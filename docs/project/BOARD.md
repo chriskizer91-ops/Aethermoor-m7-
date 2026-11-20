@@ -7,11 +7,11 @@ Where the 3D game stands. Written by the hub only. Last updated November 20, eve
 | # | Job | Session | Branch | State | Latest link |
 |---|---|---|---|---|---|
 | 1 | the hub | `session_01DgbUKb6orvjjc1cMgBGPJK` | `claude/brave-davinci-790efm` | running | (the board) |
-| 2 | The Fight | `session_01DgbUKYR9qmKyBdACUWGViw` | `job/fight` | Briarmaw's boss fight in his den done and brought in (phases, grip, summoned briarlings; a phone setting); next: the painted-foes switch, then step 2, the spoils | https://claude.ai/artifact/NpeXL5Pf4RxNfkQsguTnEK |
+| 2 | The Fight | `session_01DgbUKYR9qmKyBdACUWGViw` | `job/fight` | Briarmaw's fight and the painted-foes switch (Foes button, ?foes=cutout) done and brought in; on step 2, the spoils | https://claude.ai/artifact/NpeXL5Pf4RxNfkQsguTnEK |
 | 3 | Models | `session_01DgbUKcWh5MEvjHnxzp4HHo` | `job/models` | the townsfolk done and brought in (all 53, `person()` / `personFigure()` for Together); the painted / 3D comparison waits on Chris | https://claude.ai/artifact/CA6CcAKVHSxGPB5TAZF5sY |
-| 4 | Places | `session_01DgbUKZVFBfm1dVautXEw5f` | `job/places` | step 3 done and brought in: the Atlas (M7's places on the 3D continent, travel by kindled Hearthfires: `M7_ATLAS.open`), the light per place (Act One by day), batch 4 read from `art-in/`; next: phones and fidelity to the paintings | https://claude.ai/artifact/MXyu3A9zTjoCavHFKXCbpi |
+| 4 | Places | `session_01DgbUKZVFBfm1dVautXEw5f` | `job/places` | step 4 brought in (phones: Act One ~82 draw calls on phone; the paintings on roofs, water, decks, rocks; signposts, chests, pedestals); fixing: roofs over a house's front row show the painted front | https://claude.ai/artifact/MXyu3A9zTjoCavHFKXCbpi |
 | 5 | Together | `session_01DgbUKbyjzZFe1BXHHxzHBn` | `job/together` | step 1 done and brought in: Act One as one playable game (M7's world engine under the 3D walk, people, packs, fights, chests, Hearthfires, the Atlas, its own save); the playthrough continues | https://claude.ai/artifact/RaeSK5hezqb3qH7jmuM5aj |
-| 6 | One Foe | `session_01DgbUKZCNBFY7zwSzwAXR8y` | `job/foe-hd` | Briarmaw's sculpt, pass 1 (shape, about 134k triangles), checked against the sheet; on to the full detail, the bake and the three-way page | - |
+| 6 | One Foe | `session_01DgbUKZCNBFY7zwSzwAXR8y` | `job/foe-hd` | first look done and brought in: Briarmaw three ways (a 407k sculpt baked onto 50,167 triangles, 19 bones, 7 moves, the crowd test); next: pass 3 (~1M), the face, smoother moves | https://claude.ai/artifact/5iUqJsPw3NGrvun4Ng73eh |
 
 ## What's built (on the hub's branch)
 
@@ -27,6 +27,7 @@ Where the 3D game stands. Written by the hub only. Last updated November 20, eve
 | A fight on Thornhollow's road: M7's battle screen over the 3D, the party on the field, 3D dice | `world3d/battle/`, `world3d/fight.js` | https://claude.ai/artifact/NpeXL5Pf4RxNfkQsguTnEK |
 | The Verdant Wilds (Coven's zone 1, borrowed), the small and big maps, the 3D continent | `world3d/` | https://claude.ai/artifact/R3Ecr7e1VVbb9Qi7GXEPpx |
 | The Gear Room: a hero whose outfit is built from M7's gear, in Chris's 47 textures and the four faces | `prototypes/hero-3d/` | https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL |
+| Briarmaw three ways: code-built, painted, full detail (baked from a sculpt), with a crowd test | `prototypes/foe-hd/` | https://claude.ai/artifact/5iUqJsPw3NGrvun4Ng73eh |
 | The Bestiary: all 93 foes; the 54 beasts painted (cut from Chris's sheets) or in 3D (Act One's 12 sculpted), with a switch | `prototypes/bestiary/` | https://claude.ai/artifact/CA6CcAKVHSxGPB5TAZF5sY |
 | The story on the atlas: M7's places on the map of Aethermoor | `docs/lore/` | https://claude.ai/artifact/XTicYjY9EcZ4V54cjSzJcZ |
 | Chris's 136 pictures | `art-in/3d/` | `art-requests/RECEIVED.md` |
@@ -56,6 +57,10 @@ Where the 3D game stands. Written by the hub only. Last updated November 20, eve
   the world page with `--tex=448 --herotex=256` to stay under 16 MB.
 - **The Atlas on the game page:** its tree and place models (3.8 MB) are left off to stay under 16 MB; Places is making
   lighter copies with its phone work.
+
+- **For Models, from Places:** on phone detail the four heroes are most of a town's cost (about 144 draw calls and 110k
+  triangles together; a place alone is 16 to 36 calls). A lighter phone version of the three followers would about
+  halve a town's draw calls.
 
 ## Next for the hub
 

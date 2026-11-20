@@ -4,6 +4,8 @@ Written by the hub. His newer word beats anything older, here or anywhere in the
 
 ## November 20
 
+- **To session 6, on the full-detail foe** (relayed in its slip): start with a 100,000-triangle shape model, then add
+  the detail; no fuzz of tiny hairs ("that'll look fuzzy, but it won't look like it's supposed to").
 - **A sixth session builds one foe in full detail**: a 600,000 to 1,000,000-triangle sculpt baked onto a
   50,000-triangle light version, so many foes and characters can be on screen at once; shown side by side with the
   painted cut-out and the code-built model, so he can choose. "Building games takes months or years, and we will do it

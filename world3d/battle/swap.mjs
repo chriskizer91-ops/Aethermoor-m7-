@@ -8,13 +8,30 @@
 //                                       the field knows a command (a drink, a guard) before its events play
 // Nothing else is swapped, and only for the battle screen: every other importer of those files gets M7's own.
 import path from 'node:path';
+import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const SWAP = { '../battle/stage.js': 'stage3d.js', '../battle/party.js': 'party3d.js', '../battle/tray.js': 'tray3d.js', '../../rules/battle.js': 'rules-tap.js' };
 const SCREEN = path.join('game', 'src', 'ui', 'screens', 'battle.js');
 
-export default [{
+// Chris's painted standees (Models' prototypes/bestiary/standees/pack.js holds every creature, 5 MB): only the ones
+// this page meets go in. FIGHT_STANDEES=thornhound,briarling,... names them (all: every one).
+const KEEP = (process.env.FIGHT_STANDEES || 'thornhound,briarling,briarmaw').split(',');
+const trimPack = {
+  name: 'aethermoor-fight-standees',
+  setup(b) {
+    b.onLoad({ filter: /bestiary[\\/]standees[\\/]pack\.js$/ }, (a) => {
+      const src = readFileSync(a.path, 'utf8');
+      if (KEEP.includes('all')) return { contents: src, loader: 'js' };
+      const at = src.indexOf('{'), all = JSON.parse(src.slice(at).replace(/;\s*$/, ''));
+      const kept = Object.fromEntries(Object.entries(all).filter(([k]) => KEEP.includes(k)));
+      return { contents: 'export const STANDEES = ' + JSON.stringify(kept) + ';\n', loader: 'js' };
+    });
+  },
+};
+
+export default [trimPack, {
   name: 'aethermoor-fight-swap',
   setup(b) {
     b.onResolve({ filter: /^(\.\.\/battle\/(stage|party|tray)|\.\.\/\.\.\/rules\/battle)\.js$/ }, (a) => {

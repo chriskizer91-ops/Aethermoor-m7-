@@ -64,10 +64,12 @@ html,body{margin:0;height:100%;background:#0a0b18;overflow:hidden;overscroll-beh
 @media (max-width:720px){#toast{top:calc(70px + env(safe-area-inset-top,0px))}}
 #fightbtn{position:absolute;right:calc(12px + env(safe-area-inset-right,0px));bottom:calc(64px + env(safe-area-inset-bottom,0px));z-index:5;appearance:none;min-height:48px;padding:0 18px;border-radius:24px;border:1px solid rgba(255,214,150,.6);background:rgba(120,40,24,.88);color:#fff0dc;font:600 15px Georgia,serif;cursor:pointer}
 #scenebtn{position:absolute;left:calc(12px + env(safe-area-inset-left,0px));top:calc(12px + env(safe-area-inset-top,0px));z-index:5;appearance:none;min-height:46px;padding:0 16px;border-radius:23px;border:1px solid rgba(255,214,150,.55);background:rgba(28,20,16,.78);color:#ffe6a8;font:600 15px Georgia,serif;cursor:pointer}
+#looksbtn{position:absolute;right:calc(12px + env(safe-area-inset-right,0px));top:calc(12px + env(safe-area-inset-top,0px));z-index:5;appearance:none;min-height:46px;padding:0 16px;border-radius:23px;border:1px solid rgba(214,222,255,.45);background:rgba(14,14,36,.7);color:#eee8ff;font:600 14px Georgia,serif;cursor:pointer}
 #world{background:#0a0b18}
 </style>
 <div id="world"><canvas id="cv"></canvas><div id="ring"><div id="dot"></div></div>
   <button id="fightbtn" type="button">Meet the pack</button>
+  <button id="looksbtn" type="button">Foes: 3D</button>
   <button id="scenebtn" type="button">To Briarmaw&rsquo;s den</button>
   <div id="toast"></div>
   <div id="numbers"><b id="fps">…</b> frames a second</div></div>
