@@ -14,7 +14,7 @@
 //   every walkable tile is where the party can walk, exactly as in the 2D game
 // Past the map's edges the land goes on for 9 tiles: water where the edge is water, a bridge where a bridge leaves, woods
 // elsewhere, with the road out kept clear.
-import { writeFileSync, readFileSync, mkdirSync, existsSync } from 'node:fs';
+import { writeFileSync, readFileSync, mkdirSync, existsSync, readdirSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import path from 'node:path';
@@ -25,6 +25,9 @@ const { LEGEND } = await import(pathToFileURL(path.join(GAME, 'data/tiles.js')))
 const { MAPS } = await import(pathToFileURL(path.join(GAME, 'data/maps/index.js')));
 const TX = 50, TY = 40, PAD = 9;
 const cl0 = (v, a, b) => Math.max(a, Math.min(b, v));
+// (Places, step 3) each Act One place's light, as the 2D game has it: by day, unless it's indoors, underground or in deep
+// woods. 'day' | 'dusk' | 'night' | 'indoor'. Acts Two and Three take theirs from the region's look (m7-kit.js), unless named here
+const LIGHT = { 'heartroot-1': 'night', 'heartroot-2': 'night', 'briarmaw-den': 'dusk', eldergrove: 'dusk' };
 // (Places) Chris's textures each region's places wear (web copies of art-in/3d/world/), written into each place's file so a
 // page carries only its own region's (the build puts every picture in once)
 const AW = (id) => [id, `./../texture-packs/aeth-web/${id}.webp`];
@@ -41,11 +44,24 @@ function tileColours(webp, w, h) {
   return JSON.parse(execFileSync('python3', ['-I', '-c', py, webp]).toString());
 }
 
+// (Places) Chris's painting for a map, if it's in art-in/ (any folder under it): map-<id>.png / .webp / .jpg
+function findArtIn(id) {
+  const want = new RegExp('^map-' + id.replace(/[-]/g, '\\-') + '\\.(png|webp|jpe?g)$', 'i');
+  const walk = (d) => { for (const e of readdirSync(d, { withFileTypes: true })) { const f = path.join(d, e.name); if (e.isDirectory()) { const r = walk(f); if (r) return r; } else if (want.test(e.name)) return f; } return null; };
+  const dir = path.join(ROOT, 'art-in'); return existsSync(dir) ? walk(dir) : null;
+}
+const fitted = (f, w, h) => execFileSync('python3', ['-I', '-c', 'import sys,io\nfrom PIL import Image\nim=Image.open(sys.argv[1]).convert("RGB").resize((int(sys.argv[2]),int(sys.argv[3])),Image.LANCZOS)\nb=io.BytesIO();im.save(b,"WEBP",quality=86,method=6);sys.stdout.buffer.write(b.getvalue())', f, String(w), String(h)], { maxBuffer: 64 << 20 });
+
 async function convert(id) {
   const map = (await import(pathToFileURL(path.join(GAME, 'data/maps', id + '.js')))).default;
   // (Places) a map with no painting yet (the Hearth Below's four, Chris's batch 4) uses its stand-in, m7/standin.mjs
+  // Chris's batch 4 goes into art-in/ (never game/): art-in/**/map-<id>.(png|webp|jpg), fitted to the map's tiles (32 px a
+  // tile) and kept as WebP. Order: the game's own painting, then Chris's from art-in/, then the stand-in
   const paintFile = path.join(GAME, 'ui/assets/paint', id + '.js');
-  const paint = existsSync(paintFile) ? (await import(pathToFileURL(paintFile))).default : { src: 'data:image/webp;base64,' + readFileSync(path.join(here, 'standins', id + '.webp')).toString('base64'), standin: true };
+  const fromArtIn = findArtIn(id);
+  const paint = existsSync(paintFile) ? (await import(pathToFileURL(paintFile))).default
+    : fromArtIn ? { src: 'data:image/webp;base64,' + fitted(fromArtIn, map.w * 32, map.h * 32).toString('base64'), artIn: path.relative(ROOT, fromArtIn) }
+    : { src: 'data:image/webp;base64,' + readFileSync(path.join(here, 'standins', id + '.webp')).toString('base64'), standin: true };
   const { w, h, rows } = map;
   const at = (i, j) => (i < 0 || j < 0 || i >= w || j >= h) ? null : rows[j][i];
   const solid = (c) => (LEGEND[c] || LEGEND.x).solid;
@@ -337,6 +353,8 @@ async function convert(id) {
   const FACE = { s: 0, n: Math.PI, e: Math.PI / 2, w: -Math.PI / 2 };
   const anchors = {};
   for (const [k, [i, j, f]] of Object.entries(map.anchors || {})) anchors[k] = { at: [(i + 0.5) * TX, (j + 0.5) * TY], face: FACE[f] ?? 0 };
+  // (Places, step 3) each Hearthfire's stand, as an anchor of its own, so a journey chosen on the Atlas lands there
+  for (const e of map.entities || []) if (e.kind === 'hearthfire' && e.stand && !anchors['hearthfire:' + e.id]) anchors['hearthfire:' + e.id] = { at: [(e.stand[0] + 0.5) * TX, (e.stand[1] + 0.5) * TY], face: FACE[e.stand[2]] ?? 0 };
   const first = anchors['from-road'] || anchors[Object.keys(anchors)[0]] || { at: [w * TX / 2, h * TY / 2], face: 0 };
   const names = {}; if (MAPS) for (const m of Object.values(MAPS)) if (m && m.id) names[m.id] = m.name;
   const exits = (map.exits || []).filter((e) => e.to).map((e) => {
@@ -351,10 +369,11 @@ async function convert(id) {
   const place = {
     id: 'm7-' + id, m7: id, name: map.name, region, biome: map.biome, interior, dark: !!map.dark || undefined,
     ...(ACT2 ? { stand, smalls, faces, texFiles: Object.fromEntries((REGION_TEX[region] || []).map(AW)) } : {}), pillars, palisades, cliffs, roots, firsts, glows, size: [w * TX, h * TY], tiles: [w, h],
-    painting: `art/m7/${id}.webp`, standin: paint.standin || undefined, extent: [-PAD * TX, -PAD * TY, (w + PAD) * TX, (h + PAD) * TY],
+    painting: `art/m7/${id}.webp`, standin: paint.standin || undefined, artIn: paint.artIn, extent: [-PAD * TX, -PAD * TY, (w + PAD) * TX, (h + PAD) * TY],
     start: first.at, startFace: first.face, anchors, exits, people,
     water: water.map((p) => ({ poly: p })), decks, buildings, walls: segs, towers, torches, lamps, props, flowers, extraTrees, lawns, groundPatches,
     fence: GLOOM || undefined,
+    light: LIGHT[id] || (!ACT2 ? (interior ? 'indoor' : 'day') : undefined),
     tileH: rows.map((r, j) => [...r].map((c, i) => c === 'x' && !(GLOOM && !interior) ? 3 : c === 'w' ? 2 : WET[j][i] ? 1 : ACT2 && MASSC.includes(c) ? 4 : 0).join('')),
   };
   const mapsEntry = { walk, block: [] };

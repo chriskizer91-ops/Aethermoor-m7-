@@ -74,3 +74,12 @@ Publish `dist/gear-room.artifact.html` to the link above (pass the url) so the l
 - Leather wraps are bands laid edge over edge; every fist closes round the grip it holds, thick or thin.
 - Stone and glass are materials of their own.
 - Measured: one hero 95k to 200k triangles at High; the party of four about 600k in about 230 draws.
+
+## Chris's textures and faces (November 20, Models step 1)
+
+- Every surface comes from Chris's gear texture pack (`art-in/3d/gear/`): `textures/make.py` turns each picture into a
+  512 px grey "grain" (seamless, blotches softened), kept in `textures/web/` and `textures/pack.js`. The kit (`kit.js`
+  `grainFor`, `triplanar`) tints the grain with the item's own palette colour and lays it on by position from three
+  sides, with a small bump from its light and dark. **Textures** on the page switches it off to compare.
+- The four heroes wear Chris's painted faces (`model.js` `paintedFace`, `FACE_FIT`), their skin matched to them.
+- Closed shapes now always face outward (`loft`): before, tubes were inside out and the far inside wall showed.

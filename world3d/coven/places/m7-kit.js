@@ -98,6 +98,18 @@
     ash: { mass: 5, rock: ['sun_sandstone_wall', 0x6a5a56], surfaces: { stone: 'sun_sandstone_wall', dry: 'sun_sandstone_wall' }, tints: { stone: 0x8a7a76, dry: 0x8a7a76 }, light: { day: 0.6, sky: [0.86, 0.72, 0.62], moon: [0.5, 0.36, 0.28], fog: [0.36, 0.26, 0.22], fogNear: 40, fogFar: 160 } },
     vault: { mass: 3.4, tints: { stone: 0x9a8a80 }, light: CAVE },
   };
+  // (Places, step 3) the lights a place can be in, by name: a place's data names one (d.light), and the pages' switch tries
+  // the others. Act One's old look is 'night'
+  const LIGHTS = {
+    day: Object.assign({}, DAY, { fog: [0.8, 0.84, 0.86] }),
+    dusk: { day: 0.5, sky: [0.95, 0.74, 0.64], moon: [0.72, 0.46, 0.32], ground: [0.24, 0.17, 0.17], fog: [0.5, 0.36, 0.36], fogNear: 40, fogFar: 170, hills: false },
+    night: { day: 0, sky: [0.86, 0.8, 0.84], moon: [0.62, 0.56, 0.6], ground: [0.16, 0.13, 0.14], fog: [0.16, 0.15, 0.24], fogNear: 40, fogFar: 140 },
+    indoor: { day: 0, sky: [0.84, 0.74, 0.66], moon: [0.42, 0.36, 0.32], ground: [0.16, 0.12, 0.1], fog: [0.04, 0.03, 0.03], fogNear: 30, fogFar: 100, hills: false },
+  };
+  G.M7_LIGHTS = LIGHTS;
+  // a light made brighter by k by day and at dusk (sky and sun only; night and indoors stay as they are)
+  const gained = (L, k) => (!L.day || k === 1) ? L : Object.assign({}, L, { sky: L.sky.map((v) => v * k), moon: L.moon.map((v) => v * k) });
+  G.M7_GAINED = gained;
   const lookOf = (d) => {
     const L = LOOKS[d.region]; if (!L) return null;
     const B = BIOMES[d.biome] || {}, out = Object.assign({}, L, B);
@@ -192,7 +204,10 @@
       tints: Object.assign({ leaves: 0xf0fff4, bough: 0xc4d6c4, boughFir: 0xb0c4bc, bush: 0xf0fff0 }, KEEP ? { stone: 0x9c9ca8 } : {}, LOOK ? LOOK.tints : {}),
       ground_h: ground, walk_h: ground,
       water: d.water.map((wt) => ({ poly: wt.poly, level: () => -0.5, tex: 'shared_water_dark', rep: 6, flow: [0.004, 0.002], bed: -2.3, tint: LOOK && LOOK.water, ...(LOOK && LOOK.waterTex ? { tex: LOOK.waterTex, rep: 8 } : {}), ...(LOOK && LOOK.molten ? { emis: LOOK.molten, flow: [0.02, 0.008], level: () => -0.25 } : {}) })),
-      night: LOOK ? Object.assign({}, d.interior && !LOOK.light.day ? CAVE : LOOK.light, d.night || {}) : Object.assign(d.interior ? { sky: [0.62, 0.52, 0.5], moon: [0.3, 0.26, 0.26], ground: [0.12, 0.08, 0.06], fog: [0.02, 0.018, 0.03], fogNear: 30, fogFar: 90, hills: false } : {}, { sky: [0.86, 0.8, 0.84], moon: [0.62, 0.56, 0.6], ground: [0.16, 0.13, 0.14], fog: [0.16, 0.15, 0.24], fogNear: 40, fogFar: 140 }, d.night || {}),
+      lightName: d.light || (LOOK ? (d.interior && !LOOK.light.day ? 'dark' : LOOK.light.day >= 1 ? 'day' : LOOK.light.day > 0 ? 'dusk' : 'dark') : 'night'),
+      // the borrowed textures are painted at night, so a place built only from them takes a brighter sun (lightGain)
+      lightGain: LOOK ? 1 : 1.3,
+      night: d.light && LIGHTS[d.light] ? Object.assign({}, gained(LIGHTS[d.light], LOOK ? 1 : 1.3), d.night || {}) : LOOK ? Object.assign({}, d.interior && !LOOK.light.day ? CAVE : LOOK.light, d.night || {}) : Object.assign(d.interior ? { sky: [0.62, 0.52, 0.5], moon: [0.3, 0.26, 0.26], ground: [0.12, 0.08, 0.06], fog: [0.02, 0.018, 0.03], fogNear: 30, fogFar: 90, hills: false } : {}, { sky: [0.86, 0.8, 0.84], moon: [0.62, 0.56, 0.6], ground: [0.16, 0.13, 0.14], fog: [0.16, 0.15, 0.24], fogNear: 40, fogFar: 140 }, d.night || {}),
       paintingSrc: d.painting,
       extra: (K) => extra(K, d),
     });
