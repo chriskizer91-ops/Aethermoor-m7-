@@ -74,7 +74,7 @@
 - **Phones.** On phone detail, the trees deep inside a wood (hidden by the outer ones) and many of the woods past the
   map's edge are left out, every tree is the lighter kind, and trees are drawn in bigger batches. All pages use smaller
   textures and paintings now: Act One 7.4 MB (was 14.9), Sunscorch 6.6, Ironspire 10.3, Gloomfen 8.9, Act Three 5.1,
-  the Atlas 9.9.
+  the Atlas 7.2.
 - **Draw calls and triangles** (headless, every place from the walker's own view, with the party; "place alone" is
   the same view without the four heroes; a real phone's frame rate is not checked):
 
@@ -95,6 +95,14 @@
 - Checks: every page rebuilt; every place loads with no errors and every way out lands on walkable ground (Act One 28,
   Sunscorch 18, Ironspire 32, Gloomfen 22, Act Three 14); the Atlas still sends back its choice. Act One's file is now
   `dist/m7-places-512.artifact.html` (`sh m7/pages.sh`).
+- **For Together: the continent, lighter.** `world3d/continent/map/tree-models-lite.js` (365 KB, was 1.66 MB: the
+  same eight trees, the mid model standing in for the near one) and `world3d/continent/map/place-models-lite.js`
+  (587 KB, was 2.08 MB: the walking places' models for the places M7 names on the map, Thornhollow, Fawnrest Shrine,
+  the jetty, the Thornway, Bogmire and the Lanternfen; elsewhere the map shows its own plain buildings). They define
+  the same globals, so load them where the full files went. Made by `node continent/make-lite.mjs`. The Atlas page
+  uses them now: 7.2 MB (was 9.9), and it opens, travels and goes back as before. `map3d.js` takes `near: 'mid'`
+  (one line, marked). The full files are unchanged, and the Verdant Wilds page still opens its continent with every
+  model (it builds at 17.3 MB with today's heroes, which is the hub's to trim, e.g. `--herotex=256`).
 - Measured with `m7/probe.mjs` (`m7/measure.sh` runs every page); close-up stills with `m7/near.mjs`.
 
 ## Next
