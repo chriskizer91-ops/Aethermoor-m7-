@@ -42,6 +42,7 @@ export class Stage {
   }
   setLook(id, unit) {
     this.units.set(id, unit);
+    arena.foeLook(id, unit);
     const v = this.foes.get(id);
     return !!(v && v.sprite.setUnit(unit));
   }

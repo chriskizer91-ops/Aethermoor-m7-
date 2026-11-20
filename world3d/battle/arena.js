@@ -92,16 +92,20 @@ export const arena = {
   // the foes' places along their line (again after one falls or another joins)
   formation(L = this.layoutIn, cam = this.want) {
     if (!L || !cam) return;
-    const vis = (L.foes || []).filter((id) => this.foes.get(id) && !this.foes.get(id).removed);
+    const vis = ((this.stage && this.stage.order) || L.foes || []).filter((id) => this.foes.get(id) && !this.foes.get(id).removed);
     const n = vis.length, pad = Math.min(60, L.stage.width * 0.12), w = L.stage.width - pad * 2;
+    // each foe's share of the line by its size (a Champion takes more room than a briarling), as M7's stage does by width
+    const wt = vis.map((id) => Math.max(0.8, Math.min(3, this.foes.get(id).size.d))), sum = wt.reduce((x, y) => x + y, 0);
+    let acc = 0;
     vis.forEach((id, i) => {
       const F = this.foes.get(id);
-      const x = L.stage.left + pad + w * (i + 0.5) / n;
+      const x = L.stage.left + pad + w * (acc + wt[i] / 2) / sum; acc += wt[i];
       const p = this.ground(x, L.yF, cam); if (!p) return;
       if (n >= 3 && i % 2 === 1) p.addScaledVector(this.dir, 0.9);
       p.y = this.heightAt(p.x, p.z, p.y);
-      if (F.home.lengthSq() > 0 && !F.walk && this.want) F.walk = { from: F.pos.clone(), t: 0, dur: 0.6 };
-      F.home.copy(p); F.slot = x - L.stage.left; F.slotW = Math.max(110, Math.min(200, L.stage.width / Math.max(1, n)));
+      const fresh = !F.placed; F.placed = true;
+      if (!fresh && !F.walk && this.want) F.walk = { from: F.pos.clone(), t: 0, dur: 0.6 };
+      F.home.copy(p); if (fresh && F.pos.lengthSq() === 0) F.pos.copy(p); F.slot = x - L.stage.left; F.slotW = Math.max(96, Math.min(200, (L.stage.width - 8) * wt[i] / sum - 6));
     });
   },
   // the camera that puts the heroes' feet at yH, their heads at yTop and the foes' feet at yF, looking down `dir`
@@ -232,6 +236,12 @@ export const arena = {
   foeKo(id) { const F = this.foes.get(id); if (!F) return; F.ko = { t: 0, dur: 0.6 }; F.act = null; },
   foeGone(id, kind) { const F = this.foes.get(id); if (!F) return; F.gone = { t: 0, dur: 0.8, kind }; F.act = null; },
   foeRevive(id) { const F = this.foes.get(id); if (!F) return; F.ko = null; F.gone = null; F.removed = false; F.root.visible = true; F.sinkOut = 0; },
+  // a Champion's new phase (M7's on_phase sets its look): it swells a little each time, and roars (a lunge in place)
+  foeLook(id, unit) {
+    const F = this.foes.get(id); if (!F || !unit) return;
+    const ph = unit.phase || 1;
+    if (ph > (F.phase || 1)) { F.phase = ph; F.growTo = 1 + 0.08 * (ph - 1); F.hurt = { t: 0, dur: 0.6 }; this.fx.ring(F.pos.clone(), '#b4d65a', 3.5, 0.9); }
+  },
   foeSink(id, down) { const F = this.foes.get(id); if (F) F.sinkTo = down ? 1 : 0; },
   play(h, kind, dur, o = {}) { h.act = { kind, t: 0, dur, ...o, from: h.pos.clone() }; },
   // the party's cheer, or their fall, once the fight is done
@@ -379,6 +389,7 @@ export function foeFigure(unitOrKey, o = {}) {
   };
   // small beasts stand a little larger on the field than life, so a briarling reads beside a hero
   const big = F.size.h < 1.1 && !humanoid ? 1.3 : 1;
+  F.baseScale = big; F.grow = 1; F.phase = 1;
   if (big !== 1) { root.scale.setScalar(big); F.size.w *= big; F.size.d *= big; F.size.h *= big; }
   root.traverse((c) => { if (c.isMesh) { c.castShadow = false; } });
   return F;
@@ -427,6 +438,7 @@ function stepFoe(ar, F, d, t, heroCenter) {
   F.side.set(Math.cos(F.face), 0, -Math.sin(F.face));
   const o = poseFoe(F, move, mu, t + F.ph);
   const down = (F.sink * 0.78 + F.sinkOut * 1.05 + (F.rising != null ? 1 - F.rising : 0)) * F.size.h;
+  if (F.growTo && Math.abs(F.grow - F.growTo) > 1e-3) { F.grow += (F.growTo - F.grow) * Math.min(1, d * 3); F.root.scale.setScalar(F.baseScale * F.grow); }
   F.root.position.copy(F.pos); F.root.position.y += o.rise - down; F.root.rotation.set(0, F.face, 0);
   F.body.position.z = o.fwd; F.body.rotation.set(o.lean, 0, o.roll); F.body.scale.set(1, o.sq, 1);
   // the figure's own moving parts: a person's rig, a beast's legs and tail
