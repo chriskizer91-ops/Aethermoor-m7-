@@ -16,7 +16,8 @@ until Chris answers. When he does, it moves to `decisions.md`.
     way"): Chris's model sheets cut out and standing in the 3D as painted figures, with life added (breathing, leaning,
     flashing when hit) *(suggested: they look like his art at once, for all 54 beasts)*; or the code-built models
     reshaped to the sheets; or real 3D models Chris makes from his sheets with an AI 3D tool (as he makes the pictures),
-    which we bring in. Models is building a side-by-side in the Bestiary to choose from.
+    which we bring in; or each foe sculpted in full detail and baked onto a light model (session 6 is doing Briarmaw
+    this way). Models is building the painted side-by-side in the Bestiary, and session 6 shows all three for Briarmaw.
 5b. **Small beasts on the field** (briarlings, hounds) stand 1.3 times life size so they read beside the heroes. Keep
     it *(suggested)*?
 
