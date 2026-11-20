@@ -8,7 +8,7 @@ Where the 3D game stands. Written by the hub only. Last updated November 20.
 |---|---|---|---|---|---|
 | 1 | the hub | `session_01DgbUKb6orvjjc1cMgBGPJK` | `claude/brave-davinci-790efm` | running | (the board) |
 | 2 | The Fight | `session_01DgbUKYR9qmKyBdACUWGViw` | `job/fight` | step 1 done and brought in; `runFight()` (one call plays a fight, for Together) and `setBeastLook()` (the foes' look switched in one call) in; on Briarmaw, then the spoils | https://claude.ai/artifact/NpeXL5Pf4RxNfkQsguTnEK |
-| 3 | Models | `session_01DgbUKcWh5MEvjHnxzp4HHo` | `job/models` | the comparison is ready and brought in: all 54 beasts as painted cut-outs from Chris's sheets, with a Painted / 3D switch; more 3D reshaping paused until Chris chooses | https://claude.ai/artifact/CA6CcAKVHSxGPB5TAZF5sY |
+| 3 | Models | `session_01DgbUKcWh5MEvjHnxzp4HHo` | `job/models` | the painted / 3D comparison in (waiting on Chris); the 39 people foes true to their sprites' looks, brought in; next: the townsfolk (M7's people in the places), for Together | https://claude.ai/artifact/CA6CcAKVHSxGPB5TAZF5sY |
 | 4 | Places | `session_01DgbUKZVFBfm1dVautXEw5f` | `job/places` | step 3 done and brought in: the Atlas (M7's places on the 3D continent, travel by kindled Hearthfires: `M7_ATLAS.open`), the light per place (Act One by day), batch 4 read from `art-in/`; next: phones and fidelity to the paintings | https://claude.ai/artifact/MXyu3A9zTjoCavHFKXCbpi |
 | 5 | Together | `session_01DgbUKbyjzZFe1BXHHxzHBn` | `job/together` | starting: Act One playable, M7's world engine under the 3D walk | - |
 | 6 | One Foe | `session_01DgbUKZCNBFY7zwSzwAXR8y` | `job/foe-hd` | starting: Briarmaw in full detail, side by side | - |
