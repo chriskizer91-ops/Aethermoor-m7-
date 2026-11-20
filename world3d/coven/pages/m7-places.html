@@ -57,12 +57,16 @@ html,body{margin:0;height:100%;background:#0a0b18;overflow:hidden;overscroll-beh
 #places button{appearance:none;min-height:44px;border:1px solid rgba(214,222,255,.25);border-radius:12px;background:rgba(40,36,80,.5);color:#f0ecff;font:15px Georgia,serif;padding:8px 14px;text-align:left;min-width:200px;cursor:pointer}
 #places button.on{background:rgba(150,90,30,.9);border-color:#ffd27a}
 #guide{position:absolute;top:calc(12px + env(safe-area-inset-top,0px));right:calc(124px + env(safe-area-inset-right,0px));z-index:4;appearance:none;min-height:46px;padding:0 14px;border-radius:23px;border:1px solid rgba(214,222,255,.45);background:rgba(14,14,36,.62);color:#eee8ff;font:14px system-ui,sans-serif;cursor:pointer}
+/* the light switch (Places): under the painting button */
+#light{position:absolute;top:calc(66px + env(safe-area-inset-top,0px));right:calc(124px + env(safe-area-inset-right,0px));z-index:4;appearance:none;min-height:44px;padding:0 14px;border-radius:22px;border:1px solid rgba(214,222,255,.45);background:rgba(14,14,36,.62);color:#eee8ff;font:14px system-ui,sans-serif;cursor:pointer}
+#light:focus-visible,#guide:focus-visible{outline:2px solid #ffd27a;outline-offset:2px}
 @media (max-width:720px){#toast{top:calc(70px + env(safe-area-inset-top,0px))}}
 </style>
 <div id="world"><canvas id="cv"></canvas><div id="ring"><div id="dot"></div></div>
   <button id="nums" aria-label="Show or hide the numbers"><svg viewBox="0 0 24 24" fill="none" stroke="#eee8ff" stroke-width="1.8" stroke-linecap="round"><path d="M5 19V11M12 19V5M19 19v-5"/></svg></button>
   <button id="where" type="button">Places</button><div id="places"></div>
   <button id="guide" type="button">The painting</button>
+  <button id="light" type="button" aria-label="The light: the place's own, or day, dusk or night to compare">Light: its own</button>
   <div id="toast"></div>
   <div id="party"></div>
   <div id="numbers"><b id="fps">…</b> frames a second<small id="more"></small></div></div>
