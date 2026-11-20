@@ -2,7 +2,7 @@
 
 ## Done
 
-- **Step 1, one fight on Thornhollow's road**: https://claude.ai/artifact/NpeXL5Pf4RxNfkQsguTnEK (7.5 MB)
+- **Step 1, one fight on Thornhollow's road**: https://claude.ai/artifact/NpeXL5Pf4RxNfkQsguTnEK (10.8 MB, with Chris's hero textures since the hub's merge)
   - The party walks Act One's Thornhollow in 3D. A pack (a thornhound and two briarlings, M7's own Thornhollow patrol)
     waits on the road. Walk up to it (or tap **Meet the pack**) and the camera swings round; the fight plays out on
     that spot. After it, the camera swings back and the party walks on; another pack comes down the road.
