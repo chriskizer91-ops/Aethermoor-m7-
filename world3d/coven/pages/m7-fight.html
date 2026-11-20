@@ -1,0 +1,83 @@
+<title>Aethermoor: the Fight</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya+Sans:wght@400;500;700;800&family=Cormorant+Garamond:ital,wght@0,600;0,700;1,500&family=Silkscreen&display=swap">
+<style>
+/* The Fight (world3d/fight.js): Thornhollow in 3D, and M7's battle on the spot where the party meets a pack. The look
+   is the Act One page's (m7-places.html). */
+html,body{margin:0;height:100%;background:#0a0b18;overflow:hidden;overscroll-behavior:none;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
+#world{position:fixed;inset:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+#world canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+/* the thumb's ring (phones): where it went down, and where it is */
+#ring{position:absolute;display:none;width:116px;height:116px;margin:-58px 0 0 -58px;border-radius:50%;border:2px solid rgba(230,226,255,.42);background:rgba(20,18,44,.18);pointer-events:none;z-index:3}
+#dot{position:absolute;left:50%;top:50%;width:40px;height:40px;border-radius:50%;background:rgba(240,236,255,.5);transform:translate(-50%,-50%);pointer-events:none}
+/* top right: the numbers button (the look's button, made by the walker, sits left of it) */
+#nums{position:absolute;top:calc(12px + env(safe-area-inset-top,0px));right:calc(12px + env(safe-area-inset-right,0px));z-index:4;appearance:none;width:46px;height:46px;border-radius:23px;border:1px solid rgba(214,222,255,.45);background:rgba(14,14,36,.62);display:grid;place-items:center;padding:0;cursor:pointer}
+#nums svg{width:22px;height:22px}
+#nums.on{background:rgba(70,60,130,.8);border-color:rgba(200,190,255,.75)}
+/* top right, left of the look's button: who walks, and the four to choose from */
+#who{position:absolute;top:calc(12px + env(safe-area-inset-top,0px));right:calc(68px + env(safe-area-inset-right,0px));z-index:4;appearance:none;width:46px;height:46px;border-radius:23px;border:1px solid rgba(214,222,255,.45);background:rgba(14,14,36,.62);display:grid;place-items:center;padding:0;cursor:pointer}
+#who svg{width:22px;height:22px}
+#whoPanel{position:absolute;top:calc(66px + env(safe-area-inset-top,0px));right:calc(12px + env(safe-area-inset-right,0px));z-index:5;display:none;flex-direction:column;gap:6px;padding:8px;border-radius:16px;background:rgba(14,12,34,.86);border:1px solid rgba(214,222,255,.3)}
+#whoPanel button{appearance:none;border:1px solid rgba(214,222,255,.25);border-radius:12px;background:rgba(40,36,80,.5);color:#f0ecff;font:15px system-ui,sans-serif;padding:10px 14px;text-align:left;min-width:190px;cursor:pointer}
+#whoPanel button small{display:block;color:#b8b4e0;font-size:12px}
+#whoPanel button.on{background:rgba(96,80,170,.8);border-color:rgba(220,210,255,.8)}
+/* top left: the map. Tap it for the big one */
+#world canvas.mini{position:absolute;inset:auto;left:calc(12px + env(safe-area-inset-left,0px));top:calc(12px + env(safe-area-inset-top,0px));z-index:4;width:clamp(124px,22vmin,150px);height:clamp(124px,22vmin,150px);touch-action:manipulation;border-radius:13px;box-shadow:0 2px 12px rgba(0,0,0,.55);cursor:pointer}
+/* the big map: its size is set by minimap.js, to fit the screen either way up */
+#world canvas.bigmap{position:absolute;inset:auto;left:50%;top:50%;transform:translate(-50%,-50%);z-index:8;width:auto;height:auto;touch-action:manipulation;border-radius:14px;box-shadow:0 6px 40px rgba(0,0,0,.75);cursor:pointer}
+/* the foot of the screen, in the middle: the Talk button, and over it the words a person says */
+.talkbtn{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:6;appearance:none;min-height:48px;min-width:150px;padding:10px 22px;border-radius:24px;border:1px solid rgba(255,226,160,.7);background:rgba(34,26,60,.86);color:#ffe9b8;font:600 16px Georgia,serif;cursor:pointer;box-shadow:0 2px 12px rgba(0,0,0,.45)}
+.talkbox{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(74px + env(safe-area-inset-bottom,0px));z-index:6;width:min(560px,calc(100% - 28px));padding:10px 16px 12px;border-radius:14px;background:rgba(14,12,34,.84);border:1px solid rgba(214,222,255,.28);pointer-events:none}
+.talkwho{color:#ffd98a;font:600 13px Georgia,serif;letter-spacing:.03em;margin-bottom:3px}
+.talksaid{color:#f4f0ff;font:17px/1.35 Georgia,serif}
+/* bottom left: how fast it is drawing */
+#numbers{position:absolute;left:calc(12px + env(safe-area-inset-left,0px));bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:4;padding:6px 12px;border-radius:14px;background:rgba(10,10,28,.6);color:#e8e6ff;font-size:13px;line-height:1.35;pointer-events:none}
+#numbers b{font-size:15px}
+#numbers small{display:none;color:#b8b4e0;font-size:12px}
+#numbers.more small{display:block}
+/* top left: the herbs in Io's bag, once she has one */
+#bag{position:absolute;left:calc(12px + env(safe-area-inset-left,0px));top:calc(clamp(124px,22vmin,150px) + 22px + env(safe-area-inset-top,0px));z-index:4;display:none;gap:10px;padding:7px 12px;border-radius:16px;background:rgba(14,12,34,.66);border:1px solid rgba(214,222,255,.3);color:#f0ecff;font-size:14px;pointer-events:none}
+#bag span{display:inline-flex;align-items:center;gap:6px}
+#bag i{width:11px;height:11px;border-radius:50%;display:inline-block;box-shadow:0 0 7px currentColor}
+/* top middle: where she is, and what she found */
+#toast{position:absolute;left:50%;top:calc(16px + env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:4;max-width:calc(100% - 190px);padding:8px 16px;border-radius:16px;background:rgba(14,12,34,.72);color:#f4f0ff;font-size:15px;line-height:1.3;text-align:center;opacity:0;transition:opacity .5s;pointer-events:none}
+@media (max-width:720px){#toast{top:calc(clamp(124px,22vmin,150px) + 66px + env(safe-area-inset-top,0px));max-width:calc(100% - 40px)}}
+#toast.name{font:400 22px/1.2 Georgia,"Times New Roman",serif;letter-spacing:.03em;color:#ffe6a8;background:rgba(14,12,34,.55)}
+#load{position:fixed;inset:0;z-index:9;display:grid;place-content:center;text-align:center;background:#0a0b18;color:#e8e4ff;font-family:Georgia,"Times New Roman",serif;transition:opacity .6s;padding:0 24px}
+#load h1{margin:0 0 6px;font-weight:400;font-size:32px;letter-spacing:.02em}
+#load h2{margin:0 0 14px;font-weight:400;font-size:17px;color:#cfc8f2}
+#load p{margin:0;font:15px system-ui,sans-serif;color:#b8b4e0}
+
+/* the party bar (Aethermoor) */
+#party{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:5;display:flex;gap:6px;justify-content:center;max-width:calc(100% - 24px)}
+#party button{appearance:none;min-height:44px;min-width:44px;padding:0 12px;border-radius:22px;border:1px solid rgba(255,214,150,.5);background:rgba(28,20,16,.78);color:#f4e6cc;font:600 14px Georgia,serif;cursor:pointer}
+#party button.on{background:rgba(150,90,30,.9);border-color:#ffd27a;color:#fff6e0}
+#numbers{bottom:calc(64px + env(safe-area-inset-bottom,0px))}
+@media (max-width:720px){#party{gap:4px}#party button{padding:0 7px;font-size:12.5px;flex:1 1 auto}#numbers{font-size:12px}}
+#where{position:absolute;left:calc(12px + env(safe-area-inset-left,0px));top:calc(12px + env(safe-area-inset-top,0px));z-index:5;appearance:none;min-height:46px;padding:0 16px;border-radius:23px;border:1px solid rgba(255,214,150,.55);background:rgba(28,20,16,.78);color:#ffe6a8;font:600 15px Georgia,serif;cursor:pointer}
+#places{position:absolute;left:calc(12px + env(safe-area-inset-left,0px));top:calc(66px + env(safe-area-inset-top,0px));z-index:6;display:none;flex-direction:column;gap:6px;padding:8px;border-radius:16px;background:rgba(14,12,34,.9);border:1px solid rgba(214,222,255,.3);max-height:70vh;overflow:auto}
+#places.on{display:flex}
+#places button{appearance:none;min-height:44px;border:1px solid rgba(214,222,255,.25);border-radius:12px;background:rgba(40,36,80,.5);color:#f0ecff;font:15px Georgia,serif;padding:8px 14px;text-align:left;min-width:200px;cursor:pointer}
+#places button.on{background:rgba(150,90,30,.9);border-color:#ffd27a}
+#guide{position:absolute;top:calc(12px + env(safe-area-inset-top,0px));right:calc(124px + env(safe-area-inset-right,0px));z-index:4;appearance:none;min-height:46px;padding:0 14px;border-radius:23px;border:1px solid rgba(214,222,255,.45);background:rgba(14,14,36,.62);color:#eee8ff;font:14px system-ui,sans-serif;cursor:pointer}
+@media (max-width:720px){#toast{top:calc(70px + env(safe-area-inset-top,0px))}}
+#fightbtn{position:absolute;right:calc(12px + env(safe-area-inset-right,0px));bottom:calc(64px + env(safe-area-inset-bottom,0px));z-index:5;appearance:none;min-height:48px;padding:0 18px;border-radius:24px;border:1px solid rgba(255,214,150,.6);background:rgba(120,40,24,.88);color:#fff0dc;font:600 15px Georgia,serif;cursor:pointer}
+#world{background:#0a0b18}
+</style>
+<div id="world"><canvas id="cv"></canvas><div id="ring"><div id="dot"></div></div>
+  <button id="fightbtn" type="button">Meet the pack</button>
+  <div id="toast"></div>
+  <div id="numbers"><b id="fps">…</b> frames a second</div></div>
+<div id="fight" hidden></div>
+<div id="load"><div><h1>Thornhollow</h1><h2>A fight on the road, in 3D, by the game&rsquo;s own rules</h2><p id="loadmsg">Loading…</p></div></div>
+<!--HEROES-->
+<script src="../engine/place/core.js"></script>
+<script src="../engine/place/cutouts.js"></script>
+<script src="../engine/place/extras.js"></script>
+<script src="../engine/place/paint.js"></script>
+<script src="../engine/place/world.js"></script>
+<script src="../engine/place/walker.js"></script>
+<!--M7PLACES-->
+<script src="../places/m7-kit.js"></script>
+<script src="../../party.js"></script>
