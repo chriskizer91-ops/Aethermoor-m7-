@@ -1,6 +1,6 @@
 # The board
 
-Where the 3D game stands. Written by the hub only. Last updated November 20, late evening.
+Where the 3D game stands. Written by the hub only. Last updated November 20, near midnight.
 
 ## The sessions
 
@@ -9,7 +9,7 @@ Where the 3D game stands. Written by the hub only. Last updated November 20, lat
 | 1 | the hub | `session_01DgbUKb6orvjjc1cMgBGPJK` | `claude/brave-davinci-790efm` | running | (the board) |
 | 2 | The Fight | `session_01DgbUKYR9qmKyBdACUWGViw` | `job/fight` | step 3 nearly done: every Act One fight, indoor cameras, statuses, swallow, guest ally, charm, Legend Strike, Hodge's toll and Twinned splits; the fight page builds again | https://claude.ai/artifact/Q9T8quXCTVgiVUZoMuUaP4 |
 | 3 | Models | `session_01DgbUKcWh5MEvjHnxzp4HHo` | `job/models` | swinging gear in; next: the heroes and people at the full-detail foes' level (sculpted detail baked onto every switchable piece) | https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL |
-| 4 | Places | `session_01DgbUKZVFBfm1dVautXEw5f` | `job/places` | roofs back to crisp textures coloured from the painting, chimneys; the light figures on every page; all brought in, Act One republished | https://claude.ai/artifact/GBxRVSqwMwYUTy1xLNjATA |
+| 4 | Places | `session_01DgbUKZVFBfm1dVautXEw5f` | `job/places` | roofs coloured from the commonest hue in the painting, a hall and its wings sharing one colour; the Hearth Road 99 → 54 draw calls on a phone; all brought in, Act One republished (version 9) | https://claude.ai/artifact/GBxRVSqwMwYUTy1xLNjATA |
 | 5 | Together | `session_01DgbUKbyjzZFe1BXHHxzHBn` | `job/together` | Act One playable start to end, with full-detail Briarmaw; **the Sunscorch page** (begin at the Keep's south-east gate, or bring a journey by its save code); next: the Ironspire and the Gloomfen the same way | https://claude.ai/artifact/RaeSK5hezqb3qH7jmuM5aj |
 | 6 | One Foe | `session_01DgbUKZCNBFY7zwSzwAXR8y` | `job/foe-hd` | the kit in; the briarling made with it (589k sculpt → 16,640); forwarding copies fixed the fight's build; next: glowcap, boglurcher, the willows, the sparks, rockling, Mother Anvil, the wraiths | https://claude.ai/artifact/DorMujhAe9d1XNwLGYV4ae |
 | 7 | Foes: beasts | `session_01DgbUKZ4qEpafSazysExsYV` | `job/foes-beasts` | the thornhound brought in (606k sculpt kept as an asset → ~20k); next: onto the kit, then the rotstag, Old Snag, the Mirelord, the rotgrub, the Gloamwing | https://claude.ai/artifact/64Ukg3yQAAb8DWz69xqvxs |
