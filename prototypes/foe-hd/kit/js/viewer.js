@@ -28,10 +28,11 @@ scene.add(key);
 const rim = new THREE.DirectionalLight(0x9fc0ff, 1.6); rim.position.set(-5, 3, -5); scene.add(rim);
 const ground = new THREE.Mesh(new THREE.CircleGeometry(12, 64), new THREE.MeshStandardMaterial({ color: 0x3a3024, roughness: 1 }));
 ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true; scene.add(ground);
-const X = Math.max(1.75, (A.lightMeta.height || 1.7) * 1.05);
+const SZ = Math.max(0.3, Math.min(1.6, (A.lightMeta.height || 1.7) / 1.7));   // Briarmaw (1.7 m) is 1
+const X = 1.75 * SZ;
 function stand(x) {
   const g = new THREE.Group(); g.position.x = x;
-  const disc = new THREE.Mesh(new THREE.CylinderGeometry(1.5, 1.6, 0.08, 64), new THREE.MeshStandardMaterial({ color: 0x5a4a38, roughness: 0.9 }));
+  const disc = new THREE.Mesh(new THREE.CylinderGeometry(1.5 * SZ, 1.6 * SZ, 0.08, 64), new THREE.MeshStandardMaterial({ color: 0x5a4a38, roughness: 0.9 }));
   disc.position.y = 0.04; disc.receiveShadow = true; g.add(disc);
   const top = new THREE.Group(); top.position.y = 0.08; g.add(top); scene.add(g); return { g, top };
 }
@@ -41,9 +42,9 @@ function frame() {
   const w = canvas.clientWidth, h = canvas.clientHeight; renderer.setSize(w, h, false);
   camera.aspect = w / h; camera.updateProjectionMatrix();
   const both = S.only === 'both', fov = camera.fov * Math.PI / 180;
-  const halfW = both ? X + 1.7 : 1.7, dist = Math.max(halfW / (Math.tan(fov / 2) * camera.aspect), 1.2 / Math.tan(fov / 2)) * 1.05;
+  const halfW = (both ? X + 1.7 * SZ : 1.7 * SZ), dist = Math.max(halfW / (Math.tan(fov / 2) * camera.aspect), 1.2 * SZ / Math.tan(fov / 2)) * 1.05;
   const cx = S.only === 'sculpt' ? -X : S.only === 'light' ? X : 0;
-  controls.target.set(cx, 0.8, 0); camera.position.set(cx, 1.3 + dist * 0.15, dist); controls.update();
+  controls.target.set(cx, 0.8 * SZ, 0); camera.position.set(cx, (1.3 + dist * 0.15) * Math.sqrt(SZ), dist); controls.update();
 }
 addEventListener('resize', frame);
 function refresh() {

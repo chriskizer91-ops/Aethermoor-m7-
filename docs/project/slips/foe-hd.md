@@ -38,9 +38,17 @@ shown side by side with the code-built model and a cut-out of Chris's sheet.
   `setBeastLook` for every finished foe (`kit/js/looks.js`), the sculpt viewer and the three-ways page for any foe.
   Sessions 7 and 8 told.
 
+- **Briarling** (my lane's first, November 20): three ways with its moves and the crowd test,
+  https://claude.ai/artifact/DorMujhAe9d1XNwLGYV4ae (11.8 MB); its sculpt beside its light model,
+  https://claude.ai/artifact/LAjxUMG9Aoj2UPw7DuyHtB. Sculpt 589,428 triangles (asset
+  `foes/briarling/assets/briarling-sculpt.glb`, 2.7 MB); light model 16,640 (rabble budget ~20k), 1024 px pictures,
+  phone 512. Moves for small walking plants: `kit/js/moves/sapling.js` (bob, waddle, hop, lunge, hit, fall).
+  Kit fixes from it: pages and viewer scale with the foe's height; parts are placed on a surface that is exactly the
+  same at every level (fixes missed bakes on small foes).
+
 ## Next
 
-1. My lane: briarling, glowcap, boglurcher, the willows, the sparks, rockling, Mother Anvil, the wraiths.
+1. My lane: (briarling done) glowcap, boglurcher, the willows, the sparks, rockling, Mother Anvil, the wraiths.
 2. Briarmaw's moves smoothed (weights round the shoulders and hips, a fuller walk), a hit flash.
 2. The face closer still to the sheet; the coat's brown zones placed as the sheet paints them.
 3. Done: pass 3, the sculpt's own page, the heavier brow and golden fangs, the rump and tail as the sheet shows.
@@ -73,6 +81,13 @@ shown side by side with the code-built model and a cut-out of Chris's sheet.
 - Headless Chromium (SwiftShader, software drawing, so far slower than a phone's graphics chip): the page loads with
   no errors at 1280 x 800 and 390 x 844; 20 frames a second on the stands, 22 with the crowd (774,000 triangles drawn
   including shadows). Not yet checked on a real phone.
+
+## What others rely on (keep working)
+
+- `prototypes/foe-hd/page/briarmaw.js` (`briarmawLook`, `makeShared`, `ready`): kept as a forwarding module onto the kit.
+- `prototypes/foe-hd/assets/` (Briarmaw's `light.json/bin`, pictures): forwarding copies of `foes/briarmaw/assets/`,
+  for the Fight's plugin, until it moves onto `kit/js/looks.js`.
+- The kit's file layout and `foe.json` fields (sessions 7 and 8 build on them): changes are announced to them first.
 
 ## Changed outside my files
 

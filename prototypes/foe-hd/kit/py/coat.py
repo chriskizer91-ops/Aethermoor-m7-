@@ -25,8 +25,9 @@ from geom import sample_surface
 
 class Coat:
     def __init__(self, body_sdf, lo, hi, LV, VOX, tuft_len, flow, bare, style, seed=11, samples=220000,
-                 spacing=0.36, strands=(3, 5), shape='tuft', log=print):
+                 spacing=0.36, strands=(3, 5), shape='tuft', place_ew=0.01, log=print):
         self.body_sdf, self.LV, self.VOX, self.shape = body_sdf, LV, VOX, shape
+        self.place_ew = place_ew        # the edge softness of the placing surface: the same at every level
         rng = np.random.default_rng(seed)
         Vc, Fc = mc(body_sdf, 0.02, lo, hi)
         P = sample_surface(Vc, Fc, samples, rng)
@@ -48,7 +49,7 @@ class Coat:
         self.tree = cKDTree(TP); self.HMAX = float(self.TH.max())
         log('tufts', nT, 'longest', round(float(TL.max()), 3))
 
-    def coat(self, P, want_id=False, lv=None):
+    def coat(self, P, want_id=False, lv=None, ew=None):
         """height of the topmost tuft at each point (and which tuft, how far along it, which strand)"""
         LV = self.LV if lv is None else lv
         TP, TT, TB, TN, TL, TW, TH = self.TP, self.TT, self.TB, self.TN, self.TL, self.TW, self.TH
@@ -59,7 +60,7 @@ class Coat:
         w = np.einsum('nkj,nkj->nk', D, TB[idx]) / (TW[idx] * 0.5)
         nrm = np.einsum('nkj,nkj->nk', D, TN[idx])
         ss = np.clip((s + 0.2) / 1.2, 0, 1)
-        if self.shape != 'tuft': return self._shaped(P, D, s, w, nrm, ss, dist, idx, LV, want_id)
+        if self.shape != 'tuft': return self._shaped(P, D, s, w, nrm, ss, dist, idx, LV, want_id, ew)
         width = np.sin(np.pi * ss ** 0.62) ** 0.7
         wl = np.abs(w) * TW[idx] * 0.5; sl = s * TL[idx]
         q = (sl - 0.95 * wl) / (0.012 + 0.07 * TL[idx])      # feather barbs: out from the midrib toward the tip
@@ -68,7 +69,7 @@ class Coat:
         else:
             tipend = np.ones_like(s); jag = 1
         e = np.abs(w) / np.maximum(width * jag, 1e-3)
-        ew = max(self.VOX * 1.4, 0.006)
+        ew = ew or max(self.VOX * 1.4, 0.006)
         inside_s = np.clip((tipend - s) * TL[idx] / ew, 0, 1) * np.clip((s + 0.2) * TL[idx] / (ew * 4), 0, 1)
         inside_w = np.clip((1 - e) * TW[idx] * 0.5 / ew, 0, 1)
         dome = np.sqrt(np.clip(1 - e ** 2, 0, 1)) ** 0.6
@@ -85,9 +86,9 @@ class Coat:
         if want_id: return h[r, j], idx[r, j], ss[r, j], q[r, j]
         return h[r, j]
 
-    def _shaped(self, P, D, s, w, nrm, ss, dist, idx, LV, want_id):
+    def _shaped(self, P, D, s, w, nrm, ss, dist, idx, LV, want_id, ew=None):
         TL, TW, TH = self.TL, self.TW, self.TH
-        ew = max(self.VOX * 1.4, 0.006)
+        ew = ew or max(self.VOX * 1.4, 0.006)
         wl = np.abs(w) * TW[idx] * 0.5; sl = s * TL[idx]
         if self.shape == 'scale':
             # an oval scale, rising to its free edge, a keel down the middle
@@ -113,11 +114,11 @@ class Coat:
         if want_id: return h[r, j], idx[r, j], ss[r, j], q[r, j]
         return h[r, j]
 
-    def _with(self, P, lv, grain):
+    def _with(self, P, lv, grain, ew=None):
         d = self.body_sdf(P)
         band = np.abs(d) < self.HMAX + 0.04
         if band.any():
-            d = d.copy(); d[band] -= self.coat(P[band], lv=lv)
+            d = d.copy(); d[band] -= self.coat(P[band], lv=lv, ew=ew)
         if grain and self.LV >= 3: d = d - 0.0025 * (vnoise(P, 90.0) - 0.5)
         if grain and self.LV >= 4: d = d - 0.0014 * (vnoise(P + 5.1, 210.0) - 0.5)
         return d
@@ -127,7 +128,7 @@ class Coat:
     def place_sdf(self, P):
         """the coat without its fine strands: place parts on this, so they sit the same at every level (or the bake
         misses them)"""
-        return self._with(P, 1, False)
+        return self._with(P, 1, False, ew=self.place_ew)
 
     def colours(self, V, bare_colour):
         """per-vertex colour of the coat: each tuft dark at its root, lighter to the tip, the partings darker, the
