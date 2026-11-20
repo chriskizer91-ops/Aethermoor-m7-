@@ -2,6 +2,8 @@
 
 Hearth & Heirloom's own maps, stood up in 3D (November 20). Published: https://claude.ai/artifact/GBxRVSqwMwYUTy1xLNjATA
 
+![Act One](act-one.jpg)
+
 Act One is in: Hearthstone Keep, the Great Hall, the Hearth Road, Thornhollow, the Thornway, Briarmaw's den, Mossfall,
 the two floors of Mosswatch, the Hindwood, Fawnrest, the Eldergrove and the two depths of the Heartroot. The party walks
 them in their gear; the ways out lead from one to the next, as in the 2D game (the Keep's north gate to the Hearth Road,
