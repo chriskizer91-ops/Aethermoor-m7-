@@ -9,6 +9,7 @@ export class Party extends Party2D {
   constructor(host, heroes, opts) {
     super(host, heroes, opts);
     for (const h of heroes) arena.byUnit.set(h.id, h.heroId || h.id);
+    for (const g of opts.guests || []) arena.addGuest(g); // M7's guest (Tamsin against the Unsmith) stands with the party
     host.classList.add('f3-party');
   }
   layout() {
