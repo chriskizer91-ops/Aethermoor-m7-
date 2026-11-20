@@ -75,6 +75,35 @@ https://claude.ai/artifact/CA6CcAKVHSxGPB5TAZF5sY (commit c32ec2f; page version 
 - Size: heroes.js now reads the map sprites' looks, so a world page grows about 0.6 MB (Act One's Keep and Thornhollow:
   10.2 MB at --tex=768).
 
+**Lighter heroes and people for phones.** Gear Room (the detail button now goes High, Light, **Lite**):
+https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL
+- **Lite**: each figure in two draws. Every piece is merged into one skinned mesh whose "bones" are the rig's own nodes
+  (so `setPose` moves it exactly as before) with one material for everything (each piece's colour, metal, roughness
+  and glow kept per vertex), plus the face in a second mesh; built at 60% of Light's curve segments; grain pictures and
+  see-through decals left off. From a few metres it looks the same (screenshots compared).
+- **Auto**: Light within `LOD.near` (6 m) of the camera, Lite beyond; only the figure showing is posed. `'auto-high'`
+  is the same with High close up (laptops).
+- Measured, the party of four alone (Gear Room): High 480k triangles, 163 meshes; Light 110k, 143; **Lite 46k, 8**.
+- Measured on Act One's page (Keep and Thornhollow at --tex=768, the party in view, the page's own counter), by
+  passing the detail through `actor()` from a test script (the page itself is the hub's):
+
+  | | draw calls | triangles |
+  |---|---|---|
+  | phone, as the page is now ('light') | 113 | 99k |
+  | phone, walkers 'lite' | **33** | 82k |
+  | phone, 'auto' | 39 | 65k |
+  | laptop, as now ('high' leader, 'light' followers) | 176 | 251k |
+  | laptop, 'auto' | 126 | 129k |
+
+- How to use it (the pages are the hub's, so nothing switches until a page asks): `actor(id, gear, detail)`,
+  `person(npcId, detail)` and `personFigure(npcId, detail)` take `'high'`, `'light'` (as before), `'lite'`, `'auto'` or
+  `'auto-high'`. Suggested: phone `m7places.js` / `aethermoor.js` followers and townsfolk `'lite'` and the leader
+  `'auto'`; laptop leader `'auto-high'`, followers `'auto'`. `window.M7_HEROES.LOD.near` tunes the distance.
+- For the Fight (`world3d/battle`, which calls `buildHero` itself): `buildHero(id, gear, { lite: true })` makes the lite
+  figure (set `Q.d = 0.6` first for its fewer triangles, as `people.js` `buildLod` does), or use
+  `buildLod(lite => buildHero(id, gear, { lite }), 'auto')` from `prototypes/hero-3d/people.js` and pose
+  `L.pick().rig` each frame. The rig is the same; only its meshes differ.
+
 ## Next
 
 - Paused (the hub, November 20): more 3D reshaping waits until Chris chooses painted or 3D. Then: the Champions and Relic-Bearers beyond Act One (Kharzul, Mother Anvil, the Rime-Abbot, the
