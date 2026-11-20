@@ -82,6 +82,13 @@ shown side by side with the code-built model and a cut-out of Chris's sheet.
   no errors at 1280 x 800 and 390 x 844; 20 frames a second on the stands, 22 with the crowd (774,000 triangles drawn
   including shadows). Not yet checked on a real phone.
 
+## What others rely on (keep working)
+
+- `prototypes/foe-hd/page/briarmaw.js` (`briarmawLook`, `makeShared`, `ready`): kept as a forwarding module onto the kit.
+- `prototypes/foe-hd/assets/` (Briarmaw's `light.json/bin`, pictures): forwarding copies of `foes/briarmaw/assets/`,
+  for the Fight's plugin, until it moves onto `kit/js/looks.js`.
+- The kit's file layout and `foe.json` fields (sessions 7 and 8 build on them): changes are announced to them first.
+
 ## Changed outside my files
 
 - Nothing. (Installed Blender and Python packages in this container only.)
