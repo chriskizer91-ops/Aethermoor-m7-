@@ -16,7 +16,7 @@ import { MAT } from '../../game/src/art/forge.js';
 import { generateItem, relicItem } from '../../game/src/rules/loot.js';
 import { RELICS } from '../../game/src/data/relics.js';
 import { createRng } from '../../game/src/core/rng.js';
-import { buildHero, setPose, glowColor } from './model.js';
+import { buildHero, setPose, glowColor, SWING_ON } from './model.js';
 import { Q, TEXTURES } from './kit.js';
 import { auditList, gearFor, checkBuilt, HERO_NAMES } from './audit.js';
 
@@ -251,6 +251,10 @@ $('b-party').onclick = () => setParty(!S.party);
 $('b-strike').onclick = () => { S.strike = 0; trailPts.length = 0; };
 $('b-detail').onclick = () => { S.detail = S.detail === 'high' ? 'light' : S.detail === 'light' ? 'lite' : 'high'; applyDetail(); rebuild(); };
 window.__party = () => setParty(true);
+// Walk about: walk, run, stop (a dead stop, to watch things swing on and settle), back to the plinth
+S.roam = null; S.roamT = 0; S.step = 0;
+$('b-roam').onclick = () => { S.roam = S.roam === null ? 'walk' : S.roam === 'walk' ? 'run' : S.roam === 'run' ? 'stop' : null; $('b-roam').textContent = { walk: 'Walking', run: 'Running', stop: 'Stopped' }[S.roam] || 'Walk about'; $('b-roam').setAttribute('aria-pressed', !!S.roam);
+  if (!S.roam) { hero.group.position.set(S.party ? SLOT_X[S.hero] : 0, 0, 0); hero.group.rotation.y = 0; } else { S.goal = { c: new THREE.Vector3(0, 0.6, 0), dist: 4.2 }; } };
 // faces that live: step through the expressions (the party makes the same face)
 const FACES_ = ['neutral', 'talk', 'cheer', 'effort', 'hurt', 'worried', 'asleep'], FACE_NAMES = { neutral: 'Face: calm', talk: 'Face: talking', cheer: 'Face: cheer', effort: 'Face: effort', hurt: 'Face: hurt', worried: 'Face: worried', asleep: 'Face: asleep' };
 S.face = 'neutral';
@@ -313,7 +317,15 @@ function loop() {
   if (hero) {
     let u = 0, pose = 'idle';
     if (S.strike >= 0) { S.strike += dt / 0.75; u = Math.min(1, S.strike); pose = 'strike'; if (S.strike >= 1) S.strike = -1; }
-    setPose(hero.rig, pose, t, u);
+    // walking about (to judge what swings): a figure of eight round the plinth, walking, running, then a dead stop
+    if (S.roam) {
+      const run = S.roam === 'run', sp = run ? 1.9 : 0.9;
+      if (S.roam !== 'stop') { S.roamT += dt * sp / 1.6; S.step += dt * (run ? 11 : 7.2); }
+      const a = S.roamT, R0 = 0.75, x = Math.sin(a) * R0, z = Math.sin(2 * a) * R0 * 0.5, dx = Math.cos(a), dz = Math.cos(2 * a);
+      hero.group.position.set(x, 0, z); hero.group.rotation.y = Math.atan2(dx, dz);
+      hero.rig.run = run;
+      if (S.roam === 'stop') setPose(hero.rig, pose === 'strike' ? 'strike' : 'idle', t, u); else setPose(hero.rig, 'walk', t, S.step);
+    } else setPose(hero.rig, pose, t, u);
     for (const o of Object.values(others)) { setPose(o.rig, 'idle', t + o.phase, 0); for (const g of o.fx.glows) if (g.obj?.material && g.obj.material.emissiveIntensity !== undefined) g.obj.material.emissiveIntensity = 1.3 + Math.sin(t * 3 + g.power * 5) * 0.3; }
     hero.group.updateMatrixWorld(true);
     // the weapon's light and its trail
@@ -411,6 +423,8 @@ $('b-audit').onclick = () => { $('auditPanel').hidden = false; $('gearPanel').hi
 $('b-audit-back').onclick = () => { $('auditPanel').hidden = true; $('gearPanel').hidden = false; $('b-audit').hidden = false; };
 // for checks without pictures (headless): every item, flags only
 window.__audit = { thumbs(from, to) { return window.__audit.list().slice(from, to).map(e => ({ key: e.key, label: e.label, sub: e.sub, img: auditOne(e, true).img })); }, list: () => (AUD.list ||= auditList()), run(from = 0, to = 1e9) { const L = window.__audit.list().slice(from, to); return L.map(e => ({ key: e.key, hero: e.hero, flags: auditOne(e, false).flags })).filter(r => r.flags.length); } };
+// the cost of what swings: setPose n times with and without it (ms per call)
+window.__swingCost = (n = 2000) => { const rig = hero.rig, time = on => { SWING_ON.on = on; const t0 = performance.now(); for (let i = 0; i < n; i++) setPose(rig, 'walk', i / 60, i * 0.12); return (performance.now() - t0) / n; }; const off = time(false), on = time(true); SWING_ON.on = true; return { pieces: rig.danglers.length, off: +off.toFixed(4), on: +on.toFixed(4) }; };
 window.__gear = { renderer, S, rebuild, setHero, rollFor, nextRelic, lookAt: w => lookAt(w), get hero() { return hero; }, camera, controls };
 applyDetail();
 setHero('warden');
