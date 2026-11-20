@@ -15,7 +15,7 @@ const has = k => !!(k && MAT[k]);
 function wrapGrip(inner, a, b, R, key, k) {
   if (!key) return;
   // bands of leather laid edge over edge, each a little tilted, so they read as one strip wound round
-  const w = R * 1.25, n = Math.max(3, Math.round((b - a) / w)), step = (b - a) / n, m = mat(key);
+  const w = R * 1.25, n = Math.max(3, Math.round((b - a) / w)), step = (b - a) / n, m = mat(key, KIND(key) === 'leather' ? { tex: 'leather-wrap' } : {});
   add(tube([V(0, a * k, 0), V(0, b * k, 0)], R * 1.02 * k, { n: 12 }), m, inner);
   for (let i = 0; i < n; i++) {
     const y0 = a + i * step;
@@ -98,7 +98,7 @@ function sword({ inner, k, fx, W, p }, tip) {
   if (shape === 'fang' || shape === 'tooth') { wf = u => hw * 1.1 * Math.pow(1 - u, 0.8) + 0.05 * k; tf = u => hw * (shape === 'fang' ? 0.55 : 0.45) * Math.pow(1 - u, 0.7) + 0.05 * k; off = u => -cv * (u * u) * 1.6; }
   else if (shape === 'scimitar') { wf = u => (u < 0.82 ? hw * (0.9 + u * 0.45) : hw * 1.27 * Math.sqrt(Math.max(0, 1 - ((u - 0.82) / 0.18) ** 1.6))); tf = u => (0.5 + bw * 0.04) * k * (1 - u * 0.4); off = u => -cv * u * u * 1.3; }
   else { wf = u => (u < tS ? hw * (1 - (1 - tp) * u / tS) : hw * tp * Math.sqrt(Math.max(0, 1 - ((u - tS) / (1 - tS)) ** 2.2))); tf = u => (0.55 + bw * 0.05) * k * (1 - u * 0.45); off = u => -cv * u * u * 2.5; }
-  const bm = mat(has(p.blade) ? p.blade : 'steel');
+  const bk = has(p.blade) ? p.blade : 'steel', bm = mat(bk, W.relic && /steel|silver|iron|heat/.test(bk) && !/black|void/.test(bk) ? { tex: 'metal-engraved-steel' } : {});
   add(blade(L, wf, tf, { fuller: shape === 'fang' || shape === 'tooth' ? 0 : r === 'dagger' ? 0.15 : 0.4, off, rings: curved ? 26 : 22 }), bm, inner, 0, b0, 0);
   add(lathe([[hw * 0.7, -0.6 * k], [hw * 0.9, 0], [hw * 0.7, 0.8 * k]], { n: 12, sz: 0.35 }), gm, inner, 0, b0, 0);
   const th = tf(0.2);

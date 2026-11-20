@@ -12,6 +12,9 @@ until Chris answers. When he does, it moves to `decisions.md`.
 3. **The dice**: real 3D dice tumbling in the tray *(suggested)*, or M7's 2D dice tray.
 4. **The card reveal**: kept exactly as approved, shown over the 3D *(suggested)*.
 
+5b. **Small beasts on the field** (briarlings, hounds) stand 1.3 times life size so they read beside the heroes. Keep
+    it *(suggested)*?
+
 ## The story on the map (asked November 20, on the story map page)
 
 5. **Frostmere earlier**: on the atlas the frozen lake is on the road up to the peaks, so Hush and the Rime-Abbot come
