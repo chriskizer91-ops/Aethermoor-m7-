@@ -17,7 +17,9 @@
   const gear = {}; for (const [id] of H.HEROES) gear[id] = H.starterKit(id);
   const made = {}, lead = { id: 'warden' };
   const get = (id, detail) => { const k = id + detail; return made[k] || (made[k] = H.actor(id, gear[id], detail)); };
-  W3D.witch = (id) => get(id, PHONE ? 'light' : 'high');
+  // (Models' light figures, November 20) the leader in full detail close up and lighter further off; the followers lighter
+  // still (on a phone, two draws each)
+  W3D.witch = (id) => get(id, PHONE ? 'auto' : 'auto-high');
   let W;
   try {
     W = await W3D.walk({
@@ -33,7 +35,7 @@
   const party = window.M7_PARTY.create(W);
   function setFollowers() {
     for (const f of followers) scene.remove(f.root);
-    followers = H.HEROES.filter(([id]) => id !== lead.id).map(([id]) => get(id, 'light'));
+    followers = H.HEROES.filter(([id]) => id !== lead.id).map(([id]) => get(id, PHONE ? 'lite' : 'auto'));
     for (const f of followers) scene.add(f.root);
     party.set(leader, followers);
   }
