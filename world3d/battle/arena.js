@@ -96,8 +96,18 @@ export const arena = {
   spoilsView(top = 0.2) {
     const hc = V3(); for (const h of this.heroes.values()) hc.add(h.home); hc.multiplyScalar(1 / Math.max(1, this.heroes.size));
     for (const h of this.heroes.values()) h.forward = false;
-    const pos = hc.clone().addScaledVector(this.dir, 10.5); pos.y = hc.y + 3.4;
     const fov = 40, aim = hc.clone(); aim.y += 0.9;
+    // from the foes' side, or round about, near or far, high or low: the first spot that sees every hero's head
+    const P = this.W.P, heads = [...this.heroes.values()].map((h) => h.home.clone().setY(h.home.y + 1.3));
+    const clear = (a, b) => { try { return P.sight.hit(a.x, a.y, a.z, b.x, b.y, b.z) > 0.97; } catch (e) { return true; } };
+    let pos = null, bestN = -1, bestPos = null;
+    search: for (const [dist, up] of [[10.5, 3.4], [8, 3.2], [6, 3.6], [4.5, 4.2]]) for (const off of [0, 0.5, -0.5, 1.0, -1.0, 1.6, -1.6]) {
+      const a = this.yaw + off, p = hc.clone().add(V3(Math.sin(a) * dist, up, Math.cos(a) * dist));
+      const n = heads.filter((h) => clear(p, h)).length;
+      if (n > bestN) { bestN = n; bestPos = p; }
+      if (n === heads.length) { pos = p; break search; }
+    }
+    pos = pos || bestPos;
     // look a little below the party, so they stand in the upper part of the screen
     const v = this.renderer.domElement.getBoundingClientRect(), f = (v.height / 2) / Math.tan(fov * Math.PI / 360);
     const off = Math.atan((0.5 - top) * v.height / f), d = aim.clone().sub(pos), L = d.length();
@@ -121,6 +131,7 @@ export const arena = {
   //      yH (the heroes' feet line), yTop (their heads' line), foes: [ids in the order they stand] } (CSS px)
   layout(L) {
     this.layoutIn = L;
+    if (!this.want) this.pickYaw(L);
     const cam = this.solve(L);
     if (!cam) return;
     const first = !this.want;
@@ -155,6 +166,30 @@ export const arena = {
       F.home.copy(p); if (fresh && F.pos.lengthSq() === 0) F.pos.copy(p); F.slot = x - L.stage.left; F.slotW = Math.max(118, Math.min(200, (L.stage.width - 8) * wt[i] / sum - 6));
     });
   },
+  // Indoors and among walls (step 3): the way the fight faces is chosen once, at its start. From the way to the foes,
+  // then turning left and right by steps, it keeps the first way whose camera sees every hero and foe (nothing built
+  // between: the place's own line-of-sight test, W.P.sight) and puts everyone on open ground; failing that, the best.
+  pickYaw(L) {
+    const yaw0 = this.yaw, P = this.W.P;
+    const clear = (a, b) => { try { return P.sight.hit(a.x, a.y, a.z, b.x, b.y, b.z) > 0.97; } catch (e) { return true; } };
+    const open = (p) => { try { return P.walkable(P.M.px(p.x), P.M.py(p.z)); } catch (e) { return true; } };
+    let best = null;
+    for (const off of [0, 0.45, -0.45, 0.9, -0.9, 1.4, -1.4, 2.0, -2.0, Math.PI]) {
+      this.setYaw(yaw0 + off);
+      const cam = this.solve(L); if (!cam) continue;
+      const pts = [];
+      for (const { x } of L.heroes) { const p = this.ground(x, L.yH, cam); if (p) pts.push([p, 1.3]); }
+      const n = Math.max(1, (L.foes || []).length), pad = Math.min(60, L.stage.width * 0.12), w = L.stage.width - pad * 2;
+      for (let i = 0; i < n; i++) { const p = this.ground(L.stage.left + pad + w * (i + 0.5) / n, L.yF, cam); if (p) pts.push([p, 0.6]); }
+      let score = 0, all = pts.length > 0;
+      for (const [p, up] of pts) { const seen = clear(cam.pos, p.clone().setY(p.y + up)), ok = open(p); score += (seen ? 2 : 0) + (ok ? 1 : 0); if (!seen || !ok) all = false; }
+      score -= Math.abs(off) * 0.3;
+      if (!best || score > best.score) best = { score, yaw: this.yaw };
+      if (all) break;
+    }
+    this.setYaw(best ? best.yaw : yaw0);
+  },
+  setYaw(y) { this.yaw = y; this.dir.set(Math.sin(y), 0, Math.cos(y)); },
   // the camera that puts the heroes' feet at yH, their heads at yTop and the foes' feet at yF, looking down `dir`
   solve(L) {
     const Wc = L.view.width, Hc = L.view.height; if (!Wc || !Hc) return null;
