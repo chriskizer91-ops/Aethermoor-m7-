@@ -116,7 +116,7 @@ function rebuild() {
   if (hero) { scene.remove(hero.group); hero.group.traverse(o => { o.geometry?.dispose?.(); }); }
   Q.d = QD[S.detail];
   const t0 = performance.now();
-  hero = buildHero(S.hero, S.gear, { build: S.build, lite: S.detail === 'lite' });
+  hero = buildHero(S.hero, S.gear, { build: S.build, lite: S.detail === 'lite' }); hero.face(S.face || 'neutral');
   S.lastBuild = Math.round(performance.now() - t0);
   hero.group.position.x = S.party ? SLOT_X[S.hero] : 0;
   runeCircle.position.x = hero.group.position.x;
@@ -250,6 +250,10 @@ $('b-party').onclick = () => setParty(!S.party);
 $('b-strike').onclick = () => { S.strike = 0; trailPts.length = 0; };
 $('b-detail').onclick = () => { S.detail = S.detail === 'high' ? 'light' : S.detail === 'light' ? 'lite' : 'high'; applyDetail(); rebuild(); };
 window.__party = () => setParty(true);
+// faces that live: step through the expressions (the party makes the same face)
+const FACES_ = ['neutral', 'talk', 'cheer', 'effort', 'hurt', 'worried', 'asleep'], FACE_NAMES = { neutral: 'Face: calm', talk: 'Face: talking', cheer: 'Face: cheer', effort: 'Face: effort', hurt: 'Face: hurt', worried: 'Face: worried', asleep: 'Face: asleep' };
+S.face = 'neutral';
+$('b-face').onclick = () => { S.face = FACES_[(FACES_.indexOf(S.face) + 1) % FACES_.length]; $('b-face').textContent = FACE_NAMES[S.face]; for (const h of [hero, ...Object.values(others)]) h?.face?.(S.face); if (S.look === 'whole') lookAt('face'); };
 // Chris's textures on or off (off: the surfaces generated in code, as before November 20), to compare
 $('b-tex').onclick = () => { TEXTURES.on = !TEXTURES.on; $('b-tex').setAttribute('aria-pressed', TEXTURES.on); $('b-tex').textContent = TEXTURES.on ? 'Textures ✓' : 'Textures'; rebuild(); };
 function applyDetail() {

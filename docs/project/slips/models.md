@@ -104,6 +104,20 @@ https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL
   `buildLod(lite => buildHero(id, gear, { lite }), 'auto')` from `prototypes/hero-3d/people.js` and pose
   `L.pick().rig` each frame. The rig is the same; only its meshes differ.
 
+**Faces that live.** Gear Room (the **Face** button steps through them): https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL
+- Every hero, person foe and townsperson blinks on its own every few seconds, talks with its mouth while talking, and
+  makes six expressions: `'cheer'`, `'effort'` (gritted, narrowed eyes), `'hurt'` (a wince, teeth), `'worried'` (brows
+  up at the middle, a frown), `'asleep'` (eyes shut, a fallen hero) and `'neutral'`; `'talk'` talks without the pose.
+- How: eyelids and a mouth are drawn in the face's own shader over its picture (Chris's four faces, measured where
+  their eyes and mouths are; faceTexture's for everyone else), so an expression costs a few numbers a frame, never a new
+  picture. Works the same in High, Light and Lite. Blindfolded and shadowed faces keep their eyes as they are (the mouth
+  still moves).
+- API for the Fight and Together: `figure.face(expr, seconds)` on buildHero's result, on `actor()` and `person()`
+  walkers, and on `personFigure()` (seconds omitted: until the next call). It runs inside `setPose`, which every page
+  already calls each frame; the mouth talks while the pose is `'talk'` (`talking = true` on walkers) or
+  `rig.faceCtl.talking` is true. Suggested: `'effort'` for the strike, `'hurt'` for a second when hit, `'asleep'` while
+  fallen, `'cheer'` on victory, `'worried'` when low.
+
 ## Next
 
 - Paused (the hub, November 20): more 3D reshaping waits until Chris chooses painted or 3D. Then: the Champions and Relic-Bearers beyond Act One (Kharzul, Mother Anvil, the Rime-Abbot, the
