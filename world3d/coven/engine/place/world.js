@@ -251,7 +251,7 @@
         const ya = w.level(py), yb = w.level(py + sy), xa = X(px), xb = X(px + sx), za = Z(py), zb = Z(py + sy);
         WB2.quad('w', [xa, yb, zb], [xb, yb, zb], [xb, ya, za], [xa, ya, za], [xa, zb, xb, za]);
       }
-      const mesh = WB2.build({ w: W3D.waterMat(U, { water: T(w.tex), rep: w.rep, flow: w.flow, tint: w.tint }) }).w;
+      const mesh = WB2.build({ w: W3D.waterMat(U, { water: T(w.tex), rep: w.rep, flow: w.flow, tint: w.tint, emis: w.emis /* (Aethermoor, Places) */ }) }).w;
       if (mesh) { mesh.name = 'water'; waterMeshes.push(mesh); scene.add(mesh); }
     }
 

@@ -18,6 +18,10 @@ Each region on its own page, by day (the mines, vaults and the two dark Gloomfen
 | The Sunscorch | 10 | https://claude.ai/artifact/Awn5YJ761bD7rPyp4AkEdf |
 | The Ironspire (with the East Road) | 17 | https://claude.ai/artifact/BPcAuRLL3njp1Q3ZHPTUWQ |
 | The Gloomfen | 12 | https://claude.ai/artifact/RkoGBME3ANqwAVLnwKLbj8 |
+| Act Three: the Keep's galleries and the Hearth Below | 8 (with the Great Hall) | https://claude.ai/artifact/HMZiN2rDQThhvvsJqwmE56 |
+
+The Hearth Below's four maps have no painting yet (Chris's batch 4): `node m7/standin.mjs <ids>` draws a stand-in from
+the 2D game's own tiles into `m7/standins/`, and the converter uses it until the real painting is in the game.
 
 What Act Two adds to the converter and the kit (Act One is made exactly as before):
 - Thick runs of cliff (`^`, and `R` in a mine, a dwarf hall, a forge or the ice cave) raise the ground itself, with

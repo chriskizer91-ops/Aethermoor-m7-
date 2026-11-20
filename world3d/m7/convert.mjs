@@ -14,7 +14,7 @@
 //   every walkable tile is where the party can walk, exactly as in the 2D game
 // Past the map's edges the land goes on for 9 tiles: water where the edge is water, a bridge where a bridge leaves, woods
 // elsewhere, with the road out kept clear.
-import { writeFileSync, readFileSync, mkdirSync } from 'node:fs';
+import { writeFileSync, readFileSync, mkdirSync, existsSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import path from 'node:path';
@@ -43,7 +43,9 @@ function tileColours(webp, w, h) {
 
 async function convert(id) {
   const map = (await import(pathToFileURL(path.join(GAME, 'data/maps', id + '.js')))).default;
-  const paint = (await import(pathToFileURL(path.join(GAME, 'ui/assets/paint', id + '.js')))).default;
+  // (Places) a map with no painting yet (the Hearth Below's four, Chris's batch 4) uses its stand-in, m7/standin.mjs
+  const paintFile = path.join(GAME, 'ui/assets/paint', id + '.js');
+  const paint = existsSync(paintFile) ? (await import(pathToFileURL(paintFile))).default : { src: 'data:image/webp;base64,' + readFileSync(path.join(here, 'standins', id + '.webp')).toString('base64'), standin: true };
   const { w, h, rows } = map;
   const at = (i, j) => (i < 0 || j < 0 || i >= w || j >= h) ? null : rows[j][i];
   const solid = (c) => (LEGEND[c] || LEGEND.x).solid;
@@ -56,19 +58,20 @@ async function convert(id) {
   const ACT2 = (map.region || 'verdant') !== 'verdant', BIO = map.biome || '';
   // the land's masses: cliffs, scarps, dune crests, a mine's rock. Where they are thick the ground itself rises (the kit's
   // tileH '4'); a lone tile of them is a boulder, as in Act One
-  const MASSC = !ACT2 ? '' : /^(mine|crystal|ice-cave|dwarf-hall|forge)$/.test(BIO) ? '^R' : '^';
+  const BELOW = map.region === 'below';
+  const MASSC = !ACT2 ? '' : BELOW ? (BIO === 'council' ? '' : BIO === 'chains' ? '#R*' : '#*') : /^(mine|crystal|ice-cave|dwarf-hall|forge)$/.test(BIO) ? '^R' : '^';
   const isMass = (i, j) => MASSC.includes(rows[cl0(j, 0, h - 1)][cl0(i, 0, w - 1)]);
   const cornerMass = (i, j) => isMass(i - 1, j - 1) && isMass(i, j - 1) && isMass(i - 1, j) && isMass(i, j);
   const RAISED = rows.map((r, j) => [...r].map((c, i) => MASSC.includes(c) && (cornerMass(i, j) || cornerMass(i + 1, j) || cornerMass(i, j + 1) || cornerMass(i + 1, j + 1))));
   // what a 'T', a 't' and an 'f' are in each biome (the 2D game's art/tiles.js and the maps' headers)
   const TREEK = { desert: 'cactus', 'desert-town': 'palm', oasis: 'palm', canyon: 'palm', 'mine-camp': 'dead', mine: 'prop', crystal: 'spire', dunes: 'spire', ash: 'charred', vault: 'column', tundra: 'frostdead' }[BIO];
-  const YK = { monastery: 'column', mountain: 'statue', 'dwarf-hall': 'column', forge: 'anvil', 'ice-cave': 'icecol', 'sunken-city': 'column', belfry: 'column' }[BIO];
-  const SMALLK = { desert: 'shrub', oasis: 'shrub', canyon: 'shrub', 'desert-town': 'jar', 'mine-camp': 'crate', mine: 'cart', crystal: 'cluster', dunes: 'shard', ash: 'stump', vault: 'urn', tundra: 'sledge', 'frozen-lake': 'sledge', outpost: 'crate', 'dwarf-hall': 'barrel', forge: 'barrel', monastery: 'shrub', mountain: 'shrub', scree: 'shrub', fen: 'reedbed', bog: 'reedbed', causeway: 'reedbed', channel: 'shrub', 'stilt-town': 'crate', 'willow-village': 'crate', boardwalk: 'crate', mudflat: 'crate', 'sunken-city': 'crate', 'drowned-grove': 'stump' }[BIO];
-  const GLOWK = { mine: 'amber', 'mine-camp': 'amber', canyon: 'amber', crystal: 'frost', dunes: 'glint', desert: 'glint', ash: 'ember', vault: 'ember', oasis: 'wisp', 'dwarf-hall': 'rune', forge: 'ember', 'ice-cave': 'frost', belfry: 'wisp', bog: 'wisp' }[BIO];
+  const YK = { monastery: 'column', mountain: 'statue', 'dwarf-hall': 'column', forge: 'anvil', 'ice-cave': 'icecol', 'sunken-city': 'column', belfry: 'column', council: 'column', 'hearth-roots': 'ironroot', chains: 'chain', worldforge: 'hook' }[BIO];
+  const SMALLK = { desert: 'shrub', oasis: 'shrub', canyon: 'shrub', 'desert-town': 'jar', 'mine-camp': 'crate', mine: 'cart', crystal: 'cluster', dunes: 'shard', ash: 'stump', vault: 'urn', tundra: 'sledge', 'frozen-lake': 'sledge', outpost: 'crate', 'dwarf-hall': 'barrel', forge: 'barrel', monastery: 'shrub', mountain: 'shrub', scree: 'shrub', fen: 'reedbed', bog: 'reedbed', causeway: 'reedbed', channel: 'shrub', 'stilt-town': 'crate', 'willow-village': 'crate', boardwalk: 'crate', mudflat: 'crate', 'sunken-city': 'crate', 'drowned-grove': 'stump', worldforge: 'rack' }[BIO];
+  const GLOWK = { mine: 'amber', 'mine-camp': 'amber', canyon: 'amber', crystal: 'frost', dunes: 'glint', desert: 'glint', ash: 'ember', vault: 'ember', oasis: 'wisp', 'dwarf-hall': 'rune', forge: 'ember', 'ice-cave': 'frost', belfry: 'wisp', bog: 'wisp', chains: 'ember', worldforge: 'ember', 'hearth-roots': 'ember' }[BIO];
   const PADK = map.region === 'sunscorch' ? 'rocks' : 'woods';
   // the Gloomfen: plank streets, piers and porches stand on stilts over the water ('_', and ':' in a stilt town, near
   // water); 'x' there is broken planks over water, not a drop; '|' are rails and fences, not palisades; '*' a lantern on a pole
-  const GLOOM = map.region === 'gloomfen';
+  const GLOOM = map.region === 'gloomfen' || (map.region === 'below' && BIO === 'chains');   // the chain rail is a rail too
   const nearWet = (i, j) => { for (let b = -2; b <= 2; b++) for (let a = -2; a <= 2; a++) { const c = at(i + a, j + b); if (c === '~' || c === 'w' || c === 'x') return true; } return false; };
 
   // an indoor map: walls nearly all round its edge (the Great Hall, a vault, a mine's gallery). Indoors the walls are low
@@ -190,7 +193,7 @@ async function convert(id) {
   });
 
   // ---- the walls: runs of # and * that aren't a house's front ----
-  let WALL = rows.map((r, j) => [...r].map((c, i) => (GLOOM ? '#' : '#*').includes(c) && !BLD[j][i]));
+  let WALL = rows.map((r, j) => [...r].map((c, i) => (GLOOM ? '#' : '#*').includes(c) && !MASSC.includes(c) && !BLD[j][i]));
   // a wall piece of four tiles or fewer, on its own (a fire pit's kerb, a well's wall), is a low wall with no crenels
   const LOW = rows.map((r) => [...r].map(() => false));
   { const seen = rows.map((r) => [...r].map(() => false));
@@ -287,6 +290,9 @@ async function convert(id) {
   const extraTrees = [], props = [], flowers = [], cliffs = [], roots = [], firsts = [], glows = [], stand = [], smalls = [], faces = [];
   for (let j = 0; j < h; j++) for (let i = 0; i < w; i++) {
     const c = rows[j][i], x = (i + 0.5) * TX, y = (j + 0.5) * TY;
+    if (BELOW && c === '*') glows.push([x, y, 'ember']);   // ember seams and fire-vents in the rock
+    if (BELOW && ((c === '~' && (i + j) % 2 === 0) || (c === 'x' && BIO !== 'council' && (i * 7 + j * 3) % 4 === 0))) glows.push([x, y, 'lava']);   // molten metal, and the red glow far down a drop
+    if (BELOW && c === 'R' && BIO === 'council') { stand.push([x, y, 'table', 0, 1]); continue; }
     if (ACT2 && MASSC.includes(c)) {
       if (!RAISED[j][i]) { if (BIO !== 'dunes') cliffs.push([x, y, +(1.5 + rnd() * 0.7).toFixed(2)]); }
       else if (BIO !== 'dunes') for (const [a, b] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const n = at(i + a, j + b); if (n !== null && !MASSC.includes(n) && rnd() < 0.16) faces.push([Math.round(x + a * TX * 0.42), Math.round(y + b * TY * 0.42), +(0.9 + rnd() * 0.6).toFixed(2)]); }
@@ -306,7 +312,7 @@ async function convert(id) {
     else if (c === 'R') roots.push([x, y, Math.floor(rnd() * 900)]);
     else if (c === 'Y') firsts.push([x, y, Math.floor(rnd() * 900)]);
     else if (c === 'f') glows.push([x, y]);
-    else if (c === 'i') glows.push([x, y, 'ichor']);
+    else if (c === 'i') glows.push([x, y, BELOW ? 'ember' : 'ichor']);
     else if (c === 'o') props.push({ k: 'rock', at: [x, y], size: +(1.1 + rnd() * 0.6).toFixed(2), y: WET[j][i] ? -0.9 : undefined });
     else if (c === ',' && false) flowers.push([Math.round(x + (rnd() - 0.5) * 20), Math.round(y + (rnd() - 0.5) * 16), +(0.35 + rnd() * 0.3).toFixed(2), ['mix', 'white', 'violet'][Math.floor(rnd() * 3)]]);
   }
@@ -345,7 +351,7 @@ async function convert(id) {
   const place = {
     id: 'm7-' + id, m7: id, name: map.name, region, biome: map.biome, interior, dark: !!map.dark || undefined,
     ...(ACT2 ? { stand, smalls, faces, texFiles: Object.fromEntries((REGION_TEX[region] || []).map(AW)) } : {}), pillars, palisades, cliffs, roots, firsts, glows, size: [w * TX, h * TY], tiles: [w, h],
-    painting: `art/m7/${id}.webp`, extent: [-PAD * TX, -PAD * TY, (w + PAD) * TX, (h + PAD) * TY],
+    painting: `art/m7/${id}.webp`, standin: paint.standin || undefined, extent: [-PAD * TX, -PAD * TY, (w + PAD) * TX, (h + PAD) * TY],
     start: first.at, startFace: first.face, anchors, exits, people,
     water: water.map((p) => ({ poly: p })), decks, buildings, walls: segs, towers, torches, lamps, props, flowers, extraTrees, lawns, groundPatches,
     fence: GLOOM || undefined,
