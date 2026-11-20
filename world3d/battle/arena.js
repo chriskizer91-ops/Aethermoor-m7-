@@ -24,6 +24,7 @@ const UP = V3(0, 1, 0);
 const ease = (x) => { x = Math.max(0, Math.min(1, x)); return x * x * (3 - 2 * x); };
 const seg = (u, a, b) => ease((u - a) / (b - a));
 let HERO_H = 1.72;
+const FAST = typeof location !== 'undefined' && /[?&]fast=1\b/.test(location.search);
 const RARITY = { worn: '#9a968c', wrought: '#e8e4da', tempered: '#64c85c', runed: '#5299f0', storied: '#b774f4', heirloom: '#f4ad3f', regalia: '#4fd1c0', primal: '#fff6e0' };
 const GAP = 4.2;          // metres between the heroes' line and the foes' (what the camera aims for)
 
@@ -409,6 +410,8 @@ export const arena = {
     for (const L of this.drops || []) { L.t += dt; const u = Math.max(0, Math.min(1, L.t / 0.5)); const s = L.open ? Math.max(0.01, L.g.scale.x - dt * 3) : 0.01 + (1 - (1 - u) ** 3) * 0.99 * (1 + Math.sin(Math.min(1, u) * Math.PI) * 0.25); L.g.scale.setScalar(s); L.g.rotation.y += dt * 0.6; L.glow.intensity = 1 + Math.sin(this.t * 3 + L.t) * 0.4; }
     this.fx.speed = sp; this.fx.update(d, this.cam);
     if (this.onIdle) this.onIdle(d, t);
+    // ?fast=1 (headless checks only): draw a few times a second, so a slow software browser leaves M7's timers their time
+    if (FAST) { this._drawT = (this._drawT || 0) + dt; if (this._drawT < 0.3) return; this._drawT = 0; }
     this.renderer.render(this.scene, this.cam);
   },
 };
