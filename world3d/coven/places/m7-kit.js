@@ -46,6 +46,20 @@
       surfaces: { stone: 'iron_dwarf_stone', dry: 'shared_stone_wall_frosted_b', rock: 'shared_stone_wall_frosted_b' },
       rock: ['shared_stone_wall_frosted_b', 0xd8dce4], mass: 6, roofs: {}, tints: { stone: 0xe0e0e6, firs: 0xdce8e4 }, light: COLD, water: 0x8ca0b4,
     },
+    below: {   // Act Three: the Hearth Below, under the Keep (council, hearth-roots, chains, worldforge)
+      ground: { grass: 'iron_dwarf_stone', dirt: 'iron_dwarf_stone', cob: 'keep_floor_flags', pave: 'keep_floor_flags', rep: [2.6, 3.2, 3.2, 2.6] },
+      surfaces: { stone: 'iron_dwarf_stone', dry: 'iron_dwarf_stone', rock: 'iron_dwarf_stone' },
+      rock: ['iron_dwarf_stone', 0x948a84], mass: 5, roofs: {}, tints: { stone: 0xb8b0b0, dry: 0xb8b0b0 },
+      light: { day: 0, sky: [0.95, 0.8, 0.74], moon: [0.5, 0.38, 0.32], ground: [0.22, 0.14, 0.1], fog: [0.07, 0.035, 0.025], fogNear: 34, fogFar: 110, hills: false, glowK: 2.2 },
+      water: 0x502818, molten: 0xff6a1c,
+    },
+    gloomfen: {
+      ground: { pave: 'gloom_boardwalk_old', grassTint: [0.42, 0.48, 0.4] },
+      surfaces: { deck: 'gloom_boardwalk_old', planks: 'gloom_boardwalk_old', wood: 'gloom_boardwalk_old', timber: 'gloom_stilt_wood', rock: 'thorn_rock_mossy' },
+      houses: 'timber', rock: ['thorn_rock_mossy', 0xd0d8c8], mass: 4, roofs: {}, tints: { deck: 0xffffff, wood: 0xffffff },
+      light: { day: 0.75, sky: [0.8, 0.86, 0.8], moon: [0.4, 0.42, 0.38], ground: [0.26, 0.28, 0.24], fog: [0.55, 0.61, 0.57], fogNear: 16, fogFar: 95, hills: false },
+      water: 0xa8b8a0, waterTex: 'gloom_bog_water',
+    },
     sunscorch: {
       ground: { grass: 'sun_sand_ground', dirt: 'shared_dirt_track', cob: 'shared_cobbles_town', pave: 'sun_sandstone_wall', rep: [2.6, 4.2, 3.6, 3.0] },
       surfaces: { stone: 'sun_sandstone_wall', dry: 'sun_sandstone_wall', timber: 'sun_adobe_plaster', rock: 'sun_sandstone_wall' },
@@ -67,6 +81,12 @@
     'dwarf-hall': { mass: 4, ground: { grass: 'iron_dwarf_stone', dirt: 'iron_dwarf_stone' }, rock: ['iron_dwarf_stone', 0x9a9690], light: FORGE },
     forge: { mass: 4, ground: { grass: 'iron_dwarf_stone', dirt: 'iron_dwarf_stone', cob: 'iron_forge_brick' }, surfaces: { stone: 'iron_forge_brick', dry: 'iron_forge_brick' }, rock: ['iron_dwarf_stone', 0x6a625e], light: FORGE },
     'ice-cave': { mass: 4, ground: { grass: 'iron_ice_lake', dirt: 'iron_ice_lake' }, rock: ['iron_ice_lake', 0xa8c4e0], light: Object.assign({}, CAVE, { sky: [0.5, 0.6, 0.75], fog: [0.02, 0.03, 0.06] }) },
+    // the Hearth Below
+    council: { surfaces: { stone: 'keep_wall_hearthstone' }, tints: { stone: 0x9890a8 }, light: Object.assign({}, CAVE, { sky: [0.78, 0.72, 0.88], moon: [0.4, 0.36, 0.44], fog: [0.03, 0.02, 0.05] }) },
+    worldforge: { surfaces: { stone: 'iron_forge_brick', dry: 'iron_forge_brick' }, tints: { stone: 0xb0a0a0 } },
+    // the Gloomfen (the two dark maps: the Mother's Hollow and the drowned belfry, by night in a green mist)
+    'drowned-grove': { light: { day: 0, sky: [0.6, 0.66, 0.62], moon: [0.36, 0.4, 0.42], ground: [0.12, 0.14, 0.12], fog: [0.1, 0.14, 0.12], fogNear: 14, fogFar: 70, hills: false } },
+    belfry: { light: Object.assign({}, CAVE, { sky: [0.5, 0.62, 0.56], fog: [0.03, 0.06, 0.05] }) },
     // the Sunscorch
     dunes: { mass: 2.6, mound: 1.3, ground: { cob: 'sun_glass_flats' }, roofs: { slate: ['sun_awning_canvas', 0xffffff], red: ['sun_awning_canvas', 0xffd0c0] } },
     canyon: { mass: 6.5, rock: ['sun_sandstone_wall', 0xb87860] },
@@ -141,6 +161,8 @@
       glowR: { emis: 0x70b8ff, lit: 0, tint: 0x70b8ff, cut: false },
       iceL: { tex: 'shared_water_dark', rep: 1, tint: 0xd8ecff, spec: 1, shade: 0.3 },
       frosted: { tex: 'thorn_bark_black', rep: 1.4, tint: 0xc8ccd4, shade: 0.5 },
+      ironL: { tex: 'iron_forge_brick', rep: 1, tint: 0x504848, spec: 0.6, shade: 0.5 },
+      reed: { tex: 'shared_grass_meadow', rep: 1, tint: 0xc8c088, shade: 0.4 },
     });
     extraMats.roots = { tex: 'shared_bark_oak', rep: 1.6, tint: 0xd8c0a8, shade: 0.5 };
     extraMats.rockM = { tex: 'thorn_rock_mossy', rep: 2.2, tint: 0xffffff, shade: 0.5 };
@@ -169,7 +191,7 @@
       // the M7 places are by day in the 2D game: their leaves a little lighter than the borrowed night woods
       tints: Object.assign({ leaves: 0xf0fff4, bough: 0xc4d6c4, boughFir: 0xb0c4bc, bush: 0xf0fff0 }, KEEP ? { stone: 0x9c9ca8 } : {}, LOOK ? LOOK.tints : {}),
       ground_h: ground, walk_h: ground,
-      water: d.water.map((wt) => ({ poly: wt.poly, level: () => -0.5, tex: 'shared_water_dark', rep: 6, flow: [0.004, 0.002], bed: -2.3, tint: LOOK && LOOK.water })),
+      water: d.water.map((wt) => ({ poly: wt.poly, level: () => -0.5, tex: 'shared_water_dark', rep: 6, flow: [0.004, 0.002], bed: -2.3, tint: LOOK && LOOK.water, ...(LOOK && LOOK.waterTex ? { tex: LOOK.waterTex, rep: 8 } : {}), ...(LOOK && LOOK.molten ? { emis: LOOK.molten, flow: [0.02, 0.008], level: () => -0.25 } : {}) })),
       night: LOOK ? Object.assign({}, d.interior && !LOOK.light.day ? CAVE : LOOK.light, d.night || {}) : Object.assign(d.interior ? { sky: [0.62, 0.52, 0.5], moon: [0.3, 0.26, 0.26], ground: [0.12, 0.08, 0.06], fog: [0.02, 0.018, 0.03], fogNear: 30, fogFar: 90, hills: false } : {}, { sky: [0.86, 0.8, 0.84], moon: [0.62, 0.56, 0.6], ground: [0.16, 0.13, 0.14], fog: [0.16, 0.15, 0.24], fogNear: 40, fogFar: 140 }, d.night || {}),
       paintingSrc: d.painting,
       extra: (K) => extra(K, d),
@@ -204,6 +226,12 @@
     const UP = new THREE.Vector3(0, 1, 0);
     const rod = (k, a, b, r0, r1) => { const dir = new THREE.Vector3(b[0] - a[0], b[1] - a[1], b[2] - a[2]), L = dir.length(); const g = new THREE.CylinderGeometry(r1, r0, L, 7, 1, false); g.translate(0, L / 2, 0); const q = new THREE.Quaternion().setFromUnitVectors(UP, dir.normalize()); B.geom(k, g, new THREE.Matrix4().compose(new THREE.Vector3(...a), q, new THREE.Vector3(1, 1, 1)), null, [Math.PI * (r0 + r1), L]); g.dispose(); };
     for (const [[ax, ay], [bx, by]] of d.palisades || []) {
+      if (d.fence) {   // (Places) the Gloomfen's rails and fences: posts with two rails, waist high
+        const A = [X(ax), Z(ay)], Bp = [X(bx), Z(by)], L = Math.hypot(Bp[0] - A[0], Bp[1] - A[1]), n = Math.max(1, Math.round(L / 1.4)), ry = Math.atan2(-(Bp[1] - A[1]), Bp[0] - A[0]);
+        for (let i = 0; i <= n; i++) { const f = i / n, x = A[0] + (Bp[0] - A[0]) * f, z = A[1] + (Bp[1] - A[1]) * f; B.box(d.region === 'below' ? 'iron' : 'wood', x, gh(ax + (bx - ax) * f, ay + (by - ay) * f) - 0.4, z, 0.14, 1.45, 0.14, ry, [0.7, 0.6, 0.5]); }
+        const g = gh((ax + bx) / 2, (ay + by) / 2); for (const hy of [0.45, 0.9]) B.box(d.region === 'below' ? 'iron' : 'wood', (A[0] + Bp[0]) / 2, Math.max(g, 0.08) + hy, (A[1] + Bp[1]) / 2, L, 0.08, 0.08, ry, [0.72, 0.62, 0.52], NS);
+        continue;
+      }
       const A = [X(ax), Z(ay)], Bp = [X(bx), Z(by)], L = Math.hypot(Bp[0] - A[0], Bp[1] - A[1]), n = Math.max(2, Math.round(L / 0.34));
       for (let i = 0; i < n; i++) {
         const f = (i + 0.5) / n, x = A[0] + (Bp[0] - A[0]) * f, z = A[1] + (Bp[1] - A[1]) * f, g = gh(ax + (bx - ax) * f, ay + (by - ay) * f), hh = 2.3 + R() * 0.5;
@@ -350,6 +378,17 @@
         const hh = (2.6 + R() * 1.4) * s, top = [x + (R() - 0.5) * 0.6, g + hh, z + (R() - 0.5) * 0.6];
         rod('frosted', [x, g - 0.2, z], top, 0.22, 0.08);
         for (let i = 0; i < 3; i++) { const a = R() * 6.28, f = 0.45 + R() * 0.35, b0 = [x + (top[0] - x) * f, g + hh * f, z + (top[2] - z) * f]; rod('frosted', b0, [b0[0] + Math.cos(a) * 1.0, b0[1] + 0.8, b0[2] + Math.sin(a) * 1.0], 0.08, 0.03); }
+      } else if (kind === 'table') {   // the Council's round table, one stone
+        if (!K._table) { K._table = 1; }
+        B.cyl('stone', x, g, z, 0.9, 1.0, 0.85, 14, [0.8, 0.76, 0.86]);
+      } else if (kind === 'ironroot') {
+        const hh = 4 + R() * 2.5; rod('ironL', [x, g - 0.4, z], [x + (R() - 0.5) * 1.2, g + hh, z + (R() - 0.5) * 1.2], 0.6, 0.3);
+        for (let i = 0; i < 3; i++) { const a = R() * 6.28; rod('ironL', [x, g + 0.5, z], [x + Math.cos(a) * 1.6, g - 0.3, z + Math.sin(a) * 1.6], 0.32, 0.12); }
+      } else if (kind === 'chain' || kind === 'hook') {   // a great chain (links, alternately turned) up into the dark; a hook hung low
+        const top = kind === 'chain' ? 9 : 7, bot = kind === 'chain' ? -0.2 : 2.2, L = kind === 'chain' ? 0.9 : 0.5, n = Math.round((top - bot) / L), tz = kind === 'chain' ? (R() - 0.5) * 3 : 0;
+        for (let i = 0; i < n; i++) { const f = i / n, y = g + bot + (top - bot) * f, link = new THREE.TorusGeometry(L * 0.42, L * 0.1, 5, 10); link.scale(1, 1.5, 1);
+          B.geom('ironL', link, new THREE.Matrix4().compose(new THREE.Vector3(x + tz * f, y, z), new THREE.Quaternion().setFromEuler(new THREE.Euler(0, i % 2 ? Math.PI / 2 : 0, 0)), new THREE.Vector3(1, 1, 1)), null, 1); link.dispose(); }
+        if (kind === 'hook') rod('ironL', [x, g + bot, z], [x + 0.35, g + bot - 0.6, z], 0.06, 0.04);
       } else if (kind === 'column') {
         B.box('stone', x, g, z, 1.2, 0.3, 1.2, 0, [0.85, 0.84, 0.9]); B.cyl('stone', x, g + 0.3, z, 0.45, 0.45, R() < 0.3 ? 1.2 + R() : 3.6, 10, [0.95, 0.94, 1]);
       }
@@ -361,6 +400,8 @@
       else if (kind === 'cart') { B.box('wood', x, g + 0.35, z, 0.9, 0.6, 1.3, 0, [0.8, 0.66, 0.52]); for (const sx of [-1, 1]) for (const sz of [-1, 1]) B.cyl('iron', x + sx * 0.48, g, z + sz * 0.4, 0.2, 0.2, 0.08, 8); }
       else if (kind === 'cluster' || kind === 'shard') { const k = kind === 'cluster' ? 'crystalG' : 'glassL'; for (let i = 0; i < 4; i++) cone(k, x + (R() - 0.5) * 0.8, g - 0.1, z + (R() - 0.5) * 0.8, 0.12 + R() * 0.12, 0.5 + R() * 0.7, (R() - 0.5) * 0.8, (R() - 0.5) * 0.8, 4); }
       else if (kind === 'sledge') { B.box('wood', x, g + 0.25, z, 0.9, 0.3, 1.8, 0.3, [0.85, 0.72, 0.58]); for (const sx of [-1, 1]) B.box('iron', x + sx * 0.42, g, z, 0.06, 0.12, 2.0, 0.3, [0.6, 0.6, 0.65], NS); }
+      else if (kind === 'reeds' || kind === 'reedbed') { const n = kind === 'reeds' ? 7 : 14, sp = kind === 'reeds' ? 0.9 : 1.6; for (let i = 0; i < n; i++) cone('reed', x + (R() - 0.5) * sp, g - 0.3, z + (R() - 0.5) * sp, 0.04, 1.0 + R() * 0.9, (R() - 0.5) * 0.3, (R() - 0.5) * 0.3, 3); }
+      else if (kind === 'rack') { B.box('wood', x, g, z, 1.6, 0.1, 0.5, 0, [0.5, 0.4, 0.34]); for (const sx of [-0.7, 0.7]) B.box('wood', x + sx, g, z, 0.12, 2.2, 0.12, 0, [0.5, 0.4, 0.34]); B.box('wood', x, g + 2.1, z, 1.6, 0.12, 0.14, 0, [0.5, 0.4, 0.34]); for (let i = 0; i < 4; i++) rod('ironL', [x - 0.5 + i * 0.33, g + 2.05, z], [x - 0.5 + i * 0.33 + 0.1, g + 0.4, z + 0.1], 0.05, 0.08); }
       else if (kind === 'stump') { B.cyl('charred', x, g - 0.1, z, 0.4, 0.32, 0.6, 8); }
     }
     for (const [px, py, kind] of d.glows || []) {
@@ -371,6 +412,7 @@
       else if (kind === 'ember') { for (let i = 0; i < 4; i++) blob('glowE', x + (R() - 0.5) * 1.2, g + 0.02, z + (R() - 0.5) * 1.2, 0.12 + R() * 0.1); K.lights.push([px, py, 70, 0.8, 'forge']); }
       else if (kind === 'glint') { for (let i = 0; i < 2; i++) cone('glassL', x + (R() - 0.5) * 1.2, g - 0.1, z + (R() - 0.5) * 1.2, 0.12, 0.35, 1.2, 0, 4); }
       else if (kind === 'wisp') K.lights.push([px, py, 60, 0.6, 'moonwell']);
+      else if (kind === 'lava') K.lights.push([px, py, 110, 1.1, 'forge']);
     }
   }
 
