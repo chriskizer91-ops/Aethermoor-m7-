@@ -32,6 +32,12 @@
   built by the heroes' builder. Only the paintings this page meets go in (thornhound, briarling, Briarmaw;
   `FIGHT_STANDEES=...` at build time names others), so the page is 12 MB. A painted fight plays to victory headless.
 
+- **Step 2, the spoils (first cut)**, same link: after a win the camera comes round to face the party; what the
+  foes dropped lies before them as chests lit in their rarity's colour; M7's own after-fight screen (XP, level-ups,
+  gold, the chests opening into M7's card reveal) comes up over the field. **Equipping from a card re-dresses that
+  hero in 3D on the spot** (headless: `?seed=2` drops a Maul; "Equip on Wren" and Wren holds it up). After a defeat,
+  M7's screen wakes the party; they walk on from the way in. `runFight({ keep: true })` stays on the field for this.
+
 ## For Together: starting a fight from outside
 
 `world3d/battle/run.js` exports one function. It pauses the walk, swings the camera round, plays M7's battle screen
@@ -61,7 +67,8 @@ I'll add a switch on the page (`?foes=cutout`).
 
 ## Next
 
-- Step 2, the spoils: drops on the ground, M7's card reveal, gear changing the 3D outfit, XP and levels, the Party screen.
+- Step 2's rest: the Party screen with the hero turning in 3D.
+- "Full detail" Briarmaw (session 6's model) as a third Foes setting in the den, if the page stays under 16 MB.
 - When session 6's Briarmaw lands: his full model through `setBeastLook`.
 
 ## Changed outside my files

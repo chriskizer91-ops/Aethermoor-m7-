@@ -8,6 +8,8 @@
 //   ?auto=1 the party fights on its own; ?speed=2|4; ?go=1 the fight starts at once (headless checks)
 import './heroes.js';
 import '../game/src/ui/theme.css';
+import '../game/src/ui/screens.css';
+import * as aftermathScreen from '../game/src/ui/screens/aftermath.js';
 import './battle/fight.css';
 import { installCardServices } from '../game/src/ui/card.js';
 import { setReducedGetter } from '../game/src/ui/lib/anim.js';
@@ -121,8 +123,21 @@ async function main() {
   let settings = { sound: true, music: true, battleSpeed: Number(Q.get('speed')) || 1, reducedMotion: false };
   const reduced = () => !!settings.reducedMotion || matchMedia('(prefers-reduced-motion: reduce)').matches;
   const host = $('fight');
+  // the gear each hero wears, as M7 has it: when a card is equipped in the spoils, that hero is re-dressed on the spot
+  const gearKey = (id) => JSON.stringify(game.party.roster[id]?.gear || {});
+  let worn = {};
+  const redress = () => {
+    for (const [id] of H.HEROES) {
+      const k = gearKey(id); if (worn[id] === k) continue;
+      const first = worn[id] === undefined; worn[id] = k; if (first) continue;
+      for (const m of Object.keys(made)) if (m.startsWith(id)) delete made[m];
+      const A = get(id, id === 'warden' ? (PHONE ? 'light' : 'high') : 'light');
+      if (arena.on) arena.swapHero(id, A);
+      toast(`${H.HEROES.find((h) => h[0] === id)[1]} puts it on`);
+    }
+  };
   const ctx = {
-    get game() { return game; }, setGame(g) { if (g) game = g; },
+    get game() { return game; }, setGame(g) { if (g) { game = g; try { redress(); } catch (e) { console.warn(e); } } },
     get settings() { return settings; }, setSettings(p) { settings = { ...settings, ...p }; },
     audio, input, services: {}, reduced, toast: (s) => toast(s), go() {},
   };
@@ -142,21 +157,43 @@ async function main() {
     const heroes = { warden: leader }; for (const f of followers) heroes[f.id] = f;
     for (const F of pack.figs) F.pos.copy(F.root.position);
     let resP;
-    try { resP = runFight({ W, battle, center: L, yaw, heroes, foes: pack.figs, ctx, host, auto: Q.get('auto') === '1', resume: false }); } catch (e) { console.error(e); fighting = false; W.pause(false); return; }
-    const { result, outcome } = await resP;
+    for (const [id] of H.HEROES) worn[id] = gearKey(id);
+    try { resP = runFight({ W, battle, center: L, yaw, heroes, foes: pack.figs, ctx, host, auto: Q.get('auto') === '1', resume: false, keep: true }); } catch (e) { console.error(e); fighting = false; W.pause(false); return; }
+    const { result, outcome, battle: done, end } = await resP;
     window.__fight.result = result;
+    // the spoils: what the foes dropped lies where they fell, then M7's own after-fight screen over the field (XP and
+    // levels, gold, a chest for each drop opening into M7's card reveal; equipping re-dresses the hero there and then)
+    const items = result === 'victory' ? [...(outcome?.claimed || []), ...(outcome?.drops || [])] : [];
+    arena.spoilsView();
+    if (items.length) { arena.loot(items); }
+    await new Promise((r) => setTimeout(r, items.length ? 1800 : 900));
+    await spoils(done);
+    window.__fight.spoiled = (window.__fight.spoiled || 0) + 1;
+    await end();
     pack = null; fighting = false;
+    W.setWho('pip'); W.setWho('warden'); leader = W3D.witch('warden'); setFollowers();
     if (result === 'defeat') {
-      // the hearth wakes you: back at the gate, on your feet
-      game = makeGame(++seed, SC.level); for (const k of Object.keys(made)) delete made[k];
-      W.setWho('pip'); W.setWho('warden'); leader = W3D.witch('warden'); setFollowers();
+      // the hearth wakes you (M7's aftermath has already put the party on its feet): back at the way in
       const a = PL[SC.place].anchors[SC.anchor]; W.setIo(a.at[0], a.at[1], a.face);
-      toast('The hearth wakes you');
-    } else if (result === 'victory') toast(`Victory: +${outcome?.xp || 0} XP, +${outcome?.gold || 0} gold`);
-    else toast('You break away from the fight.');
+    }
     W.pause(false); party.set(leader, followers);
     window.__fight.ended = (window.__fight.ended || 0) + 1;
     setTimeout(() => { if (!pack && !fighting) { spawnPack(); toast(SC.again); } }, 6000);
+  }
+
+  // M7's after-fight screen, over the field; it hands back when the player taps on (its own button)
+  function spoils(battle) {
+    return new Promise((resolve) => {
+      host.replaceChildren(); host.hidden = false; host.classList.add('spoils');
+      const main = document.createElement('main'); main.className = 'screen screen-aftermath'; host.append(main);
+      let screen = null, off = null;
+      const actx = Object.create(ctx, { go: { value: () => { if (screen && screen.unmount) screen.unmount(); if (off) off(); host.removeEventListener('click', onChest, true); host.hidden = true; host.classList.remove('spoils'); host.replaceChildren(); resolve(); } } });
+      // a chest opened in the screen bursts its chest on the ground
+      const onChest = (e) => { const b = e.target.closest && e.target.closest('button.chest'); if (b) arena.openLoot(+b.dataset.pick - 1); };
+      host.addEventListener('click', onChest, true);
+      screen = aftermathScreen.mount(main, actx, { battle, returnTo: 'world' }) || {};
+      if (screen.onAction) off = input.onAction(screen.onAction);
+    });
   }
 
   $('fightbtn').addEventListener('click', () => { if (!pack) spawnPack(); fight(); });
