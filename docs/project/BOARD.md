@@ -10,13 +10,14 @@ Where the 3D game stands. Written by the hub only. Last updated November 20.
 | 2 | The Fight | `session_01DgbUKYR9qmKyBdACUWGViw` | `job/fight` | step 1 done and brought in; `runFight()` (one call plays a fight, for Together) and `setBeastLook()` (the foes' look switched in one call) in; on Briarmaw, then the spoils | https://claude.ai/artifact/NpeXL5Pf4RxNfkQsguTnEK |
 | 3 | Models | `session_01DgbUKcWh5MEvjHnxzp4HHo` | `job/models` | the painted / 3D comparison in (waiting on Chris); the 39 people foes true to their sprites' looks, brought in; next: the townsfolk (M7's people in the places), for Together | https://claude.ai/artifact/CA6CcAKVHSxGPB5TAZF5sY |
 | 4 | Places | `session_01DgbUKZVFBfm1dVautXEw5f` | `job/places` | step 3 done and brought in: the Atlas (M7's places on the 3D continent, travel by kindled Hearthfires: `M7_ATLAS.open`), the light per place (Act One by day), batch 4 read from `art-in/`; next: phones and fidelity to the paintings | https://claude.ai/artifact/MXyu3A9zTjoCavHFKXCbpi |
-| 5 | Together | `session_01DgbUKbyjzZFe1BXHHxzHBn` | `job/together` | starting: Act One playable, M7's world engine under the 3D walk | - |
+| 5 | Together | `session_01DgbUKbyjzZFe1BXHHxzHBn` | `job/together` | step 1 done and brought in: Act One as one playable game (M7's world engine under the 3D walk, people, packs, fights, chests, Hearthfires, the Atlas, its own save); the playthrough continues | https://claude.ai/artifact/RaeSK5hezqb3qH7jmuM5aj |
 | 6 | One Foe | `session_01DgbUKZCNBFY7zwSzwAXR8y` | `job/foe-hd` | starting: Briarmaw in full detail, side by side | - |
 
 ## What's built (on the hub's branch)
 
 | What | Where | Link |
 |---|---|---|
+| **The game: Act One playable in 3D** (title, prologue, walking with M7's rules, fights, chests, rest, the Atlas, its own save) | `game3d/` | https://claude.ai/artifact/RaeSK5hezqb3qH7jmuM5aj |
 | Act One's 14 places, from M7's own maps and paintings, by day (a Light switch), the party walking as a group | `world3d/m7/` | https://claude.ai/artifact/GBxRVSqwMwYUTy1xLNjATA |
 | The Sunscorch's 10 places, by day, in Chris's desert textures | `world3d/m7/` | https://claude.ai/artifact/Awn5YJ761bD7rPyp4AkEdf |
 | The Ironspire with the East Road (17 places), in snow, ice, dwarf stone and forge brick | `world3d/m7/` | https://claude.ai/artifact/BPcAuRLL3njp1Q3ZHPTUWQ |
@@ -48,6 +49,11 @@ Where the 3D game stands. Written by the hub only. Last updated November 20.
   (`fn(key, sprite, opts) -> { group or g, height, plan?, parts?, update? }`): Models' cut-outs and session 6's
   Briarmaw aim at it. Models' `buildStandee(key, { tall })` (`prototypes/bestiary/standee.js`) gives the painted look in
   that shape (hub commit 7cf1b0c).
+
+- **Townsfolk:** Together already stands M7's people from `NPC_LOOKS` with the heroes' builder (`game3d/figures.js`);
+  Models is making them better through a function Together can switch to there.
+- **The Atlas on the game page:** its tree and place models (3.8 MB) are left off to stay under 16 MB; Places is making
+  lighter copies with its phone work.
 
 ## Next for the hub
 
