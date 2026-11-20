@@ -35,6 +35,9 @@
 
 - Waiting for the hub. Ideas if wanted: tune by feel on a phone; Chris's batch 4 paintings when they come.
 
+- Merged the hub's branch (39fe4ab and on) and rebuilt all four pages with the heroes in Chris's textures; each
+  still loads with no errors and is under 16 MB.
+
 ## Changed outside my files
 
 - `world3d/build.mjs` (rule 7, added only): `--name=` puts a region's name where the page says "Act One", `--out=` names
