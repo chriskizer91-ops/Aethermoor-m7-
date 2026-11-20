@@ -14,12 +14,12 @@ import { ASSETS } from './assets.js';
 import { register, foeLook } from '../../kit/js/looks.js';
 import { registerWalkers } from './register.js';
 const KIT = new URLSearchParams(location.search).has('kit');     // ?kit: draw them through the foe kit's foeLook (the Fight's path)
-if (KIT) registerWalkers(ASSETS, register);
+if (KIT) registerWalkers(ASSETS, register, { phone: new URLSearchParams(location.search).has('lite') });
 
 const $ = (id) => document.getElementById(id);
 const phone = Math.min(screen.width, screen.height) < 820 || /Mobi|Android|iPhone/i.test(navigator.userAgent);
 const KEYS = Object.keys(ASSETS).filter((k) => FOES[k]);
-const S = { key: KEYS[0], turn: true, move: 'idle', moveT: 0, crowd: false };
+const S = { key: KEYS[0], turn: true, move: 'idle', moveT: 0, crowd: false, lite: phone };      // lite: the phone version
 
 // ---- the stage ---------------------------------------------------------------------------------------------------
 const canvas = $('view');
@@ -45,21 +45,24 @@ const top = new THREE.Group(); top.position.y = 0.08; stand.add(top);
 
 // ---- the walkers -------------------------------------------------------------------------------------------------
 const made = {};       // key -> { shared, W }
+const pick = (k) => (S.lite && ASSETS[k].phone ? { ...ASSETS[k], ...ASSETS[k].phone } : ASSETS[k]);
 function get(k) {
-  if (made[k]) return made[k];
-  const a = ASSETS[k];
+  const id = k + (S.lite ? ':lite' : '');
+  if (made[id]) return made[id];
+  const a = pick(k);
   const shared = KIT ? null : makeWalkerShared(a);
   const W = KIT ? foeLook(() => null)(k) : buildWalker(shared, FOES[k]);
-  return (made[k] = { shared, W });
+  return (made[id] = { shared, W });
 }
 function show(k) {
   S.key = k; S.move = 'idle'; S.moveT = 0;
   top.clear();
   const { W } = get(k); top.add(W.group);
-  const f = FOES[k], a = ASSETS[k];
+  const f = FOES[k], a = pick(k);
   $('name').textContent = f.name; $('tier').textContent = `${f.tier} · ${f.act}`; $('flavour').textContent = f.text;
   $('tris').textContent = W.triangles.toLocaleString();
-  $('sculpt').textContent = a.meta.sculptTriangles.toLocaleString();
+  $('sculpt').textContent = (a.meta.sculptTriangles || ASSETS[k].meta.sculptTriangles).toLocaleString();
+  $('which').textContent = S.lite ? 'the phone version' : 'the full version';
   $('shape').textContent = (a.shapeTriangles || 0).toLocaleString();
   $('bones').textContent = a.meta.bones.length;
   $('size').textContent = (a.bytes / 1024 / 1024).toFixed(2) + ' MB';
@@ -113,10 +116,11 @@ function buttons() {
 function refresh() {
   for (const b of document.querySelectorAll('#moves button')) b.setAttribute('aria-pressed', b.dataset.k === S.move);
   for (const b of document.querySelectorAll('#foes button')) b.setAttribute('aria-pressed', b.dataset.k === S.key);
-  $('turn').setAttribute('aria-pressed', S.turn); $('crowd').setAttribute('aria-pressed', S.crowd);
+  $('turn').setAttribute('aria-pressed', S.turn); $('lite').setAttribute('aria-pressed', S.lite); $('crowd').setAttribute('aria-pressed', S.crowd);
   $('crowdnote').hidden = !S.crowd; $('moves').hidden = S.crowd;
 }
 $('turn').onclick = () => { S.turn = !S.turn; refresh(); };
+$('lite').onclick = () => { S.lite = !S.lite; const c = S.crowd; if (c) $('crowd').onclick(); show(S.key); if (c) $('crowd').onclick(); };
 $('crowd').onclick = () => {
   S.crowd = !S.crowd;
   if (S.crowd) buildCrowd();
@@ -144,7 +148,7 @@ const clock = new THREE.Clock(); let t = 0, step = 0, fpsN = 0, fpsT = 0;
 function loop() {
   const d = Math.min(0.05, clock.getDelta()); t += d;
   if (S.turn) top.rotation.y = t * 0.4;
-  const W = made[S.key]?.W;
+  const W = made[S.key + (S.lite ? ':lite' : '')]?.W;
   if (W && !S.crowd) {
     const D = dur(S.move); let u = 0;
     if (D) { S.moveT += d; u = Math.min(1, S.moveT / D); if (S.moveT > D + 0.9) S.moveT = 0; }
@@ -179,6 +183,7 @@ function loop() {
   resize();
   if (q.get('move')) { S.move = q.get('move'); S.turn = false; top.rotation.y = +(q.get('yaw') || 0); refresh(); }
   if (q.has('crowd')) $('crowd').onclick();
+  if (q.has('lite') !== S.lite && (q.has('lite') || q.has('full'))) $('lite').onclick();
   window.__ready = true;
   loop();
 })();
