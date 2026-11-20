@@ -4,8 +4,8 @@
 //     key, game3d/save.js), settings, sound, keys, the card services, go(screen).
 //   - 'world' is the 3D walk (walk.js), built once and kept; every other screen M7 has (the party, the journal, the
 //     codex, the atlas, the after-fight, the new game) is mounted over it, as it is, and the walk waits underneath.
-//   - 'battle' is the Fight's: M7's battle screen with the 3D stage swapped in at build time (world3d/battle/swap.mjs),
-//     on the spot where the party met the foes (world3d/battle/arena.js).
+//   - a fight is the Fight's (world3d/battle/run.js runFight): M7's battle screen with the 3D stage swapped in at build
+//     time (world3d/battle/swap.mjs), on the spot where the party met the foes.
 // Address flags: ?new=1 a new journey at once (skips the title, keeps no name screen); ?auto=1 fights play themselves;
 //   ?speed=2|4; ?test=1 the headless checks (the walker's clock only moves when told).
 import '../world3d/heroes.js';
@@ -21,14 +21,17 @@ import { createAudio } from '../game/src/core/audio.js';
 import { createInput } from '../game/src/core/input.js';
 import { migrate } from '../game/src/rules/migrate.js';
 import { newGame } from '../game/src/rules/gauntlet.js';
-import * as battleScreen from '../game/src/ui/screens/battle.js';
 import * as aftermath from '../game/src/ui/screens/aftermath.js';
 import * as partyScreen from '../game/src/ui/screens/party.js';
 import * as journal from '../game/src/ui/screens/journal.js';
 import * as codex from '../game/src/ui/screens/codex.js';
 import * as newgame from '../game/src/ui/screens/newgame.js';
 import * as settingsScreen from '../game/src/ui/screens/settings.js';
+import * as atlasScreen from '../game/src/ui/screens/atlas.js';
+import { travel } from '../game/src/rules/gauntlet.js';
+import { HEARTHS } from '../game/src/data/world.js';
 import { arena } from '../world3d/battle/arena.js';
+import { runFight } from '../world3d/battle/run.js';
 import { loadLive, hasLive, saveLive, backupLive, clearLive, readM7, loadSettings, saveSettings } from './save.js';
 import { createWorld } from './walk.js';
 
@@ -38,7 +41,7 @@ window.addEventListener('DOMContentLoaded', () => { main().catch((e) => { consol
 
 const DEFAULTS = { sound: true, music: true, battleSpeed: Number(Q.get('speed')) || 1, reducedMotion: false, touchControls: 'auto', alwaysRun: false, mapZoom: 'normal' };
 // M7's screens that lie over the 3D (the walk waits under them)
-const SCREENS = { aftermath, party: partyScreen, journal, codex, newgame, settings: settingsScreen };
+const SCREENS = { aftermath, party: partyScreen, journal, codex, newgame, settings: settingsScreen, atlas: atlasScreen };
 
 async function main() {
   const $ = (id) => document.getElementById(id);
@@ -95,8 +98,9 @@ async function main() {
     }
     if (name === 'title') { unmountScreen(); if (world) world.pause(true); title(); return; }
     if (name === 'battle') { fightOn(params); return; }
+    if (name === 'atlas' && window.M7_ATLAS && window.M7_ATLAS.openAtlas) { atlas3d(params); return; }
     const S = SCREENS[name];
-    if (!S) { toast(name === 'atlas' ? 'The Atlas opens on the 3D continent in the next step.' : 'Not in the 3D game yet.'); go('world'); return; }
+    if (!S) { toast('Not in the 3D game yet.'); go('world'); return; }
     unmountScreen();
     if (world) world.pause(true);
     document.body.classList.add('g3-away');
@@ -124,35 +128,32 @@ async function main() {
     setTimeout(() => toast(PHONE ? 'Drag on the left to walk · A to talk and open' : 'W A S D walk · Shift runs · E or Enter is A'), 3800);
   }
 
-  // ---- a fight on the spot (the Fight's arena and M7's battle screen, as world3d/fight.js runs them) ----
-  let screen = null, offAction = null;
-  function fightOn(info) {
-    if (fighting) return;
-    if (!info.battle) return;
-    fighting = true; world.pause(true); document.body.classList.add('fighting');
+  // ---- a fight on the spot: the Fight's own way in (world3d/battle/run.js runFight), then M7's after-fight screen ----
+  async function fightOn(info) {
+    if (fighting || !info.battle) return;
+    fighting = true;
     arena.speed = settings.battleSpeed || 1;
-    arena.begin(world.fightSetup(info));
-    fhost.replaceChildren(); fhost.hidden = false;
-    const main = document.createElement('main'); main.className = 'screen screen-battle'; fhost.append(main);
-    const fctx = Object.create(ctx, { go: { value: (name, p) => { if (name === 'aftermath') fightOff(p); else go(name, p); } } });
-    screen = battleScreen.mount(main, fctx, { battle: info.battle, returnTo: 'world', auto: Q.get('auto') === '1' }) || {};
-    if (screen.onAction) offAction = input.onAction(screen.onAction);
     window.__g3.battle = info.battle; window.__g3.fights = (window.__g3.fights || 0) + 1;
+    let r;
+    try { r = await runFight({ ...world.fightSetup(info), battle: info.battle, ctx, host: fhost, auto: Q.get('auto') === '1', resume: false }); }
+    catch (e) { console.error(e); fighting = false; world.afterFight(); go('world'); return; }
+    fighting = false;
+    window.__g3.lastResult = r.result;
+    world.afterFight();
+    // M7's own after-fight screen (XP, level-ups, gold, the chests and their cards), over the 3D
+    go('aftermath', { battle: r.battle, returnTo: 'world' });
   }
-  function fightOff(p) {
-    if (screen && screen.unmount) screen.unmount(); if (offAction) offAction(); screen = null; offAction = null;
-    fhost.hidden = true; fhost.replaceChildren();
-    const res = p?.result?.result || 'victory';
-    window.__g3.lastResult = res;
-    if (res === 'victory') arena.victory();
-    setTimeout(() => {
-      arena.end(() => {
-        fighting = false; document.body.classList.remove('fighting');
-        world.afterFight();
-        // M7's own after-fight screen (XP, level-ups, gold, the chests and their cards), over the 3D
-        go('aftermath', { battle: p.battle, returnTo: 'world' });
-      });
-    }, res === 'victory' ? 2200 : 1400);
+
+  // ---- the Atlas on the 3D continent: the Places job's piece, when it is on the page (window.M7_ATLAS.openAtlas({ at,
+  // kindled, travel }) -> Promise<hearthfire id | place id | null>). Until then M7's own Atlas screen stands in (above).
+  async function atlas3d(params) {
+    world.pause(true);
+    const g = game, pos = g.progress.pos || {};
+    let pick = null;
+    try { pick = await window.M7_ATLAS.openAtlas({ at: pos.map, kindled: Object.keys(g.progress.flags.kindled || {}), travel: params.mode === 'travel' }); } catch (e) { console.error(e); }
+    const hf = pick && (HEARTHS[pick] ? pick : Object.keys(HEARTHS).find((id) => HEARTHS[id].map === pick && g.progress.flags.kindled?.[id]));
+    if (hf && params.mode === 'travel') { const g2 = travel(g, hf); if (g2 && g2 !== g) { ctx.setGame(g2); toast(`You travel to ${HEARTHS[hf].name}.`); } }
+    world.back({});
   }
 
   // ---- the title: go on, start again, or bring M7's party ----
