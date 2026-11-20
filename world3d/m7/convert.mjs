@@ -302,7 +302,7 @@ async function convert(id) {
   const region = map.region || 'verdant';
   const treeKind = ACT2 && /^(wilds|willow-village|causeway|channel)$/.test(BIO) ? 0 : /iron|frost|peak/.test(region) ? 1 : /gloom|fen/.test(region) ? 2 : 0;
   let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
-  const lamps = [];
+  const lamps = [], things = [];
   const extraTrees = [], props = [], flowers = [], cliffs = [], roots = [], firsts = [], glows = [], stand = [], smalls = [], faces = [];
   for (let j = 0; j < h; j++) for (let i = 0; i < w; i++) {
     const c = rows[j][i], x = (i + 0.5) * TX, y = (j + 0.5) * TY;
@@ -322,7 +322,8 @@ async function convert(id) {
     else if (ACT2 && c === 'f' && GLOWK) glows.push([x, y, GLOWK]);
     else if (GLOOM && c === '"' && rnd() < 0.7) smalls.push([Math.round(x + (rnd() - 0.5) * 12), Math.round(y + (rnd() - 0.5) * 10), 'reeds', Math.floor(rnd() * 900)]);
     else if (GLOOM && c === '*' && !BLD[j][i]) lamps.push({ at: [x, y], kind: 'wood' });
-    else if (c === 'T') extraTrees.push([Math.round(x + (rnd() - 0.5) * 10), Math.round(y + (rnd() - 0.5) * 8), +(([[1,0],[-1,0],[0,1],[0,-1]].some(([a, b]) => at(i + a, j + b) === 'T') ? 0.92 : 1.5) + rnd() * 0.25).toFixed(2), treeKind, Math.floor(rnd() * 900)]);
+    // (Places, step 4) a tree the painting shows as a pine (bluer, darker green under it) is a fir, whatever the region says
+    else if (c === 'T') { const [cr, cg, cb] = COL[j][i], pine = treeKind === 0 && cb / Math.max(1, cg) > 0.72 && cr + cg + cb < 260; extraTrees.push([Math.round(x + (rnd() - 0.5) * 10), Math.round(y + (rnd() - 0.5) * 8), +(([[1,0],[-1,0],[0,1],[0,-1]].some(([a, b]) => at(i + a, j + b) === 'T') ? 0.92 : 1.5) + rnd() * 0.25).toFixed(2), pine ? 1 : treeKind, Math.floor(rnd() * 900)]); }
     else if (c === 't') flowers.push([x, y, 0.95, 'mix']);
     else if (c === '^') cliffs.push([x, y, +(1.7 + rnd() * 0.8).toFixed(2)]);
     else if (c === 'R') roots.push([x, y, Math.floor(rnd() * 900)]);
@@ -345,8 +346,9 @@ async function convert(id) {
   for (const e of map.entities || []) {
     if (!e.at) continue; const [x, y] = [(e.at[0] + 0.5) * TX, (e.at[1] + 0.5) * TY];
     if (e.kind === 'light' || e.kind === 'hearthfire') lamps.push({ at: [x, y], kind: 'pillar', h: 1.1 });
-    else if (e.kind === 'chest') props.push({ k: 'crates', at: [x, y] });
-    else if (e.kind === 'sign' || e.kind === 'board') props.push({ k: 'post', at: [x, y], h: 1.3 });
+    // (Places, step 4) the map's own things, each as itself (m7-kit.js things): a signpost, a notice board, a chest, a relic's
+    // pedestal, a table, a bell frame. Gates and locks open and close with the story, so the game shows those
+    else if (['chest', 'sign', 'board', 'pedestal', 'table', 'bellframe'].includes(e.kind)) things.push([x, y, e.kind, ({ s: 0, n: Math.PI, e: Math.PI / 2, w: -Math.PI / 2 })[e.face] ?? 0]);
   }
 
   // ---- where the party starts, the ways out, and the people standing about (shown later; kept for the page) ----
@@ -372,7 +374,7 @@ async function convert(id) {
     painting: `art/m7/${id}.webp`, standin: paint.standin || undefined, artIn: paint.artIn, extent: [-PAD * TX, -PAD * TY, (w + PAD) * TX, (h + PAD) * TY],
     start: first.at, startFace: first.face, anchors, exits, people,
     water: water.map((p) => ({ poly: p })), decks, buildings, walls: segs, towers, torches, lamps, props, flowers, extraTrees, lawns, groundPatches,
-    fence: GLOOM || undefined,
+    fence: GLOOM || undefined, things,
     light: LIGHT[id] || (!ACT2 ? (interior ? 'indoor' : 'day') : undefined),
     tileH: rows.map((r, j) => [...r].map((c, i) => c === 'x' && !(GLOOM && !interior) ? 3 : c === 'w' ? 2 : WET[j][i] ? 1 : ACT2 && MASSC.includes(c) ? 4 : 0).join('')),
   };

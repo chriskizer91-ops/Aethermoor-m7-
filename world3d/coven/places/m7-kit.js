@@ -157,9 +157,10 @@
     // Chris's textures are painted by day; the borrowed ones by night, so his are tinted down to sit with them
     const ROOF = Object.assign({ slate: ['keep_roof_slate', 0xb4b8c4], red: ['shared_roof_tiles_red', 0xffffff], thatch: ['shared_roof_thatch', 0xffffff], moss: ['cottage_roof_moss', 0xffffff] }, LOOK ? LOOK.roofs : {});
     const extraMats = {};
-    for (const [k, [tex, tint]] of Object.entries(ROOF)) extraMats['roof_' + k] = { tex, rep: 2.6, shade: 0.15, tint, side: 'double' };
+    // (Places, step 4) every roof wears the painting where it looks up: from above it is the roof the painting shows
+    for (const [k, [tex, tint]] of Object.entries(ROOF)) extraMats['roof_' + k] = { tex, rep: 2.6, shade: 0.15, tint, side: 'double', paint: 'm7_paint', paintMix: 0.85 };
     if (LOOK) Object.assign(extraMats, {
-      rockL: { tex: LOOK.rock[0], rep: 2.2, tint: LOOK.rock[1], shade: 0.5 },
+      rockL: { tex: LOOK.rock[0], rep: 2.2, tint: LOOK.rock[1], shade: 0.5, paint: 'm7_paint', paintMix: 0.6 },
       palmBark: { tex: 'shared_bark_oak', rep: 1.4, tint: 0xd8b890, shade: 0.5 },
       frond: { tex: 'wick_leaf_canopy', rep: 1.2, tint: 0xc8e070, shade: 0.4, side: 'double' },
       cactus: { tex: 'shared_grass_meadow', rep: 1.5, tint: 0x9ab070, shade: 0.4 },
@@ -177,10 +178,11 @@
       reed: { tex: 'shared_grass_meadow', rep: 1, tint: 0xc8c088, shade: 0.4 },
     });
     extraMats.roots = { tex: 'shared_bark_oak', rep: 1.6, tint: 0xd8c0a8, shade: 0.5 };
-    extraMats.rockM = { tex: 'thorn_rock_mossy', rep: 2.2, tint: 0xffffff, shade: 0.5 };
+    extraMats.rockM = { tex: 'thorn_rock_mossy', rep: 2.2, tint: 0xffffff, shade: 0.5, paint: 'm7_paint', paintMix: 0.6 };
     extraMats.stake = { tex: 'shared_bark_oak', rep: 1.2, tint: 0xe0d0c0, shade: 0.5 };
     extraMats.glowF = { emis: 0x66ffcc, lit: 0, tint: 0x66ffcc, cut: false };
     extraMats.glowI = { emis: 0xc070ff, lit: 0, tint: 0xc070ff, cut: false };
+    extraMats.paper = { tint: 0xeee2c4, shade: 0.4, cut: false };   // (Places) notices, a map on a table
     extraMats.banner = { tex: 'keep_banner_red', rep: 1, tint: 0x9a9090, side: 'double', shade: 0.3 };
     // the Keep's own stone (Hearthstone Keep, the Great Hall and the Keep's galleries)
     const KEEP = d.biome === 'keep';
@@ -199,11 +201,11 @@
       ground: Object.assign({ cob: 'shared_cobbles_town', grass: 'shared_grass_meadow', dirt: 'shared_dirt_track', pave: 'wick_bridge_paving', rep: [2.6, 3.6, 3.6, 2.4], paint: 'm7_paint', paintGain: 0.62 }, LOOK ? Object.assign({ rock: LOOK.rock[0], rockTint: LOOK.rock[1], rockRep: 4 }, LOOK.ground) : {}),
       surfaces: { stone: KEEP ? 'keep_wall_hearthstone' : 'shared_stone_wall_rough', dry: 'shared_drystone', timber: 'wick_wall_timber_plaster', planks: 'shared_boardwalk_planks', roof: 'shared_roof_shingle',
         wood: 'shared_boardwalk_planks', deck: 'shared_boardwalk_planks', pave: 'wick_bridge_paving', soil: 'shared_dirt_track', rock: 'thorn_rock_mossy', leaves: 'wick_leaf_canopy', bark: 'shared_bark_oak', ...(LOOK ? LOOK.surfaces : {}) },
-      textures, extraMats,
+      textures, extraMats, paintOn: { keys: ['deck', 'rock'], paint: 'm7_paint', mix: 0.75 },
       // the M7 places are by day in the 2D game: their leaves a little lighter than the borrowed night woods
       tints: Object.assign({ leaves: 0xf0fff4, bough: 0xc4d6c4, boughFir: 0xb0c4bc, bush: 0xf0fff0 }, KEEP ? { stone: 0x9c9ca8 } : {}, LOOK ? LOOK.tints : {}),
       ground_h: ground, walk_h: ground,
-      water: d.water.map((wt) => ({ poly: wt.poly, level: () => -0.5, tex: 'shared_water_dark', rep: 6, flow: [0.004, 0.002], bed: -2.3, tint: LOOK && LOOK.water, ...(LOOK && LOOK.waterTex ? { tex: LOOK.waterTex, rep: 8 } : {}), ...(LOOK && LOOK.molten ? { emis: LOOK.molten, flow: [0.02, 0.008], level: () => -0.25 } : {}) })),
+      water: d.water.map((wt) => ({ poly: wt.poly, level: () => -0.5, tex: 'shared_water_dark', rep: 6, flow: [0.004, 0.002], bed: -2.3, paint: 'm7_paint', paintMix: LOOK && LOOK.molten ? 0.25 : 0.55, tint: LOOK && LOOK.water, ...(LOOK && LOOK.waterTex ? { tex: LOOK.waterTex, rep: 8 } : {}), ...(LOOK && LOOK.molten ? { emis: LOOK.molten, flow: [0.02, 0.008], level: () => -0.25 } : {}) })),
       lightName: d.light || (LOOK ? (d.interior && !LOOK.light.day ? 'dark' : LOOK.light.day >= 1 ? 'day' : LOOK.light.day > 0 ? 'dusk' : 'dark') : 'night'),
       // the borrowed textures are painted at night, so a place built only from them takes a brighter sun (lightGain)
       lightGain: LOOK ? 1 : 1.3,
@@ -211,7 +213,27 @@
       paintingSrc: d.painting,
       extra: (K) => extra(K, d),
     });
+    // (Places, step 4) on a phone: the trees deep inside a wood (the ones with trees on all four sides, which the outer ones
+    // hide) and many of the woods past the map's edge are left out, and trees are drawn in bigger patches (fewer draws).
+    // W3D.quality is known only when the walker starts, so this is decided when the place is built
+    const ALL = place.extraTrees || [];
+    Object.defineProperty(place, 'extraTrees', { configurable: true, enumerable: true, get() { return G.W3D && W3D.quality === 'phone' ? phoneTrees(ALL, d) : ALL; } });
+    Object.defineProperty(place, 'lightTrees', { configurable: true, enumerable: true, get() { return G.W3D && W3D.quality === 'phone'; } });
+    Object.defineProperty(place, 'treePatch', { configurable: true, enumerable: true, get() { return G.W3D && W3D.quality === 'phone' ? 33 : 22; } });
     return place;
+  }
+  const PHONE_TREES = new Map();
+  function phoneTrees(all, d) {
+    if (PHONE_TREES.has(d.id)) return PHONE_TREES.get(d.id);
+    const [w, h] = d.tiles, at = new Set(), key = (i, j) => i + ',' + j;
+    for (const t of all) at.add(key(Math.floor(t[0] / TX), Math.floor(t[1] / TY)));
+    const R = mul32(w * 7 + h * 911), out = all.filter((t) => {
+      const i = Math.floor(t[0] / TX), j = Math.floor(t[1] / TY), outside = i < 0 || j < 0 || i >= w || j >= h;
+      if (outside) return R() < 0.45;
+      const deep = at.has(key(i + 1, j)) && at.has(key(i - 1, j)) && at.has(key(i, j + 1)) && at.has(key(i, j - 1));
+      return !deep || R() < 0.4;
+    });
+    PHONE_TREES.set(d.id, out); return out;
   }
 
   // ---- crenels, towers and torches ----
@@ -261,6 +283,7 @@
     const RK = lookOf(d) ? 'rockL' : 'rockM';
     for (const [px, py, s] of d.cliffs || []) { const x = X(px), z = Z(py), g = gh(px, py); rock(RK, x, g - 0.2, z, s); rock(RK, x + (R() - 0.5) * 1.2, g + s * 0.5, z + (R() - 0.5) * 1.2, s * 0.7); }
     if (lookOf(d)) regional(K, d, R, rod, rock);
+    things(K, d, R);
     // a root wall: an earth bank with thick roots twisting up out of it and over into the next tile
     for (const [px, py] of d.roots || []) {
       const x = X(px), z = Z(py), g = gh(px, py);
@@ -428,6 +451,42 @@
       else if (kind === 'glint') { for (let i = 0; i < 2; i++) cone('glassL', x + (R() - 0.5) * 1.2, g - 0.1, z + (R() - 0.5) * 1.2, 0.12, 0.35, 1.2, 0, 4); }
       else if (kind === 'wisp') K.lights.push([px, py, 60, 0.6, 'moonwell']);
       else if (kind === 'lava') K.lights.push([px, py, 110, 1.1, 'forge']);
+    }
+  }
+
+  // ---- (Places, step 4) the map's own things, as the painting shows them ----
+  function things(K, d, R) {
+    const { B, X, Z, gh } = K, NS = { solid: false };
+    for (const [px, py, kind, face] of d.things || []) {
+      const x = X(px), z = Z(py), g = gh(px, py), ry = face || 0, c = Math.cos(ry), s = Math.sin(ry);
+      if (kind === 'sign') {   // a signpost with its board turned to the road
+        B.box('wood', x, g - 0.2, z, 0.14, 1.75, 0.14, 0, [0.62, 0.5, 0.42]);
+        B.box('wood', x + s * 0.08, g + 1.05, z + c * 0.08, 0.95, 0.42, 0.06, ry, [0.78, 0.64, 0.5], NS);
+        B.box('wood', x + s * 0.08, g + 1.3, z + c * 0.08, 0.99, 0.05, 0.08, ry, [0.55, 0.44, 0.38], NS);
+      } else if (kind === 'board') {   // a notice board: two posts, a roofed board with papers
+        for (const e of [-0.75, 0.75]) B.box('wood', x + c * e, g - 0.2, z - s * e, 0.14, 2.3, 0.14, 0, [0.6, 0.48, 0.4]);
+        B.box('wood', x, g + 1.25, z, 1.6, 0.9, 0.08, ry, [0.72, 0.58, 0.45], NS);
+        for (let i = 0; i < 4; i++) B.box('paper', x + c * (-0.5 + i * 0.32) + s * 0.05, g + 1.2 + (i % 2) * 0.22, z - s * (-0.5 + i * 0.32) + c * 0.05, 0.24, 0.3, 0.01, ry, null, NS);
+        B.box('wood', x, g + 1.78, z, 1.8, 0.08, 0.36, ry, [0.55, 0.42, 0.36], NS);
+      } else if (kind === 'chest') {   // a chest with iron bands
+        B.box('wood', x, g, z, 0.85, 0.48, 0.55, ry, [0.7, 0.5, 0.34]);
+        B.box('wood', x, g + 0.48, z, 0.89, 0.16, 0.59, ry, [0.62, 0.44, 0.3], NS);
+        for (const e of [-0.28, 0.28]) B.box('iron', x + c * e, g + 0.01, z - s * e, 0.06, 0.65, 0.6, ry, [0.55, 0.52, 0.5], NS);
+        B.box('iron', x + s * 0.3, g + 0.36, z + c * 0.3, 0.12, 0.14, 0.03, ry, [0.9, 0.78, 0.4], NS);
+      } else if (kind === 'pedestal') {   // a relic's pedestal: stone, with a warm glow on top where the relic is shown
+        B.box('stone', x, g, z, 0.8, 0.18, 0.8, 0, [0.85, 0.84, 0.9]);
+        B.box('stone', x, g + 0.18, z, 0.56, 0.75, 0.56, 0, [0.95, 0.94, 1]);
+        B.box('stone', x, g + 0.93, z, 0.72, 0.12, 0.72, 0, [0.85, 0.84, 0.9], NS);
+        K.lights.push([px, py, 40, 0.5, 'warm']);
+      } else if (kind === 'table') {   // the war table, with a map on it
+        B.box('wood', x, g + 0.78, z, 2.6, 0.1, 1.6, ry, [0.66, 0.5, 0.38], NS);
+        for (const [a, b] of [[-1.15, -0.65], [1.15, -0.65], [-1.15, 0.65], [1.15, 0.65]]) B.box('wood', x + c * a + s * b, g, z - s * a + c * b, 0.14, 0.78, 0.14, 0, [0.55, 0.42, 0.34]);
+        B.box('paper', x, g + 0.84, z, 2.0, 0.01, 1.1, ry, [0.9, 0.82, 0.66], NS);
+      } else if (kind === 'bellframe') {   // a bell under a little timber frame
+        for (const e of [-0.7, 0.7]) B.box('wood', x + c * e, g - 0.2, z - s * e, 0.18, 2.6, 0.18, 0, [0.6, 0.48, 0.4]);
+        B.box('wood', x, g + 2.35, z, 1.7, 0.18, 0.2, ry, [0.6, 0.48, 0.4], NS);
+        B.cyl('iron', x, g + 1.45, z, 0.36, 0.14, 0.75, 12, [0.95, 0.75, 0.42]);
+      }
     }
   }
 
