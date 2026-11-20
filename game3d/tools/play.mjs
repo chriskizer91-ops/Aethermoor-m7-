@@ -70,7 +70,7 @@ async function settle({ fight = true, rest = false, max = 400 } = {}) {
 }
 // walk to (x, y) on this map (or next to it): the engine's own path, the leader set down a tile at a time and the
 // page's frame left to take each step; anything that comes up on the way is settled, and the path found again
-async function walkTo(x, y, { adjacent = false, map = null, fight = true } = {}) {
+async function walkTo(x, y, { adjacent = false, map = null, fight = true, each = null } = {}) {
   for (let tries = 0; tries < 30; tries++) {
     await settle({ fight });
     const s = await state();
@@ -83,6 +83,7 @@ async function walkTo(x, y, { adjacent = false, map = null, fight = true } = {})
       log('no path to', x, y, 'from', s.x, s.y, g ? '- fighting the guard ' + g.id : '- no guard to fight');
       if (!g) { await page.waitForTimeout(500); continue; }
       await useThing(g.id, { fight });
+      if (each) await each();
       continue;
     }
     for (const [nx, ny] of p) {
@@ -149,20 +150,24 @@ await page.waitForFunction(() => window.__g3.world.walk.map === 'hearth-road' &&
 s = await state();
 check(s.map === 'hearth-road', `the north gate leads to the Hearth Road (${s.map} ${s.x},${s.y})`);
 await settle(); await shot('hearth-road');
+// a chest: the first the party can reach on the way up the Hearth Road (each gate opened lets it reach further)
+let chestOpened = null;
+async function tryChest() {
+  if (chestOpened) return;
+  const c = await E(() => window.__g3.world.nearestChest());
+  if (!c) return;
+  const opened0 = await E(() => window.__g3.chests || 0);
+  await useThing(c.id); await settle();
+  if ((await E(() => window.__g3.chests || 0)) > opened0 && (await E((id) => !!window.__g3.world.game.progress.flags.opened[id], c.id))) { chestOpened = c.id; await shot('chest'); }
+}
 const fightsRoad = await E(() => window.__g3.fights || 0);
-for (let i = 0; i < 12; i++) { s = await walkTo(12, 0, { map: 'hearth-road' }); if (s.map !== 'hearth-road') break; }
+for (let i = 0; i < 12; i++) { await tryChest(); s = await walkTo(12, 0, { map: 'hearth-road', each: tryChest }); if (s.map !== 'hearth-road') break; }
 await page.waitForFunction(() => window.__g3.world.walk.map === 'thornhollow' && !window.__g3.world.busy, null, { timeout: 60000 }).catch(() => {});
 await settle();
 s = await state();
 check(s.map === 'thornhollow', `the Hearth Road leads to Thornhollow (${s.map} ${s.x},${s.y}; ${(await E(() => window.__g3.fights || 0)) - fightsRoad} road fights on the way)`);
 await shot('thornhollow');
-// a chest: Thornhollow's cache
-const gold0 = await E(() => window.__g3.world.game.gold);
-const opened0 = await E(() => window.__g3.chests || 0);
-await useThing('th-cache');
-await settle();
-check((await E(() => window.__g3.chests || 0)) > opened0 && (await E(() => !!window.__g3.world.game.progress.flags.opened['th-cache'])), `a chest is opened (gold ${gold0} -> ${await E(() => window.__g3.world.game.gold)})`);
-await shot('chest');
+check(!!chestOpened, `a chest is opened on the way (${chestOpened || 'none'})`);
 // a rest at Thornhollow's Hearthfire (lit first if it is cold)
 const rested0 = await E(() => window.__g3.rested || 0);
 await useThing('thornhollow');
