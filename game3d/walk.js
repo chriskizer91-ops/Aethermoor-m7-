@@ -88,12 +88,14 @@ export function createWorld(o) {
     return made[k] || (made[k] = H.actor(id, gearOf(id), detail));
   }
   const leadId = () => game.party.active[0] || 'warden';
-  W3D.witch = (id) => actor(id, o.phone ? 'light' : 'high');
+  // detail (Models' light figures): on a phone the leader 'auto' and everyone else 'lite'; on a laptop 'auto-high' and 'auto'
+  const D = o.phone ? { lead: 'auto', rest: 'lite' } : { lead: 'auto-high', rest: 'auto' };
+  W3D.witch = (id) => actor(id, D.lead);
   function dressParty() {
     if (!Wk) return;
     for (const f of followers) Wk.P.scene.remove(f.root);
     Wk.setWho(leadId()); leader = W3D.witch(leadId());
-    followers = game.party.active.slice(1).map((id) => actor(id, 'light'));
+    followers = game.party.active.slice(1).map((id) => actor(id, D.rest));
     for (const f of followers) Wk.P.scene.add(f.root);
     party.set(leader, followers);
   }
@@ -160,7 +162,7 @@ export function createWorld(o) {
       if (standing.has(e.id)) continue;
       let fig = null;
       try {
-        if (e.kind === 'npc') fig = person(e.npc, 'light');
+        if (e.kind === 'npc') fig = person(e.npc, D.rest);
         else { const sp = ENCOUNTERS[e.enc]?.spawns?.[0]; fig = foe(sp ? artOf(sp.family) : 'cutpurse', 'light'); }
       } catch (err) { console.error(err); continue; }
       placeFig(fig, e.at[0], e.at[1], e.face || 's');
@@ -686,7 +688,7 @@ export function createWorld(o) {
       game = g;
       for (const id of game.party.active) {
         if (before[id] === gearKey(id)) continue;
-        const A = id === leadId() ? W3D.witch(id) : actor(id, 'light');
+        const A = id === leadId() ? W3D.witch(id) : actor(id, D.rest);
         if (arena && arena.on) arena.swapHero(id, A);
         if (id === leadId()) leader = A; else { const i = game.party.active.indexOf(id) - 1; if (i >= 0) followers[i] = A; }
         o.toast(`${game.party.roster[id]?.name?.split(' ')[0] || id} puts it on`);
