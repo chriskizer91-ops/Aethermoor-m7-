@@ -54,6 +54,23 @@ https://claude.ai/artifact/CA6CcAKVHSxGPB5TAZF5sY (commit c32ec2f; page version 
   a dwarf build. A coif of cloth or leather is now a hood of that stuff, not shiny mail. The heroes have none of these
   looks, so they are unchanged.
 
+**The townsfolk, for Together.** The Bestiary, **Townsfolk**: https://claude.ai/artifact/CA6CcAKVHSxGPB5TAZF5sY
+- Every one of M7's people (data/npcs.js, plus the looks with no name entry such as the gate guards and the miner: 53)
+  made by the heroes' builder from the look their map sprite wears (art/map-sprites.js NPC_LOOKS, chosen as npcSheet
+  chooses: Tamsin and Vesper in their battle looks, anyone without a look the map's villager for their name). New for
+  them: wraps and turbans, fezzes, a miner's cap with its lamp, wide straw and witch's hats, a mourning veil (hair stays
+  under all of them), aprons, trinkets at the hip (a pouch, gourd, bottle, ledger, basket of herbs, key), goggles,
+  spectacles, a row of bottles, a coil of rope, a clasp, a braided beard, icicles.
+- Two new poses in `setPose`: `'stand'` (arms easy, a weapon hanging by the leg, the weight shifting from foot to foot, a
+  look round now and then) and `'talk'` (the same, with a hand that talks and a nod). Nothing existing changed.
+- The function, for Together: `world3d/heroes.js` `person(npcId, detail = 'high')` returns the same walker shape as
+  `actor()`: `{ id, name, role, root, hero, walkRun, talking, animate(phase, walking, t, dt) }`; standing it stands,
+  `talking = true` makes it talk, walking it walks. Also on `window.M7_HEROES.person` and `M7_HEROES.PEOPLE` (every id).
+  The builder underneath: `prototypes/hero-3d/people.js` `buildPerson(npcId, { build })` (buildHero's result plus
+  `name`, `role`) and `personLook(npcId)`. `npcId` is a place's `people[].npc` (an `NPCS` id); an art key works too.
+- Size: heroes.js now reads the map sprites' looks, so a world page grows about 0.6 MB (Act One's Keep and Thornhollow:
+  10.2 MB at --tex=768).
+
 ## Next
 
 - Paused (the hub, November 20): more 3D reshaping waits until Chris chooses painted or 3D. Then: the Champions and Relic-Bearers beyond Act One (Kharzul, Mother Anvil, the Rime-Abbot, the
