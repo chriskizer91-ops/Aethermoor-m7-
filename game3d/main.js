@@ -27,13 +27,13 @@ import * as journal from '../game/src/ui/screens/journal.js';
 import * as codex from '../game/src/ui/screens/codex.js';
 import * as newgame from '../game/src/ui/screens/newgame.js';
 import * as settingsScreen from '../game/src/ui/screens/settings.js';
-import * as atlasScreen from '../game/src/ui/screens/atlas.js';
 import { travel } from '../game/src/rules/gauntlet.js';
 import { HEARTHS } from '../game/src/data/world.js';
 import { arena } from '../world3d/battle/arena.js';
 import { runFight } from '../world3d/battle/run.js';
 import { loadLive, hasLive, saveLive, backupLive, clearLive, readM7, loadSettings, saveSettings } from './save.js';
 import { createWorld, gearFor } from './walk.js';
+import { setFoeLook, LOOKS, hdFoes } from './figures.js';
 import { openParty } from '../world3d/battle/party-room.js';
 
 const Q = new URLSearchParams(location.search);
@@ -42,7 +42,7 @@ window.addEventListener('DOMContentLoaded', () => { main().catch((e) => { consol
 
 const DEFAULTS = { sound: true, music: true, battleSpeed: Number(Q.get('speed')) || 1, reducedMotion: false, touchControls: 'auto', alwaysRun: false, mapZoom: 'normal' };
 // M7's screens that lie over the 3D (the walk waits under them)
-const SCREENS = { aftermath, party: partyScreen, journal, codex, newgame, settings: settingsScreen, atlas: atlasScreen };
+const SCREENS = { aftermath, party: partyScreen, journal, codex, newgame, settings: settingsScreen };
 
 async function main() {
   const $ = (id) => document.getElementById(id);
@@ -116,6 +116,7 @@ async function main() {
 
   // ---- the walk ----
   async function startWorld() {
+    window.__g3.foeLook = { look: await setFoeLook(LOOKS.includes(Q.get('foes')) ? Q.get('foes') : 'hd'), full: hdFoes() };
     $('title').hidden = true;
     world = createWorld({
       ctx, places: window.W3D_PLACES, heroes: window.M7_HEROES, phone: PHONE, toast,
