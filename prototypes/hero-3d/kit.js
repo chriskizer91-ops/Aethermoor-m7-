@@ -159,7 +159,9 @@ export const KIND = key => {
   const M = MAT[key]; if (!M) return 'cloth';
   if (M.emit) return 'glow'; if (M.gem || M.prism) return 'gem'; if (M.metal) return 'metal';
   const k = (M.of || key).toLowerCase();
-  if (/robe|cloth|hood|cloak|gambeson|wool|rags|pants|tunic|paint|parchment|moss|seaweed/.test(k)) return 'cloth';
+  if (/glass/.test(k)) return 'glass';
+  if (/stone|granite|sand|scree|brick|cinder|^ash$|char|husk/.test(k)) return 'stone';
+  if (/robe|cloth|hood|cloak|gambeson|wool|rags|pants|tunic|paint|parchment|moss|seaweed|weed|leaf|feather/.test(k)) return 'cloth';
   if (/skin|flesh/.test(k)) return 'skin'; if (/hair|fur|grizzle/.test(k)) return 'hair';
   if (/leather|hide|boar/.test(k)) return 'leather'; if (/wood|bark|bogwood|rotwood/.test(k)) return 'wood';
   if (/bone|claw|pearl|granite|stone|rime/.test(k)) return 'bone';
@@ -183,6 +185,8 @@ export function mat(key, o = {}) {
     case 'scale': m = new THREE.MeshPhysicalMaterial({ color: sRGB(mixC(p[3], p[4], 0.45)), metalness: M.metal ? 1 : 0.2, roughness: 0.35, normalMap: nm(surface('scale'), 6), normalScale: new THREE.Vector2(1.3, 1.3) }); break;
     case 'leather': m = new THREE.MeshPhysicalMaterial({ color: sRGB(mixC(p[2], p[3], 0.75)), roughness: 0.62, normalMap: nm(surface('leather'), 3), normalScale: new THREE.Vector2(0.6, 0.6), clearcoat: 0.15, clearcoatRoughness: 0.6, sheen: 0.2, sheenColor: sRGB(p[4]) }); break;
     case 'wood': m = new THREE.MeshStandardMaterial({ color: sRGB(mixC(p[2], p[3], 0.8)), roughness: 0.7, normalMap: nm(surface('wood'), 1), normalScale: new THREE.Vector2(0.8, 0.8) }); break;
+    case 'glass': m = new THREE.MeshPhysicalMaterial({ color: sRGB(mixC(p[3], p[4], 0.5)), roughness: 0.05, metalness: 0, transmission: 0.6, thickness: 0.02, ior: 1.5, transparent: true, opacity: 0.85, emissive: sRGB(p[3]), emissiveIntensity: 0.25, clearcoat: 1 }); break;
+    case 'stone': m = new THREE.MeshStandardMaterial({ color: sRGB(mixC(p[2], p[3], 0.7)), roughness: 0.92, normalMap: nm(surface('stone'), 2), normalScale: new THREE.Vector2(1.2, 1.2) }); break;
     case 'bone': m = new THREE.MeshPhysicalMaterial({ color: sRGB(mixC(p[3], p[4], 0.4)), roughness: 0.45, clearcoat: 0.3, normalMap: nm(surface('stone'), 2), normalScale: new THREE.Vector2(0.3, 0.3) }); break;
     case 'skin': m = new THREE.MeshPhysicalMaterial({ color: sRGB(mixC(p[3], p[4], 0.35)), roughness: 0.55, sheen: 0.4, sheenRoughness: 0.5, sheenColor: sRGB(mixC(p[4], [255, 120, 90], 0.3)), normalMap: nm(surface('skin'), 4), normalScale: new THREE.Vector2(0.25, 0.25) }); break;
     case 'hair': m = new THREE.MeshPhysicalMaterial({ color: sRGB(mixC(p[2], p[3], 0.8)), roughness: 0.42, sheen: 0.8, sheenRoughness: 0.35, sheenColor: sRGB(p[5]), normalMap: nm(surface('hair'), 1), normalScale: new THREE.Vector2(0.9, 0.9) }); break;
@@ -257,3 +261,17 @@ export function stitchGeo(pts, step, r) {
   for (let i = 0; i < n; i++) { const a = c.getPointAt(i / n), b = c.getPointAt(Math.min(1, (i + 0.55) / n)); const g = new THREE.CapsuleGeometry(r, Math.max(1e-4, a.distanceTo(b) - r * 2), 2, 4); const q = new THREE.Quaternion().setFromUnitVectors(V(0, 1, 0), b.clone().sub(a).normalize()); g.applyQuaternion(q); const mid = a.clone().lerp(b, 0.5); g.translate(mid.x, mid.y, mid.z); geos.push(g); }
   return geos.length ? mergeGeometries(geos.map(g => { g.deleteAttribute('uv'); return g; })) : null;
 }
+
+/* ------------------------------------------------------------------ placing parts */
+export function add(geo, m, parent, x = 0, y = 0, z = 0) { const o = new THREE.Mesh(geo, m); o.position.set(x, y, z); o.castShadow = true; o.receiveShadow = true; parent.add(o); return o; }
+export function gem(key, r, parent, x, y, z, setting = 'gold', facing = V(0, 0, 1)) {
+  if (!key) return null;
+  const g = new THREE.Group(); g.position.set(x, y, z); parent.add(g);
+  g.quaternion.setFromUnitVectors(V(0, 0, 1), facing.clone().normalize());
+  add(new THREE.OctahedronGeometry(r, 1), mat(key), g).scale.set(1, 1, 0.6);
+  if (setting && Q.d > 1) for (let i = 0; i < 4; i++) { const a = i / 4 * TAU + Math.PI / 4; const pr = add(cone(r * 0.16, r * 0.7, 5), mat(setting), g, Math.cos(a) * r * 0.92, Math.sin(a) * r * 0.92, r * 0.25); pr.rotation.set(0, 0, a - Math.PI / 2); pr.rotateX(-0.6); }
+  if (setting) { add(ring(r * 1.05, r * 0.18, 18), mat(setting), g); for (let i = 0; i < 10; i++) { const a = i / 10 * TAU; add(sph(r * 0.14, 6, 4), mat(setting), g, Math.cos(a) * r * 1.28, Math.sin(a) * r * 1.28, 0); } }
+  return g;
+}
+export const rngOf = seed => { let s = seed >>> 0 || 1; return () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; }; };
+export const ring = (R, r, n = 32) => tor(R, r, 8, n);

@@ -22,6 +22,10 @@ button[aria-pressed=true]{border-color:var(--hot);color:var(--hot)}
 .inset .lab{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ash)}
 #sprite canvas{width:128px;height:128px;display:block}
 .acts{position:absolute;right:16px;bottom:calc(16px + env(safe-area-inset-bottom));display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px;max-width:calc(100% - 180px)}
+.pxrow{position:absolute;right:16px;bottom:calc(72px + env(safe-area-inset-bottom));display:flex;align-items:center;gap:10px;background:rgba(18,14,12,.85);box-shadow:0 0 0 2px var(--ink),0 0 0 4px var(--seam);padding:6px 12px;min-height:44px}
+.pxrow label{font-size:13px;color:var(--ash)}
+.pxrow input{width:180px;height:32px;accent-color:var(--hearth)}
+.pxrow span{min-width:2ch;text-align:right;font-size:13px}
 #fps{position:absolute;right:16px;top:calc(64px + env(safe-area-inset-top));font-size:11px;color:var(--ash)}
 canvas.px{image-rendering:pixelated;image-rendering:crisp-edges}
 .panel{background:var(--soot2);border-left:3px solid var(--ink);box-shadow:inset 2px 0 0 var(--seam);overflow:auto;padding:14px 16px calc(16px + env(safe-area-inset-bottom))}
@@ -52,8 +56,10 @@ canvas.px{image-rendering:pixelated;image-rendering:crisp-edges}
   #sprite canvas{width:64px;height:64px}
   .inset{top:calc(66px + env(safe-area-inset-top));bottom:auto;left:auto;right:16px}
   .acts{left:16px;right:16px;max-width:none;flex-wrap:nowrap;justify-content:stretch}
-  .acts button{flex:1 1 auto;padding:0 8px;font-size:13px}
-  #fps{top:auto;right:auto;left:16px;bottom:calc(68px + env(safe-area-inset-bottom));font-size:11px;background:rgba(18,14,12,.75);padding:2px 6px;max-width:calc(100% - 32px)}
+  .acts button{flex:1 1 auto;padding:0 6px;font-size:12.5px}
+  .pxrow{left:16px;right:16px;bottom:calc(68px + env(safe-area-inset-bottom))}
+  .pxrow input{flex:1;width:auto}
+  #fps{top:auto;right:auto;left:16px;bottom:calc(124px + env(safe-area-inset-bottom));font-size:11px;background:rgba(18,14,12,.75);padding:2px 6px;max-width:calc(100% - 32px)}
   .inset{padding:4px 6px 2px}
   .acts button{min-width:44px}
   .top button{padding:0 9px}
@@ -68,7 +74,8 @@ canvas.px{image-rendering:pixelated;image-rendering:crisp-edges}
     </div>
     <div id="fps"></div>
     <div class="inset"><div id="sprite"></div><div class="lab">In the game</div></div>
-    <div class="acts"><button id="b-strike" class="primary">Swing</button><button id="b-build">Shape: storybook</button><button id="b-detail">Detail: high</button><button id="b-pixel" aria-pressed="false">Pixel look</button></div>
+    <div class="acts"><button id="b-strike" class="primary">Swing</button><button id="b-look">Look: whole</button><button id="b-party" aria-pressed="false">Party</button><button id="b-pixel" aria-pressed="false">Pixels</button><button id="b-detail">High detail</button></div>
+    <div id="pxrow" class="pxrow" hidden><label for="px">Pixel size</label><input id="px" type="range" min="1" max="16" step="1" value="5"><span id="pxval">5</span></div>
   </div>
   <div class="panel">
     <div class="lab2">What they wear · tap a slot</div>

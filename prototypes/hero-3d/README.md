@@ -7,13 +7,17 @@ https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL
   generator; **Named relic** steps through the Codex relics for that slot; **Temper +1** is Hilda's forge (+7 glows,
   +10 burns white); **Roll a whole outfit** dresses them at once, at any rarity you choose.
 - **Swing** plays a move that suits the weapon (a cut, a smash, a thrust, a raised staff, a drawn bow).
-  **Shape** switches between a taller storybook hero and a chibi one. **Detail** switches between High and Light. **Pixel look** draws the 3D model in big pixels. Drag to turn the hero round.
+- **Look** steps the camera to the face, the weapon and the off hand, and back to the whole hero.
+- **Party** puts all four heroes on the stage in their own outfits (each keeps what they wear); the panel dresses
+  the one picked at the top.
+- **Pixels** draws the picture in big pixels; its slider sets the pixel size (1 to 16).
+  **High detail** / **Light detail** switches the detail (High is the look; Light is for a phone that struggles). **Pixel look** draws the 3D model in big pixels. Drag to turn the hero round.
 - The small picture is the game's own battle sprite in the same gear, so you can see they match.
 
 ## How it's made
 
-`model.js` builds the hero from the game's files in `game/src/`, with nothing drawn by hand, and `kit.js` is the
-modelling kit it builds with.
+`model.js` builds the hero from the game's files in `game/src/`, with nothing drawn by hand; `weapons.js` builds the
+weapons, shields and focuses; `kit.js` is the modelling kit both build with.
 
 - **Who the hero is** comes from `art/hero-looks.js` `HERO_ART`: skin, hair and its style (in locks), eyes (painted
   onto the face), cloak, mantle, tabard, quiver, Alondra's blindfold, Bryn's ears.
@@ -51,3 +55,22 @@ node build.mjs      # dist/gear-room.html (open it) and dist/gear-room.artifact.
 ```
 
 Publish `dist/gear-room.artifact.html` to the link above (pass the url) so the link keeps working.
+
+## Since November 20 (second pass)
+
+- Chris chose the storybook shape at High detail; the chibi build is still in `model.js` (`build: 'chibi'`) but the
+  page no longer offers it.
+- Hair knows what is on the head: none under a hood or coif (long hair shows as two locks in the opening), long
+  hair falling from under a helm's back rim or a kettle hat's brim, crowns and circlets sitting over the hair.
+- The helm is a barbute with a T-shaped opening and a brow ridge; hood and coif trims follow the face opening.
+- `weapons.js` gives every named relic its own recipe style: a fang or a tooth (curved bone with a glowing vein), a
+  scimitar widening to its tip, oath, hook, thorn, scale and coin guards, coin, knot, hook and claw pommels, ribbons;
+  an octagonal hammer head with face plates, straps, a peen, a glowing seam, a maker's mark, glass shards; a bearded
+  axe head with a bright edge, a pick crusted with rime; a bell with a sun and a clapper; Fenwick's Poker; a
+  runestone in iron claws; Rootsong's roots, finger holes and berries; the cantor's bell and pearl; an antler bow, a
+  glass bow, a weeping bow with fronds and tears; a harpoon's barbs and line; shields with a chief, an inscription,
+  a wreath, a fire emblem, a door's planks, bands and hinges, woven wicker and hanging charms; lanterns, a censer on
+  chains and a chalice that stay upright in the hand.
+- Leather wraps are bands laid edge over edge; every fist closes round the grip it holds, thick or thin.
+- Stone and glass are materials of their own.
+- Measured: one hero 95k to 200k triangles at High; the party of four about 600k in about 230 draws.

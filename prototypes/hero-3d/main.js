@@ -25,7 +25,7 @@ const rng = createRng(`gear-room:${Date.now() % 100000}`);
 const relicsFor = slot => Object.values(RELICS).filter(r => r.slot === slot).sort((a, b) => a.codex - b.codex);
 
 const coarse = matchMedia('(pointer: coarse)').matches;
-const S = { hero: 'warden', gear: {}, slot: 'weapon', rarity: 'any', relicAt: {}, pixel: false, strike: -1, build: 'hero', detail: coarse ? 'light' : 'high' };
+const S = { hero: 'warden', gear: {}, slot: 'weapon', rarity: 'any', relicAt: {}, pixel: false, strike: -1, build: 'hero', detail: 'high', pxSize: 5, look: 'whole', goal: null, gears: {}, party: false };
 Q.d = S.detail === 'high' ? 2 : 1;
 
 /* ------------------------------------------------------------------ scene */
@@ -46,7 +46,7 @@ camera.position.set(0.9, 1.0, 3.1);
 const controls = new OrbitControls(camera, canvas);
 controls.target.set(0, 0.66, 0);
 controls.enablePan = false; controls.enableDamping = true; controls.dampingFactor = 0.08;
-controls.minDistance = 1.2; controls.maxDistance = 5; controls.maxPolarAngle = Math.PI * 0.55; controls.minPolarAngle = Math.PI * 0.18;
+controls.minDistance = 0.3; controls.maxDistance = 5; controls.maxPolarAngle = Math.PI * 0.55; controls.minPolarAngle = Math.PI * 0.18;
 controls.autoRotate = true; controls.autoRotateSpeed = 1.1;
 canvas.addEventListener('pointerdown', () => { controls.autoRotate = false; clearTimeout(S.spin); });
 canvas.addEventListener('pointerup', () => { clearTimeout(S.spin); S.spin = setTimeout(() => { controls.autoRotate = true; }, 5000); });
@@ -116,8 +116,12 @@ function rebuild() {
   const t0 = performance.now();
   hero = buildHero(S.hero, S.gear, { build: S.build });
   S.lastBuild = Math.round(performance.now() - t0);
-  S.tris = 0; S.meshes = 0; hero.group.traverse(o => { if (o.isMesh) { S.meshes++; const g = o.geometry; S.tris += (g.index ? g.index.count : g.attributes.position.count) / 3; } });
+  hero.group.position.x = S.party ? SLOT_X[S.hero] : 0;
+  runeCircle.position.x = hero.group.position.x;
   scene.add(hero.group);
+  syncParty();
+  S.tris = 0; S.meshes = 0;
+  for (const h of [hero, ...Object.values(others)]) h.group.traverse(o => { if (o.isMesh) { S.meshes++; const g = o.geometry; S.tris += (g.index ? g.index.count : g.attributes.position.count) / 3; } });
   const fx = hero.fx;
   runeCircle.material.color.copy(fx.aura || new THREE.Color(0xffb04a));
   runeCircle.userData.on = fx.aura ? 0.75 : 0.18;
@@ -129,6 +133,7 @@ function rebuild() {
   else moteMat.uniforms.on.value = 0;
   trailMat.color.copy(glow || new THREE.Color(0xffe2b0));
   drawPanel();
+  if (S.look !== 'whole') lookAt(S.look === 'offhand' && !hero.rig.offhand ? 'whole' : S.look === 'weapon' && !hero.rig.weapon ? 'whole' : S.look);
 }
 
 /* ------------------------------------------------------------------ gear */
@@ -151,7 +156,29 @@ function nextRelic(slot) {
   const i = ((S.relicAt[slot] ?? -1) + 1) % list.length; S.relicAt[slot] = i;
   return relicItem(list[i].id, rng, { from: list[i].holder });
 }
-function setHero(id) { S.hero = id; S.gear = starterKit(id); rebuild(); }
+function setHero(id) { S.hero = id; S.gear = S.gears[id] || (S.gears[id] = starterKit(id)); rebuild(); }
+// the party: all four on the stage at once, each in their own gear; the panel dresses the chosen one
+const SLOT_X = { warden: -0.38, pip: -1.14, bryn: 0.38, alondra: 1.14 };
+const others = {};
+function dropHero(h) { scene.remove(h.group); h.group.traverse(o => o.geometry?.dispose?.()); }
+function syncParty() {
+  for (const id of Object.keys(others)) if (!S.party || id === S.hero || others[id].detail !== S.detail) { dropHero(others[id]); delete others[id]; }
+  if (!S.party) return;
+  for (const h of HEROES) {
+    if (h.id === S.hero || others[h.id]) continue;
+    const gear = S.gears[h.id] || (S.gears[h.id] = starterKit(h.id));
+    const b = buildHero(h.id, gear, { build: S.build }); b.detail = S.detail; b.group.position.x = SLOT_X[h.id]; b.phase = h.id.length * 1.7;
+    scene.add(b.group); others[h.id] = b;
+  }
+}
+function setParty(on) {
+  S.party = on; $('b-party').setAttribute('aria-pressed', on); $('b-party').textContent = on ? 'Party ✓' : 'Party';
+  plinth.scale.set(on ? 2.55 : 1, 1, on ? 1.25 : 1); ringIron.scale.set(on ? 2.55 : 1, on ? 1.25 : 1, 1);
+  key.shadow.camera.left = key.shadow.camera.bottom = on ? -2 : -1.2; key.shadow.camera.right = key.shadow.camera.top = on ? 2 : 1.2; key.shadow.camera.updateProjectionMatrix();
+  if (on) others.__keep = null, delete others.__keep;
+  rebuild();
+  S.goal = { c: new THREE.Vector3(on ? 0 : 0, 0.66, 0), dist: on ? 6.2 : 3.25 }; S.look = 'whole'; $('b-look').textContent = 'Look: whole';
+}
 
 /* ------------------------------------------------------------------ panel */
 const $ = id => document.getElementById(id);
@@ -216,25 +243,43 @@ $('b-relic').onclick = () => { const it = nextRelic(S.slot); if (it) { S.gear[S.
 $('b-temper').onclick = () => { const it = S.gear[S.slot]; if (!it || it.starter) return; S.gear[S.slot] = { ...it, temper: Math.min(10, (it.temper || 0) + 1) }; rebuild(); };
 $('b-off').onclick = () => { S.gear[S.slot] = null; rebuild(); };
 $('b-all').onclick = () => { for (const s of SLOTS) if (s !== 'offhand' || !['staff', 'bow', 'spear'].includes(S.gear.weapon?.kind)) S.gear[s] = rollFor(s); rebuild(); };
-$('b-starter').onclick = () => setHero(S.hero);
+$('b-starter').onclick = () => { S.gears[S.hero] = starterKit(S.hero); setHero(S.hero); };
+$('b-party').onclick = () => setParty(!S.party);
 $('b-strike').onclick = () => { S.strike = 0; trailPts.length = 0; };
-$('b-build').onclick = () => { S.build = S.build === 'hero' ? 'chibi' : 'hero'; $('b-build').textContent = S.build === 'hero' ? 'Shape: storybook' : 'Shape: chibi'; rebuild(); };
 $('b-detail').onclick = () => { S.detail = S.detail === 'high' ? 'light' : 'high'; applyDetail(); rebuild(); };
+window.__party = () => setParty(true);
 function applyDetail() {
   const high = S.detail === 'high';
-  $('b-detail').textContent = high ? 'Detail: high' : 'Detail: light';
+  $('b-detail').textContent = high ? 'High detail' : 'Light detail';
   gtao.enabled = high;
   composer.renderTarget1.samples = composer.renderTarget2.samples = high ? 4 : 0;
   key.shadow.mapSize.set(high ? 4096 : 1024, high ? 4096 : 1024); if (key.shadow.map) { key.shadow.map.dispose(); key.shadow.map = null; }
   resize();
 }
-$('b-pixel').onclick = () => { S.pixel = !S.pixel; $('b-pixel').setAttribute('aria-pressed', S.pixel); resize(); };
+$('b-pixel').onclick = () => { S.pixel = !S.pixel; $('b-pixel').setAttribute('aria-pressed', S.pixel); $('pxrow').hidden = !S.pixel; resize(); };
+// the pixel size: how many screen points each pixel of the picture covers
+$('px').oninput = () => { S.pxSize = +$('px').value; $('pxval').textContent = `${S.pxSize}`; resize(); };
+// Look closer: the whole hero, the face, the weapon, the shield or focus
+const LOOKS = [['whole', 'Look: whole'], ['face', 'Look: face'], ['weapon', 'Look: weapon'], ['offhand', 'Look: off hand']];
+function lookAt(which) {
+  S.look = which; $('b-look').textContent = LOOKS.find(l => l[0] === which)[1];
+  const obj = which === 'face' ? hero?.rig.head : which === 'weapon' ? hero?.rig.weapon : which === 'offhand' ? hero?.rig.offhand : null;
+  if (!obj) { S.goal = { c: new THREE.Vector3(S.party ? 0 : 0, 0.66, 0), dist: S.party ? 6.2 : 3.25 }; return; }
+  hero.group.updateMatrixWorld(true);
+  const box = new THREE.Box3().setFromObject(obj), c = box.getCenter(new THREE.Vector3()), r = box.getSize(new THREE.Vector3()).length() / 2;
+  S.goal = { c, dist: Math.max(0.35, r / Math.sin(THREE.MathUtils.degToRad(camera.fov / 2)) * 1.05) };
+}
+$('b-look').onclick = () => {
+  let i = LOOKS.findIndex(l => l[0] === S.look);
+  for (let k = 0; k < LOOKS.length; k++) { i = (i + 1) % LOOKS.length; const w = LOOKS[i][0]; if (w === 'weapon' && !hero?.rig.weapon) continue; if (w === 'offhand' && !hero?.rig.offhand) continue; break; }
+  lookAt(LOOKS[i][0]);
+};
 
 /* ------------------------------------------------------------------ loop */
 function resize() {
   const box = canvas.parentElement.getBoundingClientRect();
   const w = Math.max(1, box.width), h = Math.max(1, box.height);
-  const pr = S.pixel ? Math.max(0.2, 150 / h) : Math.min(devicePixelRatio, S.detail === 'high' ? 2 : 1.5);
+  const pr = S.pixel ? 1 / S.pxSize : Math.min(devicePixelRatio, S.detail === 'high' ? 2 : 1.5);
   renderer.setPixelRatio(pr);
   renderer.setSize(w, h, false);
   composer.setPixelRatio(pr); composer.setSize(w, h); gtao.setSize(w * pr, h * pr);
@@ -259,6 +304,7 @@ function loop() {
     let u = 0, pose = 'idle';
     if (S.strike >= 0) { S.strike += dt / 0.75; u = Math.min(1, S.strike); pose = 'strike'; if (S.strike >= 1) S.strike = -1; }
     setPose(hero.rig, pose, t, u);
+    for (const o of Object.values(others)) { setPose(o.rig, 'idle', t + o.phase, 0); for (const g of o.fx.glows) if (g.obj?.material && g.obj.material.emissiveIntensity !== undefined) g.obj.material.emissiveIntensity = 1.3 + Math.sin(t * 3 + g.power * 5) * 0.3; }
     hero.group.updateMatrixWorld(true);
     // the weapon's light and its trail
     const w = hero.rig.weapon;
@@ -276,17 +322,24 @@ function loop() {
       pa.needsUpdate = true;
       trailMat.opacity = 0.55;
     }
-    for (const g of hero.fx.glows) if (g.obj.material.emissiveIntensity !== undefined && MAT) g.obj.material.emissiveIntensity = 1.3 + Math.sin(t * 3 + g.power * 5) * 0.3;
+    for (const g of hero.fx.glows) if (g.obj?.material && g.obj.material.emissiveIntensity !== undefined && MAT) g.obj.material.emissiveIntensity = 1.3 + Math.sin(t * 3 + g.power * 5) * 0.3;
   }
   runeCircle.material.opacity = (runeCircle.userData.on || 0) * (0.75 + 0.25 * Math.sin(t * 2));
   runeCircle.rotation.z = t * 0.2;
   moteMat.uniforms.time.value = t;
+  if (S.goal) {
+    const k = Math.min(1, dt * 4), off = camera.position.clone().sub(controls.target);
+    controls.target.lerp(S.goal.c, k);
+    const len = THREE.MathUtils.lerp(off.length(), S.goal.dist, k);
+    camera.position.copy(controls.target).addScaledVector(off.normalize(), len);
+    if (controls.target.distanceTo(S.goal.c) < 0.002 && Math.abs(len - S.goal.dist) < 0.002) S.goal = null;
+  }
   controls.update();
   composer.render();
   spriteT += dt; if (spriteT > 0.31) { spriteT = 0; drawSprite(t); }
   frames++; fpsT += dt; if (fpsT > 1) { $('fps').textContent = `${Math.round(frames / fpsT)} fps · ${Math.round(S.tris / 1000)}k triangles · ${S.meshes} pieces · built in ${S.lastBuild} ms`; frames = 0; fpsT = 0; }
 }
-window.__gear = { S, rebuild, setHero, rollFor, nextRelic, get hero() { return hero; }, camera, controls };
+window.__gear = { S, rebuild, setHero, rollFor, nextRelic, lookAt: w => lookAt(w), get hero() { return hero; }, camera, controls };
 applyDetail();
 setHero('warden');
 resize();

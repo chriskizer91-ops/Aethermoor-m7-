@@ -11,7 +11,8 @@ import * as THREE from 'three';
 import { MAT } from '../../game/src/art/forge.js';
 import { HERO_ART } from '../../game/src/art/hero-looks.js';
 import { itemArt, lookFor, RARITY_LOOK, ASPECT_LOOK, SLOTS, rarityTier } from '../../game/src/art/item-looks.js';
-import { V, lerp, smooth, clamp01, loft, ellipse, tube, curve, lathe, wedge, plate, blade, mat, glowColor, isEmit, sRGB, KIND, Q, sph, tor, cone, ico, bake, etchMaterial, stitchGeo } from './kit.js';
+import { V, lerp, smooth, clamp01, loft, ellipse, tube, curve, lathe, wedge, plate, blade, mat, glowColor, isEmit, sRGB, KIND, Q, sph, tor, cone, ico, bake, etchMaterial, stitchGeo, add, gem, rngOf, ring } from './kit.js';
+import { buildWeapon, buildOffhand } from './weapons.js';
 
 export { glowColor };
 const TAU = Math.PI * 2;
@@ -109,18 +110,6 @@ function faceTexture(H, skinKey, hairKey, { blind = false, big = false } = {}) {
 }
 
 /* ------------------------------------------------------------------ small helpers */
-function add(geo, m, parent, x = 0, y = 0, z = 0) { const o = new THREE.Mesh(geo, m); o.position.set(x, y, z); o.castShadow = true; o.receiveShadow = true; parent.add(o); return o; }
-const ring = (R, r, n = 32) => tor(R, r, 8, n);
-function gem(key, r, parent, x, y, z, setting = 'gold', facing = V(0, 0, 1)) {
-  if (!key) return null;
-  const g = new THREE.Group(); g.position.set(x, y, z); parent.add(g);
-  g.quaternion.setFromUnitVectors(V(0, 0, 1), facing.clone().normalize());
-  add(new THREE.OctahedronGeometry(r, 1), mat(key), g).scale.set(1, 1, 0.6);
-  if (setting && Q.d > 1) for (let i = 0; i < 4; i++) { const a = i / 4 * TAU + Math.PI / 4; const pr = add(cone(r * 0.16, r * 0.7, 5), mat(setting), g, Math.cos(a) * r * 0.92, Math.sin(a) * r * 0.92, r * 0.25); pr.rotation.set(0, 0, a - Math.PI / 2); pr.rotateX(-0.6); }
-  if (setting) { add(ring(r * 1.05, r * 0.18, 18), mat(setting), g); for (let i = 0; i < 10; i++) { const a = i / 10 * TAU; add(sph(r * 0.14, 6, 4), mat(setting), g, Math.cos(a) * r * 1.28, Math.sin(a) * r * 1.28, 0); } }
-  return g;
-}
-const rngOf = seed => { let s = seed >>> 0 || 1; return () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; }; };
 const strHash = str => { let h = 2166136261; for (const ch of String(str)) h = Math.imul(h ^ ch.charCodeAt(0), 16777619); return h >>> 0; };
 
 /* ------------------------------------------------------------------ the hero */
@@ -239,7 +228,7 @@ export function buildHero(heroKey, gear, o = {}) {
     if (robe) add(tube([V(0, -S.fore * 0.25, 0), V(0, -S.fore * 0.8, 0.01 * u), V(0, -S.fore * 1.05, 0.02 * u)], t => [lerp(ar * 1.1, ar * 1.7, t * t), lerp(ar * 1.1, ar * 1.6, t * t)], { n: 16, capA: false, capB: false }), mat(body.mat, { side: true }), elbow);
     if (kind === 'plate') { add(tube([V(0, -S.fore * 0.15, 0), V(0, -S.fore * 0.9, 0)], t => [lerp(ar * 1.05, ar * 0.8, t), lerp(ar * 1.0, ar * 0.76, t)], { n: 12 }), torsoMat, elbow); add(sph(ar * 0.95, 12, 8), torsoMat, elbow); }
     const hand = new THREE.Group(); hand.position.y = -S.fore; elbow.add(hand);
-    const grip = buildHand(hand, side, mat(gloveKey), gloves, u * S.hand, fx);
+    const grip = buildHand(hand, side, mat(gloveKey), gloves, u * S.hand, fx, gripRadius(L, side, uw));
     // pauldrons: three lames over the shoulder
     const pk = body?.pauldrons || (kind === 'plate' ? body.mat : null);
     if (pk) for (let k = 0; k < 3; k++) { const r = ar * (2.0 - k * 0.22); const p = add(sph(r, 18, 10, 0, TAU, 0, Math.PI * 0.42), mat(pk, { side: true }), sh, side * 0.006 * u, 0.025 * u - k * 0.03 * u, 0); p.rotation.z = -side * (0.35 + k * 0.12); p.scale.set(1.1, 0.75, 1); if (body?.trim && k === 0) add(tube(ellipse(V(0, Math.cos(Math.PI * 0.42) * r, 0), V(1, 0, 0), V(0, 0, 1), Math.sin(Math.PI * 0.42) * r, Math.sin(Math.PI * 0.42) * r, 24), 0.005 * u, { closed: true, n: 6 }), mat(body.trim), p); }
@@ -357,22 +346,34 @@ export function buildHero(heroKey, gear, o = {}) {
 }
 
 /* ------------------------------------------------------------------ a hand closed round a grip */
+// how thick the grip is that this hand closes round (the right holds the weapon, the left a bow or a shield's handle)
+function gripRadius(L, side, uw) {
+  const W = L.weapon, k = (W?.k || 0.36) * uw / 40 * 1.55, p = W?.p || {};
+  const holdsWeapon = W && (W.cls === 'bow' ? side === 1 : side === -1);
+  if (!holdsWeapon) return 0.011 * uw;
+  if (W.r === 'sword' || W.r === 'dagger') return (p.gripR || 2) * k * 1.12;
+  if (W.r === 'bow') return (p.limbR || 3) * 0.55 * 1.45 * 1.16 * k * 0.85;
+  if (W.p?.style === 'poker') return (p.rodR || 1.5) * k;
+  return (p.haftR || 2) * 0.9 * k * (p.wrap ? 1.16 : 1.04);
+}
+
 // The fist's grip runs along the hand's local z (the weapon's +Y is turned onto it), across the palm, which faces in
 // toward the body; the fingers curl round it and the thumb closes over them.
-function buildHand(hand, side, m, gloves, u, fx) {
+function buildHand(hand, side, m, gloves, u, fx, gr = 0.012) {
   const med = -side; // toward the middle of the body
   const pw = 0.042 * u, pl = 0.06 * u, pd = 0.018 * u;
-  const gc = V(med * 0.012 * u, -0.072 * u, 0.004 * u); // the grip's centre
+  // the grip's centre: against the palm, as far out as the grip is thick (the fist opens round a thick haft)
+  const gc = V(med * (pd * 0.55 + gr * 0.85), -0.07 * u - gr * 0.25, 0.004 * u);
   // palm and back of the hand
   add(tube([V(0, 0.005 * u, 0), V(0, -pl * 0.5, 0.002 * u), V(0, -pl, 0.004 * u)], t => [pd * (1.05 - t * 0.1), pw * (0.62 + t * 0.4)], { n: 14, up: V(1, 0, 0) }), m, hand);
   // fingers: four curls round the grip, stacked along z
   for (let f = 0; f < 4; f++) {
-    const z = (f - 1.5) * 0.0175 * u, R = 0.019 * u, rad = (0.0068 - f * 0.0004) * u;
+    const rad = (0.0068 - f * 0.0004) * u, z = (f - 1.5) * 0.0175 * u, R = gr + rad * 0.95;
     const pts = []; for (let i = 0; i <= 8; i++) { const a = lerp(0.2, 4.2, i / 8); pts.push(V(gc.x - med * Math.cos(a) * R, gc.y + Math.sin(a) * R * 0.95 - 0.004 * u, z * (1 + i * 0.01) + gc.z)); }
     add(tube(curve(pts, 12), t => rad * (1 - t * 0.2), { n: 8 }), m, hand);
   }
   // thumb over the fingers
-  add(tube(curve([V(med * 0.004 * u, -0.022 * u, 0.026 * u), V(med * 0.02 * u, -0.05 * u, 0.034 * u), V(med * 0.03 * u, -0.07 * u, 0.026 * u), V(med * 0.028 * u, -0.082 * u, 0.012 * u)], 10), t => 0.0085 * u * (1 - t * 0.25), { n: 8 }), m, hand);
+  { const tr = 0.0085 * u, Rt = gr + tr * 0.9, pts = [V(-med * 0.004 * u, -0.022 * u, 0.026 * u)]; for (let i = 0; i <= 6; i++) { const a = lerp(-0.2, 2.1, i / 6); pts.push(V(gc.x - med * Math.cos(a) * Rt, gc.y + Math.sin(a) * Rt, gc.z + 0.034 * u - i * 0.002 * u)); } add(tube(curve(pts, 12), t => tr * (1 - t * 0.25), { n: 8 }), m, hand); }
   if (gloves) {
     // a cuff at the wrist; gauntlets get plates over the back of the hand and knuckles
     add(lathe([[0.03 * u, 0.03 * u], [0.034 * u, 0.012 * u], [0.026 * u, -0.004 * u]], { n: 16 }), m, hand);
@@ -385,32 +386,58 @@ function buildHand(hand, side, m, gloves, u, fx) {
 }
 
 /* ------------------------------------------------------------------ hair, in locks */
+// Hair knows what is on the head, so it never comes through it:
+//   nothing / circlet / crown: the full head of hair (the band sits over it);
+//   kettle hat: no crown of hair; locks and a short fringe come out from under the brim;
+//   helm: no hair on the head; long hair, a ponytail or a braid falls from under the back of the helm;
+//   hood / coif: the hair is inside; long hair shows as two locks in the face opening.
 function buildHair(head, H, r, covers, look, seed) {
   const style = H.hair || 'short'; if (style === 'none') return;
   const hm = mat(H.hairMat, { side: true }), rnd = rngOf(seed);
   const onSkull = (lat, lon, k = 1.04) => V(Math.sin(lon) * Math.cos(lat) * r * k * 0.95, Math.sin(lat) * r * k * 1.06, Math.cos(lon) * Math.cos(lat) * r * k);
+  const thin = Q.d > 1 ? 1.32 : 1;
+  const lock = (pts, w0, d0, up, n = 12) => add(tube(curve(pts, n), t => [lerp(w0, r * 0.02, t * t) / thin, lerp(d0, r * 0.012, t)], { n: 8, up }), hm, head);
+  const hood = look === 'hood' || look === 'coif', helm = look === 'helm', kettle = look === 'kettle';
+  const long = style === 'long', tail = style === 'pony' || style === 'braid';
   if (!covers) {
     // the cap of hair over the crown, set back from the brow
     const cap = sph(r * 1.07, 40, 20, 0, TAU, 0, Math.PI * (style === 'crop' ? 0.4 : 0.47));
     const p = cap.attributes.position; for (let i = 0; i < p.count; i++) p.setX(i, p.getX(i) * 0.95), p.setY(i, p.getY(i) * 1.06);
     cap.computeVertexNormals();
     add(cap, hm, head, 0, r * 0.05, -r * 0.06).rotation.x = -0.32;
-    // a fringe of locks over the brow
     const nF = Math.round((style === 'crop' ? 5 : 7) * (Q.d > 1 ? 1.6 : 1));
-    for (let i = 0; i < nF; i++) { const lon = lerp(-0.95, 0.95, i / (nF - 1)) + (rnd() - 0.5) * 0.1, len = (style === 'crop' ? 0.25 : 0.42) + rnd() * 0.15; const a = onSkull(0.95, lon * 0.8, 1.06), b = onSkull(0.62, lon * 0.95, 1.1), c = onSkull(0.62 - len, lon * 1.05 + (lon > 0 ? 0.15 : -0.15), 1.07); add(tube(curve([a, b, c], 10), t => [lerp(r * 0.2, r * 0.02, t) / (Q.d > 1 ? 1.3 : 1), lerp(r * 0.07, r * 0.01, t)], { n: 8, up: b.clone().normalize() }), hm, head); }
+    for (let i = 0; i < nF; i++) { const lon = lerp(-0.95, 0.95, i / (nF - 1)) + (rnd() - 0.5) * 0.1, len = (style === 'crop' ? 0.25 : 0.42) + rnd() * 0.15; const a = onSkull(0.95, lon * 0.8, 1.06), b = onSkull(0.62, lon * 0.95, 1.1), c = onSkull(0.62 - len, lon * 1.05 + (lon > 0 ? 0.15 : -0.15), 1.07); lock([a, b, c], r * 0.2, r * 0.07, b.clone().normalize(), 10); }
+  } else if (kettle) {
+    // a short fringe peeking out under the brim
+    const nF = Math.round(6 * (Q.d > 1 ? 1.5 : 1));
+    for (let i = 0; i < nF; i++) { const lon = lerp(-0.8, 0.8, i / (nF - 1)) + (rnd() - 0.5) * 0.1; const a = onSkull(0.2, lon, 1.02), b = onSkull(0.08, lon * 1.05, 1.07), c = onSkull(-0.05 - rnd() * 0.08, lon * 1.1, 1.05); lock([a, b, c], r * 0.18, r * 0.06, b.clone().normalize(), 8); }
+  }
+  if (hood) {
+    if (long || tail) for (const sd of [-1, 1]) { const a = onSkull(0.35, sd * 0.62, 0.98), b = onSkull(-0.2, sd * 0.68, 1.0), c = onSkull(-0.75, sd * 0.6, 0.96); lock([a, b, c], r * 0.16, r * 0.06, V(sd, 0, 0.4).normalize(), 10); }
+    return;
   }
   // locks round the sides and back: to the jaw, or to the shoulders for long hair
-  const long = style === 'long', fall = long ? r * 2.6 : style === 'short' || style === 'crop' ? r * 0.75 : r * 0.9;
-  const nB = Math.round((long ? 22 : 14) * (Q.d > 1 ? 1.7 : 1));
-  for (let i = 0; i < nB; i++) {
-    const lon = lerp(0.9, TAU - 0.9, i / (nB - 1)) + (rnd() - 0.5) * 0.12;
-    if (covers && !long && Math.cos(lon) > -0.2) continue;
-    const a = onSkull(0.55, lon, 1.04), b = onSkull(-0.15, lon, 1.12), out = V(Math.sin(lon), 0, Math.cos(lon));
-    const c = b.clone().add(V(0, -fall * (0.7 + rnd() * 0.35), 0)).addScaledVector(out, r * (long ? 0.25 : 0.06)).add(V(0, 0, long && Math.cos(lon) < 0 ? -r * 0.25 : 0));
-    add(tube(curve([a, b, c], 12), t => [lerp(r * 0.24, r * 0.02, t * t) / (Q.d > 1 ? 1.35 : 1), lerp(r * 0.08, r * 0.015, t)], { n: 8, up: out }), hm, head);
+  if (!helm) {
+    const fall = long ? r * 2.6 : style === 'short' || style === 'crop' ? r * 0.75 : r * 0.9;
+    const nB = Math.round((long ? 22 : 14) * (Q.d > 1 ? 1.7 : 1));
+    const latA = kettle ? 0.12 : 0.55, kA = kettle ? 1.02 : 1.04;
+    for (let i = 0; i < nB; i++) {
+      const lon = lerp(0.9, TAU - 0.9, i / (nB - 1)) + (rnd() - 0.5) * 0.12;
+      const a = onSkull(latA, lon, kA), b = onSkull(-0.15, lon, 1.1), out = V(Math.sin(lon), 0, Math.cos(lon));
+      const c = b.clone().add(V(0, -fall * (0.7 + rnd() * 0.35), 0)).addScaledVector(out, r * (long ? 0.25 : 0.06)).add(V(0, 0, long && Math.cos(lon) < 0 ? -r * 0.25 : 0));
+      lock([a, b, c], r * 0.24, r * 0.08, out);
+    }
+  } else if (long) {
+    // under a helm: long hair falls from below its back rim
+    const nB = Math.round(12 * (Q.d > 1 ? 1.6 : 1));
+    for (let i = 0; i < nB; i++) {
+      const lon = lerp(2.0, TAU - 2.0, i / (nB - 1)) + (rnd() - 0.5) * 0.1, out = V(Math.sin(lon), 0, Math.cos(lon));
+      const a = onSkull(-0.86, lon, 0.98), b = a.clone().addScaledVector(out, r * 0.18).add(V(0, -r * 0.35, 0)), c = b.clone().add(V(0, -r * 1.6 * (0.8 + rnd() * 0.3), -r * 0.2));
+      lock([a, b, c], r * 0.22, r * 0.08, out);
+    }
   }
-  if (style === 'pony' || style === 'braid') {
-    const base = onSkull(0.1, Math.PI, 1.08);
+  if (tail) {
+    const base = helm ? onSkull(-0.85, Math.PI, 1.02) : kettle ? onSkull(0.02, Math.PI, 1.05) : onSkull(0.1, Math.PI, 1.08);
     add(tor(r * 0.12, r * 0.04, 6, 14), mat('leatherDark'), head, base.x, base.y, base.z - r * 0.04);
     if (style === 'pony') add(tube(curve([base, base.clone().add(V(0, -r * 0.4, -r * 0.35)), base.clone().add(V(0, -r * 1.5, -r * 0.3)), base.clone().add(V(0, -r * 2.2, -r * 0.1))], 16), t => [r * 0.22 * (1 - t * 0.7) * (1 + Math.sin(t * Math.PI) * 0.3), r * 0.16 * (1 - t * 0.7)], { n: 10 }), hm, head);
     else for (let i = 0; i < 9; i++) { const t = i / 8; add(sph(r * 0.15 * (1 - t * 0.4), 10, 8), hm, head, base.x + (i % 2 ? 0.03 : -0.03) * r, base.y - r * 0.25 - i * r * 0.24, base.z - r * 0.25 + t * r * 0.1).scale.set(1.2, 0.9, 1); }
@@ -430,11 +457,15 @@ function buildHeadgear(head, root, HL, art, r, S, u, fx) {
     for (let i = 0; i < 12; i++) { const a = i / 12 * TAU; add(sph(0.0045 * u, 6, 4), mat(HL.trim || metalKey), head, Math.sin(a) * r * 1.1, r * 0.34, Math.cos(a) * r * 1.13); }
   } else if (look === 'helm') {
     const m = mat(metalKey, { side: true });
-    add(lathe([[0, r * 1.2], [r * 0.55, r * 1.13], [r * 0.93, r * 0.86], [r * 1.12, r * 0.42], [r * 1.14, r * 0.3]], { n: 40, sx: 0.97 }), m, head);
-    add(lathe([[r * 1.14, r * 0.3], [r * 1.16, -r * 0.2], [r * 1.08, -r * 0.72], [r * 0.95, -r * 1.02]], { n: 32, sx: 0.97, phi0: 0.62, phiLen: TAU - 1.24 }), m, head);
-    add(tube([V(0, r * 0.42, r * 1.16), V(0, -r * 0.35, r * 1.22)], [r * 0.08, r * 0.035], { n: 6, up: V(0, 0, 1) }), mat(metalKey), head);
+    add(lathe([[0, r * 1.2], [r * 0.55, r * 1.13], [r * 0.93, r * 0.86], [r * 1.12, r * 0.42], [r * 1.15, r * 0.24]], { n: 40, sx: 0.97 }), m, head);
+    // the eye slit runs wide across the face; below it a narrow opening for the nose and mouth (a T)
+    add(lathe([[r * 1.15, r * 0.24], [r * 1.16, -r * 0.05]], { n: 32, sx: 0.97, phi0: 1.05, phiLen: TAU - 2.1 }), m, head);
+    add(lathe([[r * 1.16, -r * 0.05], [r * 1.14, -r * 0.45], [r * 1.06, -r * 0.8], [r * 0.95, -r * 1.02]], { n: 32, sx: 0.97, phi0: 0.32, phiLen: TAU - 0.64 }), m, head);
+    // a brow ridge over the slit and a rim round the opening
+    add(tube(curve([V(-Math.sin(1.05) * r * 1.16 * 0.97, r * 0.26, Math.cos(1.05) * r * 1.16), V(0, r * 0.3, r * 1.2), V(Math.sin(1.05) * r * 1.16 * 0.97, r * 0.26, Math.cos(1.05) * r * 1.16)], 20), [0.007 * u, 0.012 * u], { n: 6 }), mat(HL.trim || metalKey), head);
+    for (const sd of [-1, 1]) add(tube(curve([V(sd * Math.sin(0.32) * r * 1.17 * 0.97, -r * 0.05, Math.cos(0.32) * r * 1.17), V(sd * Math.sin(0.32) * r * 1.13 * 0.97, -r * 0.5, Math.cos(0.32) * r * 1.13), V(sd * Math.sin(0.32) * r * 0.97 * 0.97, -r * 1.0, Math.cos(0.32) * r * 0.97)], 12), 0.006 * u, { n: 6 }), mat(HL.trim || metalKey), head);
     add(T(r * 0.3, 1.16), trim || mat(metalKey), head);
-    if (HL.crest) add(wedge([[-r * 1.05, 0], [-r * 0.6, r * 0.32], [0, r * 0.42], [r * 0.6, r * 0.32], [r * 1.0, 0]], 0.006 * u, null, { bevel: 0.002 * u }), mat(HL.crest), head, 0, r * 1.05, 0).rotation.y = Math.PI / 2;
+    if (HL.crest) add(wedge([[-r * 0.95, 0], [-r * 0.55, r * 0.2], [0, r * 0.26], [r * 0.55, r * 0.2], [r * 0.85, 0]], 0.006 * u, null, { bevel: 0.002 * u }), mat(HL.crest), head, 0, r * 1.08, -r * 0.05).rotation.y = Math.PI / 2;
     if (HL.plume) for (let i = 0; i < 9; i++) { const a = (i - 4) * 0.09; add(tube(curve([V(0, r * 1.15, -r * 0.2), V(a * r, r * 1.6, -r * 0.7), V(a * r * 1.5, r * 1.2, -r * 1.6 - Math.abs(a) * r)], 14), t => [r * 0.12 * Math.sin(Math.PI * Math.max(0.12, t)), r * 0.02], { n: 6, up: V(0, 1, 0) }), mat(HL.plume, { side: true }), head); }
   } else if (look === 'coif' || look === 'hood') {
     const cloth = look === 'hood', m = cloth ? mat(HL.mat || 'hoodGreen', { side: true }) : mat(metalKey, { as: 'mail', side: true, rep: 1.5 });
@@ -445,232 +476,34 @@ function buildHeadgear(head, root, HL, art, r, S, u, fx) {
     const rings = []; for (let i = 0; i <= 6; i++) { const t = i / 6, y = lerp(S.neckY + 0.04 * u, S.shY - 0.13 * u, t); rings.push(torsoRing(S, y, (0.02 + t * 0.025) * u, 32, cloth ? t * 0.06 : 0, 0)); }
     add(loft(rings), m, root);
     if (cloth && HL.tip) add(tube(curve([V(0, r * 0.9, -r * 0.8), V(0, r * 0.75, -r * 1.35), V(0, r * 0.2, -r * 1.8)], 12), t => [lerp(r * 0.45, 0.002, t), lerp(r * 0.35, 0.002, t)], { n: 12 }), m, head);
-    if (trim) add(tube(curve([V(-r * 0.9, -r * 0.7, r * 0.6), V(-r * 0.95, r * 0.2, r * 0.85), V(0, r * 0.82, r * 0.98), V(r * 0.95, r * 0.2, r * 0.85), V(r * 0.9, -r * 0.7, r * 0.6)], 24), 0.007 * u, { n: 6 }), trim, head);
+    if (trim) { const ed = (rad, y, sd) => V(sd * Math.sin(0.95) * rad * 0.97, y, Math.cos(0.95) * rad); const pts = [ed(r * 0.86 * k, -r * 0.98, -1), ed(r * 0.95 * k, -r * 0.6, -1), ed(r * 1.05 * k, r * 0.1, -1), ed(r * 1.0 * k, r * 0.62 * k, -1), V(0, r * 0.66 * k, r * 1.02 * k), ed(r * 1.0 * k, r * 0.62 * k, 1), ed(r * 1.05 * k, r * 0.1, 1), ed(r * 0.95 * k, -r * 0.6, 1), ed(r * 0.86 * k, -r * 0.98, 1)]; add(tube(curve(pts, 30), 0.007 * u, { n: 6 }), trim, head, 0, 0, 0.002 * u); }
   } else if (look === 'circlet' || look === 'crown') {
     const mk = MAT[HL.mat]?.metal ? HL.mat : HL.metal || (MAT[HL.mat]?.metal ? HL.mat : 'gold'), m = mat(mk);
     const band = new THREE.Group(); band.position.y = r * 0.42; band.rotation.x = -0.12; head.add(band);
     const h = look === 'crown' ? r * 0.28 : r * 0.08;
-    add(lathe([[r * 1.0, -h / 2], [r * 1.04, -h / 2], [r * 1.05, h / 2], [r * 1.01, h / 2], [r * 1.0, -h / 2]], { n: 48, sx: 0.97 }), m, band);
+    const bR = r * 1.12; // over the hair, not through it
+    add(lathe([[bR, -h / 2], [bR * 1.04, -h / 2], [bR * 1.05, h / 2], [bR * 1.01, h / 2], [bR, -h / 2]], { n: 48, sx: 0.97 }), m, band);
     if (look === 'crown') {
       const n = HL.style === 'regal' ? 8 : 6, tall = HL.style === 'regal' ? r * 0.55 : r * 0.38;
-      for (let i = 0; i < n; i++) { const a = i / n * TAU; const pt = new THREE.Group(); pt.position.set(Math.sin(a) * r * 1.03 * 0.97, h / 2, Math.cos(a) * r * 1.03); pt.rotation.y = a; band.add(pt); add(wedge([[-r * 0.13, 0], [r * 0.13, 0], [r * 0.03, tall * 0.7], [0, tall], [-r * 0.03, tall * 0.7]], 0.006 * u, null, { bevel: 0.002 * u }), m, pt); add(sph(r * 0.05, 10, 8), m, pt, 0, tall, 0); }
-      for (let i = 0; i < n; i++) { const a = (i + 0.5) / n * TAU; gem(['ruby', 'sapphire', 'emerald'][i % 3], r * 0.06, band, Math.sin(a) * r * 1.06 * 0.97, 0, Math.cos(a) * r * 1.06, null, V(Math.sin(a), 0, Math.cos(a))); }
+      for (let i = 0; i < n; i++) { const a = i / n * TAU; const pt = new THREE.Group(); pt.position.set(Math.sin(a) * bR * 1.03 * 0.97, h / 2, Math.cos(a) * bR * 1.03); pt.rotation.y = a; band.add(pt); add(wedge([[-r * 0.13, 0], [r * 0.13, 0], [r * 0.03, tall * 0.7], [0, tall], [-r * 0.03, tall * 0.7]], 0.006 * u, null, { bevel: 0.002 * u }), m, pt); add(sph(r * 0.05, 10, 8), m, pt, 0, tall, 0); }
+      for (let i = 0; i < n; i++) { const a = (i + 0.5) / n * TAU; gem(['ruby', 'sapphire', 'emerald'][i % 3], r * 0.06, band, Math.sin(a) * bR * 1.06 * 0.97, 0, Math.cos(a) * bR * 1.06, null, V(Math.sin(a), 0, Math.cos(a))); }
     }
-    if (HL.gem) gem(HL.gem, r * 0.09, band, 0, look === 'crown' ? 0 : r * 0.02, r * 1.08, mk);
-    else if (look === 'circlet') add(wedge([[0, -r * 0.12], [r * 0.1, 0], [0, r * 0.16], [-r * 0.1, 0]], 0.005 * u), m, band, 0, 0, r * 1.06);
+    if (HL.gem) gem(HL.gem, r * 0.09, band, 0, look === 'crown' ? 0 : r * 0.02, bR * 1.08, mk);
+    else if (look === 'circlet') add(wedge([[0, -r * 0.12], [r * 0.1, 0], [0, r * 0.16], [-r * 0.1, 0]], 0.005 * u), m, band, 0, 0, bR * 1.06);
   }
   if (HL.gem && (look === 'helm' || look === 'kettle' || look === 'hood')) gem(HL.gem, r * 0.08, head, 0, r * 0.55, r * (look === 'kettle' ? 1.1 : 1.18), HL.trim || 'gold');
   if (HL.runes) { const g = add(T(r * 0.62, look === 'kettle' ? 0.88 : 1.07), mat(HL.runes), head); fx.glows.push({ obj: g, color: glowColor(HL.runes), power: 0.6 }); }
 }
 
-/* ------------------------------------------------------------------ weapons, from the recipe's own numbers */
-function buildWeapon(W, art, fx, u) {
-  const p = W.p, r = W.r;
-  let k = (W.k || 0.36) * u / 40 * 1.55; // card px -> metres at the size the hand holds it (a 64 px card, a 1.6 m hero)
-  const g = new THREE.Group(), inner = new THREE.Group(); g.add(inner);
-  const glowKey = W.glow && isEmit(W.glow) ? W.glow : null;
-  const glow = (o, key, power = 1) => { if (key && isEmit(key)) fx.glows.push({ obj: o, color: glowColor(key), power }); };
-  let hold = 0; const tip = new THREE.Object3D();
-  // a haft, with a wrap of leather wound round it and metal bands
-  const haft = (len, R, key, wob = 0) => { const pts = []; for (let i = 0; i <= 10; i++) pts.push(V(Math.sin(i * 1.7) * wob * k, i / 10 * len * k, Math.cos(i * 2.3) * wob * 0.6 * k)); add(tube(curve(pts, 20), t => R * k * (1.06 - t * 0.12), { n: 12 }), mat(key), inner); return pts; };
-  const wrap = (a, b, R, key) => { if (!key) return; const turns = Math.max(3, (b - a) / 3.2), pts = []; for (let i = 0; i <= turns * 12; i++) { const t = i / (turns * 12), ang = t * turns * TAU; pts.push(V(Math.cos(ang) * R * 1.12 * k, lerp(a, b, t) * k, Math.sin(ang) * R * 1.12 * k)); } add(tube(pts, R * 0.32 * k, { n: 6 }), mat(key), inner); add(tube([V(0, a * k, 0), V(0, b * k, 0)], R * 1.08 * k, { n: 12 }), mat(key), inner); };
-  const bands = (list, R, key) => (list || []).forEach(t => add(lathe([[R * 1.15 * k, (t - 1) * k], [R * 1.4 * k, (t - 0.6) * k], [R * 1.4 * k, (t + 0.6) * k], [R * 1.15 * k, (t + 1) * k]], { n: 14 }), mat(key), inner));
-  if (r === 'sword' || r === 'dagger') {
-    const grip = p.gripEnd || 12, gT = p.guardT || 3, bl = p.bladeL || 40, bw = p.bladeW || 4, tl = p.tipL || 7, tp = p.taper || 0.9, gr = p.gripR || 2;
-    // pommel: a wheel, with a gem set in it
-    const pr = (p.pommelR || 3);
-    add(lathe([[0, -pr * 1.9 * k], [pr * 0.55 * k, -pr * 1.85 * k], [pr * k, -pr * 1.3 * k], [pr * 1.05 * k, -pr * 0.8 * k], [pr * 0.7 * k, -pr * 0.25 * k], [gr * 0.8 * k, 0]], { n: 18, sz: 0.6 }), mat(p.pommel || p.guardMat || 'iron'), inner);
-    if (p.pommelGem) gem(p.pommelGem, pr * 0.45 * k, inner, 0, -pr * 1.05 * k, pr * 0.62 * k, p.pommel || 'gold');
-    // grip: leather with wire wound round it
-    add(tube([V(0, 0, 0), V(0, grip * 0.5 * k, 0), V(0, grip * k, 0)], t => gr * k * (1 + Math.sin(t * Math.PI) * 0.12), { n: 12 }), mat(p.grip || 'leather'), inner);
-    { const pts = [], turns = Math.max(4, grip / 2.2); for (let i = 0; i <= turns * 14; i++) { const t = i / (turns * 14), a = t * turns * TAU, rr = gr * k * (1.06 + Math.sin(t * Math.PI) * 0.12); pts.push(V(Math.cos(a) * rr, t * grip * k, Math.sin(a) * rr)); } add(tube(pts, gr * 0.18 * k, { n: 5 }), mat(p.guardMat === 'gold' ? 'gold' : 'silver'), inner); }
-    // guard: a bar with quillons turned toward the blade, a flame, a coin or an s-quillon
-    const gw = (p.guardW || 9) * 1.1, gy = (grip + gT / 2) * k, gm = mat(p.guardMat || 'iron');
-    if (p.guard === 'coin') add(lathe([[0, -gT * 0.5 * k], [gw * 0.5 * k, -gT * 0.4 * k], [gw * 0.55 * k, 0], [gw * 0.5 * k, gT * 0.4 * k], [0, gT * 0.5 * k]], { n: 24, sz: 0.5 }), gm, inner, 0, gy, 0);
-    else {
-      const flame = p.guard === 'flame', sq = p.guard === 'quillon';
-      const pts = []; for (let i = 0; i <= 20; i++) { const t = lerp(-1, 1, i / 20); pts.push(V(t * gw * k, gy + (flame ? Math.abs(t) ** 2 * gw * 0.5 * k + Math.sin(t * 9) * 0.6 * k : sq ? t * Math.abs(t) * gw * 0.35 * k : Math.abs(t) ** 2.2 * gw * 0.22 * k), 0)); }
-      add(tube(pts, t => { const e = Math.abs(t * 2 - 1); return [gT * 0.45 * k * (1.25 - e * 0.55), gT * 0.6 * k * (1.2 - e * 0.5)]; }, { n: 8, up: V(0, 0, 1) }), gm, inner);
-      for (const s of [-1, 1]) add(sph(gT * 0.5 * k, 10, 8), gm, inner, s * gw * k, pts[s < 0 ? 0 : 20].y, 0);
-      add(sph(gT * 0.7 * k, 14, 10), gm, inner, 0, gy, 0).scale.set(1.3, 0.8, 0.75);
-    }
-    if (p.gem) gem(p.gem, gT * 0.5 * k, inner, 0, gy, gT * 0.55 * k, p.guardMat || 'gold');
-    // blade: faceted, beveled, with a fuller, a taper and a point; a knife may curve
-    const b0 = (grip + gT) * k, L = (bl + tl) * k, tS = bl / (bl + tl), hw = bw * 0.5 * k * 1.15, th = 0.55 * k + bw * 0.05 * k;
-    const curv = p.shape === 'knife' ? (p.curve || 2) : 0;
-    const wf = uu => uu < tS ? hw * (1 - (1 - tp) * uu / tS) : hw * tp * Math.sqrt(Math.max(0, 1 - ((uu - tS) / (1 - tS)) ** 2.2));
-    const bg = blade(L, wf, uu => th * (1 - uu * 0.45), { fuller: r === 'dagger' ? 0.15 : 0.4, off: uu => -curv * k * uu * uu * 2.5, rings: 22 });
-    add(bg, mat(p.blade || 'steel'), inner, 0, b0, 0);
-    // a ricasso collar where blade meets guard
-    add(lathe([[hw * 0.7, -0.6 * k], [hw * 0.9, 0], [hw * 0.7, 0.8 * k]], { n: 12, sz: 0.35 }), mat(p.guardMat || 'iron'), inner, 0, b0, 0);
-    if (p.fuller) for (const s of [-1, 1]) { const f = add(tube([V(0, b0 + 1 * k, s * th * 0.62), V(0, b0 + bl * 0.75 * k, s * th * 0.62)], [hw * 0.12, 0.15 * k], { n: 6, up: V(1, 0, 0) }), mat(p.fuller), inner); glow(f, p.fuller, 0.8); }
-    if (Q.d > 1 && (W.glint || p.fuller || W.relic)) for (const s of [-1, 1]) { const e = add(new THREE.PlaneGeometry(hw * 0.95, bl * 0.34 * k), etchMaterial(), inner, 0, b0 + bl * 0.2 * k, s * th * 1.02); e.rotation.y = s < 0 ? Math.PI : 0; e.userData.keep = true; e.castShadow = false; }
-    if (W.edge) for (const s of [-1, 1]) { const e = add(tube([V(s * hw * 0.98, b0, 0), V(s * hw * tp * 0.95, b0 + bl * k * 0.98, 0)], 0.25 * k, { n: 5 }), new THREE.MeshBasicMaterial({ color: new THREE.Color(W.edge), transparent: true, opacity: 0.8, blending: THREE.AdditiveBlending, depthWrite: false }), inner); fx.glows.push({ obj: e, color: new THREE.Color(W.edge), power: 0.7 }); }
-    tip.position.set(-curv * k * 2.5, b0 + L, 0);
-    hold = grip * 0.5;
-  } else if (r === 'bow') {
-    k *= 0.85;
-    const len = p.len || 60, bu = (p.bulge || 9) * 1.3, lr = (p.limbR || 3) * 0.55;
-    const pts = []; for (let i = 0; i <= 24; i++) { const t = lerp(-1, 1, i / 24), y = t * len * 0.5 * k, z = (1 - t * t) * bu * k - Math.pow(Math.abs(t), 6) * bu * 0.9 * k; pts.push(V(0, y, z)); }
-    add(tube(pts, t => { const e = Math.abs(t * 2 - 1); return [lr * k * (1.3 - e * 0.75), lr * k * (0.9 - e * 0.5)]; }, { n: 10, up: V(1, 0, 0) }), mat(p.limb || 'wood'), inner);
-    const e0 = pts[0], e1 = pts[24];
-    const sg = new THREE.BufferGeometry().setFromPoints([e0, e1]); const string = new THREE.Line(sg, new THREE.LineBasicMaterial({ color: 0xe8e0c4 })); inner.add(string); g.userData.string = string;
-    for (const e of [e0, e1]) add(sph(lr * 0.8 * k, 8, 6), mat(p.nock || 'bone'), inner, e.x, e.y, e.z);
-    wrap(-4, 4, lr * 1.4, p.grip || 'leather'); inner.children[inner.children.length - 1].position.z = bu * k; inner.children[inner.children.length - 2].position.z = bu * k;
-    (p.bindings || []).forEach(b => { const t = b * 2 - 1, y = t * len * 0.5 * k, z = (1 - t * t) * bu * k; add(tube(ellipse(V(0, y, z), V(1, 0, 0), V(0, 0, 1), lr * 1.3 * k, lr * 1.0 * k, 12), 0.35 * k, { closed: true, n: 5 }), mat(p.bindMat || 'string'), inner); });
-    if (p.gem) gem(p.gem, 1.4 * k, inner, 0, 0, bu * k + lr * 1.2 * k, p.gemMat || 'gold');
-    if (p.tassel) add(tube(curve([V(0, 0, bu * k), V(0, -4 * k, bu * k + 1 * k), V(0, -10 * k, bu * k + 2 * k)]), t => [lerp(0.6, 1.4, t) * k, lerp(0.6, 1.4, t) * k], { n: 8 }), mat(p.tassel), inner);
-    tip.position.copy(e1);
-    inner.position.z = -bu * k;
-    hold = 0;
-  } else {
-    const len = r === 'staff' ? (p.headT || 62) + 2 : r === 'spear' ? (p.headT || 60) : (p.headT || 50) + 4;
-    const R = (p.haftR || 2) * 0.9, hT = p.headT || len;
-    haft(len, R, p.haft || 'wood', r === 'staff' ? (p.wobble || 0) * 0.5 : 0);
-    wrap(p.wrapA ?? 0, p.wrapB ?? p.wrapEnd ?? 16, R, p.wrap);
-    bands(p.bands, R, p.bandMat || 'iron');
-    const foot = p.foot || p.butt || p.pommelMat;
-    if (foot) add(lathe([[0, -2.5 * k], [R * 1.2 * k, -2 * k], [R * 1.35 * k, 0], [R * 1.1 * k, 2 * k]], { n: 14 }), mat(foot), inner);
-    if (r === 'axe') {
-      const lo = (p.bladeLo || 12) * 0.82, hi = (p.bladeHi || 8) * 0.82, bw = (p.bladeW || 16) * 0.8, bu = (p.bulge || 3) * 0.8;
-      const out = [[R * 0.8, -3.5], [bw * 0.45, -lo * 0.55], [bw * 0.85, -lo * 0.95], [bw + bu * 0.3, -lo * 0.6], [bw + bu, 0], [bw + bu * 0.3, hi * 0.7], [bw * 0.85, hi], [bw * 0.45, hi * 0.5], [R * 0.8, 3.5]].map(([x, y]) => [x * k, y * k]);
-      const geo = wedge(out, 3.2 * k, (x) => lerp(1, 0.12, smooth((x / k - bw * 0.35) / (bw * 0.75))), { bevel: 0.3 * k });
-      add(geo, mat(p.blade || 'steel'), inner, 0, hT * k, 0);
-      add(lathe([[R * 1.3 * k, -4 * k], [R * 1.7 * k, -3 * k], [R * 1.7 * k, 3 * k], [R * 1.3 * k, 4 * k]], { n: 10 }), mat(p.socket || p.blade || 'iron'), inner, 0, hT * k, 0);
-      if (p.back === 'poll') add(wedge([[-R * k, -3 * k], [-R * k - 4.5 * k, -2.5 * k], [-R * k - 4.5 * k, 2.5 * k], [-R * k, 3 * k]], 3.6 * k, null, { bevel: 0.3 * k }), mat(p.blade || 'steel'), inner, 0, hT * k, 0);
-      else if (p.spikeL) add(wedge([[-R * k, -2 * k], [-R * k - p.spikeL * k, 0], [-R * k, 2 * k]], 2.2 * k, x => lerp(1, 0.2, clamp01((-x / k - R) / p.spikeL))), mat(p.blade || 'steel'), inner, 0, hT * k, 0);
-      if (p.runes) { const ru = add(tube([V(bw * 0.35 * k, (hT - 2) * k, 1.5 * k), V(bw * 0.75 * k, (hT + 1) * k, 0.9 * k)], 0.35 * k, { n: 5 }), mat(p.runes), inner); glow(ru, p.runes, 0.8); }
-      if (p.edge) { const e = add(tube(curve([V((bw * 0.85) * k, (hT - lo * 0.95) * k, 0), V((bw + bu) * k, hT * k, 0), V((bw * 0.85) * k, (hT + hi) * k, 0)], 10), 0.3 * k, { n: 5 }), mat(p.edge), inner); glow(e, p.edge, 0.9); }
-      if (p.gem) gem(p.gem, 1.5 * k, inner, R * 2.2 * k, hT * k, 1.7 * k, p.socket || 'gold');
-      tip.position.set((bw + bu) * k, hT * k, 0);
-      hold = (p.wrapEnd || 16) * 0.5;
-    } else if (r === 'hammer') {
-      const hw = (p.headW || 14) * 0.72, hh = (p.headH || 13) * 0.72, hm = mat(p.headMat || 'iron');
-      const box = []; for (let i = 0; i <= 6; i++) { const t = lerp(-1, 1, i / 6), x = t * hw * k, sc = 1 - Math.pow(Math.abs(t), 6) * 0.12; box.push(ellipse(V(x, hT * k, 0), V(0, 1, 0), V(0, 0, 1), hh * 0.5 * k * sc, hh * 0.45 * k * sc, 16, squarish)); }
-      add(loft(box, { capA: true, capB: true }), hm, inner);
-      for (const s of [-1, 1]) add(lathe([[0, 0], [hh * 0.45 * k, 0], [hh * 0.5 * k, 1.2 * k], [hh * 0.4 * k, 2 * k], [0, 2 * k]], { n: 16 }), mat(p.trim || p.headMat || 'steel'), inner, s * hw * k, hT * k, 0).rotation.z = -s * Math.PI / 2;
-      if (p.trim) for (const s of [-1, 1]) add(tube(ellipse(V(s * hw * 0.55 * k, hT * k, 0), V(0, 1, 0), V(0, 0, 1), hh * 0.52 * k, hh * 0.47 * k, 16, squarish), 0.6 * k, { closed: true, n: 5 }), mat(p.trim), inner);
-      if (p.spike) add(cone(2 * k, p.spike * k, 4), hm, inner, 0, (hT + hh * 0.5 + p.spike * 0.5) * k, 0);
-      if (p.langets) for (const s of [-1, 1]) add(new THREE.BoxGeometry(1.2 * k, 12 * k, 0.6 * k), hm, inner, 0, (hT - hh * 0.5 - 6) * k, s * R * 1.05 * k);
-      if (p.runes) { const ru = add(tube(ellipse(V(0, hT * k, 0), V(0, 1, 0), V(0, 0, 1), hh * 0.51 * k, hh * 0.46 * k, 16, squarish), 0.4 * k, { closed: true, n: 5 }), mat(p.runes), inner); glow(ru, p.runes, 0.9); }
-      tip.position.set(hw * k, hT * k, 0);
-      hold = (p.wrapEnd || 16) * 0.5;
-    } else if (r === 'mace') {
-      const hw = p.headW || 7, hm = mat(p.headMat || 'iron');
-      if (p.style === 'bell') add(lathe([[R * 1.4 * k, (hT + hw) * k], [hw * 0.6 * k, (hT + hw * 0.6) * k], [hw * 1.0 * k, (hT - hw * 0.4) * k], [hw * 1.15 * k, (hT - hw * 0.8) * k]], { n: 24 }), mat(p.headMat || 'bronze', { side: true }), inner);
-      else {
-        add(lathe([[0, (hT + hw * 0.85) * k], [hw * 0.45 * k, (hT + hw * 0.75) * k], [hw * 0.72 * k, hT * k], [hw * 0.45 * k, (hT - hw * 0.75) * k], [R * 1.3 * k, (hT - hw) * k]], { n: 18 }), hm, inner);
-        if (p.style === 'flanged') for (let i = 0; i < 7; i++) { const f = add(wedge([[0, -hw * 0.9 * k], [hw * 0.95 * k, -hw * 0.3 * k], [hw * 1.05 * k, hw * 0.3 * k], [0, hw * 0.95 * k]], 1.1 * k, x => lerp(1, 0.25, x / (hw * k)), { bevel: 0.2 * k }), hm, inner, 0, hT * k, 0); f.rotation.y = i / 7 * TAU; }
-        else for (let i = 0; i < 10; i++) { const a = i / 10 * TAU, b = (i % 2 ? 0.35 : -0.35); const dir = V(Math.cos(a) * Math.cos(b), Math.sin(b), Math.sin(a) * Math.cos(b)); const st = add(cone(1.2 * k, 3 * k, 5), hm, inner, dir.x * hw * 0.68 * k, hT * k + dir.y * hw * 0.68 * k, dir.z * hw * 0.68 * k); st.quaternion.setFromUnitVectors(V(0, 1, 0), dir); }
-      }
-      if (p.trim) add(tube(ellipse(V(0, (hT - hw * 0.8) * k, 0), V(1, 0, 0), V(0, 0, 1), hw * 0.4 * k, hw * 0.4 * k, 16), 0.6 * k, { closed: true, n: 5 }), mat(p.trim), inner);
-      if (p.spike) add(cone(1.3 * k, p.spike * 1.5 * k, 6), hm, inner, 0, (hT + hw * 0.85 + p.spike * 0.7) * k, 0);
-      if (p.gem) gem(p.gem, 1.5 * k, inner, 0, hT * k, hw * 0.74 * k, p.trim || 'gold');
-      tip.position.set(0, (hT + hw) * k, 0);
-      hold = (p.wrapEnd || 16) * 0.5;
-    } else if (r === 'spear') {
-      const hl = (p.headL || 17) * 1.1, hw = (p.headW || 5);
-      const leaf = []; for (let i = 0; i <= 14; i++) { const t = i / 14, w = Math.sin(Math.pow(t, 0.7) * Math.PI) * hw * (1 - t * 0.35); leaf.push([w * k, t * hl * k]); } for (let i = 13; i > 0; i--) leaf.push([-leaf[i][0], leaf[i][1]]);
-      add(wedge(leaf, 1.6 * k, x => lerp(1, 0.15, Math.abs(x) / (hw * k)), { bevel: 0.15 * k }), mat(p.head || 'steel'), inner, 0, hT * k, 0);
-      add(lathe([[R * 1.1 * k, (hT - 8) * k], [R * 1.5 * k, (hT - 6) * k], [R * 1.2 * k, (hT - 1) * k], [0.6 * k, (hT + 1) * k]], { n: 12 }), mat(p.socket || p.head || 'iron'), inner);
-      if (p.wings) for (const s of [-1, 1]) add(wedge([[0, -1 * k], [s * p.wings * 1.4 * k, 0.5 * k], [0, 1.4 * k]], 0.9 * k), mat(p.head || 'steel'), inner, 0, (hT - 3) * k, 0);
-      if (p.fuller) { const f = add(tube([V(0, (hT + 1.5) * k, 0.72 * k), V(0, (hT + hl * 0.6) * k, 0.62 * k)], [0.5 * k, 0.15 * k], { n: 5, up: V(1, 0, 0) }), mat(p.fuller), inner); glow(f, p.fuller, 0.8); }
-      if (p.ribbon) add(tube(curve([V(0, (hT - 7) * k, 0), V(1.5 * k, (hT - 12) * k, 1 * k), V(0.5 * k, (hT - 20) * k, 2 * k)]), [1.6 * k, 0.12 * k], { n: 6, up: V(0, 0, 1) }), mat(p.ribbon, { side: true }), inner);
-      if (p.gem) gem(p.gem, 1.3 * k, inner, 0, (hT - 4) * k, R * 1.5 * k, p.socket || 'gold');
-      tip.position.set(0, (hT + hl) * k, 0);
-      hold = 30;
-    } else { // staff
-      const top = new THREE.Group(); top.position.y = hT * k; inner.add(top);
-      const metal = mat(p.metal || p.bandMat || 'bronze'), st = p.style, wood = mat(p.haft || 'wood');
-      if (st === 'crook' || st === 'crozier') { const pts = []; for (let i = 0; i <= 20; i++) { const t = i / 20, a = t * Math.PI * 1.55; pts.push(V(-(1 - Math.cos(a)) * 5.5 * k * (1 - t * 0.25), Math.sin(a) * 6 * k + t * 2 * k, 0)); } add(tube(pts, t => R * k * (1 - t * 0.45), { n: 10 }), st === 'crozier' ? metal : wood, top); if (st === 'crozier') for (let i = 1; i < 5; i++) add(cone(0.8 * k, 2.2 * k, 5), metal, top, pts[i * 4].x * 1.12, pts[i * 4].y + 1 * k, 0); }
-      else if (st === 'gnarl' || st === 'song' || st === 'rings' && p.leaves) { for (let i = 0; i < 4; i++) { const a = i / 4 * TAU; add(tube(curve([V(0, -1 * k, 0), V(Math.cos(a) * 3.5 * k, 3 * k, Math.sin(a) * 3.5 * k), V(Math.cos(a + 0.8) * 3.8 * k, 7 * k, Math.sin(a + 0.8) * 3.8 * k), V(Math.cos(a + 1.4) * 1.5 * k, 9.5 * k, Math.sin(a + 1.4) * 1.5 * k)], 14), t => R * 0.75 * k * (1 - t * 0.6), { n: 8 }), wood, top); } }
-      else { for (let i = 0; i < 3; i++) { const rr = (p.ringR || 7) * (1 - i * 0.22) * 0.75; const t = add(tube(ellipse(V(0, (4 + i * 0.6) * k, 0), V(1, 0, 0), V(0, 1, 0), rr * k, rr * k, 32), 0.55 * k, { closed: true, n: 6 }), metal, top); t.rotation.y = i * 1.05; } }
-      const orbKey = p.orb || p.crystal || p.gem || (p.glow ? p.glow : null);
-      if (orbKey) {
-        const crystal = p.crystal && !p.orb;
-        const om = mat(orbKey);
-        const o = add(crystal ? new THREE.OctahedronGeometry(3.2 * k, 0) : ico(3.1 * k, 3), om, top, 0, 4.5 * k, 0);
-        if (crystal) o.scale.set(0.75, 1.6, 0.75);
-        const gk = isEmit(orbKey) ? orbKey : p.glow;
-        if (gk) { glow(o, gk, 1.2); const core = add(sph(1.4 * k, 12, 8), mat(gk), top, 0, 4.5 * k, 0); glow(core, gk, 1.4); }
-      }
-      if (p.leaves) for (let i = 0; i < 7; i++) { const lf = add(wedge([[0, 0], [1.2 * k, 1.8 * k], [0, 4.2 * k], [-1.2 * k, 1.8 * k]], 0.3 * k), mat(p.leaves, { side: true }), top, Math.sin(i * 1.3) * 2.6 * k, -1.5 * k - (i % 3) * 1.4 * k, Math.cos(i * 1.3) * 2.6 * k); lf.rotation.set(0.6, i * 0.9, Math.sin(i) * 0.9); }
-      tip.position.set(0, (hT + 8) * k, 0);
-      hold = p.headT ? p.headT * 0.55 : 34;
-    }
-  }
-  inner.position.y = -hold * k;
-  inner.add(tip); g.userData.tip = tip;
-  if (glowKey) g.userData.glow = glowColor(glowKey);
-  return g;
-}
-
-/* ------------------------------------------------------------------ shields, tomes, lanterns, orbs */
-const HER = new Map();
-function heraldry(face, paint, paint2, shape) {
-  const key = [face, paint, paint2, shape].join('|'); if (HER.has(key)) return HER.get(key);
-  const c = document.createElement('canvas'); c.width = c.height = 256; const g = c.getContext('2d');
-  const P = (MAT[face] || MAT.wood).pal, Q = (MAT[paint2] || MAT.paintRed || MAT.robeRed).pal, rgb = a => `rgb(${a[0]},${a[1]},${a[2]})`;
-  g.fillStyle = rgb(P[3]); g.fillRect(0, 0, 256, 256);
-  if (KIND(face) === 'wood') { for (let i = 0; i < 6; i++) { g.fillStyle = i % 2 ? 'rgba(0,0,0,.08)' : 'rgba(255,255,255,.04)'; g.fillRect(i * 43, 0, 43, 256); g.fillStyle = 'rgba(0,0,0,.35)'; g.fillRect(i * 43, 0, 2, 256); } }
-  for (let i = 0; i < 900; i++) { g.fillStyle = `rgba(${Math.random() < 0.5 ? '0,0,0' : '255,255,255'},${Math.random() * 0.05})`; g.fillRect(Math.random() * 256, Math.random() * 256, 2 + Math.random() * 6, 1 + Math.random() * 3); }
-  g.fillStyle = rgb(Q[3]);
-  if (paint === 'chevron') { g.beginPath(); g.moveTo(0, 150); g.lineTo(128, 70); g.lineTo(256, 150); g.lineTo(256, 200); g.lineTo(128, 120); g.lineTo(0, 200); g.fill(); }
-  else if (paint === 'quarter') { g.fillRect(0, 128, 128, 128); g.fillRect(128, 0, 128, 128); }
-  else if (paint === 'thorn') { g.strokeStyle = rgb(Q[3]); g.lineWidth = 9; g.beginPath(); g.arc(128, 128, 80, 0, TAU); g.stroke(); for (let i = 0; i < 16; i++) { const a = i / 16 * TAU; g.beginPath(); g.moveTo(128 + Math.cos(a) * 80, 128 + Math.sin(a) * 80); g.lineTo(128 + Math.cos(a + 0.12) * 100, 128 + Math.sin(a + 0.12) * 100); g.lineTo(128 + Math.cos(a + 0.2) * 80, 128 + Math.sin(a + 0.2) * 80); g.fill(); } }
-  // worn edges
-  const gr = g.createRadialGradient(128, 128, 60, 128, 128, 180); gr.addColorStop(0, 'rgba(0,0,0,0)'); gr.addColorStop(1, 'rgba(0,0,0,.35)'); g.fillStyle = gr; g.fillRect(0, 0, 256, 256);
-  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4;
-  const m = new THREE.MeshStandardMaterial({ map: t, roughness: KIND(face) === 'metal' ? 0.35 : 0.75, metalness: KIND(face) === 'metal' ? 0.85 : 0 });
-  HER.set(key, m); return m;
-}
-function buildOffhand(O, art, fx, u) {
-  const p = art?.p || {}, k = 0.36 * u / 40 * 1.55;
-  const g = new THREE.Group();
-  const look = O.look === 'sigil' && p.style === 'lantern' ? 'lantern' : O.look;
-  if (look === 'buckler' || look === 'round' || look === 'heater' || look === 'tower') {
-    const sh = new THREE.Group(); g.add(sh); sh.position.set(0.05 * u, 0, 0.03 * u); sh.rotation.y = Math.PI / 2 - 0.3; // its face looks outward and a little forward
-    let outline;
-    if (look === 'buckler' || look === 'round') { const R = (look === 'buckler' ? 13 : 19) * k; outline = []; for (let i = 0; i < 48; i++) { const a = i / 48 * TAU; outline.push([Math.cos(a) * R, Math.sin(a) * R]); } }
-    else if (look === 'heater') { const w = 17 * k, h = 24 * k; outline = []; for (let i = 0; i <= 16; i++) { const t = i / 16; outline.push([lerp(w, 0, t * t) * (1 - t * 0.05), lerp(h * 0.45, -h * 0.7, Math.sin(t * Math.PI / 2))]); } for (let i = 15; i > 0; i--) outline.push([-outline[i][0], outline[i][1]]); outline.push([-w, h * 0.45]); outline.unshift([w, h * 0.45]); }
-    else { const w = 15 * k, h = 32 * k; outline = [[-w, h * 0.5], [w, h * 0.5]]; for (let i = 0; i <= 12; i++) { const a = lerp(0, Math.PI, i / 12); outline.push([Math.cos(a) * w * 1.0 * (i === 0 ? 1 : 1), -h * 0.38 - Math.sin(a) * h * 0.14]); } outline.splice(2, 0); }
-    const bulge = (x, y) => -((x * x) + (y * y)) * (look === 'tower' ? 0.4 : 0.8) / (k * 40);
-    const front = plate(outline, (x, y) => 2.5 * k + bulge(x, y));
-    add(front, heraldry(O.face || 'wood', O.paint, O.paint2, look), sh);
-    const back = plate(outline, (x, y) => -0.5 * k + bulge(x, y)); back.scale(1, 1, 1);
-    const bk = add(back, mat('leatherDark', { side: true }), sh);
-    const rim = front.userData.rim.map(([x, y]) => V(x, y, bulge(x, y) + 1.2 * k));
-    add(tube(rim, 1.3 * k, { closed: true, n: 8 }), mat(O.rim || 'iron'), sh);
-    for (let i = 0; i < rim.length; i += 4) add(sph(0.7 * k, 6, 4), mat(O.rim || 'iron'), sh, rim[i].x * 0.9, rim[i].y * 0.9, rim[i].z + 1.6 * k);
-    if (O.boss) { add(lathe([[0, 4.6 * k], [2.6 * k, 4.1 * k], [4.2 * k, 2.8 * k], [5 * k, 2.5 * k], [5.6 * k, 2.4 * k]], { n: 24 }), mat(O.boss), sh).rotation.x = Math.PI / 2; for (let i = 0; i < 6; i++) { const a = i / 6 * TAU; add(sph(0.55 * k, 6, 4), mat(O.boss), sh, Math.cos(a) * 5 * k, Math.sin(a) * 5 * k, 2.8 * k); } }
-    if (O.gem) gem(O.gem, 1.8 * k, sh, 0, 0, O.boss ? 4.8 * k : 3 * k, O.boss || 'gold');
-  } else if (look === 'tome') {
-    const b = new THREE.Group(); b.position.set(0.04 * u, 0, 0.05 * u); b.rotation.set(0.2, 0.6, 0); g.add(b);
-    add(new THREE.BoxGeometry(12 * k, 16 * k, 1 * k), mat(O.cover || 'leather'), b, 0, 0, 2.6 * k); add(new THREE.BoxGeometry(12 * k, 16 * k, 1 * k), mat(O.cover || 'leather'), b, 0, 0, -2.6 * k);
-    add(new THREE.BoxGeometry(11.2 * k, 15.2 * k, 4.4 * k), mat('parchment'), b, 0.5 * k, 0, 0);
-    add(tube([V(-6 * k, -8 * k, 0), V(-6 * k, 8 * k, 0)], 3 * k, { n: 10 }), mat(O.cover || 'leather'), b);
-    for (const [x, y] of [[5, 7], [5, -7]]) add(new THREE.BoxGeometry(2.5 * k, 2.5 * k, 6.4 * k), mat(O.metal || 'gold'), b, x * k, y * k, 0);
-    if (O.gem) gem(O.gem, 1.8 * k, b, 0, 0, 3.4 * k, O.metal || 'gold');
-    if (O.glow) fx.glows.push({ obj: b.children[2], color: glowColor(O.glow), power: 0.6 });
-  } else if (look === 'lantern') {
-    const l = new THREE.Group(); l.position.set(0.03 * u, -0.06 * u, 0.04 * u); g.add(l);
-    const m = mat(O.metal || 'iron');
-    add(tube(ellipse(V(0, 9 * k, 0), V(1, 0, 0), V(0, 1, 0), 2.6 * k, 2.6 * k, 16), 0.5 * k, { closed: true, n: 6 }), m, l);
-    add(lathe([[0.5 * k, 6.5 * k], [4.5 * k, 4.5 * k], [5 * k, 3.6 * k], [4.2 * k, 3.4 * k]], { n: 6 }), m, l);
-    add(lathe([[4.2 * k, -4.6 * k], [5 * k, -5 * k], [4.6 * k, -6 * k], [0, -6.5 * k]], { n: 6 }), m, l);
-    for (let i = 0; i < 6; i++) { const a = i / 6 * TAU + Math.PI / 6; add(tube([V(Math.cos(a) * 4.3 * k, -4.8 * k, Math.sin(a) * 4.3 * k), V(Math.cos(a) * 4.3 * k, 3.6 * k, Math.sin(a) * 4.3 * k)], 0.45 * k, { n: 5 }), m, l); }
-    const core = add(ico(2.4 * k, 2), mat(O.glow || 'ember'), l, 0, -0.5 * k, 0);
-    add(new THREE.CylinderGeometry(4.1 * k, 4.1 * k, 8.2 * k, 6, 1, true), new THREE.MeshPhysicalMaterial({ color: 0xfff2d0, transparent: true, opacity: 0.22, roughness: 0.05, side: THREE.DoubleSide }), l, 0, -0.6 * k, 0);
-    fx.glows.push({ obj: core, color: glowColor(O.glow || 'ember'), power: 1.4 });
-  } else {
-    const f = new THREE.Group(); f.position.set(0.03 * u, 0.05 * u, 0.1 * u); g.add(f); g.userData.float = f;
-    if (look === 'orb') { const om = mat(O.gem || O.glow || 'sapphire'); add(ico(4 * k, 3), om, f); if (O.glow) { const c = add(sph(2 * k, 12, 8), mat(O.glow), f); fx.glows.push({ obj: c, color: glowColor(O.glow), power: 1.3 }); } for (let i = 0; i < 2; i++) add(tube(ellipse(V(), V(1, 0, 0), V(0, 0, 1), 5 * k, 5 * k, 32), 0.4 * k, { closed: true, n: 6 }), mat(O.metal || 'silver'), f).rotation.set(0.4 + i * 1.2, i, 0); }
-    else { for (let i = 0; i < (look === 'rings' ? 3 : 2); i++) add(tube(ellipse(V(), V(1, 0, 0), V(0, 1, 0), (5 - i * 1.2) * k, (5 - i * 1.2) * k, 32), 0.5 * k, { closed: true, n: 6 }), mat(O.metal || 'gold'), f).rotation.set(i * 0.9, i * 0.6, 0); if (O.gem) gem(O.gem, 1.6 * k, f, 0, 0, 0, null); if (O.glow) { const c = add(sph(1.4 * k, 10, 8), mat(O.glow), f); fx.glows.push({ obj: c, color: glowColor(O.glow), power: 1 }); } }
-  }
-  return g;
-}
-
 /* ------------------------------------------------------------------ poses */
+// a lantern, censer or chalice stays upright in the hand: undo the arm's turn above it
+const _q = new THREE.Quaternion(), _r = new THREE.Quaternion();
+function keepUpright(rig) {
+  const o = rig.offhand; if (!o?.userData.upright) return;
+  rig.root.updateMatrixWorld(true);
+  o.parent.getWorldQuaternion(_q); rig.root.getWorldQuaternion(_r);
+  o.quaternion.copy(_q.invert().multiply(_r));
+}
 // idle: the weapon held ready; strike (0..1): a move that suits the weapon's class
 export function setPose(rig, pose, t, u = 0) {
   const R = rig.armR, Lf = rig.armL, cls = rig.cls;
@@ -695,7 +528,8 @@ export function setPose(rig, pose, t, u = 0) {
   R.sh.rotation.x += Math.sin(t * 2.1 + 1) * 0.025;
   Lf.sh.rotation.x += Math.sin(t * 2.1) * 0.025;
   if (rig.offhand?.userData.float) { rig.offhand.userData.float.position.y = 0.05 + Math.sin(t * 2.4) * 0.012; rig.offhand.userData.float.rotation.y = t * 0.8; }
-  if (pose !== 'strike') return;
+  keepUpright(rig);
+  if (pose !== 'strike') { return; }
   const ease = x => x * x * (3 - 2 * x);
   if (cls === 'spear') { const a = u < 0.4 ? -ease(u / 0.4) : ease(Math.min(1, (u - 0.4) / 0.2)) * (1 - Math.max(0, (u - 0.6) / 0.4)); R.sh.rotation.x += -1.1 * Math.max(0, a); R.elbow.rotation.x += 0.45 * a; rig.weapon.rotation.x = -1.3 * Math.max(0, a) + 0.25 * Math.min(0, a); rig.root.position.z = 0.08 * Math.max(0, a); }
   else if (cls === 'staff') { const a = Math.sin(u * Math.PI); R.sh.rotation.x += -1.5 * a; R.elbow.rotation.x += 0.6 * a; Lf.sh.rotation.x += -1.0 * a; rig.root.position.y = 0.03 * a; }
@@ -709,4 +543,5 @@ export function setPose(rig, pose, t, u = 0) {
     rig.root.rotation.y = (0.35 * wind * (1 - cut) - 0.45 * cut) * k;
     rig.root.position.z = 0.05 * cut * k;
   }
+  keepUpright(rig);
 }
