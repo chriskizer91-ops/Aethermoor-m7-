@@ -30,9 +30,18 @@ shown side by side with the code-built model and a cut-out of Chris's sheet.
   The sheet is the measuring guide and colour reference, not projected onto him: it is painted with its own light and
   shows only three views. Its front view could be projected onto the face as an option.
 
+- **The foe kit (step 2), November 20**: `prototypes/foe-hd/kit/` and its README. Briarmaw moved to
+  `prototypes/foe-hd/foes/briarmaw/` and rebuilt through it (same triangles, same pages, checks pass). The kit has:
+  the sculpt runner and helpers (shapes, mesh pieces, a coat of tufts, scales or plates, cloth folds), the sheet checks
+  (outline and side-by-side from each foe's crop boxes), the bake reading each foe's settings and rig, rig templates
+  (four legs, two legs), packing, the sculpt asset export, the page loader, moves for four and two legs, one
+  `setBeastLook` for every finished foe (`kit/js/looks.js`), the sculpt viewer and the three-ways page for any foe.
+  Sessions 7 and 8 told.
+
 ## Next
 
-1. His moves smoothed (weights round the shoulders and hips, a fuller walk), a hit flash.
+1. My lane: briarling, glowcap, boglurcher, the willows, the sparks, rockling, Mother Anvil, the wraiths.
+2. Briarmaw's moves smoothed (weights round the shoulders and hips, a fuller walk), a hit flash.
 2. The face closer still to the sheet; the coat's brown zones placed as the sheet paints them.
 3. Done: pass 3, the sculpt's own page, the heavier brow and golden fangs, the rump and tail as the sheet shows.
 
