@@ -4,3 +4,6 @@ game/dist/aethermoor.html
 game/dist/aethermoor.artifact.html
 prototypes/*/dist/
 prototypes/*/node_modules
+world3d/.cache/
+world3d/dist/
+world3d/node_modules
