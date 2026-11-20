@@ -22,6 +22,7 @@ const UP = V3(0, 1, 0);
 const ease = (x) => { x = Math.max(0, Math.min(1, x)); return x * x * (3 - 2 * x); };
 const seg = (u, a, b) => ease((u - a) / (b - a));
 let HERO_H = 1.72;
+const RARITY = { worn: '#9a968c', wrought: '#e8e4da', tempered: '#64c85c', runed: '#5299f0', storied: '#b774f4', heirloom: '#f4ad3f', regalia: '#4fd1c0', primal: '#fff6e0' };
 const GAP = 4.2;          // metres between the heroes' line and the foes' (what the camera aims for)
 
 export const arena = {
@@ -57,8 +58,54 @@ export const arena = {
   // the fight is over: the camera swings back behind `leader` and the page walks again (done() once it has)
   end(done) {
     const back = this.from;
-    this.swing = { t: 0, dur: 1.2, from: { pos: this.cam.position.clone(), q: this.cam.quaternion.clone(), fov: this.cam.fov }, to: back, done: () => { this.on = false; cancelAnimationFrame(this.raf); this.fx.clear(); removeBlobs(this.scene, this.blobs); for (const f of this.foes.values()) this.scene.remove(f.root); done && done(); } };
+    this.swing = { t: 0, dur: 1.2, from: { pos: this.cam.position.clone(), q: this.cam.quaternion.clone(), fov: this.cam.fov }, to: back, done: () => { this.on = false; cancelAnimationFrame(this.raf); this.fx.clear(); removeBlobs(this.scene, this.blobs); for (const f of this.foes.values()) this.scene.remove(f.root); for (const d of this.drops || []) this.scene.remove(d.g); this.drops = null; done && done(); } };
   },
+  // the heroes' figures as they stand now (one may have been re-dressed during the spoils)
+  actors() { return [...this.heroes.values()].map((h) => h.A); },
+  // a hero re-dressed on the spot (new gear from a card): the new figure takes the old one's place, with a flash of light
+  swapHero(id, A) {
+    const h = this.heroes.get(id); if (!h || h.A === A) return;
+    const old = h.A; A.root.position.copy(old.root.position); A.root.rotation.copy(old.root.rotation);
+    this.scene.remove(old.root); this.scene.add(A.root);
+    h.A = A; h.rig = A.hero.rig; h.body = A.hero.group; h._mats = null;
+    this.fx.ring(h.pos.clone(), '#ffe08a', 1.4, 0.8); this.fx.sparks(h.pos.clone().setY(h.pos.y + 1), '#fff4c0', 24, { spread: 0.8, up: 1.3 });
+    this.play(h, 'cheer', 1.4);
+  },
+  // the spoils lying where the foes fell: a small chest for each, lit in its rarity's colour; open() bursts one
+  loot(items) {
+    // just in front of the party, between them and where the foes fell, so the spoils' view shows both
+    const hc = V3(); for (const h of this.heroes.values()) hc.add(h.home); hc.multiplyScalar(1 / Math.max(1, this.heroes.size));
+    const side = V3(Math.cos(this.yaw), 0, -Math.sin(this.yaw));
+    const spots = items.map((_, i) => hc.clone().addScaledVector(this.dir, 1.5).addScaledVector(side, (i - (items.length - 1) / 2) * 0.8));
+    this.drops = items.map((it, i) => {
+      const at = spots[i].clone(); at.y = this.heightAt(at.x, at.z, at.y);
+      const col = new THREE.Color(RARITY[it.rarity] || '#e8e4da'), g = new THREE.Group(); g.position.copy(at);
+      const wood = new THREE.MeshStandardMaterial({ color: 0x6a4428, roughness: 0.8 }), band = new THREE.MeshStandardMaterial({ color: col, emissive: col, emissiveIntensity: 0.5, metalness: 0.6, roughness: 0.35 });
+      const box = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.26, 0.3), wood); box.position.y = 0.13; g.add(box);
+      const lid = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.15, 0.42, 12, 1, false, 0, Math.PI), wood); lid.rotation.z = Math.PI / 2; lid.position.y = 0.26; g.add(lid);
+      for (const x of [-0.14, 0.14]) { const b = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.3, 0.32), band); b.position.set(x, 0.15, 0); g.add(b); }
+      const glow = new THREE.PointLight(col, 1.2, 2.5, 2); glow.position.y = 0.6; g.add(glow);
+      g.scale.setScalar(0.01); this.scene.add(g);
+      const d = { g, item: it, t: -i * 0.25, glow };
+      return d;
+    });
+    for (const d of this.drops) this.fx.ring(d.g.position.clone(), '#' + new THREE.Color(RARITY[d.item.rarity] || '#e8e4da').getHexString(), 1, 0.7);
+  },
+  // the spoils' view: round in front of the party, looking back at them over the chests, the party in the screen's
+  // upper part (M7's after-fight screen fills the lower part)
+  spoilsView(top = 0.2) {
+    const hc = V3(); for (const h of this.heroes.values()) hc.add(h.home); hc.multiplyScalar(1 / Math.max(1, this.heroes.size));
+    for (const h of this.heroes.values()) h.forward = false;
+    const pos = hc.clone().addScaledVector(this.dir, 10.5); pos.y = hc.y + 3.4;
+    const fov = 40, aim = hc.clone(); aim.y += 0.9;
+    // look a little below the party, so they stand in the upper part of the screen
+    const v = this.renderer.domElement.getBoundingClientRect(), f = (v.height / 2) / Math.tan(fov * Math.PI / 360);
+    const off = Math.atan((0.5 - top) * v.height / f), d = aim.clone().sub(pos), L = d.length();
+    const look = aim.clone(); look.y -= L * Math.tan(off) * 1.15;
+    const q = new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().lookAt(pos, look, UP));
+    this.want = { ...this.want, pos, q, fov };
+  },
+  openLoot(i) { const d = this.drops && this.drops[i]; if (!d || d.open) return; d.open = true; this.fx.sparks(d.g.position.clone().setY(d.g.position.y + 0.3), '#ffe08a', 26, { spread: 0.7, up: 1.6 }); },
   // a foe stands where M7's unit `id` does (the stage's addFoe): the pack's own figure if one was handed over
   addFoe(unit, { spawn = false } = {}) {
     let F = this.pending.find((f) => f.key === (FOE_ART[unit.art] ? unit.art : 'cutpurse') && !f.unit) || null;
@@ -280,6 +327,7 @@ export const arena = {
     for (const h of this.heroes.values()) { stepHero(this, h, d, t, foeCenter); if (h.A.root.visible) placeBlob(this.blobs[bi++], h.pos, 0.9); }
     for (const F of this.foes.values()) { stepFoe(this, F, d, t, heroCenter); if (F.root.visible && !F.sunk) placeBlob(this.blobs[bi++], F.pos, Math.max(0.6, F.size.w * 1.3)); }
     for (; bi < this.blobs.length; bi++) this.blobs[bi].visible = false;
+    for (const L of this.drops || []) { L.t += dt; const u = Math.max(0, Math.min(1, L.t / 0.5)); const s = L.open ? Math.max(0.01, L.g.scale.x - dt * 3) : 0.01 + (1 - (1 - u) ** 3) * 0.99 * (1 + Math.sin(Math.min(1, u) * Math.PI) * 0.25); L.g.scale.setScalar(s); L.g.rotation.y += dt * 0.6; L.glow.intensity = 1 + Math.sin(this.t * 3 + L.t) * 0.4; }
     this.fx.speed = sp; this.fx.update(d, this.cam);
     if (this.onIdle) this.onIdle(d, t);
     this.renderer.render(this.scene, this.cam);
