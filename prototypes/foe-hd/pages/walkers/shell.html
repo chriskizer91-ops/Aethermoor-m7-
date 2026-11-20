@@ -39,12 +39,13 @@
 <div class="bar">
   <button id="turn">Turn</button>
   <button id="crowd">With the heroes</button>
+  <button id="lite">Phone version</button>
 </div>
 <div id="fps"></div>
 <div class="notes" id="crowdnote" hidden><b>The crowd test.</b> <span id="crowdn"></span> in full detail walking round the four heroes. The number above is this device's frame rate: 30 or more is smooth, 60 is very smooth.</div>
 <div class="foe"><h2 id="name"></h2><div class="tier" id="tier"></div><p id="flavour"></p></div>
 <div class="grid">
-  <div class="card"><div class="n" id="tris"></div><p>triangles in the light model you see</p></div>
+  <div class="card"><div class="n" id="tris"></div><p>triangles in <span id="which">the light model</span> you see</p></div>
   <div class="card"><div class="n" id="sculpt"></div><p>triangles in the sculpt it is baked from</p></div>
   <div class="card"><div class="n" id="bones"></div><p>bones for his moves</p></div>
   <div class="card"><div class="n" id="size"></div><p>to load (model and pictures)</p></div>
@@ -53,6 +54,6 @@
 <figure><img id="cmp" alt="The sculpt rendered under the sheet's three views"><figcaption>The check: the sheet above, the sculpt below, from the front, the side and the back.</figcaption></figure>
 <figure><img id="outl" alt="Outlines: the sheet in red over the sculpt in blue"><figcaption>The outlines over each other: the sheet in red, the sculpt in blue (where they overlap, the shapes agree). The shape model of <span id="shape"></span> triangles was checked this way first, then the detail added.</figcaption></figure>
 <div class="notes">
-  <p><b>How each one is made.</b> A shape model of about 100,000 triangles is built in code from measurements of the sheet and checked against its outlines from the front, side and back. Then the detail goes on, up to a million triangles: real plates with raised gold rims and rivets, roots twisted from strands, moss in cushions of lumps, ridged bark. No fuzz of tiny hairs. Blender bakes that sculpt's surface, its shading, its colour and which parts are metal into four pictures, wrapped on a light model a phone can draw many of. It has bones, and its moves are the ones it uses in M7's fights.</p>
+  <p><b>How each one is made.</b> A shape model of about 100,000 triangles is built in code from measurements of the sheet and checked against its outlines from the front, side and back. Then the detail goes on, up to a million triangles: real plates with raised gold rims and rivets, roots twisted from strands, moss in cushions of lumps, ridged bark. No fuzz of tiny hairs. Blender bakes that sculpt's surface, its shading, its colour and which parts are metal into four pictures, wrapped on a light model a phone can draw many of. Each also has a phone version, lighter still (fewer triangles, smaller pictures): phones show it first, and the "Phone version" button switches between the two. It has bones, and its moves are the ones it uses in M7's fights.</p>
 </div>
 <script>/*SCRIPT*/</script>

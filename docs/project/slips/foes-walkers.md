@@ -28,7 +28,7 @@ light model that can share the screen with the party, rigged, moving through its
 ## Links
 
 - The walkers' gallery (the Rotwarden and the sapwight, their sheets, the checks, the moves, five of them walking round
-  the heroes): https://claude.ai/artifact/YBLUHaLG3bNdfcjBdeq3aj (11.1 MB)
+  the heroes): https://claude.ai/artifact/YBLUHaLG3bNdfcjBdeq3aj (12.8 MB, with the phone versions)
 - The sculpts themselves, for a laptop (Chris's newer word: keep each sculpt as something he can look at):
   https://claude.ai/artifact/JCdvpAPKT781gZiU49jTh2 (14.1 MB). The sculpts are kept compressed (meshopt) in
   `prototypes/foe-hd/foes/<key>/sculpt/`: the Rotwarden 5.6 MB (1,067,554 triangles), the sapwight 4.8 MB (900,422).
@@ -41,13 +41,20 @@ light model that can share the screen with the party, rigged, moving through its
   roots wound round the arm, and nothing inside the outline of his body. The loose tendrils that dangled from his hand
   and by his knee are gone. Republished (gallery version 2, sculpt page updated).
 
+## Phone versions (done)
+
+- Each walker now also has a phone version, baked from the same sculpt with fewer triangles and smaller pictures
+  (`foes/<key>/assets/phone/`, made by `pages/walkers/kit/phone.sh`): the Rotwarden 21,548 triangles and 768 px
+  pictures, **0.81 MB** (full 47,698 and 3.0 MB; Champion target 0.8 MB); the sapwight 10,011 triangles and 512 px,
+  **0.48 MB** (full 19,913 and 1.4 MB; the hub's rabble target is 0.4 MB, the sapwight is a veteran). At play size they
+  look almost the same as the full ones. The gallery shows phones the phone version first, with a button to switch.
+- For the Fight: `registerWalkers(ASSETS, register, { phone: true })` registers the phone versions.
+
 ## Next
 
 1. The Rotwarden: one thin root at his left hip stays behind when the root arm swings; the tasset closer to the
    sheet's (a curved plate, not a box); the plates a little more faceted, like the sheet's.
-2. The sapwight: its load is 1.4 MB, over the hub's 0.4 MB for rabble (the light model is 0.55 MB alone): smaller
-   pictures and a lighter mesh for phones.
-3. Then Act Two's walkers: Old Horn and the peak-troll, then the forge's folk.
+2. Then Act Two's walkers: Old Horn and the peak-troll, then the forge's folk.
 
 ## How it's made (for the other foe sessions)
 

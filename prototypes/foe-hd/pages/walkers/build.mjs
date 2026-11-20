@@ -26,7 +26,16 @@ for (const [i, k] of keys.entries()) {
 import n${i} from ${j('normal.webp')}; import o${i} from ${j('orm.webp')}; import k${i} from ${j('cmp.webp')}; import l${i} from ${j('outline.webp')};
 import s${i} from ${JSON.stringify(path.resolve(root, '../../art-in/3d/sheets', `sheet-${k}.webp`))};
 ${glow ? `import e${i} from ${j('emit.webp')};` : `const e${i} = null;`}\n`;
-  entries.push(`${JSON.stringify(k)}: { meta: m${i}, bin: b${i}, color: c${i}, normal: n${i}, orm: o${i}, cmp: k${i}, outline: l${i}, sheet: s${i}, emit: e${i}, res: ${info.res || 2048}, bytes: ${bytes}, shapeTriangles: ${info.shapeTriangles} }`);
+  let phoneEntry = 'null';
+  if (await exists(path.join(d, 'phone', 'light.json'))) {
+    const pd = path.join(d, 'phone'); const pj = (f) => JSON.stringify(path.join(pd, f));
+    let pb = 0; for (const f of FILES) pb += (await stat(path.join(pd, f))).size;
+    const pg = await exists(path.join(pd, 'emit.webp')); if (pg) pb += (await stat(path.join(pd, 'emit.webp'))).size;
+    mod += `import pm${i} from ${pj('light.json')}; import pb${i} from ${pj('light.bin')}; import pc${i} from ${pj('color.webp')};
+import pn${i} from ${pj('normal.webp')}; import po${i} from ${pj('orm.webp')}; ${pg ? `import pe${i} from ${pj('emit.webp')};` : `const pe${i} = null;`}\n`;
+    phoneEntry = `{ res: pm${i}.res, meta: pm${i}, bin: pb${i}, color: pc${i}, normal: pn${i}, orm: po${i}, emit: pe${i}, bytes: ${pb} }`;
+  }
+  entries.push(`${JSON.stringify(k)}: { meta: m${i}, bin: b${i}, color: c${i}, normal: n${i}, orm: o${i}, cmp: k${i}, outline: l${i}, sheet: s${i}, emit: e${i}, res: ${info.res || 2048}, bytes: ${bytes}, shapeTriangles: ${info.shapeTriangles}, phone: ${phoneEntry} }`);
 }
 if (sculptPage) {
   mod = ''; entries = [];
