@@ -671,6 +671,16 @@ export function createWorld(o) {
     // the headless playthrough's hooks (tools/play.mjs)
     teleport(x, y, face) { const [px, py] = centre(x, y); walk = { ...walk, x, y, face: face || walk.face }; Wk.setIo(px, py, YAW[face] ?? Wk.io.yaw); blocked = null; },
     setGame(g) { game = g; ctx.setGame(g); stand(); },
+    // the playthrough's: the standing foe (a road's guard) nearest by path, with a tile beside it to stand on
+    nearestGuard() {
+      let best = null;
+      for (const e of W.present(game, walk.map)) {
+        if (e.kind !== 'encounter' || e.mode === 'pack' || e.talk) continue;
+        const b = api.besideOf(e.id);
+        if (b && (!best || b.n < best.n)) best = { id: e.id, n: b.n };
+      }
+      return best;
+    },
     path(x, y, adjacent = false) { return W.findPath(game, walk, [x, y], { max: 400, adjacent }); },
     // set the leader down on a tile next to theirs (the page's own frame then takes the engine's step)
     nudge(x, y) { const [px, py] = centre(x, y), io = Wk.io; io.yaw = Math.atan2(px - io.px, py - io.py); io.px = px; io.py = py; },
