@@ -11,7 +11,7 @@ Where the 3D game stands. Written by the hub only. Last updated November 20, lat
 | 3 | Models | `session_01DgbUKcWh5MEvjHnxzp4HHo` | `job/models` | faces that live done and brought in (blink, talk, six expressions: `figure.face(expr, seconds)`); next: every item M7 can drop, checked on the heroes and made epic | https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL |
 | 4 | Places | `session_01DgbUKZVFBfm1dVautXEw5f` | `job/places` | step 4 brought in (phones: Act One ~82 draw calls on phone; the paintings on roofs, water, decks, rocks; signposts, chests, pedestals); fixing: roofs over a house's front row show the painted front | https://claude.ai/artifact/MXyu3A9zTjoCavHFKXCbpi |
 | 5 | Together | `session_01DgbUKbyjzZFe1BXHHxzHBn` | `job/together` | the spoils, the Party room and the light figures in the game; an end-of-Act-One run (the Rotwarden, the second Brand, home, the Council) being checked before republishing | https://claude.ai/artifact/RaeSK5hezqb3qH7jmuM5aj |
-| 6 | One Foe | `session_01DgbUKZCNBFY7zwSzwAXR8y` | `job/foe-hd` | Briarmaw's pass 3, then the foes' shared kit (`docs/project/jobs/foes.md`), then the strange ones (wraiths, willows, sparks) | https://claude.ai/artifact/5iUqJsPw3NGrvun4Ng73eh |
+| 6 | One Foe | `session_01DgbUKZCNBFY7zwSzwAXR8y` | `job/foe-hd` | Briarmaw finished: a 982,634-triangle sculpt kept as an asset (`prototypes/foe-hd/assets/briarmaw-sculpt.glb`), baked onto 50,090; the sculpt's own laptop page; next: the shared kit, then its lane | https://claude.ai/artifact/5iUqJsPw3NGrvun4Ng73eh |
 | 7 | Foes: beasts | `session_01DgbUKZ4qEpafSazysExsYV` | `job/foes-beasts` | starting: the thornhound, then Act One's other beasts, in full detail | - |
 | 8 | Foes: walkers | `session_01DgbUKcTDUjKDVHw3sPhu7R` | `job/foes-walkers` | starting: the Rotwarden, then the sapwight, in full detail | - |
 
@@ -30,6 +30,7 @@ Where the 3D game stands. Written by the hub only. Last updated November 20, lat
 | The Verdant Wilds (Coven's zone 1, borrowed), the small and big maps, the 3D continent | `world3d/` | https://claude.ai/artifact/R3Ecr7e1VVbb9Qi7GXEPpx |
 | The Gear Room: a hero whose outfit is built from M7's gear, in Chris's 47 textures and the four faces | `prototypes/hero-3d/` | https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL |
 | Briarmaw three ways: code-built, painted, full detail (baked from a sculpt), with a crowd test | `prototypes/foe-hd/` | https://claude.ai/artifact/5iUqJsPw3NGrvun4Ng73eh |
+| Briarmaw's full sculpt (982,634 triangles) beside his light version, for a laptop | `prototypes/foe-hd/` | https://claude.ai/artifact/AVSmLbEu3jz1NVnohgqT9P |
 | The Bestiary: all 93 foes; the 54 beasts painted (cut from Chris's sheets) or in 3D (Act One's 12 sculpted), with a switch | `prototypes/bestiary/` | https://claude.ai/artifact/CA6CcAKVHSxGPB5TAZF5sY |
 | The story on the atlas: M7's places on the map of Aethermoor | `docs/lore/` | https://claude.ai/artifact/XTicYjY9EcZ4V54cjSzJcZ |
 | Chris's 136 pictures | `art-in/3d/` | `art-requests/RECEIVED.md` |
