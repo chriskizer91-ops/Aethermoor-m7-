@@ -21,6 +21,10 @@ export function kitAssets(key, a) {
     orm: a.orm, emit: a.emit || BLACK,
   };
 }
-export function registerWalkers(ASSETS, register) {
-  return Object.keys(ASSETS).filter((k) => FOES[k]).map((k) => register(kitAssets(k, ASSETS[k]), { res: ASSETS[k].res || 2048, moves: movesFor(FOES[k]) }));
+// { phone: true } registers the phone versions (fewer triangles, smaller pictures) where a walker has one
+export function registerWalkers(ASSETS, register, { phone = false } = {}) {
+  return Object.keys(ASSETS).filter((k) => FOES[k]).map((k) => {
+    const p = phone && ASSETS[k].phone, a = p ? { ...ASSETS[k], ...p, res: p.res || (ASSETS[k].res || 2048) / 2 } : ASSETS[k];
+    return register(kitAssets(k, a), { res: a.res || 2048, moves: movesFor(FOES[k]) });
+  });
 }
