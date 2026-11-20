@@ -16,6 +16,7 @@ import { buildBeast, BEASTS } from '../../prototypes/bestiary/beasts.js';
 import { FOE_ART, renderFoe, foeLooks } from '../../game/src/art/foes.js';
 import { poseHero, poseFoe, strikeStyle, RANGED, foeMover } from './moves.js';
 import { Fx } from './effects.js';
+import { aura } from './auras.js';
 
 const V3 = (x = 0, y = 0, z = 0) => new THREE.Vector3(x, y, z);
 const UP = V3(0, 1, 0);
@@ -38,9 +39,9 @@ export const arena = {
     this.dir = V3(Math.sin(yaw), 0, Math.cos(yaw));
     this.scene = W.P.scene; this.cam = W.cam; this.renderer = W.renderer;
     this.fx = new Fx(this.scene); this.fx.speed = this.speed;
-    this.heroes.clear(); this.foes.clear(); this.byUnit.clear(); this.pending = foes.slice();
+    this.heroes.clear(); this.foes.clear(); this.byUnit.clear(); this.pending = foes.slice(); this.guests = [];
     for (const [id, A] of Object.entries(heroes)) this.heroes.set(id, heroFigure(id, A, this));
-    for (const h of this.heroes.values()) { h.pos.copy(h.A.root.position); h.home.copy(h.pos); h.face = h.A.root.rotation.y; }
+    for (const h of this.heroes.values()) { h.pos.copy(h.A.root.position); h.home.copy(h.pos); h.face = h.A.root.rotation.y; h.aura = aura(h.A.root, HERO_H); }
     // the heroes' height as built (with hats and hair), so their heads come to the top of the space over their cards
     { const hs = [...this.heroes.values()].map((h) => { h.body.rotation.set(0, 0, 0); const b = new THREE.Box3().setFromObject(h.body); return b.max.y - h.A.root.position.y; }).filter((x) => x > 0.5 && x < 3); if (hs.length) HERO_H = Math.min(1.9, hs.reduce((a, b) => a + b, 0) / hs.length); }
     this.from = { pos: this.cam.position.clone(), q: this.cam.quaternion.clone(), fov: this.cam.fov };
@@ -58,8 +59,19 @@ export const arena = {
   // the fight is over: the camera swings back behind `leader` and the page walks again (done() once it has)
   end(done) {
     const back = this.from;
-    this.swing = { t: 0, dur: 1.2, from: { pos: this.cam.position.clone(), q: this.cam.quaternion.clone(), fov: this.cam.fov }, to: back, done: () => { this.on = false; cancelAnimationFrame(this.raf); this.fx.clear(); removeBlobs(this.scene, this.blobs); for (const f of this.foes.values()) this.scene.remove(f.root); for (const d of this.drops || []) this.scene.remove(d.g); this.drops = null; done && done(); } };
+    this.swing = { t: 0, dur: 1.2, from: { pos: this.cam.position.clone(), q: this.cam.quaternion.clone(), fov: this.cam.fov }, to: back, done: () => { this.on = false; cancelAnimationFrame(this.raf); this.fx.clear(); removeBlobs(this.scene, this.blobs); for (const f of this.foes.values()) { this.scene.remove(f.root); f.aura?.dispose(); } for (const h of this.heroes.values()) h.aura?.dispose(); for (const g of this.guests || []) this.scene.remove(g); for (const d of this.drops || []) this.scene.remove(d.g); this.drops = null; done && done(); } };
   },
+  // a guest fighting beside the party (M7: Tamsin against the Unsmith): built from her own looks, standing over her card
+  addGuest(unit) {
+    if (this.heroes.has(unit.id)) return;
+    const F = foeFigure(unit); if (!F.fig.hero) return;
+    const A = { id: unit.id, root: F.root, hero: F.fig.hero, animate() {} };
+    F.root.position.copy(this.center); this.scene.add(F.root); this.guests.push(F.root);
+    const h = heroFigure(unit.id, A); h.pos.copy(this.center); h.home.copy(this.center); h.face = this.yaw; h.aura = aura(A.root, HERO_H);
+    this.heroes.set(unit.id, h); this.byUnit.set(unit.id, unit.id);
+  },
+  // the heroes' figures as they stand now (guests aside)
+  heroActors() { return [...this.heroes.values()].filter((h) => !this.guests.includes(h.A.root)).map((h) => h.A); },
   // the heroes' figures as they stand now (one may have been re-dressed during the spoils)
   actors() { return [...this.heroes.values()].map((h) => h.A); },
   // a hero re-dressed on the spot (new gear from a card): the new figure takes the old one's place, with a flash of light
@@ -67,7 +79,7 @@ export const arena = {
     const h = this.heroes.get(id); if (!h || h.A === A) return;
     const old = h.A; A.root.position.copy(old.root.position); A.root.rotation.copy(old.root.rotation);
     this.scene.remove(old.root); this.scene.add(A.root);
-    h.A = A; h.rig = A.hero.rig; h.body = A.hero.group; h._mats = null;
+    h.aura?.dispose(); h.A = A; h.rig = A.hero.rig; h.body = A.hero.group; h._mats = null; h.aura = aura(A.root, HERO_H);
     this.fx.ring(h.pos.clone(), '#ffe08a', 1.4, 0.8); this.fx.sparks(h.pos.clone().setY(h.pos.y + 1), '#fff4c0', 24, { spread: 0.8, up: 1.3 });
     this.play(h, 'cheer', 1.4);
   },
@@ -275,7 +287,8 @@ export const arena = {
     const h = this.heroByUnit(unitId); if (!h) return;
     const r = this.lastRoll && this.lastRoll.actor === unitId ? this.lastRoll : null;
     const style = h.style();
-    const target = r && r.target && this.foes.get(r.target) ? r.target : null;
+    // a foe, or (charmed) a friend
+    const target = r && r.target && (this.foes.get(r.target) || this.heroByUnit(r.target)) ? r.target : null;
     this.play(h, 'strike', RANGED.has(style) ? 0.7 : 1.15, { style, target, melee: !RANGED.has(style) && !!target });
     this.lastAttacker = h.id;
   },
@@ -306,7 +319,11 @@ export const arena = {
     if (down && !h.down) { h.down = true; h.fall = { t: 0, dur: 0.6, up: false }; }
     else if (!down && h.down) { h.down = false; h.fall = { t: 0, dur: 0.7, up: true }; }
     h.guard = (u.statuses || []).some((s) => s.id === 'guarding');
-    h.held = (u.statuses || []).some((s) => /swallow|held|carried|led|river/.test(s.id));
+    // swallowed (M7's one hold, shown as "Held under", "Led away", "In the river"): gone into the foe in a burst, back in a ring
+    const held = (u.statuses || []).some((s) => s.id === 'swallowed');
+    if (held !== !!h.held && this.fx) { const p = h.pos.clone().setY(h.pos.y + 1); if (held) this.fx.sparks(p, '#7a5a8a', 22, { spread: 0.8 }); else { this.fx.ring(h.pos.clone(), '#c8f0ff', 1.6, 0.7); this.fx.sparks(p, '#e8f8ff', 18, { spread: 0.7, up: 1.3 }); } }
+    h.held = held;
+    h.aura?.set(u.statuses);
   },
   foeAttack(id, unit) {
     const F = this.foes.get(id); if (!F) return;
@@ -321,6 +338,7 @@ export const arena = {
   // a Champion's new phase (M7's on_phase sets its look): it swells a little each time, and roars (a lunge in place)
   foeLook(id, unit) {
     const F = this.foes.get(id); if (!F || !unit) return;
+    F.aura?.set(unit.statuses);
     const ph = unit.phase || 1;
     if (ph > (F.phase || 1)) { F.phase = ph; F.growTo = 1 + 0.08 * (ph - 1); F.hurt = { t: 0, dur: 0.6 }; this.fx.ring(F.pos.clone(), '#b4d65a', 3.5, 0.9); }
   },
@@ -362,6 +380,8 @@ export const arena = {
     for (const h of this.heroes.values()) { stepHero(this, h, d, t, foeCenter); if (h.A.root.visible) placeBlob(this.blobs[bi++], h.pos, 0.9); }
     for (const F of this.foes.values()) { stepFoe(this, F, d, t, heroCenter); if (F.root.visible && !F.sunk) placeBlob(this.blobs[bi++], F.pos, Math.max(0.6, F.size.w * 1.3)); }
     for (; bi < this.blobs.length; bi++) this.blobs[bi].visible = false;
+    for (const h of this.heroes.values()) h.aura?.step(d, this.t);
+    for (const F of this.foes.values()) if (!F.removed) F.aura?.step(d, this.t);
     for (const L of this.drops || []) { L.t += dt; const u = Math.max(0, Math.min(1, L.t / 0.5)); const s = L.open ? Math.max(0.01, L.g.scale.x - dt * 3) : 0.01 + (1 - (1 - u) ** 3) * 0.99 * (1 + Math.sin(Math.min(1, u) * Math.PI) * 0.25); L.g.scale.setScalar(s); L.g.rotation.y += dt * 0.6; L.glow.intensity = 1 + Math.sin(this.t * 3 + L.t) * 0.4; }
     this.fx.speed = sp; this.fx.update(d, this.cam);
     if (this.onIdle) this.onIdle(d, t);
@@ -390,10 +410,10 @@ function stepHero(ar, h, d, t, foeCenter) {
   if (a) {
     a.t += d; const u = Math.min(1, a.t / a.dur);
     if (a.kind === 'strike') {
-      const F = a.target && ar.foes.get(a.target);
+      const F = a.target && (ar.foes.get(a.target) || ar.heroByUnit(a.target));
       if (a.melee && F) {
         const tp = F.pos.clone(), dv = h.home.clone().sub(tp).setY(0).normalize();
-        tp.addScaledVector(dv, 0.7 + F.size.d * 0.5); tp.y = ar.heightAt(tp.x, tp.z, tp.y);
+        tp.addScaledVector(dv, 0.7 + (F.size?.d ?? 0.5) * 0.5); tp.y = ar.heightAt(tp.x, tp.z, tp.y);
         const go = seg(u, 0, 0.16), ret = seg(u, 0.66, 1);
         h.pos.lerpVectors(a.from, tp, go).lerp(want, ret);
         walking = (go > 0 && go < 1) || (ret > 0 && ret < 1);
@@ -475,6 +495,7 @@ export function foeFigure(unitOrKey, o = {}) {
   F.baseScale = big; F.grow = 1; F.phase = 1;
   if (big !== 1) { root.scale.setScalar(big); F.size.w *= big; F.size.d *= big; F.size.h *= big; }
   root.traverse((c) => { if (c.isMesh) { c.castShadow = false; } });
+  F.aura = aura(root, F.size.h / big);
   return F;
 }
 function stepFoe(ar, F, d, t, heroCenter) {
