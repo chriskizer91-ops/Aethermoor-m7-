@@ -8,7 +8,7 @@ light model that can share the screen with the party, rigged, moving through its
 - **The Rotwarden** (Act One's second Champion): on the gallery page below.
   - Shape model: 159,000 triangles, checked against the sheet's outlines from the front, side and back (the outline
     picture is on the page).
-  - The sculpt: about 1,070,000 triangles. Real plates with cut edges, raised gold rims and rivets; a visored steel helm
+  - The sculpt: 1,064,674 triangles. Real plates with cut edges, raised gold rims and rivets; a visored steel helm
     with its slits, beak and breathing holes; the gold mask on its chain; his left arm one great root of fifteen twisted
     strands with bracket fungi; roots wound through his joints and over his chest and back; moss in cushions of lumps;
     the tree growing out of his helm. No fuzz.
@@ -34,10 +34,17 @@ light model that can share the screen with the party, rigged, moving through its
   `prototypes/foe-hd/foes/<key>/sculpt/`: the Rotwarden 5.6 MB (1,067,554 triangles), the sapwight 4.8 MB (900,422).
   Built with `node build.mjs --sculpt` in `pages/walkers/`.
 
+## Fixed (Chris, November 20, on his phone: "the arms are attached to the body in a weird way... they're pulling away")
+
+- When the Rotwarden raised his arm or his root, the plates at his hips and the roots round his waist stretched after
+  them. Now the arm and the root arm only carry what is really theirs: the root's own strands, fungi and moss, the
+  roots wound round the arm, and nothing inside the outline of his body. The loose tendrils that dangled from his hand
+  and by his knee are gone. Republished (gallery version 2, sculpt page updated).
+
 ## Next
 
-1. The Rotwarden: tidy a stray root that hangs loose by his left knee; the tasset closer to the sheet's (a curved plate,
-   not a box); the plates a little more faceted, like the sheet's.
+1. The Rotwarden: one thin root at his left hip stays behind when the root arm swings; the tasset closer to the
+   sheet's (a curved plate, not a box); the plates a little more faceted, like the sheet's.
 2. The sapwight: its load is 1.4 MB, over the hub's 0.4 MB for rabble (the light model is 0.55 MB alone): smaller
    pictures and a lighter mesh for phones.
 3. Then Act Two's walkers: Old Horn and the peak-troll, then the forge's folk.
