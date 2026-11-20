@@ -12,12 +12,9 @@ const a = (f) => JSON.stringify(path.join(here, 'assets', f));
 const assetsModule = `
 import lightMeta from ${a('light.json')}; import lightBin from ${a('light.bin')};
 import c2 from ${a('color-2048.webp')}; import n2 from ${a('normal-2048.webp')};
-import c1 from ${a('color-1024.webp')}; import n1 from ${a('normal-1024.webp')};
 import ao from ${a('ao-1024.webp')}; import emit from ${a('emit-256.webp')};
-import cf from ${a('cut-front.webp')}; import cs from ${a('cut-side.webp')}; import cb from ${a('cut-back.webp')};
 ${withSculpt ? `import sculptMeta from ${a('sculpt.json')}; import sculptBin from ${a('sculpt.bin')};` : 'const sculptMeta = null, sculptBin = null;'}
-export const A = { lightMeta, lightBin, tex: { 2048: { color: c2, normal: n2 }, 1024: { color: c1, normal: n1 } }, ao, emit,
-  cut: { front: cf, side: cs, back: cb }, sculptMeta, sculptBin };`;
+export const A = { lightMeta, lightBin, tex: { 2048: { color: c2, normal: n2 } }, ao, emit, sculptMeta, sculptBin };`;
 const plugin = { name: 'assets', setup(b) {
   b.onResolve({ filter: /^\.\/assets\.js$/ }, () => ({ path: 'assets', namespace: 'foe-assets' }));
   b.onLoad({ filter: /.*/, namespace: 'foe-assets' }, () => ({ contents: assetsModule, resolveDir: here, loader: 'js' }));

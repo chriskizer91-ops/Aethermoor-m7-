@@ -9,13 +9,14 @@ import { HERO_ART } from '../../../game/src/art/hero-looks.js';
 import { SLOTS } from '../../../game/src/art/item-looks.js';
 import { buildHero, setPose } from '../../hero-3d/model.js';
 import { Q } from '../../hero-3d/kit.js';
-import { buildBeast } from '../../bestiary/beasts.js';
+import { buildBeast, BEASTS } from '../../bestiary/beasts.js';
+import { buildStandee } from '../../bestiary/standee.js';
 import { ready, makeShared, buildBriarmawHD, cloneBriarmaw, decodeSculpt } from './briarmaw.js';
 import { A } from './assets.js';
 
 const $ = (id) => document.getElementById(id);
 const phone = Math.min(screen.width, screen.height) < 820 || /Mobi|Android|iPhone/i.test(navigator.userAgent);
-const S = { res: phone ? 1024 : 2048, turn: true, move: 'idle', moveT: 0, crowd: false, sculpt: false };
+const S = { res: 2048, turn: true, move: 'idle', moveT: 0, crowd: false, sculpt: false };
 
 // ---- the stage ---------------------------------------------------------------------------------------------------
 const canvas = $('view');
@@ -53,20 +54,9 @@ const code = buildBeast('briarmaw', sprite);
 code.group.rotation.y = 0; stands[0].top.add(code.group);
 code.group.traverse((o) => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
 
-// 2. the painted cut-out: the sheet's front, side and back, the one facing the camera shown as the stand turns
-const tl = new THREE.TextureLoader();
-const cutTex = {}; for (const v of ['front', 'side', 'back']) { const t = tl.load(A.cut[v]); t.colorSpace = THREE.SRGBColorSpace; cutTex[v] = t; }
-const CUT_AR = { front: 600 / 640, side: 900 / 640, back: 560 / 640 };
-const cutMat = new THREE.MeshStandardMaterial({ map: cutTex.front, transparent: true, alphaTest: 0.4, side: THREE.DoubleSide, roughness: 1 });
-const cut = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), cutMat); cut.castShadow = true;
-const cutPivot = new THREE.Group(); cutPivot.add(cut); stands[1].top.add(cutPivot);
-function setCut(view, flip) {
-  cutMat.map = cutTex[view]; const img = cutTex[view].image;
-  const ar = img && img.width ? img.width / img.height : CUT_AR[view];
-  const h = 1.7, w = h * ar * (view === 'side' ? 1.0 : 1.0);
-  cut.scale.set(w * (flip ? -1 : 1), h, 1); cut.position.y = h / 2; cutMat.needsUpdate = true;
-}
-setCut('front');
+// 2. the painted cut-out (Models' standee, prototypes/bestiary/standee.js): Chris's sheet, the view facing the camera
+const cut = buildStandee('briarmaw', { tall: BEASTS.briarmaw[2] });
+stands[1].top.add(cut.group);
 
 // 3. the full-detail light version
 let shared, hd, sculptMesh = null;
@@ -106,7 +96,6 @@ function refresh() {
   for (const b of document.querySelectorAll('#moves button')) b.setAttribute('aria-pressed', b.dataset.k === S.move);
   $('turn').setAttribute('aria-pressed', S.turn); $('crowd').setAttribute('aria-pressed', S.crowd);
   $('sculpt').setAttribute('aria-pressed', S.sculpt);
-  $('res').textContent = `Pictures: ${S.res} px`;
   $('stands').hidden = S.crowd; $('crowdnote').hidden = !S.crowd;
 }
 $('turn').onclick = () => { S.turn = !S.turn; refresh(); };
@@ -115,11 +104,6 @@ $('crowd').onclick = () => {
   if (S.crowd) buildCrowd();
   crowd.group.visible = S.crowd; for (const s of stands) s.g.visible = !S.crowd;
   frame(); refresh();
-};
-$('res').onclick = () => {
-  S.res = S.res === 2048 ? 1024 : 2048;
-  const old = shared.mat; const fresh = makeShared(A, S.res);
-  shared.mat.map = fresh.mat.map; shared.mat.normalMap = fresh.mat.normalMap; shared.mat.needsUpdate = true; refresh();
 };
 $('sculpt').onclick = async () => {
   if (!A.sculptBin) { $('sculptnote').hidden = false; return; }
@@ -164,22 +148,13 @@ function loop() {
   // the stands turn together, so all three are seen from the same side at once
   const yaw = S.turn ? t * 0.45 : stands[0].top.rotation.y;
   for (const s of stands) s.top.rotation.y = yaw;
-  // the cut-out shows the view of the sheet that faces the camera
-  const camYaw = Math.atan2(camera.position.x - stands[1].g.position.x, camera.position.z);
-  let rel = ((camYaw - yaw) % (Math.PI * 2) + Math.PI * 3) % (Math.PI * 2) - Math.PI;
-  cutPivot.rotation.y = rel;           // the card always faces the camera
-  const ab = Math.abs(rel);
-  const view = ab < Math.PI / 4 ? 'front' : ab > Math.PI * 3 / 4 ? 'back' : 'side';
-  if (view !== cutPivot.userData.v || (view === 'side' && Math.sign(rel) !== cutPivot.userData.s)) {
-    cutPivot.userData.v = view; cutPivot.userData.s = Math.sign(rel);
-    setCut(view, view === 'side' && rel < 0);
-  }
   // moves
   if (hd) {
     let u = 0; if (DUR[S.move]) { S.moveT += d; u = Math.min(1, S.moveT / DUR[S.move]); if (S.moveT > DUR[S.move] + 0.8) S.moveT = 0; }
     if (S.move === 'walk') step += d * 4.2;
     hd.pose(S.move, u, t, step);
     code.update(t, S.move === 'walk' ? step * 2 : 0);
+    cut.update(t, S.move === 'walk' ? step * 2 : 0);
     if (S.crowd) {
       for (const c of crowd.foes) {
         c.ring.a += d * c.ring.speed;
@@ -209,7 +184,7 @@ function loop() {
   stands[2].top.add(hd.group);
   hdNote.tris = hd.triangles;
   $('codetris').textContent = `${triCount(code.group).toLocaleString()} triangles`;
-  $('cuttris').textContent = '2 triangles (a flat card)';
+  $('cuttris').textContent = `${triCount(cut.group).toLocaleString()} triangles (flat cards)`;
   $('hdtris').textContent = `${hdNote.tris.toLocaleString()} triangles`;
   $('sculptfrom').textContent = `${A.lightMeta.sculptTriangles.toLocaleString()}`;
   if (!A.sculptBin) $('sculpt').textContent = 'The sculpt (laptop page)';
