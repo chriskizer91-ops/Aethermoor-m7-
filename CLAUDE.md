@@ -14,6 +14,11 @@
   - `chriskizer91-ops/airship-game-in-aethermoor-`: three.js ships and the map of Aethermoor from above.
   - `chriskizer91-ops/envoi-on-the-longest-night`: 3D models, texture packs (`moon-faire-witches/texture-packs/`).
   - `chriskizer91-ops/20-min`: keeps `reference/aethermoor-m7.zip` and a copy of this game's rules.
+  - `chriskizer91-ops/coven-of-the-moon-faire`: the finished 3D walking places of Aethermoor (zone 1) and their engine
+    (`game/engine/`, `game/places/`), and Chris's building textures. `envoi-on-the-longest-night`
+    `moon-faire-witches/world-map/`: the whole continent in 3D.
+- Chris, November 20: this game is set on the same continent as Moon Faire and Envoi. Reuse their finished 3D world
+  (never their witches, battle or story); keep M7's lore, combat, loot and gear. Plan: `docs/3d-world-plan.md`.
 - When copying assets or code from another repo, note the source repo and path in the commit message.
 
 ## Where things are
@@ -28,6 +33,8 @@
   dioramas (`npm install && node build.mjs` there; published at the link in its README).
   `prototypes/hero-3d/`: the Gear Room, a 3D hero whose outfit is built from the game's own gear code (same build;
   link in its README).
+  `prototypes/aethermoor-walk/`: the party walking Coven's Wickhollow (`node build.mjs`; `world/` holds the copied
+  engine, places and downsized textures, unchanged; `hero-entry.js` joins our heroes and three.js to it).
 - `art-requests/`: picture prompts for Chris. Batch 4 (the four Act III maps) is still waiting, and so is
   `texture-pack-gear.md` (the seamless surfaces the 3D gear is made of).
 - Chris's choices for the 3D heroes (November 20): the storybook shape at High detail only; item surfaces come

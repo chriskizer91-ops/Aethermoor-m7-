@@ -1,0 +1,142 @@
+<title>Aethermoor: the party in 3D</title>
+<style>
+/* Aethermoor: our party walking a town borrowed from Coven of the Moon Faire (Envoi's Wickhollow). */
+html,body{margin:0;height:100%;background:#0a0b18;overflow:hidden;overscroll-behavior:none;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
+#world{position:fixed;inset:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+#world canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+/* the thumb's ring (phones): where it went down, and where it is */
+#ring{position:absolute;display:none;width:116px;height:116px;margin:-58px 0 0 -58px;border-radius:50%;border:2px solid rgba(230,226,255,.42);background:rgba(20,18,44,.18);pointer-events:none;z-index:3}
+#dot{position:absolute;left:50%;top:50%;width:40px;height:40px;border-radius:50%;background:rgba(240,236,255,.5);transform:translate(-50%,-50%);pointer-events:none}
+/* top right: the numbers button (the look's button, made by the walker, sits left of it) */
+#nums{position:absolute;top:calc(12px + env(safe-area-inset-top,0px));right:calc(12px + env(safe-area-inset-right,0px));z-index:4;appearance:none;width:46px;height:46px;border-radius:23px;border:1px solid rgba(214,222,255,.45);background:rgba(14,14,36,.62);display:grid;place-items:center;padding:0;cursor:pointer}
+#nums svg{width:22px;height:22px}
+#nums.on{background:rgba(70,60,130,.8);border-color:rgba(200,190,255,.75)}
+/* bottom left: how fast it is drawing */
+#numbers{position:absolute;left:calc(12px + env(safe-area-inset-left,0px));bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:4;padding:6px 12px;border-radius:14px;background:rgba(10,10,28,.6);color:#e8e6ff;font-size:13px;line-height:1.35;pointer-events:none}
+#numbers b{font-size:15px}
+#numbers small{display:none;color:#b8b4e0;font-size:12px}
+#numbers.more small{display:block}
+/* top left: the herbs in Io's bag, once she has one */
+#bag{position:absolute;left:calc(12px + env(safe-area-inset-left,0px));top:calc(12px + env(safe-area-inset-top,0px));z-index:4;display:none;gap:10px;padding:7px 12px;border-radius:16px;background:rgba(14,12,34,.66);border:1px solid rgba(214,222,255,.3);color:#f0ecff;font-size:14px;pointer-events:none}
+#bag span{display:inline-flex;align-items:center;gap:6px}
+#bag i{width:11px;height:11px;border-radius:50%;display:inline-block;box-shadow:0 0 7px currentColor}
+/* top middle: where she is, and what she found */
+#toast{position:absolute;left:50%;top:calc(16px + env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:4;max-width:calc(100% - 190px);padding:8px 16px;border-radius:16px;background:rgba(14,12,34,.72);color:#f4f0ff;font-size:15px;line-height:1.3;text-align:center;opacity:0;transition:opacity .5s;pointer-events:none}
+#toast.name{font:400 22px/1.2 Georgia,"Times New Roman",serif;letter-spacing:.03em;color:#ffe6a8;background:rgba(14,12,34,.55)}
+#load{position:fixed;inset:0;z-index:9;display:grid;place-content:center;text-align:center;background:#0a0b18;color:#e8e4ff;font-family:Georgia,"Times New Roman",serif;transition:opacity .6s;padding:0 24px}
+#load h1{margin:0 0 6px;font-weight:400;font-size:32px;letter-spacing:.02em}
+#load h2{margin:0 0 14px;font-weight:400;font-size:17px;color:#cfc8f2}
+#load p{margin:0;font:15px system-ui,sans-serif;color:#b8b4e0}
+
+/* the party bar: who leads, a new outfit, a swing (Aethermoor) */
+#party{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:5;display:flex;gap:6px;flex-wrap:wrap;justify-content:center;max-width:calc(100% - 24px)}
+#party button{appearance:none;min-height:44px;min-width:44px;padding:0 12px;border-radius:22px;border:1px solid rgba(255,214,150,.5);background:rgba(28,20,16,.78);color:#f4e6cc;font:600 14px Georgia,serif;cursor:pointer}
+#party button.on{background:rgba(150,90,30,.9);border-color:#ffd27a;color:#fff6e0}
+#party .sep{width:8px}
+#numbers{bottom:calc(64px + env(safe-area-inset-bottom,0px))}
+@media (max-width:720px){#party{flex-wrap:nowrap;gap:4px}#party button{padding:0 7px;font-size:12.5px;min-width:0;flex:1 1 auto}#numbers{bottom:calc(64px + env(safe-area-inset-bottom,0px));font-size:12px}}
+</style>
+<div id="world"><canvas id="cv"></canvas><div id="ring"><div id="dot"></div></div>
+  <button id="nums" aria-label="Show or hide the numbers"><svg viewBox="0 0 24 24" fill="none" stroke="#eee8ff" stroke-width="1.8" stroke-linecap="round"><path d="M5 19V11M12 19V5M19 19v-5"/></svg></button>
+  <div id="toast"></div>
+  <div id="party"></div>
+  <div id="numbers"><b id="fps">…</b> frames a second<small id="more"></small></div></div>
+<div id="load"><div><h1>Aethermoor</h1><h2>The party in a borrowed 3D town</h2><p id="loadmsg">Loading…</p></div></div>
+<!--HEROES-->
+<script src="../data/maps-wickhollow.js"></script>
+<script src="../engine/place/core.js"></script>
+<script src="../engine/place/cutouts.js"></script>
+<script src="../engine/place/extras.js"></script>
+<script src="../engine/place/paint.js"></script>
+<script src="../engine/place/world.js"></script>
+<script src="../engine/place/walker.js"></script>
+<script src="../engine/land/land.js"></script>
+<script src="../engine/land/zone.js"></script>
+<script src="../places/wickhollow.js"></script>
+<script src="../places/wickhollow-trees.js"></script>
+<script src="../places/wickhollow-open.js"></script>
+<script src="../places/first-test-land.js"></script>
+<script>
+// Aethermoor (November 20): the party of Hearth & Heirloom, built from the game's own gear code, walking a finished 3D
+// town from Coven of the Moon Faire (Envoi's Wickhollow, with the open land round it). The town, the land and the walking
+// are the borrowed engine's, unchanged; who walks is ours (window.M7_HEROES, from hero-entry.js): one hero leads and the
+// other three follow in the leader's footsteps, each in their own gear.
+(async function () {
+  const $ = (id) => document.getElementById(id);
+  const place = window.W3D_PLACES.wickhollow, H = window.M7_HEROES;
+  place.paintingSrc = place.painting;
+  const PHONE = window.matchMedia && matchMedia('(pointer: coarse)').matches && !matchMedia('(any-pointer: fine)').matches;
+  let toastT = 0;
+  const toast = (s, name) => { const t = $('toast'); t.textContent = s; t.classList.toggle('name', !!name); t.style.opacity = 1; clearTimeout(toastT); toastT = setTimeout(() => { t.style.opacity = 0; }, name ? 3200 : 2600); };
+  W3D.landEvents = { region(now, was) { if (was !== null) toast(now, true); }, herb() {} };
+  // each hero keeps their own gear; the leader is built at High detail on a laptop, the followers lighter
+  const gear = {}; for (const [id] of H.HEROES) gear[id] = H.starterKit(id);
+  const made = {};
+  const lead = { id: 'warden' };
+  const get = (id, detail) => { const k = id + detail; return made[k] || (made[k] = H.actor(id, gear[id], detail)); };
+  W3D.witch = (id) => get(id, PHONE ? 'light' : 'high');
+  try {
+    const W = await W3D.walk({
+      place, root: $('world'), canvas: $('cv'), ring: $('ring'), dot: $('dot'), toast, who: 'warden',
+      say: (s) => { $('loadmsg').textContent = s.replace(/Io/g, 'the party'); },
+      onStats: (n) => {
+        $('fps').textContent = n.fps;
+        $('more').textContent = Math.round(n.triangles / 1000) + ' thousand triangles · ' + n.calls + ' draw calls · ' + (PHONE ? 'phone detail' : 'laptop detail');
+      },
+    });
+    const scene = W.P.scene;
+    // the followers walk the leader's trail
+    let followers = [], trail = [], leader = W3D.witch('warden');
+    function setFollowers() {
+      for (const f of followers) scene.remove(f.root);
+      followers = H.HEROES.filter(([id]) => id !== lead.id).map(([id]) => get(id, 'light'));
+      const p = leader.root.position;
+      followers.forEach((f, i) => { f.root.position.set(p.x - (i + 1) * 1.1 * Math.sin(leader.root.rotation.y), p.y, p.z - (i + 1) * 1.1 * Math.cos(leader.root.rotation.y)); f.root.rotation.y = leader.root.rotation.y; scene.add(f.root); });
+      trail = [];
+    }
+    setFollowers();
+    let last = performance.now();
+    (function follow() {
+      requestAnimationFrame(follow);
+      const now = performance.now(), dt = Math.min(0.05, (now - last) / 1000), t = now / 1000; last = now;
+      const p = leader.root.position, l0 = trail[0];
+      if (!l0 || l0.distanceTo(p) > 0.05) { trail.unshift(p.clone()); if (trail.length > 400) trail.length = 400; }
+      followers.forEach((f, i) => {
+        // each stands about 1.1 m further back along the leader's path than the one before
+        let need = (i + 1) * 1.1, k = 0, q = p.clone();
+        for (; k < trail.length - 1 && need > 0; k++) { const d = trail[k].distanceTo(trail[k + 1]); if (d >= need) { q = trail[k].clone().lerp(trail[k + 1], need / d); need = 0; break; } need -= d; q = trail[k + 1].clone(); }
+        // a trail too short (at the start) runs on straight back from where it ends, behind the leader
+        if (need > 0) { const ry = leader.root.rotation.y; q.x -= Math.sin(ry) * need; q.z -= Math.cos(ry) * need; }
+        const fp = f.root.position, dx = q.x - fp.x, dz = q.z - fp.z, d = Math.hypot(dx, dz);
+        const moving = d > 0.04;
+        fp.x += dx * Math.min(1, dt * 8); fp.z += dz * Math.min(1, dt * 8); fp.y += (q.y - fp.y) * Math.min(1, dt * 10);
+        if (moving) { const want = Math.atan2(dx, dz); let a = want - f.root.rotation.y; a = Math.atan2(Math.sin(a), Math.cos(a)); f.root.rotation.y += a * Math.min(1, dt * 10); }
+        f.walkRun = leader.walkRun; f.animate(0, moving ? 1 : 0, t + i, dt * (moving ? Math.min(2.3, Math.max(0.6, d * 6)) : 1));
+      });
+    })();
+    // the party bar
+    const bar = $('party');
+    const draw = () => {
+      bar.innerHTML = '';
+      for (const [id, name] of H.HEROES) { const b = document.createElement('button'); b.textContent = name; b.className = id === lead.id ? 'on' : ''; b.setAttribute('aria-pressed', id === lead.id); b.onclick = () => { if (id === lead.id) return; lead.id = id; W.setWho(id); leader = W3D.witch(id); setFollowers(); draw(); toast(name + ' leads'); }; bar.append(b); }
+      const sw = document.createElement('button'); sw.textContent = 'Swing'; sw.onclick = () => { leader.strike = 0; }; bar.append(sw);
+      const ro = document.createElement('button'); ro.textContent = 'Gear'; ro.onclick = () => {
+        // every hero rolls a new outfit (heirloom and up), and is built again where they stand
+        const r = ['runed', 'storied', 'heirloom', 'regalia', 'primal'][Math.floor(Math.random() * 5)];
+        for (const [id] of H.HEROES) { gear[id] = H.rollOutfit(id, r); for (const k of Object.keys(made)) if (k.startsWith(id)) delete made[k]; }
+        const p = leader.root.position.clone(), ry = leader.root.rotation.y;
+        const was = leader; scene.remove(was.root);
+        leader = W3D.witch(lead.id); leader.root.position.copy(p); leader.root.rotation.y = ry; scene.add(leader.root);
+        W.setWho(lead.id === 'warden' ? 'pip' : 'warden'); W.setWho(lead.id); leader = W3D.witch(lead.id);
+        setFollowers(); toast('New ' + r + ' gear for everyone');
+      }; bar.append(ro);
+    };
+    draw();
+    $('nums').addEventListener('click', () => { const on = $('numbers').classList.toggle('more'); $('nums').classList.toggle('on', on); });
+    $('load').style.opacity = 0; setTimeout(() => { $('load').style.display = 'none'; }, 700);
+    setTimeout(() => toast(PHONE ? 'Drag on the left to walk · drag on the right to look' : 'W A S D or the arrows walk · Shift runs · drag to look'), 900);
+    window.__walk = { W, get leader() { return leader; }, followers: () => followers, lead, gear };
+    window.__ready = true;
+  } catch (e) { console.error(e); $('loadmsg').textContent = 'Something went wrong: ' + e.message; window.__err = String(e && e.stack || e); }
+})();
+</script>

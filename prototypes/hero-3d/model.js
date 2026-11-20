@@ -528,6 +528,18 @@ export function setPose(rig, pose, t, u = 0) {
   R.sh.rotation.x += Math.sin(t * 2.1 + 1) * 0.025;
   Lf.sh.rotation.x += Math.sin(t * 2.1) * 0.025;
   if (rig.offhand?.userData.float) { rig.offhand.userData.float.position.y = 0.05 + Math.sin(t * 2.4) * 0.012; rig.offhand.userData.float.rotation.y = t * 0.8; }
+  if (pose === 'walk') {
+    // walking (u is the step's phase, radians; rig.run for a jog): legs swing, the free arm swings against them, the body
+    // bobs and leans a little into the step; the weapon arm keeps its hold and only sways
+    const run = !!rig.run, sw = run ? 0.62 : 0.42, s = Math.sin(u), c = Math.cos(u);
+    rig.legs[0].rotation.x = -s * sw; rig.legs[1].rotation.x = s * sw;
+    rig.root.position.y = Math.abs(c) * (run ? 0.035 : 0.018) * (rig.scale ? 1 / rig.scale : 1) * 0.6;
+    rig.root.rotation.x = run ? 0.1 : 0.03; rig.root.rotation.y = s * 0.05;
+    if (cls !== 'bow') { Lf.sh.rotation.x = -0.25 + s * sw * 0.9; Lf.elbow.rotation.x = -0.6 - Math.max(0, s) * 0.4; } else { Lf.sh.rotation.x += s * 0.08; }
+    R.sh.rotation.x += -s * 0.08;
+    if (rig.cape) rig.cape.rotation.x = (run ? 0.38 : 0.16) + Math.abs(s) * 0.05;
+    if (rig.skirt) rig.skirt.rotation.x = -rig.root.rotation.x * 0.6;
+  }
   keepUpright(rig);
   if (pose !== 'strike') { return; }
   const ease = x => x * x * (3 - 2 * x);

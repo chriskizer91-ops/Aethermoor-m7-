@@ -1,0 +1,7 @@
+{
+  "name": "aethermoor-walk",
+  "private": true,
+  "type": "module",
+  "description": "The party walking a 3D town borrowed from Coven of the Moon Faire.",
+  "scripts": { "build": "node build.mjs" }
+}
