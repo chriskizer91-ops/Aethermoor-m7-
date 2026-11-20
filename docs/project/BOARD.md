@@ -11,7 +11,7 @@ Where the 3D game stands. Written by the hub only. Last updated November 20.
 | 3 | Models | `session_01DgbUKcWh5MEvjHnxzp4HHo` | `job/models` | step 1 done and brought in (the heroes in Chris's textures and faces); step 2 changed: a side-by-side of painted cut-outs from Chris's sheets and the code-built beasts, for Chris to choose | https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL |
 | 4 | Places | `session_01DgbUKZVFBfm1dVautXEw5f` | `job/places` | Acts Two and Three done and brought in: all 61 of M7's maps are 3D places; on step 3 (the Atlas, Act One by day) | (see below) |
 | 5 | Together | `session_01DgbUKbyjzZFe1BXHHxzHBn` | `job/together` | starting: Act One playable, M7's world engine under the 3D walk | - |
-| 6 | One Foe | (starting) | `job/foe-hd` | starting: Briarmaw in full detail, side by side | - |
+| 6 | One Foe | `session_01DgbUKZCNBFY7zwSzwAXR8y` | `job/foe-hd` | starting: Briarmaw in full detail, side by side | - |
 
 ## What's built (on the hub's branch)
 
