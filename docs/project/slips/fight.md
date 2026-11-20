@@ -38,6 +38,11 @@
   hero in 3D on the spot** (headless: `?seed=2` drops a Maul; "Equip on Wren" and Wren holds it up). After a defeat,
   M7's screen wakes the party; they walk on from the way in. `runFight({ keep: true })` stays on the field for this.
 
+- **The Party screen** (same link, the **Party** button on the walk): M7's own party screen over the paused walk;
+  in its hero box the hero stands in 3D in their gear, turning slowly (drag to turn them). Equip a piece there and
+  the hero is rebuilt in it; back on the walk they wear it. `battle/party-room.js` `openParty({ host, ctx, input,
+  figure })`.
+
 ## For Together: starting a fight from outside
 
 `world3d/battle/run.js` exports one function. It pauses the walk, swings the camera round, plays M7's battle screen
@@ -67,7 +72,6 @@ I'll add a switch on the page (`?foes=cutout`).
 
 ## Next
 
-- Step 2's rest: the Party screen with the hero turning in 3D.
 - "Full detail" Briarmaw (session 6's model) as a third Foes setting in the den, if the page stays under 16 MB.
 - When session 6's Briarmaw lands: his full model through `setBeastLook`.
 

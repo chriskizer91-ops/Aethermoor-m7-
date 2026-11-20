@@ -25,6 +25,7 @@ import { heroGear } from '../game/src/ui/battle/sprites.js';
 import { arena, foeFigure, setBeastLook } from './battle/arena.js';
 import { standeeLook } from '../prototypes/bestiary/standee.js';
 import { runFight } from './battle/run.js';
+import { openParty } from './battle/party-room.js';
 
 const Q = new URLSearchParams(location.search);
 // the two fights: where, who waits there (at which tiles), M7's battle for it, and the party's level for it
@@ -126,6 +127,7 @@ async function main() {
   // the gear each hero wears, as M7 has it: when a card is equipped in the spoils, that hero is re-dressed on the spot
   const gearKey = (id) => JSON.stringify(game.party.roster[id]?.gear || {});
   let worn = {};
+  for (const [id] of H.HEROES) worn[id] = gearKey(id);
   const redress = () => {
     for (const [id] of H.HEROES) {
       const k = gearKey(id); if (worn[id] === k) continue;
@@ -195,6 +197,15 @@ async function main() {
       if (screen.onAction) off = input.onAction(screen.onAction);
     });
   }
+
+  // M7's Party screen over the walk, the hero turning in 3D in their gear; back to walking in whatever they put on
+  $('partybtn').addEventListener('click', async () => {
+    if (fighting || W.isBusy() || W.paused) return;
+    W.pause(true); document.body.classList.add('fighting');
+    await openParty({ host, ctx, input, figure: (id) => H.actor(id, gearOf(id), PHONE ? 'light' : 'high') });
+    W.setWho('pip'); W.setWho('warden'); leader = W3D.witch('warden'); setFollowers();
+    document.body.classList.remove('fighting'); W.pause(false);
+  });
 
   $('fightbtn').addEventListener('click', () => { if (!pack) spawnPack(); fight(); });
   $('load').style.opacity = 0; setTimeout(() => { $('load').style.display = 'none'; }, 700);
