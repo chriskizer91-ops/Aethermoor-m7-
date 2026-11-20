@@ -71,7 +71,8 @@
   table and 3 bell frames. Trees the painting shows as pines are firs (Thornhollow's, the East Road's higher woods).
   **Roofs (changed after the hub's review):** they keep their own crisp textures (Chris's slate, the tile, thatch and
   moss kinds) and take only their colour from the painting. `convert.mjs` writes each place a roofs-colour picture
-  (`coven/art/m7/<id>-roofs.webp`), with each building in one flat colour taken from its roof rows (116 KB for all 28). So a
+  (`coven/art/m7/<id>-roofs.webp`), with each building in one flat colour taken from its roof rows (116 KB for all 28): the commonest hue of the roof's
+  middling pixels (so a torch or a lit gable doesn't win), and roofs that touch (a hall and its wings) share one colour. So a
   blue roof stays blue and a red one red, and no painted dormer, gable, window or stall's wares is stretched over a roof.
   Houses get a real stone chimney near one end of the ridge. (Water, decks, rocks and everything else still wear the
   full painting.)
