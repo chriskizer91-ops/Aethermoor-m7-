@@ -11,6 +11,10 @@ import { Q } from '../../../hero-3d/kit.js';
 import { ready, makeWalkerShared, buildWalker, cloneWalker } from './walker.js';
 import { FOES, COMMON } from './foes.js';
 import { ASSETS } from './assets.js';
+import { register, foeLook } from '../../kit/js/looks.js';
+import { registerWalkers } from './register.js';
+const KIT = new URLSearchParams(location.search).has('kit');     // ?kit: draw them through the foe kit's foeLook (the Fight's path)
+if (KIT) registerWalkers(ASSETS, register);
 
 const $ = (id) => document.getElementById(id);
 const phone = Math.min(screen.width, screen.height) < 820 || /Mobi|Android|iPhone/i.test(navigator.userAgent);
@@ -44,8 +48,8 @@ const made = {};       // key -> { shared, W }
 function get(k) {
   if (made[k]) return made[k];
   const a = ASSETS[k];
-  const shared = makeWalkerShared(a);
-  const W = buildWalker(shared, FOES[k]);
+  const shared = KIT ? null : makeWalkerShared(a);
+  const W = KIT ? foeLook(() => null)(k) : buildWalker(shared, FOES[k]);
   return (made[k] = { shared, W });
 }
 function show(k) {
@@ -76,7 +80,7 @@ function buildCrowd() {
   for (const k of KEYS) { const n = FOES[k].tier === 'Champion' ? 1 : 4; for (let i = 0; i < n; i++) list.push(k); }
   while (list.length < 5) list.push(KEYS[list.length % KEYS.length]);
   list.forEach((k, i) => {
-    const c = cloneWalker(get(k).W); const a = (i / list.length) * Math.PI * 2;
+    const c = KIT ? foeLook(() => null)(k) : cloneWalker(get(k).W); const a = (i / list.length) * Math.PI * 2;
     c.ring = { a, r: 5.6 + (i % 2) * 1.0, speed: 0.09 + 0.02 * (i % 3) };
     crowd.group.add(c.group); crowd.foes.push(c);
   });

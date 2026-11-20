@@ -13,7 +13,7 @@ const sculptPage = !!args.sculpt;
 const out = args.out || (sculptPage ? 'walkers-sculpt' : 'walkers');
 const exists = (p) => access(p).then(() => true, () => false);
 let keys = args.foes ? args.foes.split(',') : [];
-if (!keys.length) for (const k of await readdir(path.join(root, 'foes'))) if (await exists(path.join(root, 'foes', k, 'assets', 'light.json'))) keys.push(k);
+if (!keys.length) for (const k of await readdir(path.join(root, 'foes'))) if (await exists(path.join(root, 'foes', k, 'assets', 'info.json')) && await exists(path.join(root, 'foes', k, 'assets', 'orm.webp'))) keys.push(k);   // the walkers' own (orm: made by the walkers' bake)
 const FILES = ['light.bin', 'color.webp', 'normal.webp', 'orm.webp'];
 let mod = '', entries = [];
 for (const [i, k] of keys.entries()) {
@@ -26,7 +26,7 @@ for (const [i, k] of keys.entries()) {
 import n${i} from ${j('normal.webp')}; import o${i} from ${j('orm.webp')}; import k${i} from ${j('cmp.webp')}; import l${i} from ${j('outline.webp')};
 import s${i} from ${JSON.stringify(path.resolve(root, '../../art-in/3d/sheets', `sheet-${k}.webp`))};
 ${glow ? `import e${i} from ${j('emit.webp')};` : `const e${i} = null;`}\n`;
-  entries.push(`${JSON.stringify(k)}: { meta: m${i}, bin: b${i}, color: c${i}, normal: n${i}, orm: o${i}, cmp: k${i}, outline: l${i}, sheet: s${i}, emit: e${i}, bytes: ${bytes}, shapeTriangles: ${info.shapeTriangles} }`);
+  entries.push(`${JSON.stringify(k)}: { meta: m${i}, bin: b${i}, color: c${i}, normal: n${i}, orm: o${i}, cmp: k${i}, outline: l${i}, sheet: s${i}, emit: e${i}, res: ${info.res || 2048}, bytes: ${bytes}, shapeTriangles: ${info.shapeTriangles} }`);
 }
 if (sculptPage) {
   mod = ''; entries = [];

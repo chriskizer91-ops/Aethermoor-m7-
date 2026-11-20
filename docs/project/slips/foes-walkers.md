@@ -63,15 +63,20 @@ light model that can share the screen with the party, rigged, moving through its
 
 ## For the Fight
 
-- `prototypes/foe-hd/pages/walkers/walker.js` `walkersLook({ rotwarden: [shared, FOES.rotwarden] }, buildBeast)` is a
-  function for `setBeastLook`: the walkers in full detail, every other foe as before. Each returns `{ group, plan:
-  'biped', height, parts: { head }, update(t, step), hit(), act: { lunge, fall } }` plus `pose(move, u, t)` for its own
-  moves. It needs `await ready()` and `makeWalkerShared(assets)` first (see `pages/walkers/main.js`).
+- The walkers come through the foe kit's one `setBeastLook` function, like every finished foe (hub's ask, November 20):
+  `registerWalkers(ASSETS, register)` from `prototypes/foe-hd/pages/walkers/register.js` registers each with
+  `kit/js/looks.js` together with its own moves, then `setBeastLook(foeLook(buildBeast))` serves Briarmaw, the walkers
+  and the rest. `walkersLook` is gone. Each walker gives `{ group, plan: 'biped', height, parts: { head }, update(t,
+  step), hit(), act: { lunge, fall }, pose(move, u, t) }`; its lunge plays Rootlash (the Rotwarden) or Sap Leech (the
+  sapwight). Checked headless (`tools/kitcheck.mjs`, the gallery with `?kit`): no errors.
+- Until the kit's material reads the walkers' roughness/metal picture (asked of session 6), the Fight draws their plate
+  and gold less shiny, and the sapwight's buds white instead of amber.
 
 ## Asked of session 6
 
-- His kit's shape arrived (foe.json, sculpt.py build(K, LV), rig.py, kit/js loader, moves and looks). I'll move the
-  walkers onto it when it reaches the hub's branch.
+- His kit is merged (hub 04433ed). The walkers are registered with its `looks.js`. Asked of him: the material to read
+  an `orm` picture (roughness G, metal B) and a glow colour; he is folding in the walkers' narrow-band meshing, Parts
+  and the roughness/metal bake. Once those land, the walkers' sculpts move to his `build(K)` and `foe.json` form.
 
 - Sent him what a biped kit wants (sculpt helpers split from Briarmaw's body, sheet checks taking the sheet and crop
   boxes, the bake taking per-kind targets and a per-foe rig, the page loader generic over body plans). The walkers' kit
