@@ -98,7 +98,7 @@ async function main() {
     }
     if (name === 'title') { unmountScreen(); if (world) world.pause(true); title(); return; }
     if (name === 'battle') { fightOn(params); return; }
-    if (name === 'atlas' && window.M7_ATLAS && window.M7_ATLAS.openAtlas) { atlas3d(params); return; }
+    if (name === 'atlas' && window.M7_ATLAS && window.M7_ATLAS.open) { atlas3d(); return; }
     const S = SCREENS[name];
     if (!S) { toast('Not in the 3D game yet.'); go('world'); return; }
     unmountScreen();
@@ -144,15 +144,16 @@ async function main() {
     go('aftermath', { battle: r.battle, returnTo: 'world' });
   }
 
-  // ---- the Atlas on the 3D continent: the Places job's piece, when it is on the page (window.M7_ATLAS.openAtlas({ at,
-  // kindled, travel }) -> Promise<hearthfire id | place id | null>). Until then M7's own Atlas screen stands in (above).
-  async function atlas3d(params) {
+  // ---- the Atlas on the 3D continent: the Places job's piece (world3d/m7/atlas.js), M7_ATLAS.open({ at, kindled }) ->
+  // { place, hearthfire } | null. A kindled Hearthfire chosen there is travelled to by M7's own rule (gauntlet.js travel),
+  // from the menu's Atlas as from a Hearthfire's. Without the piece on the page, M7's own Atlas screen stands in.
+  async function atlas3d() {
     world.pause(true);
-    const g = game, pos = g.progress.pos || {};
+    const g = game;
     let pick = null;
-    try { pick = await window.M7_ATLAS.openAtlas({ at: pos.map, kindled: Object.keys(g.progress.flags.kindled || {}), travel: params.mode === 'travel' }); } catch (e) { console.error(e); }
-    const hf = pick && (HEARTHS[pick] ? pick : Object.keys(HEARTHS).find((id) => HEARTHS[id].map === pick && g.progress.flags.kindled?.[id]));
-    if (hf && params.mode === 'travel') { const g2 = travel(g, hf); if (g2 && g2 !== g) { ctx.setGame(g2); toast(`You travel to ${HEARTHS[hf].name}.`); } }
+    try { pick = await window.M7_ATLAS.open({ at: g.progress.pos?.map, kindled: Object.keys(g.progress.flags.kindled || {}).filter((id) => g.progress.flags.kindled[id]) }); } catch (e) { console.error(e); }
+    const hf = pick && pick.hearthfire;
+    if (hf && HEARTHS[hf]) { const g2 = travel(g, hf); if (g2 && g2 !== g) { ctx.setGame(g2); toast(`You travel to ${HEARTHS[hf].name}.`); } }
     world.back({});
   }
 
