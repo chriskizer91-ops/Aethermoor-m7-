@@ -8,6 +8,7 @@ import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js';
+import { GTAOPass } from 'three/examples/jsm/postprocessing/GTAOPass.js';
 
 import { HERO_ART, renderHero } from '../../game/src/art/hero-looks.js';
 import { itemIcon, itemPortrait, RARITY_LOOK, RARITY_ORDER, SLOTS, ASPECT_LOOK } from '../../game/src/art/item-looks.js';
@@ -16,13 +17,16 @@ import { generateItem, relicItem } from '../../game/src/rules/loot.js';
 import { RELICS } from '../../game/src/data/relics.js';
 import { createRng } from '../../game/src/core/rng.js';
 import { buildHero, setPose, glowColor } from './model.js';
+import { Q } from './kit.js';
 
 const HEROES = [{ id: 'warden', name: 'Wren' }, { id: 'pip', name: 'Pip' }, { id: 'bryn', name: 'Bryn' }, { id: 'alondra', name: 'Alondra' }];
 const SLOT_NAME = { weapon: 'Weapon', offhand: 'Off hand', head: 'Head', body: 'Body', hands: 'Hands', feet: 'Feet', amulet: 'Amulet', ring: 'Ring' };
 const rng = createRng(`gear-room:${Date.now() % 100000}`);
 const relicsFor = slot => Object.values(RELICS).filter(r => r.slot === slot).sort((a, b) => a.codex - b.codex);
 
-const S = { hero: 'warden', gear: {}, slot: 'weapon', rarity: 'any', relicAt: {}, pixel: false, strike: -1, build: 'hero' };
+const coarse = matchMedia('(pointer: coarse)').matches;
+const S = { hero: 'warden', gear: {}, slot: 'weapon', rarity: 'any', relicAt: {}, pixel: false, strike: -1, build: 'hero', detail: coarse ? 'light' : 'high' };
+Q.d = S.detail === 'high' ? 2 : 1;
 
 /* ------------------------------------------------------------------ scene */
 const canvas = document.getElementById('view');
@@ -93,8 +97,13 @@ const idx = []; for (let i = 0; i < TRAIL - 1; i++) { const a = i * 2; idx.push(
 const trailMat = new THREE.MeshBasicMaterial({ color: 0xffd090, transparent: true, opacity: 0.6, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide });
 const trail = new THREE.Mesh(trailGeo, trailMat); trail.frustumCulled = false; trail.visible = false; scene.add(trail);
 
-const composer = new EffectComposer(renderer);
+// High: the picture is drawn with 4x smoothing on the edges and soft shadow in the creases (ambient occlusion)
+const composer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(2, 2, { type: THREE.HalfFloatType, samples: S.detail === 'high' ? 4 : 0 }));
 composer.addPass(new RenderPass(scene, camera));
+const gtao = new GTAOPass(scene, camera, 2, 2);
+gtao.output = GTAOPass.OUTPUT.Default; gtao.blendIntensity = 0.85;
+gtao.updateGtaoMaterial({ radius: 0.12, distanceExponent: 1.4, thickness: 1.2, scale: 1, samples: 12 });
+composer.addPass(gtao);
 const bloom = new UnrealBloomPass(new THREE.Vector2(256, 256), 0.34, 0.45, 0.9);
 composer.addPass(bloom);
 composer.addPass(new OutputPass());
@@ -103,7 +112,11 @@ composer.addPass(new OutputPass());
 let hero = null;
 function rebuild() {
   if (hero) { scene.remove(hero.group); hero.group.traverse(o => { o.geometry?.dispose?.(); }); }
+  Q.d = S.detail === 'high' ? 2 : 1;
+  const t0 = performance.now();
   hero = buildHero(S.hero, S.gear, { build: S.build });
+  S.lastBuild = Math.round(performance.now() - t0);
+  S.tris = 0; S.meshes = 0; hero.group.traverse(o => { if (o.isMesh) { S.meshes++; const g = o.geometry; S.tris += (g.index ? g.index.count : g.attributes.position.count) / 3; } });
   scene.add(hero.group);
   const fx = hero.fx;
   runeCircle.material.color.copy(fx.aura || new THREE.Color(0xffb04a));
@@ -205,17 +218,26 @@ $('b-off').onclick = () => { S.gear[S.slot] = null; rebuild(); };
 $('b-all').onclick = () => { for (const s of SLOTS) if (s !== 'offhand' || !['staff', 'bow', 'spear'].includes(S.gear.weapon?.kind)) S.gear[s] = rollFor(s); rebuild(); };
 $('b-starter').onclick = () => setHero(S.hero);
 $('b-strike').onclick = () => { S.strike = 0; trailPts.length = 0; };
-$('b-build').onclick = () => { S.build = S.build === 'hero' ? 'pixel' : 'hero'; $('b-build').textContent = S.build === 'hero' ? 'Shape: storybook' : 'Shape: like the sprite'; rebuild(); };
+$('b-build').onclick = () => { S.build = S.build === 'hero' ? 'chibi' : 'hero'; $('b-build').textContent = S.build === 'hero' ? 'Shape: storybook' : 'Shape: chibi'; rebuild(); };
+$('b-detail').onclick = () => { S.detail = S.detail === 'high' ? 'light' : 'high'; applyDetail(); rebuild(); };
+function applyDetail() {
+  const high = S.detail === 'high';
+  $('b-detail').textContent = high ? 'Detail: high' : 'Detail: light';
+  gtao.enabled = high;
+  composer.renderTarget1.samples = composer.renderTarget2.samples = high ? 4 : 0;
+  key.shadow.mapSize.set(high ? 4096 : 1024, high ? 4096 : 1024); if (key.shadow.map) { key.shadow.map.dispose(); key.shadow.map = null; }
+  resize();
+}
 $('b-pixel').onclick = () => { S.pixel = !S.pixel; $('b-pixel').setAttribute('aria-pressed', S.pixel); resize(); };
 
 /* ------------------------------------------------------------------ loop */
 function resize() {
   const box = canvas.parentElement.getBoundingClientRect();
   const w = Math.max(1, box.width), h = Math.max(1, box.height);
-  const pr = S.pixel ? Math.max(0.2, 150 / h) : Math.min(devicePixelRatio, 2);
+  const pr = S.pixel ? Math.max(0.2, 150 / h) : Math.min(devicePixelRatio, S.detail === 'high' ? 2 : 1.5);
   renderer.setPixelRatio(pr);
   renderer.setSize(w, h, false);
-  composer.setPixelRatio(pr); composer.setSize(w, h);
+  composer.setPixelRatio(pr); composer.setSize(w, h); gtao.setSize(w * pr, h * pr);
   canvas.style.imageRendering = S.pixel ? 'pixelated' : 'auto';
   camera.aspect = w / h;
   // a tall phone stage: a wider view, and the hero nudged down out from under the buttons
@@ -262,9 +284,10 @@ function loop() {
   controls.update();
   composer.render();
   spriteT += dt; if (spriteT > 0.31) { spriteT = 0; drawSprite(t); }
-  frames++; fpsT += dt; if (fpsT > 1) { $('fps').textContent = `${Math.round(frames / fpsT)} fps`; frames = 0; fpsT = 0; }
+  frames++; fpsT += dt; if (fpsT > 1) { $('fps').textContent = `${Math.round(frames / fpsT)} fps · ${Math.round(S.tris / 1000)}k triangles · ${S.meshes} pieces · built in ${S.lastBuild} ms`; frames = 0; fpsT = 0; }
 }
 window.__gear = { S, rebuild, setHero, rollFor, nextRelic, get hero() { return hero; }, camera, controls };
+applyDetail();
 setHero('warden');
 resize();
 loop();

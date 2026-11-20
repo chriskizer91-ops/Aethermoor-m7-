@@ -3,6 +3,13 @@
 // and metal its scratches. Nothing here knows about the game; model.js does.
 import * as THREE from 'three';
 import { MAT } from '../../game/src/art/forge.js';
+import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
+export { mergeGeometries };
+
+// the detail level: 1 (Light, for phones) or 2 (High): every curve gets this many times the segments, every surface
+// picture this many times the pixels, and model.js adds the small parts (stitches, rivets, straps, etching, prongs)
+export const Q = { d: 1 };
+const D = n => Math.max(3, Math.round(n * Q.d));
 
 export const V = (x = 0, y = 0, z = 0) => new THREE.Vector3(x, y, z);
 export const lerp = (a, b, t) => a + (b - a) * t;
@@ -34,6 +41,7 @@ export const centroid = ring => ring.reduce((a, p) => a.add(p), V()).multiplySca
 // an ellipse ring about c, in the plane of axes a (x) and b (z)
 export function ellipse(c, a, b, rx, rz, n = 16, shape = null) {
   const out = [];
+  n = D(n);
   for (let j = 0; j < n; j++) { const t = j / n * TAU; let k = 1; if (shape) k = shape(t); out.push(c.clone().addScaledVector(a, Math.cos(t) * rx * k).addScaledVector(b, Math.sin(t) * rz * k)); }
   return out;
 }
@@ -54,9 +62,10 @@ export function tube(points, radius, { n = 12, up = V(0, 0, 1), capA = true, cap
   }
   return loft(rings, { capA: capA && !closed, capB: capB && !closed });
 }
-export const curve = (pts, n = 24) => new THREE.CatmullRomCurve3(pts).getPoints(n);
+export const curve = (pts, n = 24) => new THREE.CatmullRomCurve3(pts).getPoints(D(n));
 // lathe(profile [[r, y], ...]) round the y axis; sx, sz squash it into an oval
 export function lathe(profile, { n = 28, sx = 1, sz = 1, phi0 = 0, phiLen = TAU, offset = V() } = {}) {
+  n = D(n);
   const rings = profile.map(([r, y]) => { const ring = []; const cnt = phiLen < TAU ? n + 1 : n; for (let j = 0; j < cnt; j++) { const a = phi0 + phiLen * j / (phiLen < TAU ? n : n); ring.push(V(offset.x + Math.sin(a) * r * sx, offset.y + y, offset.z + Math.cos(a) * r * sz)); } return ring; });
   return loft(rings, { closed: phiLen >= TAU });
 }
@@ -71,6 +80,7 @@ export function wedge(outline, depth, thick = null, { bevel = 0, curveSegments =
 }
 // a plate the shape of an outline, bulged by bulge(x, y) toward +z, with planar uvs over its bounding box (shields)
 export function plate(outline, bulge, { rings = 14, seg = 64 } = {}) {
+  rings = D(rings); seg = D(seg);
   let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
   for (const [x, y] of outline) { x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y); }
   // the outline's distance from the centre in every direction (it must be star-shaped about the centre: shields are)
@@ -92,6 +102,7 @@ export function plate(outline, bulge, { rings = 14, seg = 64 } = {}) {
 // a blade: a flat diamond in section, with bevels to the edges and a fuller down the middle; w(u), t(u) half-width and
 // half-thickness along it (u 0 at the guard, 1 at the point), off(u) bends its centre line (a curved knife)
 export function blade(len, w, t, { fuller = 0.35, off = () => 0, rings = 16 } = {}) {
+  rings = D(rings);
   const R = [];
   for (let i = 0; i <= rings; i++) {
     const u = i / rings, y = u * len, hw = Math.max(w(u), 1e-5), ht = Math.max(t(u), 1e-5), cx = off(u), f = fuller * (1 - smooth((u - 0.55) / 0.3));
@@ -122,8 +133,9 @@ function normalMap(N, height, strength) {
 }
 const TEX = {};
 export function surface(kind) {
-  if (TEX[kind]) return TEX[kind];
-  const N = 256;
+  const N = 256 * Q.d, key = kind + N;
+  if (TEX[key]) return TEX[key];
+  const sx = 256 / N; // the patterns are drawn in 256-px units, at any resolution
   const H = {
     leather: (x, y) => { const v = fbm(x / 9, y / 9, 3, 256 / 9 | 0, 3); const cell = Math.abs(vnoise(x / 5, y / 5, 9, 256 / 5 | 0) - 0.5); return v * 0.6 + cell * 0.8; },
     cloth: (x, y) => { const a = Math.sin(x * Math.PI / 2) * 0.5 + 0.5, b = Math.sin(y * Math.PI / 2) * 0.5 + 0.5; return ((x >> 1) + (y >> 1)) % 2 ? a : b; },
@@ -136,8 +148,8 @@ export function surface(kind) {
     scale: (x, y) => { const s = 16, cy = Math.floor(y / 12), ox = cy % 2 ? s / 2 : 0, cx = Math.floor((x + ox) / s); const px = (x + ox) - cx * s - s / 2, py = y - cy * 12; const r = Math.hypot(px, py * 0.9); return r < 9 ? (1 - r / 9) * (py / 12) : 0; },
   }[kind];
   const strength = { leather: 3, cloth: 1.6, mail: 5, wood: 2.2, metal: 2.4, hair: 3, skin: 1.2, stone: 3, scale: 6 }[kind];
-  TEX[kind] = normalMap(N, H, strength);
-  return TEX[kind];
+  TEX[key] = normalMap(N, (x, y) => H(x * sx, y * sx), strength * (Q.d > 1 ? 0.75 : 1));
+  return TEX[key];
 }
 
 /* ------------------------------------------------------------------ materials from the Forge's palettes */
@@ -158,7 +170,7 @@ const baseKey = key => (MAT[key] ? key : key && MAT[String(key).split(/[\^~]/)[0
 // mat(key, { as, rep, side }): as forces a surface (mail, scale); rep scales its picture
 export function mat(key, o = {}) {
   key = baseKey(key);
-  const kind = o.as || KIND(key), id = `${key}|${kind}|${o.rep || 1}|${o.side ? 2 : 1}`;
+  const kind = o.as || KIND(key), id = `${key}|${kind}|${o.rep || 1}|${o.side ? 2 : 1}|${Q.d}`;
   if (cache.has(id)) return cache.get(id);
   const M = MAT[key], p = M.pal, rep = o.rep || 1;
   const nm = (t, r) => { const c = t.clone(); c.repeat.set(r * rep, r * rep); c.needsUpdate = true; return c; };
@@ -184,3 +196,64 @@ export function mat(key, o = {}) {
 }
 export const glowColor = key => sRGB((MAT[baseKey(key)] || MAT.ember).pal[4]);
 export const isEmit = key => !!MAT[baseKey(key)]?.emit;
+
+/* ------------------------------------------------------------------ segment-scaled primitives */
+export const sph = (r, w = 16, h = 12, ...a) => new THREE.SphereGeometry(r, D(w), D(h), ...a);
+export const tor = (R, r, rs = 8, ts = 24, ...a) => new THREE.TorusGeometry(R, r, D(rs), D(ts), ...a);
+export const cone = (r, h, s = 8, ...a) => new THREE.ConeGeometry(r, h, D(s), ...a);
+export const cylg = (r0, r1, h, s = 12, ...a) => new THREE.CylinderGeometry(r0, r1, h, D(s), ...a);
+export const ico = (r, n = 1) => new THREE.IcosahedronGeometry(r, n + (Q.d > 1 ? 1 : 0));
+
+/* ------------------------------------------------------------------ joining the pieces */
+// bake(root, keep): every mesh is joined, by material, into the nearest node of `keep` above it (the nodes that move
+// on their own: the chest, the head, each arm's joints, the weapon...). A hero of 200 pieces is drawn in about 30.
+export function bake(root, keep) {
+  const jobs = new Map(); // keep node -> material -> [geometry in that node's space]
+  root.updateMatrixWorld(true);
+  const inv = new THREE.Matrix4(), m = new THREE.Matrix4();
+  const owner = o => { let p = o.parent; while (p && !keep.has(p)) p = p.parent; return p; };
+  const meshes = []; root.traverse(o => { if (o.isMesh && !o.userData.keep) meshes.push(o); });
+  for (const o of meshes) {
+    const k = owner(o); if (!k) continue;
+    inv.copy(k.matrixWorld).invert(); m.multiplyMatrices(inv, o.matrixWorld);
+    let g = o.geometry.clone(); g.applyMatrix4(m);
+    for (const name of Object.keys(g.attributes)) if (!['position', 'normal', 'uv'].includes(name)) g.deleteAttribute(name);
+    if (!g.attributes.uv) g.setAttribute('uv', new THREE.Float32BufferAttribute(new Float32Array(g.attributes.position.count * 2), 2));
+    if (!g.attributes.normal) g.computeVertexNormals();
+    g.clearGroups();
+    if (!jobs.has(k)) jobs.set(k, new Map());
+    const byMat = jobs.get(k); if (!byMat.has(o.material)) byMat.set(o.material, []);
+    byMat.get(o.material).push(g);
+    o.parent.remove(o); o.geometry.dispose();
+  }
+  let made = 0;
+  for (const [k, byMat] of jobs) for (const [mt, list] of byMat) {
+    const any = list.some(g => !g.index), all = any ? list.map(g => (g.index ? g.toNonIndexed() : g)) : list;
+    const merged = mergeGeometries(all, false); if (!merged) continue;
+    const mesh = new THREE.Mesh(merged, mt); mesh.castShadow = mesh.receiveShadow = true; k.add(mesh); made++;
+  }
+  // empty groups left behind (gem settings, shields' inner groups) are harmless; drop the ones with nothing at all
+  const empty = []; root.traverse(o => { if (o.type === 'Group' && !keep.has(o) && o.children.length === 0) empty.push(o); });
+  for (const o of empty) o.parent?.remove(o);
+  return made;
+}
+
+/* ------------------------------------------------------------------ etched runes on a blade (High) */
+let ETCH = null;
+export function etchMaterial() {
+  if (ETCH) return ETCH;
+  const c = document.createElement('canvas'); c.width = 128; c.height = 512; const g = c.getContext('2d');
+  g.clearRect(0, 0, 128, 512); g.strokeStyle = 'rgba(40,26,10,.85)'; g.lineWidth = 5; g.lineCap = 'round';
+  let r = 7; const rnd = () => { r = (r * 16807) % 2147483647; return r / 2147483647; };
+  for (let y = 30; y < 490; y += 46) { g.beginPath(); const x = 64; g.moveTo(x, y); for (let k = 0; k < 3; k++) g.lineTo(28 + rnd() * 72, y + rnd() * 34); g.stroke(); g.beginPath(); g.arc(x + (rnd() - 0.5) * 30, y + 18, 6 + rnd() * 6, 0, Math.PI * (1 + rnd())); g.stroke(); }
+  g.lineWidth = 3; g.strokeRect(14, 12, 100, 488);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4;
+  ETCH = new THREE.MeshStandardMaterial({ map: t, transparent: true, metalness: 0.6, roughness: 0.55, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2, side: THREE.DoubleSide });
+  return ETCH;
+}
+// short stitches along a path (High): little dashes of thread, every `step` metres
+export function stitchGeo(pts, step, r) {
+  const geos = [], c = new THREE.CatmullRomCurve3(pts), L = c.getLength(), n = Math.floor(L / step);
+  for (let i = 0; i < n; i++) { const a = c.getPointAt(i / n), b = c.getPointAt(Math.min(1, (i + 0.55) / n)); const g = new THREE.CapsuleGeometry(r, Math.max(1e-4, a.distanceTo(b) - r * 2), 2, 4); const q = new THREE.Quaternion().setFromUnitVectors(V(0, 1, 0), b.clone().sub(a).normalize()); g.applyQuaternion(q); const mid = a.clone().lerp(b, 0.5); g.translate(mid.x, mid.y, mid.z); geos.push(g); }
+  return geos.length ? mergeGeometries(geos.map(g => { g.deleteAttribute('uv'); return g; })) : null;
+}
