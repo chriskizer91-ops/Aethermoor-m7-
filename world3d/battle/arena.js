@@ -372,7 +372,7 @@ export function foeFigure(unitOrKey, o = {}) {
   }
   const box = new THREE.Box3().setFromObject(body), sz = box.getSize(V3());
   const F = {
-    key, root, body, fig, humanoid, plan, mover: foeMover(plan, humanoid), height, parts: {},
+    key, root, body, fig, humanoid, plan, mover: foeMover(plan, humanoid), height, parts: (fig.beast && fig.beast.parts) || {},
     size: { w: Math.max(0.35, Math.min(sz.x, sz.z) || 0.5), d: Math.max(0.35, Math.max(sz.x, sz.z) || 0.5), h: Math.max(0.3, sz.y || height) },
     pos: V3(), home: V3(), face: 0, side: V3(1, 0, 0), ph: Math.random() * 6, step: 0,
     act: null, hurt: null, ko: null, gone: null, bite: null, removed: false, sinkTo: 0, sink: 0, sunk: false, sinkOut: 0,
