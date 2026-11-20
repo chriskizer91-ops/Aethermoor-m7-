@@ -14,7 +14,7 @@ const args = [
   'build.mjs', '--html=../game3d/page.html', '--entry=../game3d/main.js', '--plugin=../game3d/swap.mjs',
   '--places=' + (has('places') ? pass.find((a) => a.startsWith('--places=')).split('=')[1] : ACT_ONE.join(',')),
   '--out=' + (has('out') ? pass.find((a) => a.startsWith('--out=')).split('=')[1] : 'game3d-act1'),
-  ...(has('tex') ? [] : ['--tex=512']), ...(has('paint') ? [] : ['--paint=0.6']), ...(has('herotex') ? [] : ['--herotex=256']),
+  ...(has('tex') ? [] : ['--tex=400']), ...(has('paint') ? [] : ['--paint=0.5']), ...(has('herotex') ? [] : ['--herotex=256']),
   ...pass.filter((a) => !/^--(places|out)=/.test(a)),
 ];
 execFileSync('node', args, { cwd: path.join(here, '../world3d'), stdio: 'inherit' });

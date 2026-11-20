@@ -4,7 +4,7 @@ Last updated November 20.
 
 ## Done
 
-- **Step 1, Act One as one game**: https://claude.ai/artifact/RaeSK5hezqb3qH7jmuM5aj (version 3, 14.8 MB; page `game3d/`, built by
+- **Step 1, Act One as one game**: https://claude.ai/artifact/RaeSK5hezqb3qH7jmuM5aj (version 4, 15.1 MB; page `game3d/`, built by
   `node game3d/build.mjs`). On the title: Go on, A new journey (M7's own prologue and name screen), or Bring the party
   from the 2D game (M7's save, read only).
   - Walking with M7's world engine underneath: each time the leader crosses into a new 2 m tile, one step in
@@ -20,6 +20,10 @@ Last updated November 20.
   - Fights: contact with a pack, or a foe's card, starts the Fight's `runFight` on that spot. Then the spoils on the
     field (`keep: true`): the drops lie as chests where the foes fell, M7's own after-fight screen plays over it, and
     equipping from a card re-dresses that hero there and then. A defeat wakes the party at the Hearthfire.
+  - The foes' look (`game3d/figures.js`, `?foes=`): `hd` (the default) is full detail where a foe has one (session 6's
+    kit: Briarmaw so far, built from `prototypes/foe-hd/foes/<key>/` by `game3d/foes-hd.mjs`) and the sculpted beasts for
+    the rest; `hd-cutout` falls back to Chris's painted cut-outs; `3d` and `cutout` are the others alone. Each new
+    finished foe comes in by itself at the next build.
   - The Party (menu, Hearthfire) is the Fight's party room: M7's Party screen with the hero turning in 3D.
   - Models' light figures (the leader 'auto', the others 'lite' on a phone) and living faces: everyone blinks, the one
     speaking talks (the leader in the party's own scenes), the party cheers a Brand.
@@ -63,6 +67,9 @@ Last updated November 20.
   (Briarmaw's Brand won, the party at level 10 in the Heartroot's depths): "Go on", the Rotwarden fought in 3D and won,
   the second Brand, Act One complete, back up the roots, the Last Green Coal's Hearthfire home to the Great Hall, the
   Council sits, saved with both Brands, the menu's Party with the hero in 3D, and back. (17 minutes headless.)
+- Version 4: Briarmaw's den played in the game (`game3d/tools/den.mjs`): the den, his card, his fight in 3D with him
+  in full detail, no page errors. To fit him (about 2 MB), the places' textures are at 400 px and the paintings at half
+  size; M7's 2D Atlas screen is left off (the 3D Atlas replaced it).
 - Version 3 is what these ran on (the end-of-Act-One run), apart from the main playthrough, which ran just before the
   Party room and the faces came in.
 - Not checked: a phone's frame rate (headless draws 1 to 4 frames a second in software).
