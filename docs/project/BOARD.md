@@ -1,17 +1,19 @@
 # The board
 
-Where the 3D game stands. Written by the hub only. Last updated November 20, evening.
+Where the 3D game stands. Written by the hub only. Last updated November 20, late evening.
 
 ## The sessions
 
 | # | Job | Session | Branch | State | Latest link |
 |---|---|---|---|---|---|
 | 1 | the hub | `session_01DgbUKb6orvjjc1cMgBGPJK` | `claude/brave-davinci-790efm` | running | (the board) |
-| 2 | The Fight | `session_01DgbUKYR9qmKyBdACUWGViw` | `job/fight` | step 2 complete and brought in: the spoils and M7's Party screen with the hero turning in 3D (`openParty()` for Together); next: Full-detail Briarmaw as a third Foes setting | https://claude.ai/artifact/NpeXL5Pf4RxNfkQsguTnEK |
-| 3 | Models | `session_01DgbUKcWh5MEvjHnxzp4HHo` | `job/models` | lighter heroes and people done and brought in (Lite: 2 draw calls a figure; `'auto'` by distance; a town on a phone 113 → 39 calls); the painted / 3D choice waits on Chris | https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL |
+| 2 | The Fight | `session_01DgbUKYR9qmKyBdACUWGViw` | `job/fight` | step 3 under way: cameras keep a clear line indoors (in); any M7 fight from its own map data (`?enc=`, a Fights list); next: every battle event and status in 3D | https://claude.ai/artifact/NpeXL5Pf4RxNfkQsguTnEK |
+| 3 | Models | `session_01DgbUKcWh5MEvjHnxzp4HHo` | `job/models` | faces that live done and brought in (blink, talk, six expressions: `figure.face(expr, seconds)`); next: every item M7 can drop, checked on the heroes and made epic | https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL |
 | 4 | Places | `session_01DgbUKZVFBfm1dVautXEw5f` | `job/places` | step 4 brought in (phones: Act One ~82 draw calls on phone; the paintings on roofs, water, decks, rocks; signposts, chests, pedestals); fixing: roofs over a house's front row show the painted front | https://claude.ai/artifact/MXyu3A9zTjoCavHFKXCbpi |
-| 5 | Together | `session_01DgbUKbyjzZFe1BXHHxzHBn` | `job/together` | version 2 brought in: the townsfolk talk and turn, the light Atlas; the playthrough passed 15 of 16 (the chest step being re-run) | https://claude.ai/artifact/RaeSK5hezqb3qH7jmuM5aj |
-| 6 | One Foe | `session_01DgbUKZCNBFY7zwSzwAXR8y` | `job/foe-hd` | first look done and brought in: Briarmaw three ways (a 407k sculpt baked onto 50,167 triangles, 19 bones, 7 moves, the crowd test); next: pass 3 (~1M), the face, smoother moves | https://claude.ai/artifact/5iUqJsPw3NGrvun4Ng73eh |
+| 5 | Together | `session_01DgbUKbyjzZFe1BXHHxzHBn` | `job/together` | the spoils, the Party room and the light figures in the game; an end-of-Act-One run (the Rotwarden, the second Brand, home, the Council) being checked before republishing | https://claude.ai/artifact/RaeSK5hezqb3qH7jmuM5aj |
+| 6 | One Foe | `session_01DgbUKZCNBFY7zwSzwAXR8y` | `job/foe-hd` | Briarmaw's pass 3, then the foes' shared kit (`docs/project/jobs/foes.md`), then the strange ones (wraiths, willows, sparks) | https://claude.ai/artifact/5iUqJsPw3NGrvun4Ng73eh |
+| 7 | Foes: beasts | `session_01DgbUKZ4qEpafSazysExsYV` | `job/foes-beasts` | starting: the thornhound, then Act One's other beasts, in full detail | - |
+| 8 | Foes: walkers | `session_01DgbUKcTDUjKDVHw3sPhu7R` | `job/foes-walkers` | starting: the Rotwarden, then the sapwight, in full detail | - |
 
 ## What's built (on the hub's branch)
 
@@ -61,6 +63,9 @@ Where the 3D game stands. Written by the hub only. Last updated November 20, eve
 - **Light figures (Models, hub d96e11e):** `actor`, `person` and `personFigure` take `'lite'`, `'auto'` and
   `'auto-high'`. Suggested: phones, leader `'auto'`, followers and townsfolk `'lite'`; laptops, leader `'auto-high'`,
   followers `'auto'`. The world page uses it; Places (Act One and the regions), Together and the Fight to switch theirs.
+
+- **The foes, from now:** every beast in full detail (sessions 6, 7, 8; `docs/project/jobs/foes.md`). Models' sculpted
+  and painted beasts stand in until each full-detail one lands; Models keeps the heroes and the people.
 
 ## Next for the hub
 

@@ -69,6 +69,9 @@
   the Old Bridge's stone) and the **rocks**. Walls keep their own textures. The maps' own things now stand as
   themselves: 90 signposts, 6 notice boards with their papers, 63 chests with iron bands, 66 relic pedestals, the war
   table and 3 bell frames. Trees the painting shows as pines are firs (Thornhollow's, the East Road's higher woods).
+  Roofs take their painting only from the building's roof rows: `convert.mjs` writes each place a roofs-only painting
+  (`coven/art/m7/<id>-roofs.webp`, each building's H rows stretched over its whole footprint, blank elsewhere; 624 KB
+  for all 28), so a front wall's painted doors, windows or a stall's wares no longer lie on the roof (hub's catch).
   Gates and locks are left to the game, because they open and close with the story. Towns checked against their paintings:
   the Keep, Thornhollow, Sandspire, Dusthaven, Ironhold, Stormwatch, Bogmire.
 - **Phones.** On phone detail, the trees deep inside a wood (hidden by the outer ones) and many of the woods past the

@@ -43,9 +43,14 @@ The Fight is building his battle at the same time, so he'll have a stage to stan
   `meshoptimizer` to simplify, `xatlas` to unwrap, `three-mesh-bvh` to ray-cast the bake.
 - The page is one self-contained HTML file (the `.glb` and textures inside it as data), under 16 MB, opening on a phone.
 
+## Step 2 (from November 20): the kit, then the strange ones
+
+Chris liked Briarmaw and asked for more sessions to build the foes this way. After Briarmaw's pass 3, turn the
+recipe into a shared kit for sessions 7 and 8, and build your lane: `docs/project/jobs/foes.md`.
+
 ## Your files
 
-- Yours: `prototypes/foe-hd/**` (new: the scripts, the made model and textures, the page and its build),
+- Yours: `prototypes/foe-hd/**` apart from the foe folders and gallery pages of sessions 7 and 8 (`docs/project/jobs/foes.md`),
   `docs/project/slips/foe-hd.md`.
 - Others' (read and import, don't edit): `game/` (frozen), `art-in/` (Chris's originals), `prototypes/bestiary/` and
   `prototypes/hero-3d/` (Models), `world3d/` (Fight, Places, hub).

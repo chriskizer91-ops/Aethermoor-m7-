@@ -4,6 +4,14 @@ Written by the hub. His newer word beats anything older, here or anywhere in the
 
 ## November 20
 
+- **Full-detail sculpts: aim at about 500,000 to 1 million triangles**, "to get the amount of detail that you need. It
+  can be more than that if it needs to be" (his laptop can take 2 or 3 million). **Each full-detail model is kept as an
+  asset he can look at**; the game uses the baked light version (about 50,000 triangles). He saw the crowd test (six
+  full-detail Briarmaws and the four heroes) at 144 frames a second on his laptop and called the baked one "kind of
+  amazing looking". (To session 6, passed on to every session; Briarmaw's sculpt is 988,394 triangles.)
+- **The foes in full detail, the way session 6 made Briarmaw** ("already looking fantastic; I'm excited to see other
+  foes rendered with the techniques it learned"), with more sessions building them: sessions 7 (beasts) and 8
+  (walkers) join session 6 (`docs/project/jobs/foes.md`).
 - **To session 6, on the full-detail foe** (relayed in its slip): start with a 100,000-triangle shape model, then add
   the detail; no fuzz of tiny hairs ("that'll look fuzzy, but it won't look like it's supposed to").
 - **A sixth session builds one foe in full detail**: a 600,000 to 1,000,000-triangle sculpt baked onto a
