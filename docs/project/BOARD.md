@@ -1,6 +1,6 @@
 # The board
 
-Where the 3D game stands. Written by the hub only. Last updated November 20.
+Where the 3D game stands. Written by the hub only. Last updated November 20, evening.
 
 ## The sessions
 
@@ -11,7 +11,7 @@ Where the 3D game stands. Written by the hub only. Last updated November 20.
 | 3 | Models | `session_01DgbUKcWh5MEvjHnxzp4HHo` | `job/models` | the painted / 3D comparison in (waiting on Chris); the 39 people foes true to their sprites' looks, brought in; next: the townsfolk (M7's people in the places), for Together | https://claude.ai/artifact/CA6CcAKVHSxGPB5TAZF5sY |
 | 4 | Places | `session_01DgbUKZVFBfm1dVautXEw5f` | `job/places` | step 3 done and brought in: the Atlas (M7's places on the 3D continent, travel by kindled Hearthfires: `M7_ATLAS.open`), the light per place (Act One by day), batch 4 read from `art-in/`; next: phones and fidelity to the paintings | https://claude.ai/artifact/MXyu3A9zTjoCavHFKXCbpi |
 | 5 | Together | `session_01DgbUKbyjzZFe1BXHHxzHBn` | `job/together` | step 1 done and brought in: Act One as one playable game (M7's world engine under the 3D walk, people, packs, fights, chests, Hearthfires, the Atlas, its own save); the playthrough continues | https://claude.ai/artifact/RaeSK5hezqb3qH7jmuM5aj |
-| 6 | One Foe | `session_01DgbUKZCNBFY7zwSzwAXR8y` | `job/foe-hd` | starting: Briarmaw in full detail, side by side | - |
+| 6 | One Foe | `session_01DgbUKZCNBFY7zwSzwAXR8y` | `job/foe-hd` | Briarmaw's sculpt, pass 1 (shape, about 134k triangles), checked against the sheet; on to the full detail, the bake and the three-way page | - |
 
 ## What's built (on the hub's branch)
 
