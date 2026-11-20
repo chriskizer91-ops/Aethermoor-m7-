@@ -32,11 +32,19 @@ Last updated November 20.
   - Own save key `aethermoor.save.3d` (and `.bak`, `aethermoor.settings.3d`); M7's `aethermoor.save.m7` is only read
     (Chris's open call 10, the suggestion, easy to switch off: one button on the title).
 
+- **The Sunscorch** (Act Two's first region): https://claude.ai/artifact/7dPEGKka7t1FyHF5SSLPAo (13.3 MB; `node game3d/build.mjs
+  --act=sunscorch`). The Keep, its Great Hall and all ten Sunscorch places. Pages can't share a save, so its title offers
+  "Begin at the Sunscorch" (the journey as Act One leaves it, made by M7's rules: both Brands of the Wilds, the Council
+  sat, level 8, at the Keep's south-east gate) or "Bring a journey by its save code" (copy it on the Act One page,
+  Settings; paste it here). Checked (`game3d/tools/sunscorch.mjs`, 6 of 6, no page errors): the gate opens onto the Sun
+  Road, the road's toll fight won, Sandspire, a rest at its Hearthfire, saved.
+
 ## Next
 
 - Briarmaw, the spoils and the new creatures as the Fight and Models deliver them (the foes' figures come through
   `game3d/figures.js`, one place to switch).
-- Acts Two and Three: a page per region or act from the 47 other places (the 16 MB limit).
+- The Ironspire and the Gloomfen, then Act Three, a page each, or one page for everything if the hub's pictures-as-files
+  works on Chris's phone (then the full textures, paintings and every full-detail foe come back too).
 - Chests, signs and Hearthfire stands shown as 3D things (today the painting shows them).
 
 ## Changed outside my files
