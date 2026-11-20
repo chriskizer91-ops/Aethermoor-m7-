@@ -27,6 +27,11 @@
   Same link, 11 MB.
 - The phone page builds lighter heroes when `?quality=phone` (163 thousand triangles in a fight, down from 287).
 
+- **Chris's painted foes in a fight** (same page): the **Foes** button (top right) switches the beasts between the
+  sculpted 3D ones and Models' painted standees from Chris's sheets; `?foes=cutout` starts painted. People foes stay
+  built by the heroes' builder. Only the paintings this page meets go in (thornhound, briarling, Briarmaw;
+  `FIGHT_STANDEES=...` at build time names others), so the page is 12 MB. A painted fight plays to victory headless.
+
 ## For Together: starting a fight from outside
 
 `world3d/battle/run.js` exports one function. It pauses the walk, swings the camera round, plays M7's battle screen
@@ -57,7 +62,7 @@ I'll add a switch on the page (`?foes=cutout`).
 ## Next
 
 - Step 2, the spoils: drops on the ground, M7's card reveal, gear changing the 3D outfit, XP and levels, the Party screen.
-- When Models' and session 6's looks land: `?foes=cutout`, and Briarmaw's full model through `setBeastLook`.
+- When session 6's Briarmaw lands: his full model through `setBeastLook`.
 
 ## Changed outside my files
 

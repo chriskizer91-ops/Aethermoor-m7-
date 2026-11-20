@@ -105,7 +105,7 @@ export const arena = {
       p.y = this.heightAt(p.x, p.z, p.y);
       const fresh = !F.placed; F.placed = true;
       if (!fresh && !F.walk && this.want) F.walk = { from: F.pos.clone(), t: 0, dur: 0.6 };
-      F.home.copy(p); if (fresh && F.pos.lengthSq() === 0) F.pos.copy(p); F.slot = x - L.stage.left; F.slotW = Math.max(96, Math.min(200, (L.stage.width - 8) * wt[i] / sum - 6));
+      F.home.copy(p); if (fresh && F.pos.lengthSq() === 0) F.pos.copy(p); F.slot = x - L.stage.left; F.slotW = Math.max(118, Math.min(200, (L.stage.width - 8) * wt[i] / sum - 6));
     });
   },
   // the camera that puts the heroes' feet at yH, their heads at yTop and the foes' feet at yF, looking down `dir`
@@ -232,7 +232,7 @@ export const arena = {
     const h = tgt ? this.heroByUnit(tgt) : null;
     F.act = { kind: 'attack', t: 0, dur: 2.0, target: h ? h.id : null, bit: false };
   },
-  foeHurt(id, big) { const F = this.foes.get(id); if (F && !F.ko) F.hurt = { t: 0, dur: big ? 0.5 : 0.36 }; },
+  foeHurt(id, big) { const F = this.foes.get(id); if (F && !F.ko) { F.hurt = { t: 0, dur: big ? 0.5 : 0.36 }; F.fig.beast?.hit?.(); } },
   foeKo(id) { const F = this.foes.get(id); if (!F) return; F.ko = { t: 0, dur: 0.6 }; F.act = null; },
   foeGone(id, kind) { const F = this.foes.get(id); if (!F) return; F.gone = { t: 0, dur: 0.8, kind }; F.act = null; },
   foeRevive(id) { const F = this.foes.get(id); if (!F) return; F.ko = null; F.gone = null; F.removed = false; F.root.visible = true; F.sinkOut = 0; },

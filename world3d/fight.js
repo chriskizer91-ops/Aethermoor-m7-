@@ -4,6 +4,7 @@
 // log, Legend Surge), over the 3D land, with our stage (battle/stage3d.js) under it. When it ends the camera swings
 // back behind the leader and the party walks on; another pack comes out on the road.
 //   ?pack=0|1 which of Thornhollow's patrols (M7's PATROLS.thornhollow); ?lose=1 a pack far too strong (to see a defeat)
+//   ?foes=cutout the beasts as Chris's painted standees (Models' prototypes/bestiary/standee.js); the Foes button switches
 //   ?auto=1 the party fights on its own; ?speed=2|4; ?go=1 the fight starts at once (headless checks)
 import './heroes.js';
 import '../game/src/ui/theme.css';
@@ -19,7 +20,8 @@ import { deriveHero } from '../game/src/rules/stats.js';
 import { createRng } from '../game/src/core/rng.js';
 import { PATROLS } from '../game/src/data/encounters.js';
 import { heroGear } from '../game/src/ui/battle/sprites.js';
-import { arena, foeFigure } from './battle/arena.js';
+import { arena, foeFigure, setBeastLook } from './battle/arena.js';
+import { standeeLook } from '../prototypes/bestiary/standee.js';
 import { runFight } from './battle/run.js';
 
 const Q = new URLSearchParams(location.search);
@@ -33,6 +35,8 @@ const SCENES = {
     hint: 'walk into the den', foes: () => ['briarmaw'], at: [[8, 5.6]], trigger: 7.5,
     battle: (game) => startBattle(game, { nodeId: 'briarmaw-den' }) },
 };
+let cutout = Q.get('foes') === 'cutout';
+setBeastLook(cutout ? standeeLook : null);
 let SC = SCENES[Q.get('fight') === 'briarmaw' ? 'den' : 'road'];
 const tilePx = (c, r) => [c * 50 + 25, r * 40 + 20];       // a tile to the walking map's px (m7-kit.js: 50 x 40)
 
@@ -174,6 +178,15 @@ async function main() {
     hello();
   }
   const label = () => { $('scenebtn').textContent = SC === SCENES.road ? 'To Briarmaw\'s den' : 'To Thornhollow'; $('fightbtn').textContent = SC === SCENES.road ? 'Meet the pack' : 'Face Briarmaw'; };
+  // the beasts' look, for Chris to choose: the painted standees from his sheets, or the sculpted ones
+  const looks = () => { $('looksbtn').textContent = cutout ? 'Foes: painted' : 'Foes: sculpted'; };
+  $('looksbtn').addEventListener('click', () => {
+    if (fighting) return;
+    cutout = !cutout; setBeastLook(cutout ? standeeLook : null); looks();
+    if (pack) for (const F of pack.figs) W.P.scene.remove(F.root);
+    pack = null; spawnPack(); toast(cutout ? 'The foes as Chris painted them' : 'The foes as sculpted in 3D');
+  });
+  looks();
   $('scenebtn').addEventListener('click', () => goScene(SC === SCENES.road ? 'den' : 'road'));
   label();
   const hello = () => { setTimeout(() => toast(SC.name, true), 300); setTimeout(() => toast(PHONE ? `Drag on the left to ${SC.hint}` : `W A S D to ${SC.hint}`), 3600); };
