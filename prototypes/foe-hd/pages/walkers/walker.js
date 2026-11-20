@@ -9,7 +9,7 @@
 //   const W = buildWalker(shared, FOES.rotwarden);    // { group, plan: 'biped', height, parts, update, hit, act, pose }
 //   W.pose('rootlash', u, t)
 //
-// For the Fight (world3d/battle/arena.js setBeastLook): walkersLook({ rotwarden: shared, ... }, fallback).
+// For the Fight (world3d/battle/arena.js setBeastLook): the foe kit's one foeLook (kit/js/looks.js), see register.js.
 import * as THREE from 'three';
 import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
 import { clone as cloneSkinned } from 'three/examples/jsm/utils/SkeletonUtils.js';
@@ -187,13 +187,15 @@ function pose(W, move, u, t, step) {
 }
 export const tools = { ease, bump, seg, legs, crouch, roots };
 
-// For the Fight's setBeastLook: these walkers in full detail, every other foe as before.
-//   setBeastLook(walkersLook({ rotwarden: [shared, FOES.rotwarden] }, buildBeast))
-export function walkersLook(table, fallback) {
-  const first = {};
-  return (key, sprite, opts) => {
-    const e = table[key];
-    if (!e) return fallback(key, sprite, opts);
-    return first[key] ? cloneWalker(first[key]) : (first[key] = buildWalker(e[0], e[1]));
+// The walkers' moves in the foe kit's shape (kit/js/moves/<plan>.js: MOVES, DUR, LUNGE, pose), for kit/js/looks.js.
+// The Fight gets the walkers from the kit's one foeLook (see register.js); this file's buildWalker draws them on the
+// walkers' gallery with the roughness/metal picture.
+export function movesFor(foe) {
+  const own = Object.entries(foe.moves).map(([k, m]) => [k, m.label]);
+  return {
+    MOVES: [['idle', 'Breathe'], ['walk', 'Walk'], ...own, ['hurt', 'Hit'], ['ko', 'Fall']],
+    DUR: { ...Object.fromEntries(Object.entries(foe.moves).map(([k, m]) => [k, m.dur])), hurt: 0.9, ko: 2.6 },
+    LUNGE: foe.lunge || 'strike',
+    pose(F, move, u, t, step = 0) { F.foe ??= foe; return pose(F, move, u, t, step); },
   };
 }

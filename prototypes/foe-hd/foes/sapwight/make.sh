@@ -17,5 +17,5 @@ GLOW=1 blender -b -P $K/bake.py -- build/high-$PASS.npz build/high-1.npz build/b
 mkdir -p assets
 python3 $W/textures.py build/bake assets $RES
 node $W/pack.mjs build/bake "" assets
-python3 $K/info.py build/high-1.npz build/high-$PASS.npz $PASS assets
+python3 $K/info.py build/high-1.npz build/high-$PASS.npz $PASS assets $RES
 ls -la assets

@@ -12,9 +12,9 @@ blender -b -P $K/preview.py -- build/high-1.npz build/shape >/dev/null 2>&1
 blender -b -P $K/preview.py -- build/high-$PASS.npz build/final >/dev/null 2>&1
 python3 $K/checks.py $SHEET $BOXES build/shape build/shape
 python3 $K/checks.py $SHEET $BOXES build/final build/final
-blender -b -P $K/bake.py -- build/high-$PASS.npz build/high-1.npz build/bake $RES . 0=34000,3=9000,2=1600,8=1400,4=1500 2>&1 | grep '\[bake\]'
+blender -b -P $K/bake.py -- build/high-$PASS.npz build/high-1.npz build/bake $RES . 0=34000,3=4000,10=4500,11=700,2=1600,8=1400,4=1500 2>&1 | grep '\[bake\]'
 mkdir -p assets
 python3 $W/textures.py build/bake assets $RES
 node $W/pack.mjs build/bake "" assets
-python3 $K/info.py build/high-1.npz build/high-$PASS.npz $PASS assets
+python3 $K/info.py build/high-1.npz build/high-$PASS.npz $PASS assets $RES
 ls -la assets
