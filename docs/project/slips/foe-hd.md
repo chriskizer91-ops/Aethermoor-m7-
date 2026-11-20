@@ -30,9 +30,9 @@ shown side by side with the code-built model and a cut-out of Chris's sheet.
 
 ## For the Fight
 
-- Done: `prototypes/foe-hd/page/briarmaw.js` `beastLookWithBriarmaw(shared, buildBeast)` is a function for
+- Done: `prototypes/foe-hd/page/briarmaw.js` `briarmawLook(shared, buildBeast)` is a function for
   `setBeastLook` (the hub's description of your interface): Briarmaw in full detail, every other beast as before. It
-  returns `{ group, plan: 'quad', height: 1.7, parts: { head, tail }, update(t, step) }`, plus `pose(move, u, t)`
+  returns `{ group, plan: 'quad', height: 1.7, parts: { head, tail }, update(t, step), hit(), act: { lunge, fall } }`, plus `pose(move, u, t)`
   for his own moves. It needs `await ready()` and `makeShared(A, 2048)` first (see `page/main.js`, `build.mjs` for the
   assets, about 3 MB).
 
