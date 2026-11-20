@@ -11,7 +11,7 @@ export const ACT_ONE = ['keep', 'keep-hall', 'hearth-road', 'thornhollow', 'thor
 const pass = process.argv.slice(2);
 const has = (k) => pass.some((a) => a.startsWith('--' + k + '='));
 const args = [
-  'build.mjs', '--html=../game3d/page.html', '--entry=../game3d/main.js', '--plugin=battle/swap.mjs',
+  'build.mjs', '--html=../game3d/page.html', '--entry=../game3d/main.js', '--plugin=../game3d/swap.mjs',
   '--places=' + (has('places') ? pass.find((a) => a.startsWith('--places=')).split('=')[1] : ACT_ONE.join(',')),
   '--out=' + (has('out') ? pass.find((a) => a.startsWith('--out=')).split('=')[1] : 'game3d-act1'),
   ...(has('tex') ? [] : ['--tex=512']), ...(has('paint') ? [] : ['--paint=0.75']), ...(has('herotex') ? [] : ['--herotex=256']),

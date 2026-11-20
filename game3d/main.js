@@ -27,6 +27,7 @@ import * as partyScreen from '../game/src/ui/screens/party.js';
 import * as journal from '../game/src/ui/screens/journal.js';
 import * as codex from '../game/src/ui/screens/codex.js';
 import * as newgame from '../game/src/ui/screens/newgame.js';
+import * as settingsScreen from '../game/src/ui/screens/settings.js';
 import { arena } from '../world3d/battle/arena.js';
 import { loadLive, hasLive, saveLive, backupLive, clearLive, readM7, loadSettings, saveSettings } from './save.js';
 import { createWorld } from './walk.js';
@@ -37,7 +38,7 @@ window.addEventListener('DOMContentLoaded', () => { main().catch((e) => { consol
 
 const DEFAULTS = { sound: true, music: true, battleSpeed: Number(Q.get('speed')) || 1, reducedMotion: false, touchControls: 'auto', alwaysRun: false, mapZoom: 'normal' };
 // M7's screens that lie over the 3D (the walk waits under them)
-const SCREENS = { aftermath, party: partyScreen, journal, codex, newgame };
+const SCREENS = { aftermath, party: partyScreen, journal, codex, newgame, settings: settingsScreen };
 
 async function main() {
   const $ = (id) => document.getElementById(id);
@@ -95,7 +96,7 @@ async function main() {
     if (name === 'title') { unmountScreen(); if (world) world.pause(true); title(); return; }
     if (name === 'battle') { fightOn(params); return; }
     const S = SCREENS[name];
-    if (!S) { toast(name === 'atlas' ? 'The Atlas opens on the 3D continent in the next step.' : name === 'settings' ? 'Settings come in the next step.' : 'Not in the 3D game yet.'); go('world'); return; }
+    if (!S) { toast(name === 'atlas' ? 'The Atlas opens on the 3D continent in the next step.' : 'Not in the 3D game yet.'); go('world'); return; }
     unmountScreen();
     if (world) world.pause(true);
     document.body.classList.add('g3-away');
