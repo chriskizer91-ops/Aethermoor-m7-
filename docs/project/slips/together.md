@@ -4,28 +4,32 @@ Last updated November 20.
 
 ## Done
 
-- (in progress) **Step 1, the frame**: Act One walked in 3D with M7's world engine running underneath.
-
-## Doing now
-
-- `game3d/`: one page, its own save, M7's rules and screens over the 3D places.
-  - Each time the leader crosses into a new 2 m tile, one step in M7's world engine (`rules/world.js` `move`); every
-    400 ms without a step, `tick` (the packs roam). Whatever the engine says no to (a person, a shut gate, a lock, a
-    chest) holds the leader at the edge of their tile, like a wall.
-  - The engine's events are played as M7's world screen plays them, with M7's own dialogue box, sheets and cards over
-    the 3D: ways out to the next place, sealed roads, gates, locks, chests, signs, talk, Hearthfires (rest, travel).
-  - People stand where M7's maps put them, dressed by the heroes' builder from M7's own looks; packs roam on the tiles
-    as the engine moves them, with a "!" when they see you; touching one starts the Fight's 3D fight on that spot, then
-    M7's own after-fight screen (XP, gold, chests, the card reveal).
-  - Own save key `aethermoor.save.3d` (and `.bak`); M7's save (`aethermoor.save.m7`) is only read, to offer "Bring the
-    party from the 2D game" on the title (Chris's open call 10, the suggestion).
+- **Step 1, Act One as one game**: https://claude.ai/artifact/RaeSK5hezqb3qH7jmuM5aj (14 MB; page `game3d/`, built by
+  `node game3d/build.mjs`). On the title: Go on, A new journey (M7's own prologue and name screen), or Bring the party
+  from the 2D game (M7's save, read only).
+  - Walking with M7's world engine underneath: each time the leader crosses into a new 2 m tile, one step in
+    `rules/world.js` (`move`); a `tick` every 400 ms without a step (the packs roam). Whatever the engine says no to (a
+    person, a shut gate, a lock, a chest) holds the leader at the edge of their tile, like a wall.
+  - The engine's events play as M7's world screen plays them, with M7's own dialogue box, sheets and cards over the
+    3D: ways out to the next place (all 14 of Act One), sealed roads, road gates and their guards, locks, chests,
+    signs, talk, Hearthfires (rest, travel), hazards, the prologue and the story's triggers.
+  - The A button (Enter, E, Space) acts on what stands next to the leader, the way they face.
+  - People stand where M7's maps put them (only those the story says are there), dressed by the heroes' builder from
+    M7's own looks. Standing foes (road guards, Sneck) stand on their tiles. Packs roam as the engine moves them, with a
+    "!" when they see you.
+  - Fights: contact with a pack, or a foe's card, starts the Fight's `runFight` on that spot; then M7's own
+    after-fight screen (XP, gold, the chests and the card reveal). A defeat wakes the party at the Hearthfire.
+  - The menu is M7's: Party, Codex, Journal, the Atlas (Places' 3D continent, travel between kindled Hearthfires),
+    Settings (sound, controls, save codes: M7's own AETH6 codes, pointed at the 3D game's save at build time).
+  - Own save key `aethermoor.save.3d` (and `.bak`, `aethermoor.settings.3d`); M7's `aethermoor.save.m7` is only read
+    (Chris's open call 10, the suggestion, easy to switch off: one button on the title).
 
 ## Next
 
-- The headless playthrough (`game3d/tools/play.mjs`): the Keep to Thornhollow, a fight won, a chest, a rest, save and
-  reload.
-- The Atlas on the 3D continent; Settings with the 3D game's own save codes.
-- Briarmaw, the spoils, the creatures as the Fight and Models deliver them.
+- Briarmaw, the spoils and the new creatures as the Fight and Models deliver them (the foes' figures come through
+  `game3d/figures.js`, one place to switch).
+- Acts Two and Three: a page per region or act from the 47 other places (the 16 MB limit).
+- Chests, signs and Hearthfire stands shown as 3D things (today the painting shows them).
 
 ## Changed outside my files
 
@@ -35,7 +39,8 @@ Last updated November 20.
 
 ## Needs
 
-- Nothing yet.
+- Places (or the hub): the Atlas's tree and place models (`continent/map/tree-models.js`, `place-models.js`, 3.8 MB)
+  are left off the game page to stay under 16 MB; the continent shows its simpler trees. Lighter copies would let them in.
 
 ## For Chris
 
@@ -43,4 +48,8 @@ Last updated November 20.
 
 ## Checks
 
-- (to come)
+- `cd game && npm test`: 623 pass; `npm run build` leaves `aethermoor-m7.html` unchanged.
+- Headless playthrough (`game3d/tools/play.mjs`, Chromium with SwiftShader, phone size), so far: a new journey in the
+  Great Hall, the prologue talk over the 3D, Sneck fought in 3D and won, M7's after-fight screen, back walking, the
+  hall's door to the Keep, the north gate to the Hearth Road, the road's gate guards fought on the way (running).
+- Not checked: a phone's frame rate (headless draws 1 to 4 frames a second in software).
