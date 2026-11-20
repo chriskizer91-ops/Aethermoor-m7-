@@ -1,0 +1,42 @@
+<title>Aethermoor Atlas</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* The atlas page (Places, step 3): a try-out of M7_ATLAS.open, the piece the game calls. One deliberate dark look, like the game's own pages. */
+:root{--bg:#0b0d22;--panel:rgba(20,18,48,.92);--line:rgba(214,222,255,.3);--fg:#f1eeff;--soft:#cfc9ef;--gold:#ffd27a;--ember:#c08a2c;color-scheme:dark}
+html,body{height:100%;margin:0;background:var(--bg);color:var(--fg);font:15px/1.45 system-ui,sans-serif}
+.wrap{min-height:100%;display:grid;place-items:center;padding-block:24px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));box-sizing:border-box}
+.panel{width:min(520px,100%);background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:20px 20px 22px;box-sizing:border-box;display:flex;flex-direction:column;gap:14px}
+h1{margin:0;font:400 28px/1.1 Georgia,"IM Fell English",serif;text-wrap:balance}
+p{margin:0;color:var(--soft);max-width:62ch}
+label{display:flex;flex-direction:column;gap:6px;font-size:14px;color:var(--soft)}
+select{min-height:44px;border-radius:12px;border:1px solid var(--line);background:#16143a;color:var(--fg);font:15px system-ui,sans-serif;padding:0 10px;max-width:100%}
+button{min-height:46px;border-radius:23px;border:1px solid rgba(255,220,150,.7);background:var(--ember);color:#fff;font:16px system-ui,sans-serif;cursor:pointer}
+button:focus-visible,select:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.out{font:14px ui-monospace,Menlo,monospace;background:#100e2c;border:1px solid var(--line);border-radius:12px;padding:10px 12px;color:#e8e2ff;overflow-x:auto;white-space:pre-wrap;word-break:break-word}
+.note{font-size:13px}
+</style>
+<div class="wrap"><div class="panel">
+  <h1>The atlas of Aethermoor</h1>
+  <p>M7's story on the whole continent: every place pinned where the story map puts it, the Hearthfires shown as flames. Tap a lit flame, then <b>Travel</b>: the game takes the party there. A grey flame isn't kindled yet.</p>
+  <label for="at">Where the party is<select id="at"></select></label>
+  <label for="lit">Hearthfires kindled<select id="lit">
+    <option value="warm">The ones lit from the start (not the cold ones)</option>
+    <option value="all">Every one</option>
+    <option value="few">Only the Keep's and Thornhollow's</option>
+  </select></label>
+  <button id="go" type="button">Open the atlas</button>
+  <div><p class="note">What the atlas sent back last time (what the game would get):</p><div id="out" class="out">nothing yet</div></div>
+</div></div>
+<!--HEROES-->
+<script src="../../continent/world.js"></script>
+<script src="../../continent/map/places.js"></script>
+<script src="../../continent/map/art.js"></script>
+<script src="../../continent/map/moods.js"></script>
+<script src="../../continent/map/tree-models.js"></script>
+<script src="../../continent/map/buildings.js"></script>
+<script src="../../continent/map/place-models.js"></script>
+<script src="../../continent/map/map3d.js"></script>
+<script src="../../names.js"></script>
+<script src="../../m7/atlas-data.js"></script>
+<script src="../../m7/atlas.js"></script>
+<script src="../../m7/atlas-page.js"></script>

@@ -12,7 +12,7 @@
 import * as THREE from 'three';
 import { buildHero, setPose } from '../../prototypes/hero-3d/model.js';
 import { Q } from '../../prototypes/hero-3d/kit.js';
-import { buildBeast } from '../../prototypes/bestiary/beasts.js';
+import { buildBeast, BEASTS } from '../../prototypes/bestiary/beasts.js';
 import { FOE_ART, renderFoe, foeLooks } from '../../game/src/art/foes.js';
 import { poseHero, poseFoe, strikeStyle, RANGED, foeMover } from './moves.js';
 import { Fx } from './effects.js';
@@ -341,7 +341,17 @@ function tint(h, d) {
   for (const [m, e0, i0] of h._mats) { if (want) { m.emissive.copy(e0).lerp(want, k * 0.8); m.emissiveIntensity = i0 + k * 0.9; } else { m.emissive.copy(e0); m.emissiveIntensity = i0; } }
 }
 
-// ---- foes --------------------------------------------------------------------------------------------------------
+// ---- foes ----
+// Another look for the beasts (Models' painted cut-outs, November 20): fn(key, sprite, opts) returning the bestiary's
+// shape, { group or g, height, plan?, parts?, update?(t, step) }. Moves only ever turn, lift and lean the whole figure
+// and call its update(), so either look fights the same. null puts the code-built beasts back.
+let beastLook = null;
+export function setBeastLook(fn) { beastLook = fn || null; }
+function norm(b, key) {
+  const group = b.group || b.g;
+  return { ...b, group, height: b.height || 1, plan: b.plan || (BEAST_PLAN[key] || 'mound'), update: b.update || (() => {}) };
+}
+const BEAST_PLAN = Object.fromEntries(Object.entries(BEASTS).map(([k, v]) => [k, v[0]]));
 // a foe's figure from its art key: a person dressed by the heroes' builder from its sprite's own looks, or a beast by
 // its body plan, coloured from its sprite
 export function foeFigure(unitOrKey, o = {}) {
@@ -357,11 +367,12 @@ export function foeFigure(unitOrKey, o = {}) {
     h.group.scale.setScalar(HERO_H / 1.22); body.add(h.group); height = HERO_H; fig = { hero: h, rig: h.rig };
   } else {
     const sprite = renderFoe(key, { tier: def.defaultTier, gearTier, t: 0.2 });
-    const b = buildBeast(key, sprite); body.add(b.group); height = b.height; plan = b.plan; fig = { beast: b };
+    // the beast's look: the bestiary's code-built one, or another builder put in its place (setBeastLook)
+    const b = norm((beastLook || buildBeast)(key, sprite, o), key); body.add(b.group); height = b.height; plan = b.plan; fig = { beast: b };
   }
   const box = new THREE.Box3().setFromObject(body), sz = box.getSize(V3());
   const F = {
-    key, root, body, fig, humanoid, plan, mover: foeMover(plan, humanoid), height, parts: {},
+    key, root, body, fig, humanoid, plan, mover: foeMover(plan, humanoid), height, parts: (fig.beast && fig.beast.parts) || {},
     size: { w: Math.max(0.35, Math.min(sz.x, sz.z) || 0.5), d: Math.max(0.35, Math.max(sz.x, sz.z) || 0.5), h: Math.max(0.3, sz.y || height) },
     pos: V3(), home: V3(), face: 0, side: V3(1, 0, 0), ph: Math.random() * 6, step: 0,
     act: null, hurt: null, ko: null, gone: null, bite: null, removed: false, sinkTo: 0, sink: 0, sunk: false, sinkOut: 0,

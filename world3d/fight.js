@@ -8,7 +8,6 @@
 import './heroes.js';
 import '../game/src/ui/theme.css';
 import './battle/fight.css';
-import * as battleScreen from '../game/src/ui/screens/battle.js';
 import { installCardServices } from '../game/src/ui/card.js';
 import { setReducedGetter } from '../game/src/ui/lib/anim.js';
 import { createAudio } from '../game/src/core/audio.js';
@@ -21,6 +20,7 @@ import { createRng } from '../game/src/core/rng.js';
 import { PATROLS } from '../game/src/data/encounters.js';
 import { heroGear } from '../game/src/ui/battle/sprites.js';
 import { arena, foeFigure } from './battle/arena.js';
+import { runFight } from './battle/run.js';
 
 const Q = new URLSearchParams(location.search);
 const PLACE = 'm7-thornhollow';
@@ -32,7 +32,9 @@ window.addEventListener('DOMContentLoaded', () => { main().catch((e) => { consol
 async function main() {
   const $ = (id) => document.getElementById(id);
   const H = window.M7_HEROES, PL = window.W3D_PLACES, W3D = window.W3D;
-  const PHONE = matchMedia('(pointer: coarse)').matches && !matchMedia('(any-pointer: fine)').matches;
+  // a phone (a touch screen with no mouse) gets the lighter heroes and foes; ?quality=phone|high forces either (as the walk does)
+  const QP = (location.search.match(/[?&]quality=(high|phone)/) || [])[1];
+  const PHONE = QP ? QP === 'phone' : matchMedia('(pointer: coarse)').matches && !matchMedia('(any-pointer: fine)').matches;
   let toastT = 0;
   const toast = (s, name) => { const t = $('toast'); t.textContent = s; t.classList.toggle('name', !!name); t.style.opacity = 1; clearTimeout(toastT); toastT = setTimeout(() => { t.style.opacity = 0; }, name ? 3200 : 2800); };
 
@@ -104,62 +106,43 @@ async function main() {
   addEventListener('pointerdown', () => { try { audio.unlock(); } catch (e) { /* no audio */ } }, { once: true });
   let settings = { sound: true, music: true, battleSpeed: Number(Q.get('speed')) || 1, reducedMotion: false };
   const reduced = () => !!settings.reducedMotion || matchMedia('(prefers-reduced-motion: reduce)').matches;
-  let screen = null, offAction = null;
   const host = $('fight');
   const ctx = {
     get game() { return game; }, setGame(g) { if (g) game = g; },
     get settings() { return settings; }, setSettings(p) { settings = { ...settings, ...p }; },
-    audio, input, services: {}, reduced, toast: (s) => toast(s),
-    go(name, p = {}) { if (name === 'aftermath') afterFight(p); },
+    audio, input, services: {}, reduced, toast: (s) => toast(s), go() {},
   };
   installCardServices(ctx);
   setReducedGetter(reduced);
 
-  function fight() {
+  async function fight() {
     if (fighting || !pack) return;
-    fighting = true; W.pause(true); document.body.classList.add('fighting');
+    fighting = true;
     // M7's own battle: the party (levelled to Thornhollow) against this pack, at the road's level
     const level = Number(Q.get('lose')) ? 12 : 4;
     const spawns = pack.set.map((sp, i) => escalateSpawn({ ...sp, level }, game.progress.waking, `fight3d#${i}`));
     const { battle } = startBattle(game, { patrol: { spawns, where: 'Thornhollow', backdrop: 'thornhollow' } });
+    window.__fight.battle = battle;
     // the spot: where the leader stands, facing the pack
     const L = leader.root.position.clone(), c = pack.figs.reduce((a, F) => a.add(F.pos), new window.THREE.Vector3()).multiplyScalar(1 / pack.figs.length);
     const yaw = Math.atan2(c.x - L.x, c.z - L.z);
     const heroes = { warden: leader }; for (const f of followers) heroes[f.id] = f;
-    for (const F of pack.figs) { F.pos.copy(F.root.position); }
-    arena.begin({ W, center: L, yaw, heroes, foes: pack.figs });
-    // M7's battle screen, over the 3D
-    host.replaceChildren(); host.hidden = false;
-    const main = document.createElement('main'); main.className = 'screen screen-battle'; host.append(main);
-    screen = battleScreen.mount(main, ctx, { battle, returnTo: 'world', auto: Q.get('auto') === '1' }) || {};
-    if (screen.onAction) offAction = input.onAction(screen.onAction);
-    window.__fight.battle = battle;
-  }
-  function afterFight({ result }) {
-    if (screen && screen.unmount) screen.unmount(); if (offAction) offAction(); screen = null; offAction = null;
-    host.hidden = true; host.replaceChildren();
-    const res = result?.result || 'victory';
-    window.__fight.result = res;
-    if (res === 'victory') { arena.victory(); toast(`Victory: +${result?.xp || 0} XP, +${result?.gold || 0} gold`); }
-    else if (res === 'defeat') toast('The party falls. The hearth will wake you.');
+    for (const F of pack.figs) F.pos.copy(F.root.position);
+    const resP = runFight({ W, battle, center: L, yaw, heroes, foes: pack.figs, ctx, host, auto: Q.get('auto') === '1', resume: false });
+    const { result, outcome } = await resP;
+    window.__fight.result = result;
+    pack = null; fighting = false;
+    if (result === 'defeat') {
+      // the hearth wakes you: back at the gate, on your feet
+      game = makeGame(++seed); for (const k of Object.keys(made)) delete made[k];
+      W.setWho('pip'); W.setWho('warden'); leader = W3D.witch('warden'); setFollowers();
+      const a = PL[PLACE].anchors['from-road']; W.setIo(a.at[0], a.at[1], a.face);
+      toast('The hearth wakes you at the gate');
+    } else if (result === 'victory') toast(`Victory: +${outcome?.xp || 0} XP, +${outcome?.gold || 0} gold`);
     else toast('You break away from the fight.');
-    setTimeout(() => {
-      const done = () => {
-        pack = null; fighting = false; document.body.classList.remove('fighting');
-        if (res === 'defeat') {
-          // the hearth wakes you: back at the gate, on your feet
-          game = makeGame(++seed); for (const k of Object.keys(made)) delete made[k];
-          W.setWho('pip'); W.setWho('warden'); leader = W3D.witch('warden'); setFollowers();
-          const a = PL[PLACE].anchors['from-road']; W.setIo(a.at[0], a.at[1], a.face);
-        } else { for (const f of followers) f.root.rotation.set(0, f.root.rotation.y, 0); }
-        // heroes stood up straight again (a fallen one lies tipped in the arena)
-        for (const A of [leader, ...followers]) { A.hero.group.rotation.set(0, 0, 0); A.hero.group.position.set(0, 0, 0); A.root.visible = true; }
-        W.pause(false); party.set(leader, followers);
-        window.__fight.ended = (window.__fight.ended || 0) + 1;
-        setTimeout(() => { if (!pack && !fighting) { spawnPack(); toast('Another pack comes down the road'); } }, 6000);
-      };
-      arena.end(done);
-    }, res === 'victory' ? 2600 : 1600);
+    W.pause(false); party.set(leader, followers);
+    window.__fight.ended = (window.__fight.ended || 0) + 1;
+    setTimeout(() => { if (!pack && !fighting) { spawnPack(); toast('Another pack comes down the road'); } }, 6000);
   }
 
   $('fightbtn').addEventListener('click', () => { if (!pack) spawnPack(); fight(); });

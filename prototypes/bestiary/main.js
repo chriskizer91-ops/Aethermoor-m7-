@@ -6,13 +6,16 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import { FOE_ART, renderFoe, foeLooks } from '../../game/src/art/foes.js';
 import { buildHero, setPose } from '../hero-3d/model.js';
-import { Q } from '../hero-3d/kit.js';
+import { Q, TEXTURES } from '../hero-3d/kit.js';
+window.__T = TEXTURES;
 import { buildBeast, BEASTS } from './beasts.js';
+import { buildStandee, hasStandee } from './standee.js';
 
 Q.d = 2;
 const TIER = { rabble: 'Rabble', veteran: 'Veterans', 'relic-bearer': 'Relic-Bearers', champion: 'Champions', hollow: 'The Hollow Council', unsmith: 'The Unsmith' };
 const keys = Object.keys(FOE_ART);
-const S = { key: 'briarmaw', gearTier: 0, walk: false, filter: 'all' };
+// painted: the beasts as standees cut from Chris's sheets (true) or built in 3D (false), for Chris to compare
+const S = { key: 'briarmaw', gearTier: 0, walk: false, filter: 'all', painted: true, lunge: -1, fall: -1 };
 const $ = id => document.getElementById(id);
 
 const canvas = $('view');
@@ -40,7 +43,9 @@ function show(k) {
     const h = buildHero('warden', {}, { H, looks: gear });
     cur = { group: h.group, height: 1.22, update: (t, step) => setPose(h.rig, step ? 'walk' : 'idle', t, step), hero: h };
     h.group.scale.setScalar(1.7 / 1.22); cur.height = 1.75;
-  } else cur = buildBeast(k, sprite);
+  } else if (S.painted && hasStandee(k)) cur = buildStandee(k, { tall: BEASTS[k]?.[2] || 1 });
+  else cur = buildBeast(k, sprite);
+  S.lunge = S.fall = -1;
   scene.add(cur.group);
   let tris = 0; cur.group.traverse(o => { if (o.isMesh) tris += (o.geometry.index ? o.geometry.index.count : o.geometry.attributes.position.count) / 3; });
   // frame it: the camera stands back far enough for the creature's height and length
@@ -51,10 +56,12 @@ function show(k) {
   // the panel
   const c = $('sprite'); c.width = sprite.width; c.height = sprite.height; c.getContext('2d').putImageData(sprite, 0, 0);
   $('name').textContent = def.name || k;
-  $('what').textContent = `${TIER[def.defaultTier] || def.defaultTier} · ${def.kind === 'humanoid' ? 'a person, dressed by the gear builder' : 'a beast: ' + BEASTS[k]?.[0] + ' plan'} · ${Math.round(cur.height * 10) / 10} m tall`;
+  $('what').textContent = `${TIER[def.defaultTier] || def.defaultTier} · ${def.kind === 'humanoid' ? 'a person, dressed by the gear builder' : cur.standee ? 'painted, from Chris\'s sheet' : cur.sculpted ? 'built in 3D to Chris\'s sheet' : 'built in 3D (first pass)'} · ${Math.round(cur.height * 10) / 10} m tall`;
   $('nums').textContent = `${Math.round(tris / 1000)}k triangles · built in ${Math.round(performance.now() - t0)} ms`;
   for (const b of document.querySelectorAll('.foe')) b.setAttribute('aria-pressed', b.dataset.k === k);
   $('gear').hidden = def.kind !== 'humanoid';
+  for (const id of ['a-lunge', 'a-hit', 'a-fall']) $(id).hidden = !cur.standee;
+  $('m-painted').parentElement.hidden = def.kind === 'humanoid';
 }
 
 // the list, by tier
@@ -75,13 +82,18 @@ function drawList() {
   }
 }
 for (const f of ['all', 'beasts', 'people']) $('f-' + f).onclick = () => { S.filter = f; for (const g of ['all', 'beasts', 'people']) $('f-' + g).setAttribute('aria-pressed', g === f); drawList(); };
+const setMode = p => { S.painted = p; $('m-painted').setAttribute('aria-pressed', p); $('m-3d').setAttribute('aria-pressed', !p); show(S.key); };
+$('m-painted').onclick = () => setMode(true); $('m-3d').onclick = () => setMode(false);
+$('a-lunge').onclick = () => { S.lunge = 0; }; $('a-fall').onclick = () => { S.fall = 0; }; $('a-hit').onclick = () => cur?.hit?.();
 $('walk').onclick = () => { S.walk = !S.walk; $('walk').setAttribute('aria-pressed', S.walk); };
 $('gear').onclick = () => { S.gearTier = (S.gearTier + 1) % 4; $('gear').textContent = 'The Waking: ' + S.gearTier; show(S.key); };
 
 function resize() { const r = canvas.parentElement.getBoundingClientRect(); renderer.setPixelRatio(Math.min(devicePixelRatio, 2)); renderer.setSize(r.width, r.height, false); camera.aspect = r.width / r.height; camera.updateProjectionMatrix(); }
 new ResizeObserver(resize).observe(canvas.parentElement);
 const clock = new THREE.Clock(); let step = 0;
-(function loop() { requestAnimationFrame(loop); const dt = Math.min(clock.getDelta(), 0.05), t = clock.elapsedTime; if (S.walk) step += dt * 7; if (cur) cur.update(t, S.walk ? step : 0); controls.update(); renderer.render(scene, camera); })();
-window.__best = { show, keys, S };
+(function loop() { requestAnimationFrame(loop); const dt = Math.min(clock.getDelta(), 0.05), t = clock.elapsedTime; if (S.walk) step += dt * 7;
+  if (cur?.act) { if (S.lunge >= 0) { S.lunge += dt / 0.7; if (S.lunge >= 1) S.lunge = -1; } if (S.fall >= 0) { S.fall += dt / 1.1; if (S.fall >= 2.2) S.fall = -1; } cur.act.lunge = Math.max(0, S.lunge); cur.act.fall = S.fall < 0 ? 0 : Math.min(1, S.fall); }
+  if (cur) cur.update(t, S.walk ? step : 0); controls.update(); renderer.render(scene, camera); })();
+window.__best = { show, keys, S, controls, camera, get cur() { return cur; } };
 drawList(); show('briarmaw'); resize();
 $('loading').hidden = true;

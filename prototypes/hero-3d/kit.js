@@ -28,8 +28,23 @@ export function loft(rings, { closed = true, capA = false, capB = false, flat = 
   for (let i = 0; i < m; i++) for (let j = 0; j < cols; j++) { const p = rings[i][j % n]; pos.push(p.x, p.y, p.z); uv.push(j / n, len[i] / L); }
   for (let i = 0; i < m - 1; i++) for (let j = 0; j < cols - 1; j++) { const a = i * cols + j, b = a + 1, c = a + cols, d = c + 1; idx.push(a, c, b, b, c, d); }
   const cap = (ring, flip) => { const c = centroid(ring), ci = pos.length / 3; pos.push(c.x, c.y, c.z); uv.push(0.5, flip ? 1 : 0); const s = ci + 1; for (let j = 0; j < n; j++) { const p = ring[j]; pos.push(p.x, p.y, p.z); uv.push(0.5 + 0.5 * Math.cos(j / n * TAU), 0.5 + 0.5 * Math.sin(j / n * TAU)); } for (let j = 0; j < n; j++) { const a = s + j, b = s + (j + 1) % n; if (flip) idx.push(ci, a, b); else idx.push(ci, b, a); } };
+  // turn every side face outward (away from its ring's centre), whichever way round the rings were given (November 20:
+  // tubes and the body were built inside out before, so the far inside wall was what showed)
+  if (closed && m > 1 && n > 2) {
+    // summed over every face, so a flat stretch (a brim, a rim) can't decide it alone
+    const P = k => V(pos[k * 3], pos[k * 3 + 1], pos[k * 3 + 2]); let sum = 0;
+    for (let i = 0; i < m - 1; i++) { const ci = centroid(rings[i]); for (let j = 0; j < cols - 1; j++) { const a = i * cols + j, b = a + 1, c = a + cols; sum += P(c).sub(P(a)).cross(P(b).sub(P(a))).dot(P(a).sub(ci)); } }
+    if (sum < 0) for (let k = 0; k < idx.length; k += 3) { const t = idx[k + 1]; idx[k + 1] = idx[k + 2]; idx[k + 2] = t; }
+  }
+  const capStart = idx.length;
   if (capA) cap(rings[0], false);
   if (capB) cap(rings[m - 1], true);
+  // and each cap outward, away from the ring next to it
+  if (m > 1) for (let k = capStart; k < idx.length; k += 3) {
+    const P = q => V(pos[q * 3], pos[q * 3 + 1], pos[q * 3 + 2]), A = P(idx[k]), fnrm = P(idx[k + 1]).sub(A).cross(P(idx[k + 2]).sub(A));
+    const isA = capA && k < capStart + n * 3, away = isA ? centroid(rings[0]).sub(centroid(rings[1])) : centroid(rings[m - 1]).sub(centroid(rings[m - 2]));
+    if (fnrm.dot(away) < 0) { const t = idx[k + 1]; idx[k + 1] = idx[k + 2]; idx[k + 2] = t; }
+  }
   let g = new THREE.BufferGeometry();
   g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
   g.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2));
@@ -237,10 +252,10 @@ vec3 triPerturb(vec3 sp, vec3 n, vec2 dH, float fd) {
   return normalize(abs(det) * n - sign(det) * (dH.x * r1 + dH.y * r2));
 }
 void main() {`;
-function triplanar(m, name, kind) {
-  const fam = name.split('-')[0], tile = TILE[kind === 'mail' || kind === 'scale' ? 'mail' : fam] || 0.25;
+function triplanar(m, name, kind, opt = {}) {
+  const fam = name.split('-')[0], tile = opt.tile || TILE[kind === 'mail' || kind === 'scale' ? 'mail' : fam] || 0.25;
   const U = { triMap: { value: grainTexture(name) }, triScale: { value: 1 / tile }, triGain: { value: 0.9 / PACK[name].mean },
-    triBump: { value: (BUMP[kind === 'mail' || kind === 'scale' ? 'mail' : fam] || 1) * 0.0012 * (Q.d > 1 ? 1 : 0.8) }, triRough: { value: kind === 'metal' ? 0.6 : 0.25 } };
+    triBump: { value: (opt.bump ?? BUMP[kind === 'mail' || kind === 'scale' ? 'mail' : fam] ?? 1) * 0.0012 * (Q.d > 1 ? 1 : 0.8) }, triRough: { value: opt.rough ?? (kind === 'metal' ? 0.6 : 0.25) } };
   m.userData.grain = name; m.userData.tri = U;
   m.onBeforeCompile = sh => {
     Object.assign(sh.uniforms, U);
@@ -255,6 +270,15 @@ function triplanar(m, name, kind) {
   return m;
 }
 
+// more grain pictures (the creatures' skins: prototypes/bestiary/skins/pack.js), and a material made straight from one:
+// grainMaterial(colour, name, { tile, bump, rough, ...MeshStandardMaterial options }); name null gives a plain one
+export function addGrains(more) { Object.assign(PACK, more); }
+export function grainMaterial(color, name, o = {}) {
+  const { tile, bump, rough, physical, ...rest } = o;
+  const m = new (physical ? THREE.MeshPhysicalMaterial : THREE.MeshStandardMaterial)({ color, roughness: 0.8, ...rest });
+  if (name && PACK[name] && TEXTURES.on) triplanar(m, name, rest.metalness > 0.5 ? 'metal' : 'beast', { tile, bump, rough });
+  return m;
+}
 const cache = new Map();
 const baseKey = key => (MAT[key] ? key : key && MAT[String(key).split(/[\^~]/)[0]] ? String(key).split(/[\^~]/)[0] : 'wool');
 // mat(key, { as, rep, side }): as forces a surface (mail, scale); rep scales its picture
@@ -311,7 +335,9 @@ export function bake(root, keep) {
     const k = owner(o); if (!k) continue;
     inv.copy(k.matrixWorld).invert(); m.multiplyMatrices(inv, o.matrixWorld);
     let g = o.geometry.clone(); g.applyMatrix4(m);
-    for (const name of Object.keys(g.attributes)) if (!['position', 'normal', 'uv'].includes(name)) g.deleteAttribute(name);
+    const keepC = o.material.vertexColors;
+    for (const name of Object.keys(g.attributes)) if (!['position', 'normal', 'uv', ...(keepC ? ['color'] : [])].includes(name)) g.deleteAttribute(name);
+    if (keepC && !g.attributes.color) g.setAttribute('color', new THREE.Float32BufferAttribute(new Float32Array(g.attributes.position.count * 3).fill(1), 3));
     if (!g.attributes.uv) g.setAttribute('uv', new THREE.Float32BufferAttribute(new Float32Array(g.attributes.position.count * 2), 2));
     if (!g.attributes.normal) g.computeVertexNormals();
     g.clearGroups();
