@@ -17,10 +17,12 @@ import { ready, makeShared, makeFoe, cloneFoe } from '../../kit/js/loader.js';
 import { PLANS } from '../../kit/js/looks.js';
 import { A } from './assets.js';
 const KEY = A.lightMeta.key, MV = PLANS[A.lightMeta.plan] || PLANS.quad;
+// the stands and the camera scale with the foe (Briarmaw, 1.7 m, is 1); small ones not below 0.45
+const SZ = Math.max(0.3, Math.min(1.6, (A.lightMeta.height || 1.7) / 1.7));
 
 const $ = (id) => document.getElementById(id);
 const phone = Math.min(screen.width, screen.height) < 820 || /Mobi|Android|iPhone/i.test(navigator.userAgent);
-const S = { res: 2048, turn: true, move: 'idle', moveT: 0, crowd: false, sculpt: false };
+const S = { res: Math.max(...Object.keys(A.tex).map(Number)), turn: true, move: 'idle', moveT: 0, crowd: false, sculpt: false };
 
 // ---- the stage ---------------------------------------------------------------------------------------------------
 const canvas = $('view');
@@ -42,12 +44,12 @@ ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true; scene.add(ground)
 
 function stand(x) {
   const g = new THREE.Group(); g.position.x = x;
-  const disc = new THREE.Mesh(new THREE.CylinderGeometry(1.45, 1.55, 0.08, 64), new THREE.MeshStandardMaterial({ color: 0x5a4a38, roughness: 0.9 }));
+  const disc = new THREE.Mesh(new THREE.CylinderGeometry(1.45 * SZ, 1.55 * SZ, 0.08, 64), new THREE.MeshStandardMaterial({ color: 0x5a4a38, roughness: 0.9 }));
   disc.position.y = 0.04; disc.receiveShadow = true; g.add(disc);
   const top = new THREE.Group(); top.position.y = 0.08; g.add(top);
   scene.add(g); return { g, top };
 }
-const SPACING = 3.3;
+const SPACING = 3.3 * SZ;
 const stands = [stand(-SPACING), stand(0), stand(SPACING)];
 const triCount = (o) => { let n = 0; o.traverse((m) => { if (m.isMesh) n += (m.geometry.index ? m.geometry.index.count : m.geometry.attributes.position.count) / 3; }); return Math.round(n); };
 
@@ -75,7 +77,7 @@ function buildCrowd() {
   if (crowd.foes.length) return;
   for (let i = 0; i < 6; i++) {
     const c = cloneFoe(hd, MV); const a = (i / 6) * Math.PI * 2;
-    c.ring = { a, r: 5.2 + (i % 2) * 1.1, speed: 0.11 + 0.02 * (i % 3) };
+    c.ring = { a, r: (5.2 + (i % 2) * 1.1) * Math.max(0.6, SZ), speed: 0.11 + 0.02 * (i % 3) };
     crowd.group.add(c.group); crowd.foes.push(c);
   }
   HEROES.forEach(([id], i) => {
@@ -111,12 +113,12 @@ $('crowd').onclick = () => {
 function frame() {
   const w = canvas.clientWidth, h = canvas.clientHeight; const ar = w / h;
   camera.aspect = ar; camera.updateProjectionMatrix();
-  if (S.crowd) { controls.target.set(0, 0.9, 0); const d = ar < 1 ? 19 : 14; camera.position.set(0, d * 0.5, d); }
+  if (S.crowd) { const k = Math.max(0.6, SZ); controls.target.set(0, 0.9, 0); const d = (ar < 1 ? 19 : 14) * k; camera.position.set(0, d * 0.5, d); }
   else {
     // all three stands in view: further back on a narrow (phone) screen
-    const need = (SPACING * 2 + 3.4) / 2, fov = camera.fov * Math.PI / 180;
-    const dist = Math.max(need / (Math.tan(fov / 2) * ar), 1.3 / Math.tan(fov / 2)) * 1.04;
-    controls.target.set(0, 0.8, 0); camera.position.set(0, 1.2 + dist * 0.16, dist);
+    const need = (SPACING * 2 + 3.4 * SZ) / 2, fov = camera.fov * Math.PI / 180;
+    const dist = Math.max(need / (Math.tan(fov / 2) * ar), 1.3 * SZ / Math.tan(fov / 2)) * 1.04;
+    controls.target.set(0, 0.8 * SZ, 0); camera.position.set(0, (1.2 + dist * 0.16) * Math.sqrt(SZ), dist);
   }
   controls.update();
 }

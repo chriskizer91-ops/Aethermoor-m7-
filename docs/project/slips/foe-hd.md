@@ -38,9 +38,17 @@ shown side by side with the code-built model and a cut-out of Chris's sheet.
   `setBeastLook` for every finished foe (`kit/js/looks.js`), the sculpt viewer and the three-ways page for any foe.
   Sessions 7 and 8 told.
 
+- **Briarling** (my lane's first, November 20): three ways with its moves and the crowd test,
+  https://claude.ai/artifact/DorMujhAe9d1XNwLGYV4ae (11.8 MB); its sculpt beside its light model,
+  https://claude.ai/artifact/LAjxUMG9Aoj2UPw7DuyHtB. Sculpt 589,428 triangles (asset
+  `foes/briarling/assets/briarling-sculpt.glb`, 2.7 MB); light model 16,640 (rabble budget ~20k), 1024 px pictures,
+  phone 512. Moves for small walking plants: `kit/js/moves/sapling.js` (bob, waddle, hop, lunge, hit, fall).
+  Kit fixes from it: pages and viewer scale with the foe's height; parts are placed on a surface that is exactly the
+  same at every level (fixes missed bakes on small foes).
+
 ## Next
 
-1. My lane: briarling, glowcap, boglurcher, the willows, the sparks, rockling, Mother Anvil, the wraiths.
+1. My lane: (briarling done) glowcap, boglurcher, the willows, the sparks, rockling, Mother Anvil, the wraiths.
 2. Briarmaw's moves smoothed (weights round the shoulders and hips, a fuller walk), a hit flash.
 2. The face closer still to the sheet; the coat's brown zones placed as the sheet paints them.
 3. Done: pass 3, the sculpt's own page, the heavier brow and golden fangs, the rump and tail as the sheet shows.

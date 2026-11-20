@@ -1,0 +1,83 @@
+{
+  "key": "briarling",
+  "name": "Briarling",
+  "plan": "sapling",
+  "rank": "rabble",
+  "height": 0.6,
+  "sheet": "art-in/3d/sheets/sheet-briarling.webp",
+  "crops": [
+    [
+      0,
+      640
+    ],
+    [
+      660,
+      1120
+    ],
+    [
+      1140,
+      1774
+    ]
+  ],
+  "bounds": [
+    [
+      -0.3,
+      -0.26,
+      -0.01
+    ],
+    [
+      0.3,
+      0.26,
+      0.62
+    ]
+  ],
+  "voxel": {
+    "0": 0.0085,
+    "1": 0.006,
+    "2": 0.0035,
+    "3": 0.00165
+  },
+  "view": {
+    "center": [
+      0,
+      0,
+      0.3
+    ],
+    "width": 0.85,
+    "head": [
+      0,
+      0.1,
+      0.36
+    ],
+    "headWidth": 0.45
+  },
+  "light": {
+    "level": 0,
+    "coat": 11000
+  },
+  "sculpt": {
+    "level": 3
+  },
+  "bake": {
+    "res": 1024,
+    "phone": 512,
+    "ao": 48,
+    "reach": {
+      "coat": [
+        0.025,
+        0.07
+      ],
+      "parts": [
+        0.008,
+        0.02
+      ]
+    }
+  },
+  "rig": "rig.py",
+  "blurb": "The briarling is a ball of leaves on two root legs, wound with vines, one dark eye with an amber light in it, berries on its twigs and a two-leaf sprout on top. Its leaves are sculpted, not painted.",
+  "next": "its hop and waddle smoothed.",
+  "pages": {
+    "sculpt": "https://claude.ai/artifact/LAjxUMG9Aoj2UPw7DuyHtB",
+    "three": "https://claude.ai/artifact/DorMujhAe9d1XNwLGYV4ae"
+  }
+}
