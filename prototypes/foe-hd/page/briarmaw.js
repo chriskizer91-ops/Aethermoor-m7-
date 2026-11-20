@@ -109,8 +109,23 @@ export function buildBriarmawHD(shared) {
   const B = {
     group, body, mesh, bones, plan: 'quad', height: 1.7, parts: { head: bones.head, tail: bones.tail },
     triangles: shared.meta.triangles,
-    update(t, step = 0) { pose(B, step ? 'walk' : 'idle', 0, t, step); },
-    pose(move, u, t, step = 0) { pose(B, move, u, t, step); },
+  };
+  return fightFace(B);
+}
+
+// what the Fight asks of a beast (world3d/battle/arena.js): update(t, step), hit(), and act.lunge / act.fall (0..1),
+// which update() poses; pose(move, u, t) plays any of his own moves directly
+function fightFace(B) {
+  B.act = { lunge: 0, fall: 0 }; B.hitAt = -9; B.t = 0;
+  B.hit = () => { B.hitAt = B.t; };
+  B.pose = (move, u, t, step = 0) => pose(B, move, u, t, step);
+  B.update = (t, step = 0) => {
+    B.t = t;
+    const F = B.act.fall || 0, L = B.act.lunge || 0, h = (t - B.hitAt) / 0.9;
+    if (F > 0) pose(B, 'ko', F, t, 0);
+    else if (h >= 0 && h < 1) pose(B, 'hurt', h, t, 0);
+    else if (L > 0) pose(B, 'bite', L * 0.55, t, 0);
+    else pose(B, step ? 'walk' : 'idle', 0, t, step);
   };
   return B;
 }
@@ -199,15 +214,14 @@ export function cloneBriarmaw(B) {
   const group = new THREE.Group(), body = new THREE.Group(); group.add(body);
   const mesh = cloneSkinned(B.mesh); body.add(mesh);
   const bones = {}; mesh.traverse((o) => { if (o.isBone) { bones[o.name] = o; o.userData.p0 = o.position.clone(); } });
-  const C = { group, body, mesh, bones, plan: 'quad', height: 1.7, parts: { head: bones.head, tail: bones.tail }, triangles: B.triangles,
-    update(t, step = 0) { pose(C, step ? 'walk' : 'idle', 0, t, step); }, pose(move, u, t, step = 0) { pose(C, move, u, t, step); } };
-  return C;
+  const C = { group, body, mesh, bones, plan: 'quad', height: 1.7, parts: { head: bones.head, tail: bones.tail }, triangles: B.triangles };
+  return fightFace(C);
 }
 
 // For the Fight (world3d/battle/arena.js setBeastLook): Briarmaw in full detail, every other beast as before.
 //   await ready(); const shared = makeShared(A, 2048);
-//   setBeastLook(beastLookWithBriarmaw(shared, buildBeast));
-export function beastLookWithBriarmaw(shared, fallback) {
+//   setBeastLook(briarmawLook(shared, buildBeast));
+export function briarmawLook(shared, fallback) {
   let first = null;
   return (key, sprite, opts) => {
     if (key !== 'briarmaw') return fallback(key, sprite, opts);
@@ -215,3 +229,5 @@ export function beastLookWithBriarmaw(shared, fallback) {
     return B;
   };
 }
+
+export const beastLookWithBriarmaw = briarmawLook;
