@@ -29,6 +29,10 @@ light model that can share the screen with the party, rigged, moving through its
 
 - The walkers' gallery (the Rotwarden and the sapwight, their sheets, the checks, the moves, five of them walking round
   the heroes): https://claude.ai/artifact/YBLUHaLG3bNdfcjBdeq3aj (11.1 MB)
+- The sculpts themselves, for a laptop (Chris's newer word: keep each sculpt as something he can look at):
+  https://claude.ai/artifact/JCdvpAPKT781gZiU49jTh2 (14.1 MB). The sculpts are kept compressed (meshopt) in
+  `prototypes/foe-hd/foes/<key>/sculpt/`: the Rotwarden 5.6 MB (1,067,554 triangles), the sapwight 4.8 MB (900,422).
+  Built with `node build.mjs --sculpt` in `pages/walkers/`.
 
 ## Next
 
@@ -58,6 +62,9 @@ light model that can share the screen with the party, rigged, moving through its
   moves. It needs `await ready()` and `makeWalkerShared(assets)` first (see `pages/walkers/main.js`).
 
 ## Asked of session 6
+
+- His kit's shape arrived (foe.json, sculpt.py build(K, LV), rig.py, kit/js loader, moves and looks). I'll move the
+  walkers onto it when it reaches the hub's branch.
 
 - Sent him what a biped kit wants (sculpt helpers split from Briarmaw's body, sheet checks taking the sheet and crop
   boxes, the bake taking per-kind targets and a per-foe rig, the page loader generic over body plans). The walkers' kit
