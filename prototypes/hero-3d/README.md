@@ -83,3 +83,9 @@ Publish `dist/gear-room.artifact.html` to the link above (pass the url) so the l
   sides, with a small bump from its light and dark. **Textures** on the page switches it off to compare.
 - The four heroes wear Chris's painted faces (`model.js` `paintedFace`, `FACE_FIT`), their skin matched to them.
 - Closed shapes now always face outward (`loft`): before, tubes were inside out and the far inside wall showed.
+
+## The item audit (November 20)
+
+**Item audit** at the top of the panel: every item M7 can roll or hand out (458: every base at every rarity, every
+weapon tempered +7 and +10, the Codex relics, the starters), each on the hero it suits, checked by `audit.js` and shown
+as a picture; tap one for a close look. In a console, `__audit.run()` lists anything flagged.
