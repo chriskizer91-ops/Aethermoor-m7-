@@ -17,7 +17,7 @@ import { generateItem, relicItem } from '../../game/src/rules/loot.js';
 import { RELICS } from '../../game/src/data/relics.js';
 import { createRng } from '../../game/src/core/rng.js';
 import { buildHero, setPose, glowColor } from './model.js';
-import { Q } from './kit.js';
+import { Q, TEXTURES } from './kit.js';
 
 const HEROES = [{ id: 'warden', name: 'Wren' }, { id: 'pip', name: 'Pip' }, { id: 'bryn', name: 'Bryn' }, { id: 'alondra', name: 'Alondra' }];
 const SLOT_NAME = { weapon: 'Weapon', offhand: 'Off hand', head: 'Head', body: 'Body', hands: 'Hands', feet: 'Feet', amulet: 'Amulet', ring: 'Ring' };
@@ -162,12 +162,12 @@ const SLOT_X = { warden: -0.38, pip: -1.14, bryn: 0.38, alondra: 1.14 };
 const others = {};
 function dropHero(h) { scene.remove(h.group); h.group.traverse(o => o.geometry?.dispose?.()); }
 function syncParty() {
-  for (const id of Object.keys(others)) if (!S.party || id === S.hero || others[id].detail !== S.detail) { dropHero(others[id]); delete others[id]; }
+  for (const id of Object.keys(others)) if (!S.party || id === S.hero || others[id].detail !== S.detail + TEXTURES.on) { dropHero(others[id]); delete others[id]; }
   if (!S.party) return;
   for (const h of HEROES) {
     if (h.id === S.hero || others[h.id]) continue;
     const gear = S.gears[h.id] || (S.gears[h.id] = starterKit(h.id));
-    const b = buildHero(h.id, gear, { build: S.build }); b.detail = S.detail; b.group.position.x = SLOT_X[h.id]; b.phase = h.id.length * 1.7;
+    const b = buildHero(h.id, gear, { build: S.build }); b.detail = S.detail + TEXTURES.on; b.group.position.x = SLOT_X[h.id]; b.phase = h.id.length * 1.7;
     scene.add(b.group); others[h.id] = b;
   }
 }
@@ -248,6 +248,8 @@ $('b-party').onclick = () => setParty(!S.party);
 $('b-strike').onclick = () => { S.strike = 0; trailPts.length = 0; };
 $('b-detail').onclick = () => { S.detail = S.detail === 'high' ? 'light' : 'high'; applyDetail(); rebuild(); };
 window.__party = () => setParty(true);
+// Chris's textures on or off (off: the surfaces generated in code, as before November 20), to compare
+$('b-tex').onclick = () => { TEXTURES.on = !TEXTURES.on; $('b-tex').setAttribute('aria-pressed', TEXTURES.on); $('b-tex').textContent = TEXTURES.on ? 'Textures ✓' : 'Textures'; rebuild(); };
 function applyDetail() {
   const high = S.detail === 'high';
   $('b-detail').textContent = high ? 'High detail' : 'Light detail';
