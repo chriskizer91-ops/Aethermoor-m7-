@@ -54,6 +54,70 @@ https://claude.ai/artifact/CA6CcAKVHSxGPB5TAZF5sY (commit c32ec2f; page version 
   a dwarf build. A coif of cloth or leather is now a hood of that stuff, not shiny mail. The heroes have none of these
   looks, so they are unchanged.
 
+**The townsfolk, for Together.** The Bestiary, **Townsfolk**: https://claude.ai/artifact/CA6CcAKVHSxGPB5TAZF5sY
+- Every one of M7's people (data/npcs.js, plus the looks with no name entry such as the gate guards and the miner: 53)
+  made by the heroes' builder from the look their map sprite wears (art/map-sprites.js NPC_LOOKS, chosen as npcSheet
+  chooses: Tamsin and Vesper in their battle looks, anyone without a look the map's villager for their name). New for
+  them: wraps and turbans, fezzes, a miner's cap with its lamp, wide straw and witch's hats, a mourning veil (hair stays
+  under all of them), aprons, trinkets at the hip (a pouch, gourd, bottle, ledger, basket of herbs, key), goggles,
+  spectacles, a row of bottles, a coil of rope, a clasp, a braided beard, icicles.
+- Two new poses in `setPose`: `'stand'` (arms easy, a weapon hanging by the leg, the weight shifting from foot to foot, a
+  look round now and then) and `'talk'` (the same, with a hand that talks and a nod). Nothing existing changed.
+- The function, for Together: `world3d/heroes.js` `person(npcId, detail = 'high')` returns the same walker shape as
+  `actor()`: `{ id, name, role, root, hero, walkRun, talking, animate(phase, walking, t, dt) }`; standing it stands,
+  `talking = true` makes it talk, walking it walks. Also on `window.M7_HEROES.person` and `M7_HEROES.PEOPLE` (every id).
+  The builder underneath: `prototypes/hero-3d/people.js` `buildPerson(npcId, { build })` (buildHero's result plus
+  `name`, `role`) and `personLook(npcId)`. `npcId` is a place's `people[].npc` (an `NPCS` id); an art key works too.
+- For Together's `game3d/figures.js`: `prototypes/hero-3d/people.js` `personFigure(npcId, detail = 'light')` has
+  exactly the shape of its `person()` (`{ root, height, rig, update(t, dt, walking) }`, plus `talking`, `name`,
+  `role`), so it switches in by name: `import { personFigure as person } from '../prototypes/hero-3d/people.js'`.
+  (heroes.js `person()` carries `rig`, `height` and `update(t, dt, walking)` too.)
+- Size: heroes.js now reads the map sprites' looks, so a world page grows about 0.6 MB (Act One's Keep and Thornhollow:
+  10.2 MB at --tex=768).
+
+**Lighter heroes and people for phones.** Gear Room (the detail button now goes High, Light, **Lite**):
+https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL
+- **Lite**: each figure in two draws. Every piece is merged into one skinned mesh whose "bones" are the rig's own nodes
+  (so `setPose` moves it exactly as before) with one material for everything (each piece's colour, metal, roughness
+  and glow kept per vertex), plus the face in a second mesh; built at 60% of Light's curve segments; grain pictures and
+  see-through decals left off. From a few metres it looks the same (screenshots compared).
+- **Auto**: Light within `LOD.near` (6 m) of the camera, Lite beyond; only the figure showing is posed. `'auto-high'`
+  is the same with High close up (laptops).
+- Measured, the party of four alone (Gear Room): High 480k triangles, 163 meshes; Light 110k, 143; **Lite 46k, 8**.
+- Measured on Act One's page (Keep and Thornhollow at --tex=768, the party in view, the page's own counter), by
+  passing the detail through `actor()` from a test script (the page itself is the hub's):
+
+  | | draw calls | triangles |
+  |---|---|---|
+  | phone, as the page is now ('light') | 113 | 99k |
+  | phone, walkers 'lite' | **33** | 82k |
+  | phone, 'auto' | 39 | 65k |
+  | laptop, as now ('high' leader, 'light' followers) | 176 | 251k |
+  | laptop, 'auto' | 126 | 129k |
+
+- How to use it (the pages are the hub's, so nothing switches until a page asks): `actor(id, gear, detail)`,
+  `person(npcId, detail)` and `personFigure(npcId, detail)` take `'high'`, `'light'` (as before), `'lite'`, `'auto'` or
+  `'auto-high'`. Suggested: phone `m7places.js` / `aethermoor.js` followers and townsfolk `'lite'` and the leader
+  `'auto'`; laptop leader `'auto-high'`, followers `'auto'`. `window.M7_HEROES.LOD.near` tunes the distance.
+- For the Fight (`world3d/battle`, which calls `buildHero` itself): `buildHero(id, gear, { lite: true })` makes the lite
+  figure (set `Q.d = 0.6` first for its fewer triangles, as `people.js` `buildLod` does), or use
+  `buildLod(lite => buildHero(id, gear, { lite }), 'auto')` from `prototypes/hero-3d/people.js` and pose
+  `L.pick().rig` each frame. The rig is the same; only its meshes differ.
+
+**Faces that live.** Gear Room (the **Face** button steps through them): https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL
+- Every hero, person foe and townsperson blinks on its own every few seconds, talks with its mouth while talking, and
+  makes six expressions: `'cheer'`, `'effort'` (gritted, narrowed eyes), `'hurt'` (a wince, teeth), `'worried'` (brows
+  up at the middle, a frown), `'asleep'` (eyes shut, a fallen hero) and `'neutral'`; `'talk'` talks without the pose.
+- How: eyelids and a mouth are drawn in the face's own shader over its picture (Chris's four faces, measured where
+  their eyes and mouths are; faceTexture's for everyone else), so an expression costs a few numbers a frame, never a new
+  picture. Works the same in High, Light and Lite. Blindfolded and shadowed faces keep their eyes as they are (the mouth
+  still moves).
+- API for the Fight and Together: `figure.face(expr, seconds)` on buildHero's result, on `actor()` and `person()`
+  walkers, and on `personFigure()` (seconds omitted: until the next call). It runs inside `setPose`, which every page
+  already calls each frame; the mouth talks while the pose is `'talk'` (`talking = true` on walkers) or
+  `rig.faceCtl.talking` is true. Suggested: `'effort'` for the strike, `'hurt'` for a second when hit, `'asleep'` while
+  fallen, `'cheer'` on victory, `'worried'` when low.
+
 ## Next
 
 - Paused (the hub, November 20): more 3D reshaping waits until Chris chooses painted or 3D. Then: the Champions and Relic-Bearers beyond Act One (Kharzul, Mother Anvil, the Rime-Abbot, the

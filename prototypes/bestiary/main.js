@@ -6,6 +6,8 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import { FOE_ART, renderFoe, foeLooks } from '../../game/src/art/foes.js';
 import { buildHero, setPose } from '../hero-3d/model.js';
+import { buildPerson, PEOPLE, personLook } from '../hero-3d/people.js';
+import { npcSheet } from '../../game/src/art/map-sprites.js';
 import { Q, TEXTURES } from '../hero-3d/kit.js';
 window.__T = TEXTURES;
 import { buildBeast, BEASTS } from './beasts.js';
@@ -36,6 +38,7 @@ let cur = null;
 function show(k) {
   S.key = k;
   if (cur) { scene.remove(cur.group); cur.group.traverse(o => o.geometry?.dispose?.()); }
+  if (S.filter === 'town' || k.startsWith('npc:')) return showPerson(k.replace(/^npc:/, ''));
   const def = FOE_ART[k], t0 = performance.now();
   const sprite = renderFoe(k, { tier: def.defaultTier, gearTier: S.gearTier, t: 0.2 });
   if (def.kind === 'humanoid') {
@@ -59,15 +62,39 @@ function show(k) {
   $('what').textContent = `${TIER[def.defaultTier] || def.defaultTier} · ${def.kind === 'humanoid' ? 'a person, dressed by the gear builder' : cur.standee ? 'painted, from Chris\'s sheet' : cur.sculpted ? 'built in 3D to Chris\'s sheet' : 'built in 3D (first pass)'} · ${Math.round(cur.height * 10) / 10} m tall`;
   $('nums').textContent = `${Math.round(tris / 1000)}k triangles · built in ${Math.round(performance.now() - t0)} ms`;
   for (const b of document.querySelectorAll('.foe')) b.setAttribute('aria-pressed', b.dataset.k === k);
-  $('gear').hidden = def.kind !== 'humanoid';
+  $('gear').hidden = def.kind !== 'humanoid'; $('talk').hidden = true;
   for (const id of ['a-lunge', 'a-hit', 'a-fall']) $(id).hidden = !cur.standee;
   $('m-painted').parentElement.hidden = def.kind === 'humanoid';
+}
+
+// the townsfolk (for Together): made by the heroes' builder from their map sprites' looks (people.js), standing about;
+// Talk makes them talk with their hands
+function npcCanvas(id) { const sh = npcSheet(personLook(id).art), c = document.createElement('canvas'); c.width = 16; c.height = 24; const tmp = document.createElement('canvas'); tmp.width = sh.img.width; tmp.height = sh.img.height; tmp.getContext('2d').putImageData(sh.img, 0, 0); c.getContext('2d').drawImage(tmp, 0, 0, 16, 24, 0, 0, 16, 24); return c; }
+function showPerson(id) {
+  S.key = 'npc:' + id;
+  if (cur) { scene.remove(cur.group); cur.group.traverse(o => o.geometry?.dispose?.()); }
+  const t0 = performance.now(), h = buildPerson(id);
+  cur = { group: h.group, height: 1.75, update: (t, step) => setPose(h.rig, step ? 'walk' : S.talk ? 'talk' : 'stand', t, step), hero: h };
+  h.group.scale.setScalar(1.7 / 1.22); scene.add(cur.group);
+  let tris = 0; cur.group.traverse(o => { if (o.isMesh) tris += (o.geometry.index ? o.geometry.index.count : o.geometry.attributes.position.count) / 3; });
+  controls.target.set(0, 0.9, 0); camera.position.set(1.0, 1.5, 3.4); ring.scale.setScalar(0.6);
+  const c = $('sprite'), src = npcCanvas(id); c.width = 16; c.height = 24; c.getContext('2d').drawImage(src, 0, 0);
+  $('name').textContent = h.name; $('what').textContent = `${h.role ? h.role + ' · ' : ''}one of the townsfolk, dressed by the gear builder from their map sprite`;
+  $('nums').textContent = `${Math.round(tris / 1000)}k triangles · built in ${Math.round(performance.now() - t0)} ms`;
+  for (const b of document.querySelectorAll('.foe')) b.setAttribute('aria-pressed', b.dataset.k === S.key);
+  $('gear').hidden = true; for (const id2 of ['a-lunge', 'a-hit', 'a-fall']) $(id2).hidden = true; $('m-painted').parentElement.hidden = true; $('talk').hidden = false;
 }
 
 // the list, by tier
 const list = $('list');
 function drawList() {
   list.innerHTML = '';
+  if (S.filter === 'town') {
+    const h = document.createElement('h3'); h.textContent = `The townsfolk (${PEOPLE.length})`; list.append(h);
+    const row = document.createElement('div'); row.className = 'row'; list.append(row);
+    for (const id of PEOPLE) { const b = document.createElement('button'); b.className = 'foe'; b.dataset.k = 'npc:' + id; b.append(npcCanvas(id)); const s2 = document.createElement('span'); s2.textContent = personLook(id).name; b.append(s2); b.onclick = () => showPerson(id); row.append(b); }
+    return;
+  }
   for (const [t, label] of Object.entries(TIER)) {
     const ks = keys.filter(k => (FOE_ART[k].defaultTier || 'rabble') === t && (S.filter === 'all' || (S.filter === 'beasts') === (FOE_ART[k].kind !== 'humanoid')));
     if (!ks.length) continue;
@@ -81,7 +108,8 @@ function drawList() {
     }
   }
 }
-for (const f of ['all', 'beasts', 'people']) $('f-' + f).onclick = () => { S.filter = f; for (const g of ['all', 'beasts', 'people']) $('f-' + g).setAttribute('aria-pressed', g === f); drawList(); };
+for (const f of ['all', 'beasts', 'people', 'town']) $('f-' + f).onclick = () => { S.filter = f; for (const g of ['all', 'beasts', 'people', 'town']) $('f-' + g).setAttribute('aria-pressed', g === f); drawList(); if (f === 'town') showPerson(PEOPLE[0]); };
+$('talk').onclick = () => { S.talk = !S.talk; $('talk').setAttribute('aria-pressed', S.talk); };
 const setMode = p => { S.painted = p; $('m-painted').setAttribute('aria-pressed', p); $('m-3d').setAttribute('aria-pressed', !p); show(S.key); };
 $('m-painted').onclick = () => setMode(true); $('m-3d').onclick = () => setMode(false);
 $('a-lunge').onclick = () => { S.lunge = 0; }; $('a-fall').onclick = () => { S.fall = 0; }; $('a-hit').onclick = () => cur?.hit?.();

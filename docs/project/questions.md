@@ -12,12 +12,10 @@ until Chris answers. When he does, it moves to `decisions.md`.
 3. **The dice**: real 3D dice tumbling in the tray *(suggested)*, or M7's 2D dice tray.
 4. **The card reveal**: kept exactly as approved, shown over the 3D *(suggested)*.
 
-5a. **The foes' look** (Chris, November 20: the 3D foes "need serious work or we need to think about it a different
-    way"): Chris's model sheets cut out and standing in the 3D as painted figures, with life added (breathing, leaning,
-    flashing when hit) *(suggested: they look like his art at once, for all 54 beasts)*; or the code-built models
-    reshaped to the sheets; or real 3D models Chris makes from his sheets with an AI 3D tool (as he makes the pictures),
-    which we bring in; or each foe sculpted in full detail and baked onto a light model (session 6 is doing Briarmaw
-    this way). Models is building the painted side-by-side in the Bestiary, and session 6 shows all three for Briarmaw.
+5a. **The foes' look**: decided November 20, full detail (`decisions.md`). Still open: **what stands in for a foe
+    until its full-detail model is done**: the painted cut-out from Chris's sheet *(suggested: it looks like his art)*,
+    or the code-built model as now. And the **light-model budgets** by tier (Champions ~50k triangles, Relic-Bearers
+    ~40k, veterans ~30k, rabble ~20k, so packs of up to six share the screen with the party) *(suggested)*.
 5b. **Small beasts on the field** (briarlings, hounds) stand 1.3 times life size so they read beside the heroes. Keep
     it *(suggested)*?
 

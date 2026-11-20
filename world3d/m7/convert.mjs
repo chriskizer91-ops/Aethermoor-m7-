@@ -208,6 +208,23 @@ async function convert(id) {
     };
   });
 
+  // ---- (Places, step 4) the roofs' own painting: each building's roof rows (its H tiles) stretched over its whole footprint,
+  // so the front wall row's painted façade (doors, windows, a stall's wares) isn't laid on the roof; blank elsewhere ----
+  const roofJobs = rects(BLD).map(([i0, j0, i1, j1]) => {
+    let hEnd = j0; for (let j = j0; j <= j1; j++) if ([...Array(i1 - i0 + 1)].some((_, k) => rows[j][i0 + k] === 'H')) hEnd = j + 1;
+    return [i0, j0, i1 + 1, Math.max(j0 + 1, hEnd), i0, j0, i1 + 1, j1 + 1];
+  });
+  const roofFile = path.join(ROOT, 'world3d/coven/art/m7', id + '-roofs.webp');
+  if (roofJobs.length) execFileSync('python3', ['-I', '-c', `import sys,json
+from PIL import Image
+im=Image.open(sys.argv[1]).convert('RGB'); W,H=im.size; w,h=${w},${h}; kx=W/w; ky=H/h
+out=Image.new('RGB',(W,H),(96,92,88))
+for a in json.loads(sys.argv[3]):
+    s=[round(a[0]*kx),round(a[1]*ky),round(a[2]*kx),round(a[3]*ky)]; d=[a[4],a[5],a[6],a[7]]
+    pad=0.3; d=[round((d[0]-pad)*kx),round((d[1]-pad)*ky),round((d[2]+pad)*kx),round((d[3]+pad)*ky)]
+    out.paste(im.crop(s).resize((max(1,d[2]-d[0]),max(1,d[3]-d[1])),Image.LANCZOS),(d[0],d[1]))
+out.save(sys.argv[2],quality=80,method=6)`, webp, roofFile, JSON.stringify(roofJobs)]);
+
   // ---- the walls: runs of # and * that aren't a house's front ----
   let WALL = rows.map((r, j) => [...r].map((c, i) => (GLOOM ? '#' : '#*').includes(c) && !MASSC.includes(c) && !BLD[j][i]));
   // a wall piece of four tiles or fewer, on its own (a fire pit's kerb, a well's wall), is a low wall with no crenels
@@ -302,7 +319,7 @@ async function convert(id) {
   const region = map.region || 'verdant';
   const treeKind = ACT2 && /^(wilds|willow-village|causeway|channel)$/.test(BIO) ? 0 : /iron|frost|peak/.test(region) ? 1 : /gloom|fen/.test(region) ? 2 : 0;
   let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
-  const lamps = [];
+  const lamps = [], things = [];
   const extraTrees = [], props = [], flowers = [], cliffs = [], roots = [], firsts = [], glows = [], stand = [], smalls = [], faces = [];
   for (let j = 0; j < h; j++) for (let i = 0; i < w; i++) {
     const c = rows[j][i], x = (i + 0.5) * TX, y = (j + 0.5) * TY;
@@ -322,7 +339,8 @@ async function convert(id) {
     else if (ACT2 && c === 'f' && GLOWK) glows.push([x, y, GLOWK]);
     else if (GLOOM && c === '"' && rnd() < 0.7) smalls.push([Math.round(x + (rnd() - 0.5) * 12), Math.round(y + (rnd() - 0.5) * 10), 'reeds', Math.floor(rnd() * 900)]);
     else if (GLOOM && c === '*' && !BLD[j][i]) lamps.push({ at: [x, y], kind: 'wood' });
-    else if (c === 'T') extraTrees.push([Math.round(x + (rnd() - 0.5) * 10), Math.round(y + (rnd() - 0.5) * 8), +(([[1,0],[-1,0],[0,1],[0,-1]].some(([a, b]) => at(i + a, j + b) === 'T') ? 0.92 : 1.5) + rnd() * 0.25).toFixed(2), treeKind, Math.floor(rnd() * 900)]);
+    // (Places, step 4) a tree the painting shows as a pine (bluer, darker green under it) is a fir, whatever the region says
+    else if (c === 'T') { const [cr, cg, cb] = COL[j][i], pine = treeKind === 0 && cb / Math.max(1, cg) > 0.72 && cr + cg + cb < 260; extraTrees.push([Math.round(x + (rnd() - 0.5) * 10), Math.round(y + (rnd() - 0.5) * 8), +(([[1,0],[-1,0],[0,1],[0,-1]].some(([a, b]) => at(i + a, j + b) === 'T') ? 0.92 : 1.5) + rnd() * 0.25).toFixed(2), pine ? 1 : treeKind, Math.floor(rnd() * 900)]); }
     else if (c === 't') flowers.push([x, y, 0.95, 'mix']);
     else if (c === '^') cliffs.push([x, y, +(1.7 + rnd() * 0.8).toFixed(2)]);
     else if (c === 'R') roots.push([x, y, Math.floor(rnd() * 900)]);
@@ -345,8 +363,9 @@ async function convert(id) {
   for (const e of map.entities || []) {
     if (!e.at) continue; const [x, y] = [(e.at[0] + 0.5) * TX, (e.at[1] + 0.5) * TY];
     if (e.kind === 'light' || e.kind === 'hearthfire') lamps.push({ at: [x, y], kind: 'pillar', h: 1.1 });
-    else if (e.kind === 'chest') props.push({ k: 'crates', at: [x, y] });
-    else if (e.kind === 'sign' || e.kind === 'board') props.push({ k: 'post', at: [x, y], h: 1.3 });
+    // (Places, step 4) the map's own things, each as itself (m7-kit.js things): a signpost, a notice board, a chest, a relic's
+    // pedestal, a table, a bell frame. Gates and locks open and close with the story, so the game shows those
+    else if (['chest', 'sign', 'board', 'pedestal', 'table', 'bellframe'].includes(e.kind)) things.push([x, y, e.kind, ({ s: 0, n: Math.PI, e: Math.PI / 2, w: -Math.PI / 2 })[e.face] ?? 0]);
   }
 
   // ---- where the party starts, the ways out, and the people standing about (shown later; kept for the page) ----
@@ -369,10 +388,10 @@ async function convert(id) {
   const place = {
     id: 'm7-' + id, m7: id, name: map.name, region, biome: map.biome, interior, dark: !!map.dark || undefined,
     ...(ACT2 ? { stand, smalls, faces, texFiles: Object.fromEntries((REGION_TEX[region] || []).map(AW)) } : {}), pillars, palisades, cliffs, roots, firsts, glows, size: [w * TX, h * TY], tiles: [w, h],
-    painting: `art/m7/${id}.webp`, standin: paint.standin || undefined, artIn: paint.artIn, extent: [-PAD * TX, -PAD * TY, (w + PAD) * TX, (h + PAD) * TY],
+    painting: `art/m7/${id}.webp`, roofPainting: roofJobs.length ? `art/m7/${id}-roofs.webp` : undefined, standin: paint.standin || undefined, artIn: paint.artIn, extent: [-PAD * TX, -PAD * TY, (w + PAD) * TX, (h + PAD) * TY],
     start: first.at, startFace: first.face, anchors, exits, people,
     water: water.map((p) => ({ poly: p })), decks, buildings, walls: segs, towers, torches, lamps, props, flowers, extraTrees, lawns, groundPatches,
-    fence: GLOOM || undefined,
+    fence: GLOOM || undefined, things,
     light: LIGHT[id] || (!ACT2 ? (interior ? 'indoor' : 'day') : undefined),
     tileH: rows.map((r, j) => [...r].map((c, i) => c === 'x' && !(GLOOM && !interior) ? 3 : c === 'w' ? 2 : WET[j][i] ? 1 : ACT2 && MASSC.includes(c) ? 4 : 0).join('')),
   };

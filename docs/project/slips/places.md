@@ -61,6 +61,57 @@
   `{ place: 'sandspire', hearthfire: 'spire-hearth' }`, Back sends back `null`, and it opens again cleanly
   (`m7/check-atlas.mjs`). `world3d/continent/` and `names.js` are unchanged, so `aethermoor.js` is as it was.
 
+### Step 4
+
+- **True to the paintings.** From above, the places now wear their paintings wherever the painting shows the top of
+  something: every **roof** (its painted slates, tiles, thatch, dormers, chimneys and stall awnings), the **water**
+  (Bogmire's lily pads, boats and stilts, the Keep's moat), the **decks and bridges** (Bogmire's planks and lanterns,
+  the Old Bridge's stone) and the **rocks**. Walls keep their own textures. The maps' own things now stand as
+  themselves: 90 signposts, 6 notice boards with their papers, 63 chests with iron bands, 66 relic pedestals, the war
+  table and 3 bell frames. Trees the painting shows as pines are firs (Thornhollow's, the East Road's higher woods).
+  Roofs take their painting only from the building's roof rows: `convert.mjs` writes each place a roofs-only painting
+  (`coven/art/m7/<id>-roofs.webp`, each building's H rows stretched over its whole footprint, blank elsewhere; 624 KB
+  for all 28), so a front wall's painted doors, windows or a stall's wares no longer lie on the roof (hub's catch).
+  Gates and locks are left to the game, because they open and close with the story. Towns checked against their paintings:
+  the Keep, Thornhollow, Sandspire, Dusthaven, Ironhold, Stormwatch, Bogmire.
+- **Phones.** On phone detail, the trees deep inside a wood (hidden by the outer ones) and many of the woods past the
+  map's edge are left out, every tree is the lighter kind, and trees are drawn in bigger batches. All pages use smaller
+  textures and paintings now: Act One 7.4 MB (was 14.9), Sunscorch 7.2, Ironspire 11.0, Gloomfen 9.7, Act Three 5.7 (with the figures),
+  the Atlas 7.2.
+- **Draw calls and triangles** (headless, every place from the walker's own view, with the party; "place alone" is
+  the same view without the four heroes; a real phone's frame rate is not checked):
+
+  | Page | Phone detail: median (heaviest) | Laptop detail: median (heaviest) | The place alone, phone / laptop (median) |
+  |---|---|---|---|
+  | Act One | 42 calls, 102k tris (Hearth Road 108, 204k) | 106, 230k (Thornway 335, 567k) | 34, 56k / 47, 78k |
+  | Sunscorch | 30, 71k (Miragewell 35, 71k) | 77, 172k (Dust Trail 181, 264k) | 22, 25k / 27, 32k |
+  | Ironspire | 43, 87k (Plankford 55, 146k) | 113, 225k (Shrinewood 222, 469k) | 35, 41k / 43, 52k |
+  | Gloomfen | 43, 118k (Willowmurk 78, 163k) | 101, 242k (Long Boardwalk 195, 308k) | 35, 71k / 53, 96k |
+  | Act Three | 26, 69k (Worldforge 31, 86k) | 98, 198k (Ash Stair 177, 257k) | 17, 23k / 19, 26k |
+
+  With Models' light figures (the hub's d96e11e; m7places.js: the leader 'auto' and the followers 'lite' on a phone,
+  'auto-high' and 'auto' on a laptop) the party costs about 9 draw calls on phone detail, where it took about 144.
+  Phone medians fell from 60-82 calls to 26-43. The heaviest places are now the long wooded roads (the Hearth Road,
+  99 calls for the place alone), not the party.
+  The Thornway on phone went from 105 to 82 calls and 279k to 168k triangles for the place alone; the Hindwood from
+  128k to 75k.
+- **(Done by Models, d96e11e.)** Before their light figures, the four heroes were most of the cost. On phone detail they take about
+  144 draw calls and 110k triangles together whenever they're in view (about 36 calls each, already merged by
+  moving part and material). A lighter phone version of the followers (fewer materials or parts, or one mesh each)
+  would roughly halve a town's draw calls. That's in `world3d/heroes.js` / `prototypes/hero-3d/`, not mine.
+- Checks: every page rebuilt; every place loads with no errors and every way out lands on walkable ground (Act One 28,
+  Sunscorch 18, Ironspire 32, Gloomfen 22, Act Three 14); the Atlas still sends back its choice. Act One's file is now
+  `dist/m7-places-512.artifact.html` (`sh m7/pages.sh`).
+- **For Together: the continent, lighter.** `world3d/continent/map/tree-models-lite.js` (365 KB, was 1.66 MB: the
+  same eight trees, the mid model standing in for the near one) and `world3d/continent/map/place-models-lite.js`
+  (587 KB, was 2.08 MB: the walking places' models for the places M7 names on the map, Thornhollow, Fawnrest Shrine,
+  the jetty, the Thornway, Bogmire and the Lanternfen; elsewhere the map shows its own plain buildings). They define
+  the same globals, so load them where the full files went. Made by `node continent/make-lite.mjs`. The Atlas page
+  uses them now: 7.2 MB (was 9.9), and it opens, travels and goes back as before. `map3d.js` takes `near: 'mid'`
+  (one line, marked). The full files are unchanged, and the Verdant Wilds page still opens its continent with every
+  model (it builds at 17.3 MB with today's heroes, which is the hub's to trim, e.g. `--herotex=256`).
+- Measured with `m7/probe.mjs` (`m7/measure.sh` runs every page); close-up stills with `m7/near.mjs`.
+
 ## Next
 
 - Waiting for the hub.
@@ -72,6 +123,10 @@
 
 - `world3d/build.mjs` (rule 7, added only): `--name=` puts a region's name where the page says "Act One", `--out=` names
   the file, `--paint=0.75` shrinks the game's paintings for a page with many of them. Nothing existing changed.
+- Coven's engine (step 4, additive and opt-in, marked "Aethermoor, Places"): `core.js` surfaces can wear the painting
+  where they look up (`paint` on a material, `PAINTMAP`) and water can show the painting under its ripples;
+  `world.js` passes those through (`extraMats[k].paint`, `place.paintOn` for the engine's own decks and rocks,
+  `water[i].paint`), and takes `place.treePatch` and `place.lightTrees` (bigger tree batches, lighter trees).
 - Coven's engine (mine to change, additive, marked "Aethermoor, Places"): `core.js` a day sky (`night.day`) and a day sky on
   the water, and molten metal that glows (`waterMat` `emis`); steep ground wears a rock texture instead of the painting stretched down it (`ground.rock`, only when a
   place asks); `world.js` passes `ground.rock` through. Act One asks for neither, so it looks as it did.

@@ -39,6 +39,17 @@ approved: shown as it is, over the 3D), equipping changes the hero's 3D outfit o
 new gear), XP and levelling up (M7's after-fight screen, `ui/screens/aftermath.js`), the Party screen with the hero
 turning in 3D.
 
+**Step 3 (from November 20, after steps 1 and 2):**
+- **The camera indoors and among walls**: in the Great Hall (Sneck, the game's first fight), Mosswatch and the
+  Heartroot, the fight's and the spoils' cameras end up behind stone. Keep a clear line to the party and the foes (pull
+  in, rise over, or pick another angle), as the walking camera does.
+- **Every battle event and status M7 has, played in 3D** (`game/ARCHITECTURE.md`, the event list and the M5/M6
+  statuses): holds and swallows ("Held under", "Led away", "In the river"), burrowing and the Leviathan's dive, charm,
+  Twinned splits and summons, a guest ally (Tamsin against the Unsmith), duels, the toll, Hexed and Rotting, Burning and
+  Bleeding, intents and phases. Prove each on a real M7 fight from its region (headless Auto runs), with a page that can
+  start any of them.
+- **The Legend Strike** as a close-up moment, and the phone frame rate (fewer draws in a fight).
+
 ## Your files
 
 - Yours: `world3d/battle/**` (new), `world3d/fight.js` (new, the page), `world3d/coven/pages/m7-fight.html` (new),

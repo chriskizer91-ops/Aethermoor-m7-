@@ -22,6 +22,7 @@ const UP = V3(0, 1, 0);
 const ease = (x) => { x = Math.max(0, Math.min(1, x)); return x * x * (3 - 2 * x); };
 const seg = (u, a, b) => ease((u - a) / (b - a));
 let HERO_H = 1.72;
+const RARITY = { worn: '#9a968c', wrought: '#e8e4da', tempered: '#64c85c', runed: '#5299f0', storied: '#b774f4', heirloom: '#f4ad3f', regalia: '#4fd1c0', primal: '#fff6e0' };
 const GAP = 4.2;          // metres between the heroes' line and the foes' (what the camera aims for)
 
 export const arena = {
@@ -57,8 +58,64 @@ export const arena = {
   // the fight is over: the camera swings back behind `leader` and the page walks again (done() once it has)
   end(done) {
     const back = this.from;
-    this.swing = { t: 0, dur: 1.2, from: { pos: this.cam.position.clone(), q: this.cam.quaternion.clone(), fov: this.cam.fov }, to: back, done: () => { this.on = false; cancelAnimationFrame(this.raf); this.fx.clear(); removeBlobs(this.scene, this.blobs); for (const f of this.foes.values()) this.scene.remove(f.root); done && done(); } };
+    this.swing = { t: 0, dur: 1.2, from: { pos: this.cam.position.clone(), q: this.cam.quaternion.clone(), fov: this.cam.fov }, to: back, done: () => { this.on = false; cancelAnimationFrame(this.raf); this.fx.clear(); removeBlobs(this.scene, this.blobs); for (const f of this.foes.values()) this.scene.remove(f.root); for (const d of this.drops || []) this.scene.remove(d.g); this.drops = null; done && done(); } };
   },
+  // the heroes' figures as they stand now (one may have been re-dressed during the spoils)
+  actors() { return [...this.heroes.values()].map((h) => h.A); },
+  // a hero re-dressed on the spot (new gear from a card): the new figure takes the old one's place, with a flash of light
+  swapHero(id, A) {
+    const h = this.heroes.get(id); if (!h || h.A === A) return;
+    const old = h.A; A.root.position.copy(old.root.position); A.root.rotation.copy(old.root.rotation);
+    this.scene.remove(old.root); this.scene.add(A.root);
+    h.A = A; h.rig = A.hero.rig; h.body = A.hero.group; h._mats = null;
+    this.fx.ring(h.pos.clone(), '#ffe08a', 1.4, 0.8); this.fx.sparks(h.pos.clone().setY(h.pos.y + 1), '#fff4c0', 24, { spread: 0.8, up: 1.3 });
+    this.play(h, 'cheer', 1.4);
+  },
+  // the spoils lying where the foes fell: a small chest for each, lit in its rarity's colour; open() bursts one
+  loot(items) {
+    // just in front of the party, between them and where the foes fell, so the spoils' view shows both
+    const hc = V3(); for (const h of this.heroes.values()) hc.add(h.home); hc.multiplyScalar(1 / Math.max(1, this.heroes.size));
+    const side = V3(Math.cos(this.yaw), 0, -Math.sin(this.yaw));
+    const spots = items.map((_, i) => hc.clone().addScaledVector(this.dir, 1.5).addScaledVector(side, (i - (items.length - 1) / 2) * 0.8));
+    this.drops = items.map((it, i) => {
+      const at = spots[i].clone(); at.y = this.heightAt(at.x, at.z, at.y);
+      const col = new THREE.Color(RARITY[it.rarity] || '#e8e4da'), g = new THREE.Group(); g.position.copy(at);
+      const wood = new THREE.MeshStandardMaterial({ color: 0x6a4428, roughness: 0.8 }), band = new THREE.MeshStandardMaterial({ color: col, emissive: col, emissiveIntensity: 0.5, metalness: 0.6, roughness: 0.35 });
+      const box = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.26, 0.3), wood); box.position.y = 0.13; g.add(box);
+      const lid = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.15, 0.42, 12, 1, false, 0, Math.PI), wood); lid.rotation.z = Math.PI / 2; lid.position.y = 0.26; g.add(lid);
+      for (const x of [-0.14, 0.14]) { const b = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.3, 0.32), band); b.position.set(x, 0.15, 0); g.add(b); }
+      const glow = new THREE.PointLight(col, 1.2, 2.5, 2); glow.position.y = 0.6; g.add(glow);
+      g.scale.setScalar(0.01); this.scene.add(g);
+      const d = { g, item: it, t: -i * 0.25, glow };
+      return d;
+    });
+    for (const d of this.drops) this.fx.ring(d.g.position.clone(), '#' + new THREE.Color(RARITY[d.item.rarity] || '#e8e4da').getHexString(), 1, 0.7);
+  },
+  // the spoils' view: round in front of the party, looking back at them over the chests, the party in the screen's
+  // upper part (M7's after-fight screen fills the lower part)
+  spoilsView(top = 0.2) {
+    const hc = V3(); for (const h of this.heroes.values()) hc.add(h.home); hc.multiplyScalar(1 / Math.max(1, this.heroes.size));
+    for (const h of this.heroes.values()) h.forward = false;
+    const fov = 40, aim = hc.clone(); aim.y += 0.9;
+    // from the foes' side, or round about, near or far, high or low: the first spot that sees every hero's head
+    const P = this.W.P, heads = [...this.heroes.values()].map((h) => h.home.clone().setY(h.home.y + 1.3));
+    const clear = (a, b) => { try { return P.sight.hit(a.x, a.y, a.z, b.x, b.y, b.z) > 0.97; } catch (e) { return true; } };
+    let pos = null, bestN = -1, bestPos = null;
+    search: for (const [dist, up] of [[10.5, 3.4], [8, 3.2], [6, 3.6], [4.5, 4.2]]) for (const off of [0, 0.5, -0.5, 1.0, -1.0, 1.6, -1.6]) {
+      const a = this.yaw + off, p = hc.clone().add(V3(Math.sin(a) * dist, up, Math.cos(a) * dist));
+      const n = heads.filter((h) => clear(p, h)).length;
+      if (n > bestN) { bestN = n; bestPos = p; }
+      if (n === heads.length) { pos = p; break search; }
+    }
+    pos = pos || bestPos;
+    // look a little below the party, so they stand in the upper part of the screen
+    const v = this.renderer.domElement.getBoundingClientRect(), f = (v.height / 2) / Math.tan(fov * Math.PI / 360);
+    const off = Math.atan((0.5 - top) * v.height / f), d = aim.clone().sub(pos), L = d.length();
+    const look = aim.clone(); look.y -= L * Math.tan(off) * 1.15;
+    const q = new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().lookAt(pos, look, UP));
+    this.want = { ...this.want, pos, q, fov };
+  },
+  openLoot(i) { const d = this.drops && this.drops[i]; if (!d || d.open) return; d.open = true; this.fx.sparks(d.g.position.clone().setY(d.g.position.y + 0.3), '#ffe08a', 26, { spread: 0.7, up: 1.6 }); },
   // a foe stands where M7's unit `id` does (the stage's addFoe): the pack's own figure if one was handed over
   addFoe(unit, { spawn = false } = {}) {
     let F = this.pending.find((f) => f.key === (FOE_ART[unit.art] ? unit.art : 'cutpurse') && !f.unit) || null;
@@ -74,6 +131,7 @@ export const arena = {
   //      yH (the heroes' feet line), yTop (their heads' line), foes: [ids in the order they stand] } (CSS px)
   layout(L) {
     this.layoutIn = L;
+    if (!this.want) this.pickYaw(L);
     const cam = this.solve(L);
     if (!cam) return;
     const first = !this.want;
@@ -92,18 +150,46 @@ export const arena = {
   // the foes' places along their line (again after one falls or another joins)
   formation(L = this.layoutIn, cam = this.want) {
     if (!L || !cam) return;
-    const vis = (L.foes || []).filter((id) => this.foes.get(id) && !this.foes.get(id).removed);
+    const vis = ((this.stage && this.stage.order) || L.foes || []).filter((id) => this.foes.get(id) && !this.foes.get(id).removed);
     const n = vis.length, pad = Math.min(60, L.stage.width * 0.12), w = L.stage.width - pad * 2;
+    // each foe's share of the line by its size (a Champion takes more room than a briarling), as M7's stage does by width
+    const wt = vis.map((id) => Math.max(0.8, Math.min(3, this.foes.get(id).size.d))), sum = wt.reduce((x, y) => x + y, 0);
+    let acc = 0;
     vis.forEach((id, i) => {
       const F = this.foes.get(id);
-      const x = L.stage.left + pad + w * (i + 0.5) / n;
+      const x = L.stage.left + pad + w * (acc + wt[i] / 2) / sum; acc += wt[i];
       const p = this.ground(x, L.yF, cam); if (!p) return;
       if (n >= 3 && i % 2 === 1) p.addScaledVector(this.dir, 0.9);
       p.y = this.heightAt(p.x, p.z, p.y);
-      if (F.home.lengthSq() > 0 && !F.walk && this.want) F.walk = { from: F.pos.clone(), t: 0, dur: 0.6 };
-      F.home.copy(p); F.slot = x - L.stage.left; F.slotW = Math.max(110, Math.min(200, L.stage.width / Math.max(1, n)));
+      const fresh = !F.placed; F.placed = true;
+      if (!fresh && !F.walk && this.want) F.walk = { from: F.pos.clone(), t: 0, dur: 0.6 };
+      F.home.copy(p); if (fresh && F.pos.lengthSq() === 0) F.pos.copy(p); F.slot = x - L.stage.left; F.slotW = Math.max(118, Math.min(200, (L.stage.width - 8) * wt[i] / sum - 6));
     });
   },
+  // Indoors and among walls (step 3): the way the fight faces is chosen once, at its start. From the way to the foes,
+  // then turning left and right by steps, it keeps the first way whose camera sees every hero and foe (nothing built
+  // between: the place's own line-of-sight test, W.P.sight) and puts everyone on open ground; failing that, the best.
+  pickYaw(L) {
+    const yaw0 = this.yaw, P = this.W.P;
+    const clear = (a, b) => { try { return P.sight.hit(a.x, a.y, a.z, b.x, b.y, b.z) > 0.97; } catch (e) { return true; } };
+    const open = (p) => { try { return P.walkable(P.M.px(p.x), P.M.py(p.z)); } catch (e) { return true; } };
+    let best = null;
+    for (const off of [0, 0.45, -0.45, 0.9, -0.9, 1.4, -1.4, 2.0, -2.0, Math.PI]) {
+      this.setYaw(yaw0 + off);
+      const cam = this.solve(L); if (!cam) continue;
+      const pts = [];
+      for (const { x } of L.heroes) { const p = this.ground(x, L.yH, cam); if (p) pts.push([p, 1.3]); }
+      const n = Math.max(1, (L.foes || []).length), pad = Math.min(60, L.stage.width * 0.12), w = L.stage.width - pad * 2;
+      for (let i = 0; i < n; i++) { const p = this.ground(L.stage.left + pad + w * (i + 0.5) / n, L.yF, cam); if (p) pts.push([p, 0.6]); }
+      let score = 0, all = pts.length > 0;
+      for (const [p, up] of pts) { const seen = clear(cam.pos, p.clone().setY(p.y + up)), ok = open(p); score += (seen ? 2 : 0) + (ok ? 1 : 0); if (!seen || !ok) all = false; }
+      score -= Math.abs(off) * 0.3;
+      if (!best || score > best.score) best = { score, yaw: this.yaw };
+      if (all) break;
+    }
+    this.setYaw(best ? best.yaw : yaw0);
+  },
+  setYaw(y) { this.yaw = y; this.dir.set(Math.sin(y), 0, Math.cos(y)); },
   // the camera that puts the heroes' feet at yH, their heads at yTop and the foes' feet at yF, looking down `dir`
   solve(L) {
     const Wc = L.view.width, Hc = L.view.height; if (!Wc || !Hc) return null;
@@ -228,10 +314,16 @@ export const arena = {
     const h = tgt ? this.heroByUnit(tgt) : null;
     F.act = { kind: 'attack', t: 0, dur: 2.0, target: h ? h.id : null, bit: false };
   },
-  foeHurt(id, big) { const F = this.foes.get(id); if (F && !F.ko) F.hurt = { t: 0, dur: big ? 0.5 : 0.36 }; },
+  foeHurt(id, big) { const F = this.foes.get(id); if (F && !F.ko) { F.hurt = { t: 0, dur: big ? 0.5 : 0.36 }; F.fig.beast?.hit?.(); } },
   foeKo(id) { const F = this.foes.get(id); if (!F) return; F.ko = { t: 0, dur: 0.6 }; F.act = null; },
   foeGone(id, kind) { const F = this.foes.get(id); if (!F) return; F.gone = { t: 0, dur: 0.8, kind }; F.act = null; },
   foeRevive(id) { const F = this.foes.get(id); if (!F) return; F.ko = null; F.gone = null; F.removed = false; F.root.visible = true; F.sinkOut = 0; },
+  // a Champion's new phase (M7's on_phase sets its look): it swells a little each time, and roars (a lunge in place)
+  foeLook(id, unit) {
+    const F = this.foes.get(id); if (!F || !unit) return;
+    const ph = unit.phase || 1;
+    if (ph > (F.phase || 1)) { F.phase = ph; F.growTo = 1 + 0.08 * (ph - 1); F.hurt = { t: 0, dur: 0.6 }; this.fx.ring(F.pos.clone(), '#b4d65a', 3.5, 0.9); }
+  },
   foeSink(id, down) { const F = this.foes.get(id); if (F) F.sinkTo = down ? 1 : 0; },
   play(h, kind, dur, o = {}) { h.act = { kind, t: 0, dur, ...o, from: h.pos.clone() }; },
   // the party's cheer, or their fall, once the fight is done
@@ -270,6 +362,7 @@ export const arena = {
     for (const h of this.heroes.values()) { stepHero(this, h, d, t, foeCenter); if (h.A.root.visible) placeBlob(this.blobs[bi++], h.pos, 0.9); }
     for (const F of this.foes.values()) { stepFoe(this, F, d, t, heroCenter); if (F.root.visible && !F.sunk) placeBlob(this.blobs[bi++], F.pos, Math.max(0.6, F.size.w * 1.3)); }
     for (; bi < this.blobs.length; bi++) this.blobs[bi].visible = false;
+    for (const L of this.drops || []) { L.t += dt; const u = Math.max(0, Math.min(1, L.t / 0.5)); const s = L.open ? Math.max(0.01, L.g.scale.x - dt * 3) : 0.01 + (1 - (1 - u) ** 3) * 0.99 * (1 + Math.sin(Math.min(1, u) * Math.PI) * 0.25); L.g.scale.setScalar(s); L.g.rotation.y += dt * 0.6; L.glow.intensity = 1 + Math.sin(this.t * 3 + L.t) * 0.4; }
     this.fx.speed = sp; this.fx.update(d, this.cam);
     if (this.onIdle) this.onIdle(d, t);
     this.renderer.render(this.scene, this.cam);
@@ -379,6 +472,7 @@ export function foeFigure(unitOrKey, o = {}) {
   };
   // small beasts stand a little larger on the field than life, so a briarling reads beside a hero
   const big = F.size.h < 1.1 && !humanoid ? 1.3 : 1;
+  F.baseScale = big; F.grow = 1; F.phase = 1;
   if (big !== 1) { root.scale.setScalar(big); F.size.w *= big; F.size.d *= big; F.size.h *= big; }
   root.traverse((c) => { if (c.isMesh) { c.castShadow = false; } });
   return F;
@@ -427,11 +521,19 @@ function stepFoe(ar, F, d, t, heroCenter) {
   F.side.set(Math.cos(F.face), 0, -Math.sin(F.face));
   const o = poseFoe(F, move, mu, t + F.ph);
   const down = (F.sink * 0.78 + F.sinkOut * 1.05 + (F.rising != null ? 1 - F.rising : 0)) * F.size.h;
+  if (F.growTo && Math.abs(F.grow - F.growTo) > 1e-3) { F.grow += (F.growTo - F.grow) * Math.min(1, d * 3); F.root.scale.setScalar(F.baseScale * F.grow); }
   F.root.position.copy(F.pos); F.root.position.y += o.rise - down; F.root.rotation.set(0, F.face, 0);
   F.body.position.z = o.fwd; F.body.rotation.set(o.lean, 0, o.roll); F.body.scale.set(1, o.sq, 1);
   // the figure's own moving parts: a person's rig, a beast's legs and tail
   if (F.fig.rig) { if (walking) { F.step += d * 11; setPose(F.fig.rig, 'walk', t, F.step); } else poseHero(F.fig.rig, move === 'attack' || move === 'bite' ? 'strike' : move === 'hurt' ? 'hurt' : 'ready', move === 'bite' ? 0.45 : mu, t + F.ph, 'slash'); }
-  else if (F.fig.beast) { if (walking) F.step += d * 12; F.fig.beast.update(t + F.ph, walking ? F.step : 0); }
+  else if (F.fig.beast) {
+    if (walking) F.step += d * 12;
+    const B = F.fig.beast;
+    // a beast with its own moves (One Foe's full-detail Briarmaw: pose(move, u, t)) makes them itself, the figure only
+    // carried where it goes; every other beast is leaned and turned whole, as moves.js poses it
+    if (B.pose && !walking && move !== 'idle') { B.pose({ attack: mu < 0.4 ? 'roar' : 'swipe', bite: 'bite', hurt: 'hurt', ko: 'ko' }[move] || 'idle', move === 'attack' ? Math.min(1, mu * 1.2) : mu, t + F.ph); F.body.rotation.set(0, 0, 0); F.body.scale.set(1, 1, 1); }
+    else B.update(t + F.ph, walking ? F.step : 0);
+  }
   F.root.visible = true;
 }
 

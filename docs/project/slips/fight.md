@@ -20,6 +20,35 @@
   - Victory: the party cheers. Defeat: the party falls, then wakes at the town gate. Test with `?lose=1`.
   - Commit: see `git log job/fight` ("The Fight, step 1").
 
+- **Briarmaw in his den** (same page, the **To Briarmaw's den** button, or `?fight=briarmaw`): walk into the den and
+  Briarmaw (M7's own `briarmaw-den` fight, the party at level 7) comes at you. His grip meters sit on his plate, he
+  swells a little at each new phase, the briarlings he calls up rise into the line, and the foes share the line by size.
+  Headless, an Auto fight runs start to end (Auto lost to him, as it can in M7; the party wakes at the den's mouth).
+  Same link, 11 MB.
+- The phone page builds lighter heroes when `?quality=phone` (163 thousand triangles in a fight, down from 287).
+
+- **Chris's painted foes in a fight** (same page): the **Foes** button (top right) switches the beasts between the
+  sculpted 3D ones and Models' painted standees from Chris's sheets; `?foes=cutout` starts painted. People foes stay
+  built by the heroes' builder. Only the paintings this page meets go in (thornhound, briarling, Briarmaw;
+  `FIGHT_STANDEES=...` at build time names others), so the page is 12 MB. A painted fight plays to victory headless.
+
+- **Step 2, the spoils (first cut)**, same link: after a win the camera comes round to face the party; what the
+  foes dropped lies before them as chests lit in their rarity's colour; M7's own after-fight screen (XP, level-ups,
+  gold, the chests opening into M7's card reveal) comes up over the field. **Equipping from a card re-dresses that
+  hero in 3D on the spot** (headless: `?seed=2` drops a Maul; "Equip on Wren" and Wren holds it up). After a defeat,
+  M7's screen wakes the party; they walk on from the way in. `runFight({ keep: true })` stays on the field for this.
+
+- **The Party screen** (same link, the **Party** button on the walk): M7's own party screen over the paused walk;
+  in its hero box the hero stands in 3D in their gear, turning slowly (drag to turn them). Equip a piece there and
+  the hero is rebuilt in it; back on the walk they wear it. `battle/party-room.js` `openParty({ host, ctx, input,
+  figure })`.
+
+- **Briarmaw in full detail** (same link): the Foes button now goes 3D, Painted, **Full detail**; Full detail puts One
+  Foe's baked Briarmaw (`prototypes/foe-hd`, session 6) in his den, making his own moves (roar, swipe, bite, hurt,
+  fall); every other beast stays as it is. His assets go in through my build plugin with his two big pictures at
+  1024 px; the page is 14.6 MB. `?foes=hd` starts there.
+- On phones the three who follow the leader are Models' lite heroes (two draws each).
+
 ## For Together: starting a fight from outside
 
 `world3d/battle/run.js` exports one function. It pauses the walk, swings the camera round, plays M7's battle screen
@@ -49,8 +78,7 @@ I'll add a switch on the page (`?foes=cutout`).
 
 ## Next
 
-- Briarmaw in his den (`m7-briarmaw-den`): his phases, grip and the relics snapping off.
-- Then step 2, the spoils.
+- When session 6's Briarmaw lands: his full model through `setBeastLook`.
 
 ## Changed outside my files
 
@@ -79,5 +107,5 @@ I'll add a switch on the page (`?foes=cutout`).
 ## Build
 
 ```
-cd world3d && node build.mjs --page=m7-fight --places=thornhollow --tex=768 --entry=fight.js --plugin=battle/swap.mjs
+cd world3d && node build.mjs --page=m7-fight --places=thornhollow,briarmaw-den --tex=768 --entry=fight.js --plugin=battle/swap.mjs
 ```

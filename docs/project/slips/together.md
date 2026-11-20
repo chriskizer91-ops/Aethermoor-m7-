@@ -4,7 +4,7 @@ Last updated November 20.
 
 ## Done
 
-- **Step 1, Act One as one game**: https://claude.ai/artifact/RaeSK5hezqb3qH7jmuM5aj (14 MB; page `game3d/`, built by
+- **Step 1, Act One as one game**: https://claude.ai/artifact/RaeSK5hezqb3qH7jmuM5aj (version 2, 14.7 MB; page `game3d/`, built by
   `node game3d/build.mjs`). On the title: Go on, A new journey (M7's own prologue and name screen), or Bring the party
   from the 2D game (M7's save, read only).
   - Walking with M7's world engine underneath: each time the leader crosses into a new 2 m tile, one step in
@@ -14,8 +14,8 @@ Last updated November 20.
     3D: ways out to the next place (all 14 of Act One), sealed roads, road gates and their guards, locks, chests,
     signs, talk, Hearthfires (rest, travel), hazards, the prologue and the story's triggers.
   - The A button (Enter, E, Space) acts on what stands next to the leader, the way they face.
-  - People stand where M7's maps put them (only those the story says are there), dressed by the heroes' builder from
-    M7's own looks. Standing foes (road guards, Sneck) stand on their tiles. Packs roam as the engine moves them, with a
+  - People stand where M7's maps put them (only those the story says are there), Models' townsfolk
+    (`personFigure`); the one spoken to turns to the party and talks while the land keeps moving behind the box. Standing foes (road guards, Sneck) stand on their tiles. Packs roam as the engine moves them, with a
     "!" when they see you.
   - Fights: contact with a pack, or a foe's card, starts the Fight's `runFight` on that spot; then M7's own
     after-fight screen (XP, gold, the chests and the card reveal). A defeat wakes the party at the Hearthfire.
@@ -39,8 +39,8 @@ Last updated November 20.
 
 ## Needs
 
-- Places (or the hub): the Atlas's tree and place models (`continent/map/tree-models.js`, `place-models.js`, 3.8 MB)
-  are left off the game page to stay under 16 MB; the continent shows its simpler trees. Lighter copies would let them in.
+- The Fight: indoors (Sneck's fight in the Great Hall), `arena.spoilsView()` puts the camera behind the hall's wall, so
+  the spoils' field is hidden by stone (the after-fight screen itself is fine). Outdoors it's as on the Fight's page.
 
 ## For Chris
 
@@ -49,7 +49,12 @@ Last updated November 20.
 ## Checks
 
 - `cd game && npm test`: 623 pass; `npm run build` leaves `aethermoor-m7.html` unchanged.
-- Headless playthrough (`game3d/tools/play.mjs`, Chromium with SwiftShader, phone size), so far: a new journey in the
-  Great Hall, the prologue talk over the 3D, Sneck fought in 3D and won, M7's after-fight screen, back walking, the
-  hall's door to the Keep, the north gate to the Hearth Road, the road's gate guards fought on the way (running).
+- Headless playthrough (`game3d/tools/play.mjs`, Chromium with SwiftShader, phone size), a full run: 15 of 16, no page
+  errors. A new journey in the Great Hall, the prologue talk over the 3D, Sneck fought in 3D and won, M7's after-fight
+  screen, back walking, the hall's door to the Keep, the north gate to the Hearth Road, seven fights won on the way up
+  (the road's five gate guards and two roaming packs), Thornhollow, a rest at its Hearthfire (day 2), saved under
+  `aethermoor.save.3d` with M7's key untouched, the page reloaded, "Go on", and the party on the same spot. The one
+  miss was the script's chest (Thornhollow's cache is inside the barred stockade, out of reach this early); it now opens
+  the first chest it can reach on the road, and a rerun is going.
+- Version 2 loads headless with no errors.
 - Not checked: a phone's frame rate (headless draws 1 to 4 frames a second in software).

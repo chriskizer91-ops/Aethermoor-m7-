@@ -4,9 +4,12 @@
 // log, Legend Surge), over the 3D land, with our stage (battle/stage3d.js) under it. When it ends the camera swings
 // back behind the leader and the party walks on; another pack comes out on the road.
 //   ?pack=0|1 which of Thornhollow's patrols (M7's PATROLS.thornhollow); ?lose=1 a pack far too strong (to see a defeat)
+//   ?foes=cutout the beasts as Chris's painted standees (Models' prototypes/bestiary/standee.js); the Foes button switches
 //   ?auto=1 the party fights on its own; ?speed=2|4; ?go=1 the fight starts at once (headless checks)
 import './heroes.js';
 import '../game/src/ui/theme.css';
+import '../game/src/ui/screens.css';
+import * as aftermathScreen from '../game/src/ui/screens/aftermath.js';
 import './battle/fight.css';
 import { installCardServices } from '../game/src/ui/card.js';
 import { setReducedGetter } from '../game/src/ui/lib/anim.js';
@@ -17,15 +20,52 @@ import { escalateSpawn } from '../game/src/rules/foe.js';
 import { grantXp, xpForLevel } from '../game/src/rules/progression.js';
 import { deriveHero } from '../game/src/rules/stats.js';
 import { createRng } from '../game/src/core/rng.js';
-import { PATROLS } from '../game/src/data/encounters.js';
+import { PATROLS, ENCOUNTERS } from '../game/src/data/encounters.js';
+import { MAPS } from '../game/src/data/maps/index.js';
+import { FOES } from '../game/src/data/foes.js';
 import { heroGear } from '../game/src/ui/battle/sprites.js';
-import { arena, foeFigure } from './battle/arena.js';
+import { arena, foeFigure, setBeastLook } from './battle/arena.js';
+import { standeeLook } from '../prototypes/bestiary/standee.js';
+import { buildBeast } from '../prototypes/bestiary/beasts.js';
+import { ready as hdReady, makeShared, briarmawLook } from '../prototypes/foe-hd/page/briarmaw.js';
+import { A as HD_ASSETS } from 'fight-briarmaw-assets';
 import { runFight } from './battle/run.js';
+import { openParty } from './battle/party-room.js';
 
 const Q = new URLSearchParams(location.search);
-const PLACE = 'm7-thornhollow';
-const PACK_AT = [[12, 14.2], [11.2, 13.6], [12.9, 13.5]]; // where the pack waits on the road (Thornhollow's tiles)
+// the two fights: where, who waits there (at which tiles), M7's battle for it, and the party's level for it
+const SCENES = {
+  road: { place: 'm7-thornhollow', name: 'Thornhollow', anchor: 'from-road', level: 4, near: 'A pack on the road!', again: 'Another pack comes down the road',
+    hint: 'walk up the road', foes: () => PATROLS.thornhollow[Q.get('pack') === '0' ? 0 : 1].map((s) => s.family),
+    at: [[12, 14.2], [11.2, 13.6], [12.9, 13.5]], trigger: 5.2,
+    battle: (game, keys) => startBattle(game, { patrol: { spawns: PATROLS.thornhollow[Q.get('pack') === '0' ? 0 : 1].map((sp, i) => escalateSpawn({ ...sp, level: Number(Q.get('lose')) ? 12 : 4 }, game.progress.waking, `fight3d#${i}`)), where: 'Thornhollow', backdrop: 'thornhollow' } }) },
+};
+// any of M7's placed fights (step 3), from M7's own data: the map it is on (its 3D place), where the foes stand and which
+// way they face (the map's encounter entity), the party's level (the strongest spawn's, one more for a lair)
+const FACE = { n: [0, -1], s: [0, 1], e: [1, 0], w: [-1, 0] };
+const ENC_AT = {};
+for (const m of Object.values(MAPS)) for (const e of m.entities || []) if (e.kind === 'encounter' && ENCOUNTERS[e.enc]) ENC_AT[e.enc] = { map: m, e };
+function encScene(id) {
+  const { map, e } = ENC_AT[id] || {}; if (!map) return null;
+  const E = ENCOUNTERS[id], f = FACE[e.face || 's'], sp = E.spawns || [], n = Math.max(1, sp.length);
+  const across = (i) => (i - (n - 1) / 2) * 0.9;
+  return { id, enc: true, place: 'm7-' + map.id, name: E.name, where: map.name, level: Math.max(1, ...sp.map((s) => s.level || 1)) + (e.mode === 'lair' ? 1 : 0),
+    near: E.name, again: `${E.name}: back for another go`, hint: 'walk up to them', trigger: 5.5,
+    foes: () => sp.map((s) => s.family), at: sp.map((_, i) => [e.at[0] + across(i) * Math.abs(f[1]), e.at[1] + across(i) * Math.abs(f[0])]),
+    start: [e.at[0] + f[0] * 4.5, e.at[1] + f[1] * 4.5], face: Math.atan2(-f[0], -f[1]),
+    battle: (game) => startBattle(game, { nodeId: id }) };
+}
+SCENES.den = encScene('briarmaw-den');
+// the beasts' look: '3d' (sculpted), 'cutout' (Chris's painted standees) or 'hd' (Briarmaw in full detail, session 6)
+const LOOKS = ['3d', 'cutout', 'hd'];
+let look = LOOKS.includes(Q.get('foes')) ? Q.get('foes') : '3d', hdLook = null;
+async function useLook(k) {
+  if (k === 'hd' && !hdLook) { await hdReady(); hdLook = briarmawLook(makeShared(HD_ASSETS, 1024), buildBeast); }
+  setBeastLook(k === 'cutout' ? standeeLook : k === 'hd' ? hdLook : null);
+}
+let SC = Q.get('enc') && encScene(Q.get('enc')) || SCENES[Q.get('fight') === 'briarmaw' ? 'den' : 'road'];
 const tilePx = (c, r) => [c * 50 + 25, r * 40 + 20];       // a tile to the walking map's px (m7-kit.js: 50 x 40)
+const familyArt = (family) => FOES[family]?.art || family;
 
 window.addEventListener('DOMContentLoaded', () => { main().catch((e) => { console.error(e); window.__err = String(e && e.stack || e); const m = document.getElementById('loadmsg'); if (m) m.textContent = 'Something went wrong: ' + e.message; }); });
 
@@ -40,7 +80,7 @@ async function main() {
 
   // ---- M7's game, in memory only (this page never saves: M7's save is never written) ----
   let seed = Number(Q.get('seed')) || 7;
-  let game = makeGame(seed);
+  let game = makeGame(seed, SC.level);
   const gearOf = (id) => { const g = H.starterKit(id), m = heroGear(game, id) || {}; for (const [s, it] of Object.entries(m)) if (it) g[s] = it; if (m.weapon) g.offhand = m.offhand || null; return g; };
   const made = {};
   const get = (id, detail) => { const k = id + detail; return made[k] || (made[k] = H.actor(id, gearOf(id), detail)); };
@@ -49,15 +89,19 @@ async function main() {
   // ---- the walk (as on the Act One page) ----
   let W;
   W = await W3D.walk({
-    place: PL[PLACE], root: $('world'), canvas: $('cv'), ring: $('ring'), dot: $('dot'), toast, who: 'warden',
+    place: PL[SC.place], root: $('world'), canvas: $('cv'), ring: $('ring'), dot: $('dot'), toast, who: 'warden',
     say: (s) => { $('loadmsg').textContent = s.replace(/\bIo\b/g, 'the party'); },
     onStats: (n) => { $('fps').textContent = n.fps; },
   });
+  window.__fight = {};
+  // where the party comes in: the place's way in (the road), or a few tiles before the foes, facing them
+  const startOf = (S) => { if (S.anchor) { const a = PL[S.place].anchors[S.anchor]; return [a.at[0], a.at[1], a.face]; } const [x, y] = W.nearestFit(...tilePx(...S.start)); return [x, y, S.face]; };
+  W.setIo(...startOf(SC));
   let leader = W3D.witch('warden'), followers = [];
   const party = window.M7_PARTY.create(W);
   const setFollowers = () => {
     for (const f of followers) W.P.scene.remove(f.root);
-    followers = H.HEROES.filter(([id]) => id !== 'warden').map(([id]) => get(id, 'light'));
+    followers = H.HEROES.filter(([id]) => id !== 'warden').map(([id]) => get(id, PHONE ? 'lite' : 'light'));
     for (const f of followers) W.P.scene.add(f.root);
     party.set(leader, followers);
   };
@@ -66,23 +110,23 @@ async function main() {
   // ---- the pack on the road ----
   let pack = null;
   function spawnPack() {
-    const set = PATROLS.thornhollow[Q.get('pack') === '0' ? 0 : 1];
-    const keys = set.map((s) => familyArt(s.family));
+    const keys = SC.foes().map(familyArt);
     const figs = keys.map((k) => foeFigure(k, { detail: PHONE ? 'light' : 'high' }));
     const M = W.P.M;
     figs.forEach((F, i) => {
-      const [px, py] = tilePx(...PACK_AT[i % PACK_AT.length]);
+      const [px, py] = tilePx(...SC.at[i % SC.at.length]);
       F.pos.set(M.x(px), W.P.walkH(px, py), M.z(py)); F.home.copy(F.pos); F.face = 0; F.wander = Math.random() * 6;
       F.root.position.copy(F.pos); W.P.scene.add(F.root);
     });
-    pack = { set, figs, near: false };
+    pack = { keys, figs, near: false };
   }
+  await useLook(look);
   spawnPack();
   let last = performance.now(), fighting = false;
   (function tick() {
     requestAnimationFrame(tick);
     const now = performance.now(), dt = Math.min(0.05, (now - last) / 1000), t = now / 1000; last = now;
-    if (fighting || W.paused || W.isBusy()) return;
+    if (fighting || W.paused || W.isBusy() || !window.__ready) return;
     party.step(dt, t);
     if (!pack) return;
     // the pack mills about, watching the party; close enough, and it comes at them
@@ -97,8 +141,8 @@ async function main() {
       if (F.fig.beast) F.fig.beast.update(t + F.ph, 0);
       dmin = Math.min(dmin, Math.hypot(L.x - F.pos.x, L.z - F.pos.z));
     }
-    if (dmin < 7.5 && !pack.near) { pack.near = true; toast('A pack on the road!'); }
-    if (dmin < 5.2) fight();
+    if (dmin < SC.trigger + 2.3 && !pack.near) { pack.near = true; toast(SC.near); }
+    if (dmin < SC.trigger) fight();
   })();
 
   // ---- the fight ----
@@ -107,8 +151,22 @@ async function main() {
   let settings = { sound: true, music: true, battleSpeed: Number(Q.get('speed')) || 1, reducedMotion: false };
   const reduced = () => !!settings.reducedMotion || matchMedia('(prefers-reduced-motion: reduce)').matches;
   const host = $('fight');
+  // the gear each hero wears, as M7 has it: when a card is equipped in the spoils, that hero is re-dressed on the spot
+  const gearKey = (id) => JSON.stringify(game.party.roster[id]?.gear || {});
+  let worn = {};
+  for (const [id] of H.HEROES) worn[id] = gearKey(id);
+  const redress = () => {
+    for (const [id] of H.HEROES) {
+      const k = gearKey(id); if (worn[id] === k) continue;
+      const first = worn[id] === undefined; worn[id] = k; if (first) continue;
+      for (const m of Object.keys(made)) if (m.startsWith(id)) delete made[m];
+      const A = get(id, id === 'warden' ? (PHONE ? 'light' : 'high') : (PHONE ? 'lite' : 'light'));
+      if (arena.on) arena.swapHero(id, A);
+      toast(`${H.HEROES.find((h) => h[0] === id)[1]} puts it on`);
+    }
+  };
   const ctx = {
-    get game() { return game; }, setGame(g) { if (g) game = g; },
+    get game() { return game; }, setGame(g) { if (g) { game = g; try { redress(); } catch (e) { console.warn(e); } } },
     get settings() { return settings; }, setSettings(p) { settings = { ...settings, ...p }; },
     audio, input, services: {}, reduced, toast: (s) => toast(s), go() {},
   };
@@ -118,54 +176,122 @@ async function main() {
   async function fight() {
     if (fighting || !pack) return;
     fighting = true;
-    // M7's own battle: the party (levelled to Thornhollow) against this pack, at the road's level
-    const level = Number(Q.get('lose')) ? 12 : 4;
-    const spawns = pack.set.map((sp, i) => escalateSpawn({ ...sp, level }, game.progress.waking, `fight3d#${i}`));
-    const { battle } = startBattle(game, { patrol: { spawns, where: 'Thornhollow', backdrop: 'thornhollow' } });
+    // M7's own battle for this place: the road's patrol, or Briarmaw's den
+    let battle;
+    try { battle = SC.battle(game, pack.keys).battle; } catch (e) { console.error(e); fighting = false; return; }
     window.__fight.battle = battle;
     // the spot: where the leader stands, facing the pack
     const L = leader.root.position.clone(), c = pack.figs.reduce((a, F) => a.add(F.pos), new window.THREE.Vector3()).multiplyScalar(1 / pack.figs.length);
     const yaw = Math.atan2(c.x - L.x, c.z - L.z);
     const heroes = { warden: leader }; for (const f of followers) heroes[f.id] = f;
     for (const F of pack.figs) F.pos.copy(F.root.position);
-    const resP = runFight({ W, battle, center: L, yaw, heroes, foes: pack.figs, ctx, host, auto: Q.get('auto') === '1', resume: false });
-    const { result, outcome } = await resP;
+    let resP;
+    for (const [id] of H.HEROES) worn[id] = gearKey(id);
+    try { resP = runFight({ W, battle, center: L, yaw, heroes, foes: pack.figs, ctx, host, auto: Q.get('auto') === '1', resume: false, keep: true }); } catch (e) { console.error(e); fighting = false; W.pause(false); return; }
+    const { result, outcome, battle: done, end } = await resP;
     window.__fight.result = result;
+    // the spoils: what the foes dropped lies where they fell, then M7's own after-fight screen over the field (XP and
+    // levels, gold, a chest for each drop opening into M7's card reveal; equipping re-dresses the hero there and then)
+    const items = result === 'victory' ? [...(outcome?.claimed || []), ...(outcome?.drops || [])] : [];
+    arena.spoilsView();
+    if (items.length) { arena.loot(items); }
+    await new Promise((r) => setTimeout(r, items.length ? 1800 : 900));
+    await spoils(done);
+    window.__fight.spoiled = (window.__fight.spoiled || 0) + 1;
+    await end();
     pack = null; fighting = false;
+    W.setWho('pip'); W.setWho('warden'); leader = W3D.witch('warden'); setFollowers();
     if (result === 'defeat') {
-      // the hearth wakes you: back at the gate, on your feet
-      game = makeGame(++seed); for (const k of Object.keys(made)) delete made[k];
-      W.setWho('pip'); W.setWho('warden'); leader = W3D.witch('warden'); setFollowers();
-      const a = PL[PLACE].anchors['from-road']; W.setIo(a.at[0], a.at[1], a.face);
-      toast('The hearth wakes you at the gate');
-    } else if (result === 'victory') toast(`Victory: +${outcome?.xp || 0} XP, +${outcome?.gold || 0} gold`);
-    else toast('You break away from the fight.');
+      // the hearth wakes you (M7's aftermath has already put the party on its feet): back at the way in
+      W.setIo(...startOf(SC));
+    }
     W.pause(false); party.set(leader, followers);
     window.__fight.ended = (window.__fight.ended || 0) + 1;
-    setTimeout(() => { if (!pack && !fighting) { spawnPack(); toast('Another pack comes down the road'); } }, 6000);
+    setTimeout(() => { if (!pack && !fighting) { spawnPack(); toast(SC.again); } }, 6000);
   }
+
+  // M7's after-fight screen, over the field; it hands back when the player taps on (its own button)
+  function spoils(battle) {
+    return new Promise((resolve) => {
+      host.replaceChildren(); host.hidden = false; host.classList.add('spoils');
+      const main = document.createElement('main'); main.className = 'screen screen-aftermath'; host.append(main);
+      let screen = null, off = null;
+      const actx = Object.create(ctx, { go: { value: () => { if (screen && screen.unmount) screen.unmount(); if (off) off(); host.removeEventListener('click', onChest, true); host.hidden = true; host.classList.remove('spoils'); host.replaceChildren(); resolve(); } } });
+      // a chest opened in the screen bursts its chest on the ground
+      const onChest = (e) => { const b = e.target.closest && e.target.closest('button.chest'); if (b) arena.openLoot(+b.dataset.pick - 1); };
+      host.addEventListener('click', onChest, true);
+      screen = aftermathScreen.mount(main, actx, { battle, returnTo: 'world' }) || {};
+      if (screen.onAction) off = input.onAction(screen.onAction);
+    });
+  }
+
+  // M7's Party screen over the walk, the hero turning in 3D in their gear; back to walking in whatever they put on
+  $('partybtn').addEventListener('click', async () => {
+    if (fighting || W.isBusy() || W.paused) return;
+    W.pause(true); document.body.classList.add('fighting');
+    await openParty({ host, ctx, input, figure: (id) => H.actor(id, gearOf(id), PHONE ? 'light' : 'high') });
+    W.setWho('pip'); W.setWho('warden'); leader = W3D.witch('warden'); setFollowers();
+    document.body.classList.remove('fighting'); W.pause(false);
+  });
 
   $('fightbtn').addEventListener('click', () => { if (!pack) spawnPack(); fight(); });
   $('load').style.opacity = 0; setTimeout(() => { $('load').style.display = 'none'; }, 700);
-  setTimeout(() => toast('Thornhollow', true), 800);
-  setTimeout(() => toast(PHONE ? 'Drag on the left to walk up the road' : 'W A S D to walk up the road'), 4200);
-  window.__fight = { W, arena, start: fight, get pack() { return pack; }, get fighting() { return fighting; } };
+  // the other fight: Briarmaw's den from the road, the road from the den
+  async function goScene(key) {
+    if (fighting || W.isBusy()) return;
+    const next = SCENES[key] || encScene(key); if (!next || !PL[next.place]) return;
+    SC = next;
+    if (pack) for (const F of pack.figs) W.P.scene.remove(F.root);
+    pack = null;
+    $('load').style.display = 'grid'; $('load').style.opacity = 1; $('load').querySelector('h1').textContent = SC.name; $('loadmsg').textContent = 'Walking on…';
+    await new Promise((r) => setTimeout(r, 40));
+    game = makeGame(++seed, SC.level); for (const k of Object.keys(made)) delete made[k];
+    if (W.P.place !== PL[SC.place]) await W.switchTo(PL[SC.place], ...tilePx(0, 0), 0);
+    W.setIo(...startOf(SC));
+    W.setWho('pip'); W.setWho('warden'); leader = W3D.witch('warden'); setFollowers();
+    spawnPack(); label(); drawList();
+    $('load').style.opacity = 0; setTimeout(() => { $('load').style.display = 'none'; }, 600);
+    hello();
+  }
+  const label = () => { $('fightbtn').textContent = SC === SCENES.road ? 'Meet the pack' : 'Fight'; $('scenebtn').textContent = 'Fights'; };
+  // the Fights list: every M7 fight whose place this page carries, by place (the road's pack first)
+  const list = $('fights');
+  function drawList() {
+    list.replaceChildren();
+    const add = (key, label, sub) => { const b = document.createElement('button'); b.type = 'button'; b.innerHTML = `${label}<small>${sub}</small>`; b.className = (SC.id || 'road') === key ? 'on' : ''; b.onclick = () => { list.classList.remove('on'); goScene(key); }; list.append(b); };
+    if (PL[SCENES.road.place]) add('road', 'A pack on Thornhollow\'s road', 'Thornhollow · thornhounds and briarlings');
+    for (const [id, { map }] of Object.entries(ENC_AT)) if (PL['m7-' + map.id]) { const E = ENCOUNTERS[id]; add(id, E.name, `${map.name} · ${[...new Set((E.spawns || []).map((x) => FOES[x.family]?.name || x.family))].join(', ')}`); }
+  }
+  drawList();
+  // the beasts' look, for Chris to choose: the painted standees from his sheets, or the sculpted ones
+  const looks = () => { $('looksbtn').textContent = { '3d': 'Foes: 3D', cutout: 'Foes: Painted', hd: 'Foes: Full detail' }[look]; };
+  $('looksbtn').addEventListener('click', async () => {
+    if (fighting) return;
+    look = LOOKS[(LOOKS.indexOf(look) + 1) % LOOKS.length]; await useLook(look); looks();
+    if (pack) for (const F of pack.figs) W.P.scene.remove(F.root);
+    pack = null; spawnPack();
+    toast({ '3d': 'The foes as 3D models', cutout: 'The foes as Chris painted them', hd: SC === SCENES.den ? 'Briarmaw in full detail' : 'Full detail: Briarmaw, in his den' }[look]);
+  });
+  looks();
+  $('scenebtn').addEventListener('click', () => { drawList(); list.classList.toggle('on'); });
+  label();
+  const hello = () => { setTimeout(() => toast(SC.name, true), 300); setTimeout(() => toast(PHONE ? `Drag on the left to ${SC.hint}` : `W A S D to ${SC.hint}`), 3600); };
+  setTimeout(hello, 500);
+  Object.assign(window.__fight, { W, arena, start: fight, goScene, get pack() { return pack; }, get fighting() { return fighting; } });
   window.__ready = true;
   if (Q.get('go') === '1') setTimeout(fight, 300);
 }
 
-// M7's party, levelled to Thornhollow's road (level 4), in their starting gear
-function makeGame(seed) {
+// M7's party, levelled for the fight (the road 4, the den 7, as M7's maps are), in their starting gear
+function makeGame(seed, level = 4) {
   let game = newGame({ name: 'Wren', starter: 'hearthbrand', seed });
   const rng = createRng(`fight3d:${seed}`);
   for (const id of game.party.active) {
     let h = game.party.roster[id];
-    const need = xpForLevel(4) - (h.xp || 0);
+    const need = xpForLevel(level) - (h.xp || 0);
     if (need > 0) h = grantXp(h, need, rng).hero;
     const d = deriveHero(h, game.inventory);
     game.party.roster[id] = { ...h, hp: d.maxHp, mp: d.maxMp };
   }
   return game;
 }
-// the art a foe family wears (data/foes.js: family -> FOE_ART key; they share names)
-function familyArt(family) { return family; }

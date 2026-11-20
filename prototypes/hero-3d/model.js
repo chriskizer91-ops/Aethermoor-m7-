@@ -11,7 +11,7 @@ import * as THREE from 'three';
 import { MAT } from '../../game/src/art/forge.js';
 import { HERO_ART } from '../../game/src/art/hero-looks.js';
 import { itemArt, lookFor, RARITY_LOOK, ASPECT_LOOK, SLOTS, rarityTier } from '../../game/src/art/item-looks.js';
-import { V, lerp, smooth, clamp01, loft, ellipse, tube, curve, lathe, wedge, plate, blade, mat, glowColor, isEmit, sRGB, KIND, Q, sph, tor, cone, ico, bake, etchMaterial, stitchGeo, add, gem, rngOf, ring, FACES, TEXTURES } from './kit.js';
+import { V, lerp, smooth, clamp01, loft, ellipse, tube, curve, lathe, wedge, plate, blade, mat, glowColor, isEmit, sRGB, KIND, Q, sph, tor, cone, ico, bake, etchMaterial, stitchGeo, add, gem, rngOf, ring, FACES, TEXTURES, mergeGeometries } from './kit.js';
 import { buildWeapon, buildOffhand } from './weapons.js';
 
 export { glowColor };
@@ -164,6 +164,113 @@ function paintedFace(name) {
   return t;
 }
 
+
+/* ------------------------------------------------------------------ faces that live (November 20) */
+// Eyelids and a mouth drawn in the face's own shader over its picture (painted by Chris or by faceTexture), so a blink
+// or an expression costs a few numbers a frame, never a new picture, and works the same in High, Light and Lite.
+//   rig.faceCtl.set(expr, seconds): 'neutral', 'hurt' (a wince), 'effort' (gritted, on a strike), 'cheer', 'worried',
+//   'asleep' (a fallen hero), 'talk'; seconds omitted = until the next set. It blinks by itself, and talks while the
+//   pose is 'talk' (or faceCtl.talking is true). setPose drives it; buildHero's result has face(expr, seconds).
+// Where the eyes and mouth are on Chris's four faces, as fractions of his pictures
+const FACE_MARKS = {
+  wren: { eyes: [[0.32, 0.45], [0.66, 0.45]], eye: [0.062, 0.032], mouth: [0.5, 0.705], mw: 0.11 },
+  pip: { eyes: [[0.32, 0.43], [0.66, 0.43]], eye: [0.062, 0.032], mouth: [0.53, 0.68], mw: 0.12 },
+  bryn: { eyes: [[0.33, 0.44], [0.66, 0.44]], eye: [0.056, 0.028], mouth: [0.5, 0.68], mw: 0.085 },
+  alondra: { eyes: null, mouth: [0.5, 0.67], mw: 0.09 },
+};
+// a point on Chris's picture -> where it falls on the head's canvas (1024 x 512 units), through paintedFace's projection
+function picToCanvas(X, Y) {
+  const { k, y0 } = FACE_FIT, x = (X - 0.5) * 2 * k, y = y0 + (0.5 - Y) * 2 * k, z = Math.sqrt(Math.max(0.01, 1 - x * x - y * y));
+  const th = Math.acos(Math.max(-1, Math.min(1, y))), ph = Math.atan2(z, -x);
+  return [ph / TAU * 1024, th / Math.PI * 512];
+}
+function faceMarksOf(faceName, big) {
+  if (faceName) {
+    const F = FACE_MARKS[faceName], c = picToCanvas(...F.mouth), cw = picToCanvas(F.mouth[0] + F.mw, F.mouth[1]);
+    const eyes = F.eyes ? F.eyes.map(e => picToCanvas(...e)) : null, ew = F.eyes ? picToCanvas(F.eyes[0][0] + F.eye[0], F.eyes[0][1] + F.eye[1]) : null;
+    return { eyes, eye: eyes ? [Math.abs(ew[0] - eyes[0][0]) * 1.3, Math.abs(ew[1] - eyes[0][1]) * 1.45] : [1, 1], mouth: c, mouthSize: [Math.abs(cw[0] - c[0]), Math.abs(cw[0] - c[0]) * 0.42] };
+  }
+  // faceTexture's own layout: eyes at cx +/- 52, ey; mouth at ey + 79; all scaled 1.45 about (cx, ey + 30) unless big
+  const F = big ? 1 : 1.45, at = (x, y) => [256 + (x - 256) * F, 298 + (y - 298) * F], eyY = big ? 274 : 268;
+  return { eyes: [at(256 - (big ? 50 : 52), eyY), at(256 + (big ? 50 : 52), eyY)], eye: [25 * F * (big ? 1.3 : 1), 19 * F * (big ? 1.38 : 1)], mouth: at(256, 347), mouthSize: [20 * F, 9 * F] };
+}
+const FACE_EXPR = {
+  neutral: {}, talk: {},
+  hurt: { lid: 0.62, low: 0.35, tilt: 0.5, open: 0.34, smile: -0.45, teeth: 1 },
+  effort: { lid: 0.45, tilt: 0.85, open: 0.24, smile: -0.1, teeth: 1 },
+  cheer: { low: 0.6, open: 0.6, smile: 1 },
+  worried: { lid: 0.22, tilt: -0.9, open: 0.06, smile: -0.75 },
+  asleep: { lid: 1, open: 0.05 },
+};
+const FACE_KEYS = ['lid', 'low', 'tilt', 'open', 'smile', 'teeth'];
+export function applyFaceShader(m, U) {
+  m.onBeforeCompile = sh => {
+    Object.assign(sh.uniforms, U);
+    sh.fragmentShader = sh.fragmentShader.replace('void main() {', `uniform vec2 fEyeL, fEyeR, fEyeSize, fMouth, fMouthSize; uniform vec3 fSkin;
+uniform float fLid, fLow, fTilt, fOpen, fSmile, fTeeth, fPatch, fNoEyes;
+void main() {`).replace('#include <map_fragment>', `#include <map_fragment>
+{
+  vec2 fp = vec2(vMapUv.x, 1.0 - vMapUv.y) * vec2(1024.0, 512.0);
+  vec3 fc = diffuseColor.rgb, lash = vec3(0.07, 0.045, 0.05);
+  if (fNoEyes < 0.5) for (int i = 0; i < 2; i++) {
+    vec2 e = i == 0 ? fEyeL : fEyeR; float side = i == 0 ? -1.0 : 1.0;
+    vec2 q = (fp - e) / fEyeSize;
+    float inside = 1.0 - smoothstep(0.95, 1.12, length(q));
+    float edge = -1.08 + fLid * 2.2 - fTilt * q.x * side * 0.55;
+    float up = inside * (1.0 - smoothstep(edge - 0.07, edge + 0.07, q.y)) * step(0.02, fLid);
+    float lowE = 1.08 - fLow * 1.7 + q.x * q.x * fLow * 0.9;
+    float dn = inside * smoothstep(lowE - 0.07, lowE + 0.07, q.y) * step(0.02, fLow);
+    fc = mix(fc, fSkin * 0.92, max(up, dn));
+    fc = mix(fc, lash, inside * (1.0 - smoothstep(0.0, 0.14, abs(q.y - edge))) * step(0.04, fLid) * 0.9);
+    float shut = smoothstep(0.82, 0.98, fLid), arc = 0.25 + 0.3 * q.x * q.x * (1.0 - fLow) - fLow * 0.35;
+    fc = mix(fc, lash, shut * (1.0 - smoothstep(0.75, 0.95, abs(q.x))) * (1.0 - smoothstep(0.0, 0.16, abs(q.y - arc))));
+    fc = mix(fc, lash, inside * (1.0 - smoothstep(0.0, 0.12, abs(q.y - lowE))) * step(0.04, fLow) * 0.7);
+  }
+  if (fPatch > 0.01) {
+    vec2 q = (fp - fMouth) / fMouthSize;
+    fc = mix(fc, fSkin, fPatch * (1.0 - smoothstep(0.85, 1.25, length(q * vec2(0.85, 0.5)))));
+    float yc = -fSmile * 0.55 * q.x * q.x + fSmile * 0.2, h = fOpen * 1.1 * (1.0 - q.x * q.x), d = q.y - yc, inX = step(abs(q.x), 1.0);
+    float mouthIn = inX * (1.0 - smoothstep(h - 0.08, h + 0.04, abs(d))) * step(0.02, fOpen);
+    vec3 inner = mix(vec3(0.22, 0.04, 0.05), vec3(0.93, 0.9, 0.84), fTeeth * (1.0 - smoothstep(0.08, 0.16, abs(d) - h * 0.55 + 0.08)) );
+    inner = mix(inner, vec3(0.93, 0.9, 0.84), (1.0 - fTeeth) * step(d, -h * 0.45));
+    fc = mix(fc, inner, mouthIn * fPatch);
+    float lip = inX * (1.0 - smoothstep(0.1, 0.24, abs(abs(d) - h))) * (1.0 - smoothstep(0.85, 1.0, abs(q.x)));
+    fc = mix(fc, vec3(0.42, 0.13, 0.13), lip * fPatch * 0.9);
+    fc = mix(fc, fTeeth > 0.5 ? vec3(0.25, 0.2, 0.18) : fc, mouthIn * fPatch * fTeeth * (1.0 - smoothstep(0.0, 0.07, abs(d))) );
+  }
+  diffuseColor.rgb = fc;
+}`);
+  };
+  m.customProgramCacheKey = () => 'aeth-face';
+  m.userData.faceU = U;
+  return m;
+}
+function faceRig(faceM, marks, skin, noEyes) {
+  const V2 = (a) => new THREE.Vector2(a[0], a[1]);
+  const U = { fEyeL: { value: V2(marks.eyes ? marks.eyes[0] : [0, 0]) }, fEyeR: { value: V2(marks.eyes ? marks.eyes[1] : [0, 0]) }, fEyeSize: { value: V2(marks.eye) },
+    fMouth: { value: V2(marks.mouth) }, fMouthSize: { value: V2(marks.mouthSize) }, fSkin: { value: skin }, fNoEyes: { value: noEyes || !marks.eyes ? 1 : 0 },
+    fLid: { value: 0 }, fLow: { value: 0 }, fTilt: { value: 0 }, fOpen: { value: 0 }, fSmile: { value: 0 }, fTeeth: { value: 0 }, fPatch: { value: 0 } };
+  applyFaceShader(faceM, U);
+  const C = { U, expr: 'neutral', until: Infinity, pending: null, talking: false, cur: {}, last: null, nextBlink: 2 + Math.random() * 3, blinkAt: -9 };
+  for (const k of FACE_KEYS) C.cur[k] = 0;
+  C.set = (expr, seconds) => { C.pending = { expr: FACE_EXPR[expr] ? expr : 'neutral', seconds }; };
+  C.update = (t, pose) => {
+    const dt = C.last == null ? 0 : Math.min(0.1, Math.max(0, t - C.last)); C.last = t;
+    if (C.pending) { C.expr = C.pending.expr; C.until = C.pending.seconds ? t + C.pending.seconds : Infinity; C.pending = null; }
+    if (t > C.until) { C.expr = 'neutral'; C.until = Infinity; }
+    const E = FACE_EXPR[C.expr], k = 1 - Math.exp(-dt * 14);
+    for (const key of FACE_KEYS) C.cur[key] += ((E[key] || 0) - C.cur[key]) * k;
+    // a blink every few seconds (not while asleep)
+    if (t > C.nextBlink) { C.blinkAt = t; C.nextBlink = t + 2.2 + Math.random() * 3.5; }
+    const b = t - C.blinkAt, blink = b < 0.16 ? Math.sin(b / 0.16 * Math.PI) : 0;
+    const talking = C.talking || pose === 'talk' || C.expr === 'talk';
+    const open = talking ? Math.max(C.cur.open, 0.12 + 0.38 * Math.abs(Math.sin(t * 9.1) * Math.sin(t * 3.7 + 1))) : C.cur.open;
+    U.fLid.value = Math.max(C.cur.lid, blink); U.fLow.value = C.cur.low; U.fTilt.value = C.cur.tilt; U.fOpen.value = open; U.fSmile.value = C.cur.smile; U.fTeeth.value = C.cur.teeth;
+    U.fPatch.value = Math.min(1, Math.max(open * 6, Math.abs(C.cur.smile) * 2, C.cur.teeth * 2, talking ? 1 : 0));
+  };
+  return C;
+}
+
 /* ------------------------------------------------------------------ small helpers */
 const strHash = str => { let h = 2166136261; for (const ch of String(str)) h = Math.imul(h ^ ch.charCodeAt(0), 16777619); return h >>> 0; };
 
@@ -303,6 +410,10 @@ export function buildHero(heroKey, gear, o = {}) {
   const blind = !!H.blindfold;
   const faceM = new THREE.MeshPhysicalMaterial({ roughness: 0.55, sheen: 0.4, sheenRoughness: 0.5, sheenColor: skinM.sheenColor });
   faceM.map = faceName ? paintedFace(faceName) : faceTexture(H, H.skin, H.hairMat, { blind, big: S.chibi });
+  faceM.userData.face = true;
+  // the face lives: blinks, a talking mouth, expressions (faceRig)
+  { const P0 = (MAT[H.skin] || MAT.skin).pal, sk = faceName ? FACES[faceName].skin : P0[3].map((v, i) => v + (P0[4][i] - v) * 0.35);
+    rig.faceCtl = faceRig(faceM, faceMarksOf(faceName, S.chibi), new THREE.Color().setRGB(sk[0] / 255, sk[1] / 255, sk[2] / 255, THREE.SRGBColorSpace), !!H.shade || (blind && !faceName)); }
   const skull = sph(r, 64, 40);
   { const p = skull.attributes.position; for (let i = 0; i < p.count; i++) { let x = p.getX(i), y = p.getY(i), z = p.getZ(i); const low = clamp01(-y / r); const k = 1 - low * low * 0.3 * (z > 0 ? 1 : 0.6); x *= k * 0.94; z *= (z > 0 ? 1 - low * 0.05 : 1.04); if (z > 0) z += low * low * r * 0.08 * (1 - Math.abs(x) / r); y *= 1.06; p.setXYZ(i, x, y, z); } skull.computeVertexNormals(); }
   add(skull, faceM, head);
@@ -314,8 +425,10 @@ export function buildHero(heroKey, gear, o = {}) {
   if (blind) { const b0 = faceName ? 0.27 : 0.12, b1 = faceName ? -0.06 : -0.22; add(lathe([[r * 1.0, r * b0], [r * 1.03, r * b0], [r * 1.03, r * b1], [r * 1.0, r * b1]], { n: 40, sx: 0.96 }), mat(H.blindfold), head, 0, 0, 0.004 * u); }
   const HL = L.head, look = HL?.look;
   const wrap = !HL && (H.headwrap || H.turban);
-  const covers = look === 'helm' || look === 'coif' || look === 'hood' || look === 'kettle' || !!wrap;
-  buildHair(head, H, r, covers, wrap ? 'hood' : look, strHash(heroKey));
+  // the townsfolk's hats cover the hair as a hood (wrap, fez, veil) or as a brimmed hat (cap, hat) does
+  const hairLook = wrap || look === 'wrap' || look === 'fez' || look === 'veil' ? 'hood' : look === 'cap' || look === 'hat' ? 'kettle' : look;
+  const covers = hairLook === 'helm' || hairLook === 'coif' || hairLook === 'hood' || hairLook === 'kettle';
+  buildHair(head, H, r, covers, hairLook, strHash(heroKey));
   if (H.beard) add(sph(r * 1.02, 24, 12, Math.PI * 0.15, Math.PI * 0.7, Math.PI * 0.55, Math.PI * 0.4), mat(H.hairMat, { side: true }), head).rotation.y = Math.PI;
   if (HL) buildHeadgear(head, root, HL, arts.head, r, S, u, fx);
   buildFoeLooks({ H, rig, S, u, r, head, chest, root, look, wrap, kind, robe, fx, faceName, L });
@@ -403,10 +516,11 @@ export function buildHero(heroKey, gear, o = {}) {
   if (rig.weapon) keep.add(rig.weapon);
   if (rig.offhand) { keep.add(rig.offhand); if (rig.offhand.userData.float) keep.add(rig.offhand.userData.float); }
   rig.draws = bake(group, keep);
+  if (o.lite) rig.draws = liteFigure(group, rig);
   root.scale.setScalar(SHOWN_H / S.total);
   rig.scale = SHOWN_H / S.total;
   setPose(rig, 'idle', 0);
-  return { group, rig, fx, looks: L };
+  return { group, rig, fx, looks: L, face: (expr, seconds) => rig.faceCtl?.set(expr, seconds) };
 }
 
 
@@ -450,8 +564,94 @@ function buildFoeLooks({ H, rig, S, u, r, head, chest, root, look, wrap, kind, r
   if (H.coins) { add(sph(0.025 * u, 10, 8), mat('leather'), chest, -bw * 0.55, by - 0.04 * u, bd * bw * 0.85).scale.set(1, 1.2, 0.8); for (let k = 0; k < 3; k++) add(new THREE.CylinderGeometry(0.009 * u, 0.009 * u, 0.002 * u, 12), mat('gold'), chest, -bw * 0.5 + k * 0.006 * u, by - 0.075 * u - k * 0.004 * u, bd * bw * 0.95); }
   if (H.lantern && !L.offhand) { const g = new THREE.Group(); g.position.set(-bw * 0.95, by - 0.08 * u, 0.02 * u); chest.add(g); add(new THREE.BoxGeometry(0.04 * u, 0.06 * u, 0.04 * u), glow('amber', 1.6), g); for (const [x, z] of [[1, 1], [1, -1], [-1, 1], [-1, -1]]) add(tube([V(x * 0.022 * u, -0.032 * u, z * 0.022 * u), V(x * 0.022 * u, 0.032 * u, z * 0.022 * u)], 0.003 * u, { n: 4 }), mat('iron'), g); add(cone(0.032 * u, 0.025 * u, 8), mat('iron'), g, 0, 0.044 * u, 0); fx.glows.push({ obj: g.children[0], color: glowColor('amber'), power: 0.5 }); }
   if (H.charms) for (let k = 0; k < 4; k++) { const a = -0.6 + k * 0.4, x = Math.sin(a) * bw * 1.05, z = Math.cos(a) * bw * bd * 1.05; add(tube([V(x, by, z), V(x, by - 0.05 * u, z + 0.004 * u)], 0.0015 * u, { n: 3 }), mat('string'), chest); add(new THREE.OctahedronGeometry(0.01 * u, 0), mat(H.charms), chest, x, by - 0.058 * u, z + 0.004 * u).scale.set(0.7, 1.4, 0.5); }
+  // the townsfolk's own looks (art/map-sprites.js NPC_LOOKS): an apron, a trinket at the hip, goggles or spectacles, a
+  // row of bottles at the belt, a coil of rope over the shoulder, a clasp at the throat, a braided beard, icicles
+  if (H.apron) { const pts = []; for (let i = 0; i <= 8; i++) { const y = lerp(S.shY - 0.12 * u, S.hemY - 0.1 * u, i / 8); pts.push(V(0, y, front(y, armour * u + 0.014 * u) + (y < S.waistY ? (S.waistY - y) * 0.15 : 0))); } add(tube(pts, t => [0.004 * u, lerp(0.075, 0.11, t) * u], { n: 8, up: V(0, 0, 1) }), mat(H.apron, { side: true }), chest); }
+  const tk = H.trinket; if (tk) { const g = new THREE.Group(); g.position.set(bw * 0.85, by - 0.05 * u, bd * bw * 0.45); g.rotation.y = 1.0; chest.add(g); const m = mat(tk.mat || 'leather');
+    if (tk.kind === 'ledger' || tk.kind === 'book') { add(new THREE.BoxGeometry(0.075 * u, 0.1 * u, 0.025 * u), m, g); add(new THREE.BoxGeometry(0.068 * u, 0.092 * u, 0.027 * u), mat('parchment'), g, 0.004 * u, 0, 0); }
+    else if (tk.kind === 'gourd' || tk.kind === 'bottle') { add(sph(0.035 * u, 12, 10), m, g).scale.set(1, 1.2, 1); add(tube([V(0, 0.035 * u, 0), V(0, 0.07 * u, 0)], 0.012 * u, { n: 8 }), m, g); add(sph(0.012 * u, 8, 6), mat('wood'), g, 0, 0.075 * u, 0); }
+    else if (tk.kind === 'basket') { add(lathe([[0.035 * u, -0.045 * u], [0.05 * u, 0.02 * u], [0.052 * u, 0.03 * u]], { n: 16 }), mat(tk.mat || 'wood', { side: true, tex: 'wood-wicker' }), g); for (let k = 0; k < 6; k++) add(cone(0.008 * u, 0.06 * u, 5), mat(tk.herbs || 'moss'), g, Math.sin(k) * 0.025 * u, 0.05 * u, Math.cos(k) * 0.025 * u); }
+    else if (tk.kind === 'key') { add(tor(0.012 * u, 0.003 * u, 6, 12), m, g); add(tube([V(0, -0.012 * u, 0), V(0, -0.05 * u, 0)], 0.003 * u, { n: 5 }), m, g); add(new THREE.BoxGeometry(0.012 * u, 0.006 * u, 0.004 * u), m, g, 0.006 * u, -0.046 * u, 0); }
+    else add(sph(0.032 * u, 12, 10), m, g).scale.set(1, 1.25, 0.75); }
+  if (H.bottleRow) H.bottleRow.forEach((k, i) => { const a = 0.5 + i * 0.35, x = Math.sin(a) * bw * 1.08, z = Math.cos(a) * bw * bd * 1.08; add(tube([V(x, by - 0.07 * u, z), V(x, by - 0.02 * u, z)], 0.011 * u, { n: 8 }), mat(k), chest); add(sph(0.006 * u, 6, 4), mat('wood'), chest, x, by - 0.012 * u, z); });
+  if (H.goggles) for (const s of [-1, 1]) { const g2 = add(tor(r * 0.16, r * 0.04, 6, 16), mat(H.goggles), head, s * r * 0.3, r * 0.55, r * 0.86); g2.rotation.x = -0.5; add(new THREE.CircleGeometry(r * 0.15, 16), mat(H.lens || 'seaglass'), head, s * r * 0.3, r * 0.55, r * 0.865).rotation.x = -0.5; }
+  if (H.spectacles) for (const s of [-1, 1]) { const p = V(Math.sin(s * 0.45) * r * 0.97, -r * 0.06, Math.cos(s * 0.45) * r * 1.06); add(tor(r * 0.14, r * 0.02, 6, 16), mat('bronze'), head, p.x, p.y, p.z).rotation.y = s * 0.45; }
+  if (H.slungChain) { const c = add(tor(0.12 * u, 0.012 * u, 8, 24), mat(H.slungChain), chest, 0, S.shY - 0.12 * u, 0); c.rotation.set(Math.PI / 2, 0.75, 0); c.scale.set(1.25, 0.9, 1); }
+  if (H.clasp) add(lathe([[0, 0.003 * u], [0.014 * u, 0.002 * u], [0.015 * u, 0], [0, -0.002 * u]], { n: 16 }), mat(H.clasp), chest, 0, S.neckY - 0.01 * u, front(S.neckY - 0.01 * u, 0.04 * u)).rotation.x = Math.PI / 2;
+  if (H.beard === 'braid') add(tube(curve([V(0, -r * 0.9, r * 0.7), V(0, -r * 1.3, r * 0.8), V(0, -r * 1.75, r * 0.75)], 8), t => r * 0.14 * (1 - t * 0.5), { n: 8, shape: (a, t) => 1 + 0.12 * Math.sin(t * 40) }), mat(H.hairMat), head);
+  if (H.icicles) for (let k = 0; k < 7; k++) { const a = (k - 3) * 0.22; add(cone(r * 0.04, r * 0.35, 5), mat(H.icicles), head, Math.sin(a) * r * 0.8, -r * 1.0, Math.cos(a) * r * 0.7).rotation.x = Math.PI; }
   // the Hollow Council hold the gift: a light in the off hand
   if (H.giftHeld && !L.offhand) { const o = add(sph(0.035 * u, 16, 12), glow('arcane', 2.2), rig.armL.hand, 0, -0.08 * u, 0.02 * u); fx.glows.push({ obj: o, color: glowColor('arcane'), power: 0.9 }); }
+}
+
+/* ------------------------------------------------------------------ the lite figure, for phones (November 20) */
+// liteFigure(group, rig): the whole figure in two draws. Every piece (already joined by material into the nodes that
+// move) is merged into one skinned mesh whose "bones" are those same nodes, so setPose moves it exactly as before; each
+// piece keeps its own colour, shine, roughness and glow per vertex (one material for everything), and the face keeps its
+// picture in a second mesh. The grain pictures and small see-through decals are left off. Returns the draw count.
+const LITE_MAT = (() => {
+  let m = null;
+  return () => {
+    if (m) return m;
+    m = new THREE.MeshStandardMaterial({ vertexColors: true, side: THREE.DoubleSide, roughness: 1, metalness: 1 });
+    m.onBeforeCompile = sh => {
+      sh.vertexShader = sh.vertexShader.replace('void main() {', 'attribute vec2 mr; attribute vec3 em; varying vec2 vMr; varying vec3 vEm;\nvoid main() {\nvMr = mr; vEm = em;');
+      sh.fragmentShader = sh.fragmentShader.replace('void main() {', 'varying vec2 vMr; varying vec3 vEm;\nvoid main() {')
+        .replace('#include <metalnessmap_fragment>', '#include <metalnessmap_fragment>\nmetalnessFactor = vMr.x;')
+        .replace('#include <roughnessmap_fragment>', '#include <roughnessmap_fragment>\nroughnessFactor = vMr.y;')
+        .replace('#include <emissivemap_fragment>', '#include <emissivemap_fragment>\ntotalEmissiveRadiance = vEm;');
+    };
+    m.customProgramCacheKey = () => 'aeth-lite';
+    return m;
+  };
+})();
+const AVG = new WeakMap();
+function averageOf(tex) {
+  if (AVG.has(tex)) return AVG.get(tex);
+  const src = tex.image, c = document.createElement('canvas'); c.width = c.height = 8; const g = c.getContext('2d'); g.drawImage(src, 0, 0, 8, 8);
+  const d = g.getImageData(0, 0, 8, 8).data; let r = 0, gg = 0, b = 0, n = 0; for (let i = 0; i < d.length; i += 4) if (d[i + 3] > 128) { r += d[i]; gg += d[i + 1]; b += d[i + 2]; n++; }
+  const col = new THREE.Color().setRGB(r / n / 255, gg / n / 255, b / n / 255, THREE.SRGBColorSpace);
+  AVG.set(tex, col); return col;
+}
+export function liteFigure(group, rig) {
+  group.updateMatrixWorld(true);
+  const G = group.matrixWorld.clone(), Gi = G.clone().invert();
+  const bones = [], index = new Map(), main = [], face = [];
+  const meshes = []; group.traverse(o => { if (o.isMesh && !o.isSkinnedMesh) meshes.push(o); });
+  const c = new THREE.Color();
+  for (const o of meshes) {
+    const m = o.material, owner = o.parent || group; // the node it moved with
+    owner.remove(o);
+    if (m.transparent && !m.userData.face) continue; // etched runes, glass glints: left off
+    let bi = index.get(owner);
+    if (bi === undefined) { bi = bones.length; bones.push(owner); index.set(owner, bi); }
+    const g = (o.geometry.index ? o.geometry.toNonIndexed() : o.geometry.clone());
+    g.applyMatrix4(new THREE.Matrix4().multiplyMatrices(Gi, o.matrixWorld));
+    const n = g.attributes.position.count;
+    const si = new Uint16Array(n * 4), sw = new Float32Array(n * 4);
+    for (let i = 0; i < n; i++) { si[i * 4] = bi; sw[i * 4] = 1; }
+    g.setAttribute('skinIndex', new THREE.Uint16BufferAttribute(si, 4)); g.setAttribute('skinWeight', new THREE.Float32BufferAttribute(sw, 4));
+    if (m.userData.face) { for (const k of Object.keys(g.attributes)) if (!['position', 'normal', 'uv', 'skinIndex', 'skinWeight'].includes(k)) g.deleteAttribute(k); face.push({ g, m }); continue; }
+    const grain = m.userData.grain ? 0.9 : 1;
+    c.copy(m.color || new THREE.Color(1, 1, 1)).multiplyScalar(grain);
+    if (m.map?.image?.getContext) c.multiply(averageOf(m.map)); // a painted face (a shield's heraldry): its average colour
+    const col = new Float32Array(n * 3), mr = new Float32Array(n * 2), em = new Float32Array(n * 3);
+    const e = m.emissive ? m.emissive.clone().multiplyScalar(m.emissiveIntensity ?? 1) : new THREE.Color(0, 0, 0);
+    for (let i = 0; i < n; i++) { col[i * 3] = c.r; col[i * 3 + 1] = c.g; col[i * 3 + 2] = c.b; mr[i * 2] = m.metalness ?? 0; mr[i * 2 + 1] = m.roughness ?? 0.8; em[i * 3] = e.r; em[i * 3 + 1] = e.g; em[i * 3 + 2] = e.b; }
+    for (const k of Object.keys(g.attributes)) if (!['position', 'normal', 'skinIndex', 'skinWeight'].includes(k)) g.deleteAttribute(k);
+    g.setAttribute('color', new THREE.Float32BufferAttribute(col, 3)); g.setAttribute('mr', new THREE.Float32BufferAttribute(mr, 2)); g.setAttribute('em', new THREE.Float32BufferAttribute(em, 3));
+    main.push(g);
+  }
+  // the bones are the nodes that move; their inverses are taken now, in the same pose the pieces were laid in
+  group.updateMatrixWorld(true);
+  const inverses = bones.map(b => new THREE.Matrix4().multiplyMatrices(Gi, b.matrixWorld).invert());
+  const skeleton = new THREE.Skeleton(bones, inverses);
+  let draws = 0;
+  const skinned = (geo, mat) => { const sm = new THREE.SkinnedMesh(geo, mat); sm.bind(skeleton, new THREE.Matrix4()); sm.castShadow = sm.receiveShadow = true; sm.frustumCulled = false; group.add(sm); draws++; return sm; };
+  if (main.length) skinned(mergeGeometries(main, false), LITE_MAT());
+  if (face.length) { const fm = face[0].m, mat = new THREE.MeshStandardMaterial({ map: fm.map, roughness: 0.6 }); if (fm.userData.faceU) applyFaceShader(mat, fm.userData.faceU); skinned(mergeGeometries(face.map(f => f.g), false), mat); }
+  rig.lite = true;
+  return draws;
 }
 
 /* ------------------------------------------------------------------ a hand closed round a grip */
@@ -602,6 +802,17 @@ function buildHeadgear(head, root, HL, art, r, S, u, fx) {
     if (HL.gem) gem(HL.gem, r * 0.09, band, 0, look === 'crown' ? 0 : r * 0.02, bR * 1.08, mk);
     else if (look === 'circlet') add(wedge([[0, -r * 0.12], [r * 0.1, 0], [0, r * 0.16], [-r * 0.1, 0]], 0.005 * u), m, band, 0, 0, bR * 1.06);
   }
+  if (look === 'wrap') { const m = mat(HL.mat || 'clothWhite', { side: true }), tall = HL.tall ? 1.25 : 1; for (let k = 0; k < 4; k++) { const b = add(tor(r * (1.06 - k * 0.12), r * 0.16, 8, 32), m, head, 0, r * (0.12 + k * 0.17 * tall), -r * 0.02); b.rotation.x = Math.PI / 2 + (k % 2 ? 0.1 : -0.06); b.scale.set(0.97, 1, 1); } add(sph(r * 0.95, 20, 10, 0, TAU, 0, Math.PI / 2), m, head, 0, r * 0.35 * tall, -r * 0.02).scale.set(1, 0.85 * tall, 1);
+    if (HL.band) add(T(r * 0.3, 1.12), mat(HL.band), head); if (HL.gem) gem(HL.gem, r * 0.09, head, 0, r * 0.45, r * 1.12, 'gold'); if (HL.tail) add(tube(curve([V(0, r * 0.4, -r * 1.0), V(r * 0.1, -r * 0.4, -r * 1.25), V(-r * 0.05, -r * 1.6, -r * 1.2)], 10), [r * 0.04, r * 0.22], { n: 6, up: V(0, 0, 1) }), mat(HL.tail, { side: true }), head);
+    if (HL.style === 'helm') add(lathe([[0, r * 1.35], [r * 0.5, r * 1.3], [r * 0.9, r * 1.0], [r * 1.0, r * 0.75]], { n: 32 }), mat(HL.metal || 'steel', { side: true }), head); }
+  if (look === 'fez') { const m = mat(HL.mat || 'robeRed'); add(lathe([[r * 0.85, r * 0.35], [r * 0.72, r * 1.05], [0, r * 1.07]], { n: 28 }), m, head); if (HL.trim) add(T(r * 0.4, 0.88), mat(HL.trim), head); add(tube(curve([V(0, r * 1.07, 0), V(r * 0.3, r * 1.0, -r * 0.2), V(r * 0.45, r * 0.6, -r * 0.3)], 8), r * 0.025, { n: 4 }), mat('gold'), head); }
+  if (look === 'cap') { const m = mat(HL.mat || 'leather', { side: true }); add(sph(r * 1.1, 24, 12, 0, TAU, 0, Math.PI * 0.45), m, head, 0, r * 0.05, -r * 0.03); add(lathe([[r * 0.9, 0], [r * 1.35, -r * 0.05]], { n: 24, phi0: -1.0, phiLen: 2.0 }), m, head, 0, r * 0.25, 0); if (HL.glow) { const lamp = add(sph(r * 0.16, 12, 8), new THREE.MeshStandardMaterial({ color: glowColor(HL.glow), emissive: glowColor(HL.glow), emissiveIntensity: 2 }), head, 0, r * 0.75, r * 0.95); fx.glows.push({ obj: lamp, color: glowColor(HL.glow), power: 0.6 }); add(tor(r * 0.17, r * 0.04, 6, 14), mat(HL.metal || 'bronze'), head, 0, r * 0.75, r * 0.95); } }
+  if (look === 'hat') { const m = mat(HL.mat || 'parchment', { side: true }), witch = HL.style === 'witch';
+    add(lathe([[r * (witch ? 1.6 : 2.0), -r * 0.02], [r * 1.5, r * 0.03], [r * 1.05, r * 0.25], [r * 1.0, r * 0.32]], { n: 40 }), m, head, 0, r * 0.25, 0);
+    if (witch) add(tube(curve([V(0, r * 0.5, 0), V(0, r * 1.2, -r * 0.1), V(r * 0.15, r * 1.9, -r * 0.4), V(r * 0.35, r * 2.2, -r * 0.7)], 14), t => r * 0.95 * Math.pow(1 - t, 1.2) + r * 0.03, { n: 20 }), m, head);
+    else add(lathe([[r * 1.02, 0], [r * 0.95, r * 0.45], [r * 0.6, r * 0.62], [0, r * 0.66]], { n: 32 }), m, head, 0, r * 0.52, 0);
+    if (HL.band) add(T(r * 0.62, 1.0), mat(HL.band), head); }
+  if (look === 'veil') { const m = mat(HL.mat || 'dark', { side: true }); add(lathe([[0, r * 1.18], [r * 0.7, r * 1.08], [r * 1.12, r * 0.6], [r * 1.18, 0], [r * 1.25, -r * 0.8], [r * 1.4, -r * 1.6]], { n: 40, phi0: 0.85, phiLen: TAU - 1.7 }), m, head); if (HL.trim) add(T(r * 0.62, 1.12), mat(HL.trim), head); }
   if (HL.gem && (look === 'helm' || look === 'kettle' || look === 'hood')) gem(HL.gem, r * 0.08, head, 0, r * 0.55, r * (look === 'kettle' ? 1.1 : 1.18), HL.trim || 'gold');
   if (HL.runes) { const g = add(T(r * 0.62, look === 'kettle' ? 0.88 : 1.07), mat(HL.runes), head); fx.glows.push({ obj: g, color: glowColor(HL.runes), power: 0.6 }); }
 }
@@ -617,6 +828,7 @@ function keepUpright(rig) {
 }
 // idle: the weapon held ready; strike (0..1): a move that suits the weapon's class
 export function setPose(rig, pose, t, u = 0) {
+  rig.faceCtl?.update(t, pose);
   const R = rig.armR, Lf = rig.armL, cls = rig.cls;
   const breathe = Math.sin(t * 2.1);
   rig.root.position.set(0, 0, 0); rig.root.rotation.set(0, 0, 0);
@@ -650,6 +862,22 @@ export function setPose(rig, pose, t, u = 0) {
     R.sh.rotation.x += -s * 0.08;
     if (rig.cape) rig.cape.rotation.x = (run ? 0.38 : 0.16) + Math.abs(s) * 0.05;
     if (rig.skirt) rig.skirt.rotation.x = -rig.root.rotation.x * 0.6;
+  }
+  // standing about (the townsfolk): arms easy, the weight shifting from foot to foot, a look round now and then;
+  // talking: the same, with a hand that speaks and a nod
+  if (pose === 'stand' || pose === 'talk') {
+    const w = Math.sin(t * 0.8), k = rig.scale ? 1 / rig.scale : 1, talk = pose === 'talk';
+    rig.root.position.x = w * 0.01 * k * 0.6; rig.root.rotation.z = w * 0.022;
+    rig.legs[0].rotation.z = -0.03 + Math.max(0, w) * 0.05; rig.legs[1].rotation.z = 0.03 + Math.min(0, w) * 0.05;
+    rig.legs[0].rotation.x = Math.max(0, -w) * 0.08; rig.legs[1].rotation.x = Math.max(0, w) * 0.08;
+    const look = talk ? Math.sin(t * 0.5) * 0.12 : Math.sin(t * 0.37) * 0.45 + Math.sin(t * 0.13 + 1) * 0.3;
+    rig.head.rotation.set(Math.sin(t * 0.7) * 0.04 + (talk ? Math.sin(t * 5.2) * 0.05 : 0), look, -w * 0.03);
+    const pole = cls === 'spear' || cls === 'staff', holdsR = !!rig.weapon && !pole, holdsL = !!rig.offhand || cls === 'bow';
+    if (!rig.weapon) { R.sh.rotation.set(-0.06, 0, -0.1); R.elbow.rotation.set(-0.3, 0, 0); R.hand.rotation.set(0.1, 0, 0); }
+    else if (holdsR) { R.sh.rotation.set(-0.1, 0, -0.16); R.elbow.rotation.set(-0.4, 0, 0); R.hand.rotation.set(1.25, 0, 0); } // the blade or head hangs down by the leg
+    if (!holdsL) { Lf.sh.rotation.set(-0.06, 0, 0.1); Lf.elbow.rotation.set(-0.3, 0, 0); Lf.hand.rotation.set(0.1, 0, 0); }
+    if (talk) { const A = holdsR || pole ? (holdsL ? R : Lf) : R, sd = A === R ? 1 : -1; A.sh.rotation.set(-0.45 + Math.sin(t * 3.1) * 0.08, 0, -sd * 0.2); A.elbow.rotation.set(-1.25 + Math.sin(t * 4.3) * 0.25, 0, 0); A.hand.rotation.set(0.3, 0, sd * Math.sin(t * 2.7) * 0.4); }
+    keepUpright(rig); return;
   }
   keepUpright(rig);
   if (pose !== 'strike') { return; }

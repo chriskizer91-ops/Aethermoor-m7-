@@ -1,17 +1,19 @@
 # The board
 
-Where the 3D game stands. Written by the hub only. Last updated November 20, evening.
+Where the 3D game stands. Written by the hub only. Last updated November 20, late evening.
 
 ## The sessions
 
 | # | Job | Session | Branch | State | Latest link |
 |---|---|---|---|---|---|
 | 1 | the hub | `session_01DgbUKb6orvjjc1cMgBGPJK` | `claude/brave-davinci-790efm` | running | (the board) |
-| 2 | The Fight | `session_01DgbUKYR9qmKyBdACUWGViw` | `job/fight` | step 1 done and brought in; `runFight()` (one call plays a fight, for Together) and `setBeastLook()` (the foes' look switched in one call) in; on Briarmaw, then the spoils | https://claude.ai/artifact/NpeXL5Pf4RxNfkQsguTnEK |
-| 3 | Models | `session_01DgbUKcWh5MEvjHnxzp4HHo` | `job/models` | the painted / 3D comparison in (waiting on Chris); the 39 people foes true to their sprites' looks, brought in; next: the townsfolk (M7's people in the places), for Together | https://claude.ai/artifact/CA6CcAKVHSxGPB5TAZF5sY |
-| 4 | Places | `session_01DgbUKZVFBfm1dVautXEw5f` | `job/places` | step 3 done and brought in: the Atlas (M7's places on the 3D continent, travel by kindled Hearthfires: `M7_ATLAS.open`), the light per place (Act One by day), batch 4 read from `art-in/`; next: phones and fidelity to the paintings | https://claude.ai/artifact/MXyu3A9zTjoCavHFKXCbpi |
-| 5 | Together | `session_01DgbUKbyjzZFe1BXHHxzHBn` | `job/together` | step 1 done and brought in: Act One as one playable game (M7's world engine under the 3D walk, people, packs, fights, chests, Hearthfires, the Atlas, its own save); the playthrough continues | https://claude.ai/artifact/RaeSK5hezqb3qH7jmuM5aj |
-| 6 | One Foe | `session_01DgbUKZCNBFY7zwSzwAXR8y` | `job/foe-hd` | Briarmaw's sculpt, pass 1 (shape, about 134k triangles), checked against the sheet; on to the full detail, the bake and the three-way page | - |
+| 2 | The Fight | `session_01DgbUKYR9qmKyBdACUWGViw` | `job/fight` | step 3 under way: cameras keep a clear line indoors (in); any M7 fight from its own map data (`?enc=`, a Fights list); next: every battle event and status in 3D | https://claude.ai/artifact/NpeXL5Pf4RxNfkQsguTnEK |
+| 3 | Models | `session_01DgbUKcWh5MEvjHnxzp4HHo` | `job/models` | faces that live done and brought in (blink, talk, six expressions: `figure.face(expr, seconds)`); next: every item M7 can drop, checked on the heroes and made epic | https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL |
+| 4 | Places | `session_01DgbUKZVFBfm1dVautXEw5f` | `job/places` | step 4 brought in (phones: Act One ~82 draw calls on phone; the paintings on roofs, water, decks, rocks; signposts, chests, pedestals); fixing: roofs over a house's front row show the painted front | https://claude.ai/artifact/MXyu3A9zTjoCavHFKXCbpi |
+| 5 | Together | `session_01DgbUKbyjzZFe1BXHHxzHBn` | `job/together` | the spoils, the Party room and the light figures in the game; an end-of-Act-One run (the Rotwarden, the second Brand, home, the Council) being checked before republishing | https://claude.ai/artifact/RaeSK5hezqb3qH7jmuM5aj |
+| 6 | One Foe | `session_01DgbUKZCNBFY7zwSzwAXR8y` | `job/foe-hd` | Briarmaw's pass 3, then the foes' shared kit (`docs/project/jobs/foes.md`), then the strange ones (wraiths, willows, sparks) | https://claude.ai/artifact/5iUqJsPw3NGrvun4Ng73eh |
+| 7 | Foes: beasts | `session_01DgbUKZ4qEpafSazysExsYV` | `job/foes-beasts` | starting: the thornhound, then Act One's other beasts, in full detail | - |
+| 8 | Foes: walkers | `session_01DgbUKcTDUjKDVHw3sPhu7R` | `job/foes-walkers` | starting: the Rotwarden, then the sapwight, in full detail | - |
 
 ## What's built (on the hub's branch)
 
@@ -27,6 +29,7 @@ Where the 3D game stands. Written by the hub only. Last updated November 20, eve
 | A fight on Thornhollow's road: M7's battle screen over the 3D, the party on the field, 3D dice | `world3d/battle/`, `world3d/fight.js` | https://claude.ai/artifact/NpeXL5Pf4RxNfkQsguTnEK |
 | The Verdant Wilds (Coven's zone 1, borrowed), the small and big maps, the 3D continent | `world3d/` | https://claude.ai/artifact/R3Ecr7e1VVbb9Qi7GXEPpx |
 | The Gear Room: a hero whose outfit is built from M7's gear, in Chris's 47 textures and the four faces | `prototypes/hero-3d/` | https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL |
+| Briarmaw three ways: code-built, painted, full detail (baked from a sculpt), with a crowd test | `prototypes/foe-hd/` | https://claude.ai/artifact/5iUqJsPw3NGrvun4Ng73eh |
 | The Bestiary: all 93 foes; the 54 beasts painted (cut from Chris's sheets) or in 3D (Act One's 12 sculpted), with a switch | `prototypes/bestiary/` | https://claude.ai/artifact/CA6CcAKVHSxGPB5TAZF5sY |
 | The story on the atlas: M7's places on the map of Aethermoor | `docs/lore/` | https://claude.ai/artifact/XTicYjY9EcZ4V54cjSzJcZ |
 | Chris's 136 pictures | `art-in/3d/` | `art-requests/RECEIVED.md` |
@@ -50,10 +53,19 @@ Where the 3D game stands. Written by the hub only. Last updated November 20, eve
   Briarmaw aim at it. Models' `buildStandee(key, { tall })` (`prototypes/bestiary/standee.js`) gives the painted look in
   that shape (hub commit 7cf1b0c).
 
-- **Townsfolk:** Together already stands M7's people from `NPC_LOOKS` with the heroes' builder (`game3d/figures.js`);
-  Models is making them better through a function Together can switch to there.
+- **Townsfolk:** Models' `personFigure(npcId, detail)` (`prototypes/hero-3d/people.js`) has exactly `game3d/figures.js`
+  `person()`'s shape: Together switches it in with one import (hub commit 8b91181).
+- **Page sizes:** heroes.js grew by 0.6 MB with the townsfolk's looks; the hub's Act One builds with `--herotex=384` and
+  the world page with `--tex=448 --herotex=256` to stay under 16 MB.
 - **The Atlas on the game page:** its tree and place models (3.8 MB) are left off to stay under 16 MB; Places is making
   lighter copies with its phone work.
+
+- **Light figures (Models, hub d96e11e):** `actor`, `person` and `personFigure` take `'lite'`, `'auto'` and
+  `'auto-high'`. Suggested: phones, leader `'auto'`, followers and townsfolk `'lite'`; laptops, leader `'auto-high'`,
+  followers `'auto'`. The world page uses it; Places (Act One and the regions), Together and the Fight to switch theirs.
+
+- **The foes, from now:** every beast in full detail (sessions 6, 7, 8; `docs/project/jobs/foes.md`). Models' sculpted
+  and painted beasts stand in until each full-detail one lands; Models keeps the heroes and the people.
 
 ## Next for the hub
 

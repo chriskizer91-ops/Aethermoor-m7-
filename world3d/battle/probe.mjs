@@ -8,7 +8,7 @@ const out = process.argv[2], q = process.argv[3] || 'go=1&speed=2', W = +(proces
 const b = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
 const p = await b.newPage({ viewport: { width: W, height: H }, deviceScaleFactor: 1 });
 const errs = []; p.on('pageerror', (e) => errs.push(e.message)); p.on('console', (m) => { if (m.type() === 'error') errs.push(m.text()); });
-await p.goto('file://' + path.join(here, '..', 'dist', 'm7-fight-512.html') + '?' + q);
+await p.goto('file://' + path.join(here, '..', 'dist', '' + (process.env.PAGE || 'm7-fight-512.html') + '') + '?' + q);
 await p.waitForFunction(() => window.__ready || window.__err, null, { timeout: 120000 });
 await p.waitForTimeout(at);
 const s = await p.evaluate(() => {

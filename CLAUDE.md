@@ -23,9 +23,9 @@
 
 ## Several sessions at once (Chris, November 20)
 
-Six sessions build the 3D game: the hub (session one, branch `claude/brave-davinci-790efm`), three jobs alongside it
-(the Fight, Models, Places, each on `job/<name>`), a fresh fifth that puts it together (Together), and a sixth
-building one foe in full detail (One Foe). **Every session reads
+Eight sessions build the 3D game: the hub (session one, branch `claude/brave-davinci-790efm`), three jobs alongside it
+(the Fight, Models, Places, each on `job/<name>`), a fresh fifth that puts it together (Together), and three building
+the foes in full detail (One Foe, Foes: beasts, Foes: walkers; `docs/project/jobs/foes.md`). **Every session reads
 `docs/project/README.md` (the rules), `docs/project/BOARD.md` and its own brief in `docs/project/jobs/` before
 working.** Only the hub writes the board, Chris's decisions (`docs/project/decisions.md`), his open calls
 (`docs/project/questions.md`) and this file; each job writes its own slip in `docs/project/slips/`.

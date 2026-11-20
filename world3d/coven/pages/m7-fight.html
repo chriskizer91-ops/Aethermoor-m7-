@@ -63,10 +63,23 @@ html,body{margin:0;height:100%;background:#0a0b18;overflow:hidden;overscroll-beh
 #guide{position:absolute;top:calc(12px + env(safe-area-inset-top,0px));right:calc(124px + env(safe-area-inset-right,0px));z-index:4;appearance:none;min-height:46px;padding:0 14px;border-radius:23px;border:1px solid rgba(214,222,255,.45);background:rgba(14,14,36,.62);color:#eee8ff;font:14px system-ui,sans-serif;cursor:pointer}
 @media (max-width:720px){#toast{top:calc(70px + env(safe-area-inset-top,0px))}}
 #fightbtn{position:absolute;right:calc(12px + env(safe-area-inset-right,0px));bottom:calc(64px + env(safe-area-inset-bottom,0px));z-index:5;appearance:none;min-height:48px;padding:0 18px;border-radius:24px;border:1px solid rgba(255,214,150,.6);background:rgba(120,40,24,.88);color:#fff0dc;font:600 15px Georgia,serif;cursor:pointer}
+#scenebtn{position:absolute;left:calc(12px + env(safe-area-inset-left,0px));top:calc(12px + env(safe-area-inset-top,0px));z-index:5;appearance:none;min-height:46px;padding:0 16px;border-radius:23px;border:1px solid rgba(255,214,150,.55);background:rgba(28,20,16,.78);color:#ffe6a8;font:600 15px Georgia,serif;cursor:pointer}
+#looksbtn{position:absolute;right:calc(12px + env(safe-area-inset-right,0px));top:calc(12px + env(safe-area-inset-top,0px));z-index:5;appearance:none;min-height:46px;padding:0 16px;border-radius:23px;border:1px solid rgba(214,222,255,.45);background:rgba(14,14,36,.7);color:#eee8ff;font:600 14px Georgia,serif;cursor:pointer}
+#partybtn{position:absolute;left:calc(12px + env(safe-area-inset-left,0px));bottom:calc(64px + env(safe-area-inset-bottom,0px));z-index:5;appearance:none;min-height:48px;padding:0 18px;border-radius:24px;border:1px solid rgba(255,214,150,.55);background:rgba(28,20,16,.82);color:#ffe6a8;font:600 15px Georgia,serif;cursor:pointer}
+#numbers{display:none}
+#fights{position:absolute;left:calc(12px + env(safe-area-inset-left,0px));top:calc(66px + env(safe-area-inset-top,0px));z-index:7;display:none;flex-direction:column;gap:6px;padding:8px;border-radius:16px;background:rgba(14,12,34,.94);border:1px solid rgba(214,222,255,.3);max-height:72vh;overflow:auto;width:min(340px,calc(100vw - 24px));box-sizing:border-box}
+#fights.on{display:flex}
+#fights button{appearance:none;min-height:48px;border:1px solid rgba(214,222,255,.25);border-radius:12px;background:rgba(40,36,80,.5);color:#f0ecff;font:15px Georgia,serif;padding:8px 12px;text-align:left;cursor:pointer}
+#fights button small{display:block;color:#b8b4e0;font:12px system-ui,sans-serif;margin-top:2px}
+#fights button.on{background:rgba(150,90,30,.9);border-color:#ffd27a}
 #world{background:#0a0b18}
 </style>
 <div id="world"><canvas id="cv"></canvas><div id="ring"><div id="dot"></div></div>
+  <button id="partybtn" type="button">Party</button>
   <button id="fightbtn" type="button">Meet the pack</button>
+  <button id="looksbtn" type="button">Foes: 3D</button>
+  <button id="scenebtn" type="button">Fights</button>
+  <div id="fights"></div>
   <div id="toast"></div>
   <div id="numbers"><b id="fps">…</b> frames a second</div></div>
 <div id="fight" hidden></div>
