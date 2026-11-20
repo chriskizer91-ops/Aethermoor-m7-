@@ -14,7 +14,11 @@ import path from 'node:path';
 //   --herotex=256                  the heroes' textures smaller, for a heavy page
 const arg = (k) => (process.argv.find((a) => a.startsWith('--' + k + '=')) || '').split('=')[1];
 const PAGE_ID = arg('page') || 'aethermoor';
-const here = path.dirname(fileURLToPath(import.meta.url)), PAGE = path.join(here, 'coven/pages', PAGE_ID + '.html'), PAGES = path.dirname(PAGE);
+// (Together, November 20) --html=../game3d/page.html builds a page kept outside coven/pages/ (its scripts and pictures
+// are found from its own folder; <!--M7PLACES--> still brings coven/places/). Without it the build is as it was.
+const HTML = arg('html');
+const here = path.dirname(fileURLToPath(import.meta.url)), PAGE = HTML ? path.resolve(here, HTML) : path.join(here, 'coven/pages', PAGE_ID + '.html'), PAGES = path.dirname(PAGE);
+const PLACES_SRC = path.relative(PAGES, path.join(here, 'coven/places')).split(path.sep).join('/');
 const M7 = (arg('places') || '').split(',').filter(Boolean);
 // (Places, November 20) --name="the Sunscorch" puts that name where the page says "Act One"; --out=m7-sunscorch names the file
 const NAME = arg('name'), OUT = arg('out'), PAINTK = +(arg('paint') || 0);
@@ -69,7 +73,7 @@ if (HEROTEX) {
 }
 let html = readFileSync(PAGE, 'utf8');
 if (NAME) html = html.replace(/Act One/g, () => NAME.replace(/&/g, '&amp;'));
-html = html.replace('<!--M7PLACES-->', () => M7.map((id) => `<script src="../places/m7-${id}.js"></script>`).join('\n'));
+html = html.replace('<!--M7PLACES-->', () => M7.map((id) => `<script src="${PLACES_SRC}/m7-${id}.js"></script>`).join('\n'));
 html = html.replace(/<script src="([^"]+)"><\/script>/g, (m, src) => { const f = path.normalize(path.join(PAGES, src)); return '<script>' + inline(readFileSync(f, 'utf8'), path.dirname(f)).replace(/<\/script/gi, '<\\/script') + '</script>'; });
 html = html.replace('<!--HEROES-->', () => (entryCss ? '<style>' + entryCss.replace(/<\/style/gi, '<\\/style') + '</style>' : '') + '<script>window.__PIC=[' + table.join(',') + '];</script><script>' + heroes + '</script>');
 mkdirSync(path.join(here, 'dist'), { recursive: true });

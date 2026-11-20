@@ -1,0 +1,49 @@
+<title>Hearth &amp; Heirloom in 3D</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya+Sans:wght@400;500;700;800&family=Cormorant+Garamond:ital,wght@0,600;0,700;1,500&family=Silkscreen&display=swap">
+<style>
+/* Hearth & Heirloom in 3D (game3d/main.js): the 3D walk, with M7's own screens over it. The walk's look is the Act One
+   page's (world3d/coven/pages/m7-places.html); everything over it is M7's (theme.css, screens.css, world.css). */
+html,body{margin:0;height:100%;background:#0a0b18;overflow:hidden;overscroll-behavior:none;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
+#world{position:fixed;inset:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:#0a0b18}
+#world canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+#ring{position:absolute;display:none;width:116px;height:116px;margin:-58px 0 0 -58px;border-radius:50%;border:2px solid rgba(230,226,255,.42);background:rgba(20,18,44,.18);pointer-events:none;z-index:3}
+#dot{position:absolute;left:50%;top:50%;width:40px;height:40px;border-radius:50%;background:rgba(240,236,255,.5);transform:translate(-50%,-50%);pointer-events:none}
+#toast{position:absolute;left:50%;top:calc(16px + env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:4;max-width:calc(100% - 140px);padding:8px 16px;border-radius:16px;background:rgba(14,12,34,.72);color:#f4f0ff;font-size:15px;line-height:1.3;text-align:center;opacity:0;transition:opacity .5s;pointer-events:none}
+@media (max-width:720px){#toast{top:calc(70px + env(safe-area-inset-top,0px));max-width:calc(100% - 40px)}}
+#toast.name{font:400 22px/1.2 Georgia,"Times New Roman",serif;letter-spacing:.03em;color:#ffe6a8;background:rgba(14,12,34,.55)}
+#numbers{position:absolute;left:calc(12px + env(safe-area-inset-left,0px));bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:4;padding:5px 10px;border-radius:12px;background:rgba(10,10,28,.5);color:#e8e6ff;font-size:12px;pointer-events:none}
+#load{position:fixed;inset:0;z-index:9;display:grid;place-content:center;text-align:center;background:#0a0b18;color:#e8e4ff;font-family:Georgia,"Times New Roman",serif;transition:opacity .6s;padding:0 24px}
+#load h1{margin:0 0 6px;font-weight:400;font-size:32px;letter-spacing:.02em}
+#load p{margin:0;font:15px system-ui,sans-serif;color:#b8b4e0}
+</style>
+<div id="world"><canvas id="cv"></canvas><div id="ring"><div id="dot"></div></div>
+  <div id="marks" aria-hidden="true"></div>
+  <button id="menubtn" class="g3-round" type="button" aria-label="Menu"><svg viewBox="0 0 24 24" fill="none" stroke="#f4e6cc" stroke-width="2" stroke-linecap="round"><path d="M5 7h14M5 12h14M5 17h14"/></svg></button>
+  <div id="toast"></div>
+  <p id="prompt" hidden></p>
+  <button id="abtn" type="button" hidden>A</button>
+  <div id="numbers"><b id="fps">…</b> fps</div></div>
+<div id="fight" hidden></div>
+<div id="screen" hidden></div>
+<section id="title" hidden>
+  <div class="g3-title">
+    <p class="g3-kick">Aethermoor</p>
+    <h1>Hearth &amp; Heirloom</h1>
+    <p class="g3-sub">in 3D · Act One, the Verdant Wilds</p>
+    <div id="titlebtns"></div>
+    <p class="g3-note">The 3D game keeps its own save. The 2D game&rsquo;s save is only ever read.</p>
+  </div>
+</section>
+<div id="load"><div><h1 id="loadtitle">Hearth &amp; Heirloom</h1><p id="loadmsg">Loading…</p></div></div>
+<!--HEROES-->
+<script src="../world3d/coven/engine/place/core.js"></script>
+<script src="../world3d/coven/engine/place/cutouts.js"></script>
+<script src="../world3d/coven/engine/place/extras.js"></script>
+<script src="../world3d/coven/engine/place/paint.js"></script>
+<script src="../world3d/coven/engine/place/world.js"></script>
+<script src="../world3d/coven/engine/place/walker.js"></script>
+<!--M7PLACES-->
+<script src="../world3d/coven/places/m7-kit.js"></script>
+<script src="../world3d/party.js"></script>
