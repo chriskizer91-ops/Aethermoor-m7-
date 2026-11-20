@@ -11,7 +11,7 @@ import * as THREE from 'three';
 import { MAT } from '../../game/src/art/forge.js';
 import { HERO_ART } from '../../game/src/art/hero-looks.js';
 import { itemArt, lookFor, RARITY_LOOK, ASPECT_LOOK, SLOTS, rarityTier } from '../../game/src/art/item-looks.js';
-import { V, lerp, smooth, clamp01, loft, ellipse, tube, curve, lathe, wedge, plate, blade, mat, glowColor, isEmit, sRGB, KIND, Q, sph, tor, cone, ico, bake, etchMaterial, stitchGeo, add, gem, rngOf, ring } from './kit.js';
+import { V, lerp, smooth, clamp01, loft, ellipse, tube, curve, lathe, wedge, plate, blade, mat, glowColor, isEmit, sRGB, KIND, Q, sph, tor, cone, ico, bake, etchMaterial, stitchGeo, add, gem, rngOf, ring, FACES, TEXTURES } from './kit.js';
 import { buildWeapon, buildOffhand } from './weapons.js';
 
 export { glowColor };
@@ -109,6 +109,50 @@ function faceTexture(H, skinKey, hairKey, { blind = false, big = false } = {}) {
   return t;
 }
 
+
+/* ------------------------------------------------------------------ Chris's painted faces (November 20) */
+// The four heroes wear the faces Chris painted (art-in/3d/gear/face-*.webp, web copies in textures/pack.js). Each is
+// laid on the front of the head like a mask, straight on (each point of the head takes the picture's colour at the
+// point in front of it), and fades into the plain skin round it, which Chris painted to fill the square.
+// FACE_FIT: k is how much wider than the head the picture is, y0 how far below the middle of the head its centre sits.
+export const HERO_FACE = { warden: 'wren', pip: 'pip', bryn: 'bryn', alondra: 'alondra' };
+export const FACE_FIT = { k: 1.42, y0: -0.2 };
+const FACE_IMG = {};
+function faceImage(name) {
+  if (FACE_IMG[name]) return FACE_IMG[name];
+  const img = new Image(); img.src = FACES[name].url;
+  const rec = { img, px: null, waiting: [] };
+  img.onload = () => { const c = document.createElement('canvas'); c.width = img.width; c.height = img.height; const g = c.getContext('2d'); g.drawImage(img, 0, 0); rec.px = g.getImageData(0, 0, c.width, c.height); for (const f of rec.waiting.splice(0)) f(); };
+  return (FACE_IMG[name] = rec);
+}
+function paintedFace(name) {
+  const R = Q.d > 1 ? 2 : 1, W = 1024 * R, Hh = 512 * R, c = document.createElement('canvas'); c.width = W; c.height = Hh;
+  const g = c.getContext('2d'), skin = FACES[name].skin;
+  g.fillStyle = `rgb(${skin[0]},${skin[1]},${skin[2]})`; g.fillRect(0, 0, W, Hh);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8;
+  const rec = faceImage(name);
+  const draw = () => {
+    const P = rec.px, pw = P.width, ph = P.height, src = P.data, img = g.getImageData(0, 0, W, Hh), d = img.data, { k, y0 } = FACE_FIT;
+    // only the front half of the head (u from 0 to 0.5 on the sphere) can see the picture
+    for (let py = 0; py < Hh; py++) {
+      const th = (py + 0.5) / Hh * Math.PI, st = Math.sin(th), y = Math.cos(th);
+      for (let px = 0; px < W / 2; px++) {
+        const ph2 = (px + 0.5) / W * TAU, x = -Math.cos(ph2) * st, z = Math.sin(ph2) * st;
+        if (z <= 0.05) continue;
+        const X = 0.5 + x / (2 * k), Y = 0.5 - (y - y0) / (2 * k);
+        if (X < 0 || X >= 1 || Y < 0 || Y >= 1) continue;
+        const edge = Math.min(X, 1 - X, Y, 1 - Y), w = smooth((z - 0.05) / 0.4) * smooth(edge / 0.06);
+        if (w <= 0) continue;
+        const si = ((Y * ph | 0) * pw + (X * pw | 0)) * 4, di = (py * W + px) * 4;
+        for (let ch = 0; ch < 3; ch++) d[di + ch] = d[di + ch] + (src[si + ch] - d[di + ch]) * w;
+      }
+    }
+    g.putImageData(img, 0, 0); t.needsUpdate = true;
+  };
+  if (rec.px) draw(); else rec.waiting.push(draw);
+  return t;
+}
+
 /* ------------------------------------------------------------------ small helpers */
 const strHash = str => { let h = 2166136261; for (const ch of String(str)) h = Math.imul(h ^ ch.charCodeAt(0), 16777619); return h >>> 0; };
 
@@ -124,7 +168,9 @@ export function buildHero(heroKey, gear, o = {}) {
   const group = new THREE.Group(), root = new THREE.Group(); group.add(root);
   const rig = { root, S }, fx = { glows: [], aura: null, flame: false };
   const body = L.body, kind = body?.kind, robe = kind === 'robe';
-  const skinM = mat(H.skin), tunicKey = H.tunic || 'wool';
+  // a hero with a face Chris painted: the skin everywhere takes that picture's skin, so the neck and hands match it
+  const faceName = !o.H && TEXTURES.on ? HERO_FACE[heroKey] : null, skinTint = faceName ? FACES[faceName].skin : null;
+  const skinM = mat(H.skin, { tint: skinTint }), tunicKey = H.tunic || 'wool';
 
   /* ---- legs, trousers, boots */
   rig.legs = [];
@@ -153,7 +199,7 @@ export function buildHero(heroKey, gear, o = {}) {
   const skirt = new THREE.Group(); root.add(skirt); rig.skirt = skirt;
   const neckTop = S.neckY + 0.03 * u;
   add(torsoLoft(S, S.hipY - 0.04 * u, neckTop, 0, { steps: 12 }), mat(robe ? body.mat : tunicKey), chest);
-  const torsoMat = body ? mat(body.mat, { as: kind === 'mail' ? (body.scale ? 'scale' : 'mail') : null }) : null;
+  const torsoMat = body ? mat(body.mat, { as: kind === 'mail' ? (body.scale ? 'scale' : 'mail') : null, ...(kind === 'leather' && TEXTURES.on ? { tex: body.studs ? 'mail-brigandine' : 'leather-stitched' } : {}) }) : null;
   const hemY = robe ? 0.02 * u : kind === 'mail' ? S.hemY + 0.02 * u : kind === 'leather' ? S.hemY + 0.08 * u : S.hemY + 0.05 * u;
   // the skirt of whatever is worn below the belt: a mail skirt, a jerkin's tail, a tunic, a robe to the floor
   const hemKey = robe ? body.mat : kind === 'mail' ? body.mat : kind === 'leather' ? (body.shirt || tunicKey) : kind === 'plate' ? 'mail' : tunicKey;
@@ -216,7 +262,7 @@ export function buildHero(heroKey, gear, o = {}) {
 
   /* ---- arms and hands */
   const sleeveKey = body ? (body.sleeve || (robe ? body.mat : body.shirt || tunicKey)) : tunicKey;
-  const gloves = L.hands, gloveKey = gloves ? gloves.mat : H.gloves || H.skin;
+  const gloves = L.hands, gloveKey = gloves ? gloves.mat : H.gloves || H.skin, bareTint = !gloves && KIND(gloveKey) === 'skin' ? skinTint : null;
   rig.arms = [];
   for (const side of [-1, 1]) {
     const sh = new THREE.Group(); sh.position.set(side * S.shX, S.shY, 0); root.add(sh);
@@ -231,7 +277,7 @@ export function buildHero(heroKey, gear, o = {}) {
     if (robe) add(tube([V(0, -S.fore * 0.25, 0), V(0, -S.fore * 0.8, 0.01 * u), V(0, -S.fore * 1.05, 0.02 * u)], t => [lerp(ar * 1.1, ar * 1.7, t * t), lerp(ar * 1.1, ar * 1.6, t * t)], { n: 16, capA: false, capB: false }), mat(body.mat, { side: true }), elbow);
     if (kind === 'plate') { add(tube([V(0, -S.fore * 0.15, 0), V(0, -S.fore * 0.9, 0)], t => [lerp(ar * 1.05, ar * 0.8, t), lerp(ar * 1.0, ar * 0.76, t)], { n: 12 }), torsoMat, elbow); add(sph(ar * 0.95, 12, 8), torsoMat, elbow); }
     const hand = new THREE.Group(); hand.position.y = -S.fore; elbow.add(hand);
-    const grip = buildHand(hand, side, mat(gloveKey), gloves, u * S.hand, fx, gripRadius(L, side, uw));
+    const grip = buildHand(hand, side, mat(gloveKey, { tint: bareTint }), gloves, u * S.hand, fx, gripRadius(L, side, uw));
     // pauldrons: three lames over the shoulder
     const pk = body?.pauldrons || (kind === 'plate' ? body.mat : null);
     if (pk) for (let k = 0; k < 3; k++) { const r = ar * (2.0 - k * 0.22); const p = add(sph(r, 18, 10, 0, TAU, 0, Math.PI * 0.42), mat(pk, { side: true }), sh, side * 0.006 * u, 0.025 * u - k * 0.03 * u, 0); p.rotation.z = -side * (0.35 + k * 0.12); p.scale.set(1.1, 0.75, 1); if (body?.trim && k === 0) add(tube(ellipse(V(0, Math.cos(Math.PI * 0.42) * r, 0), V(1, 0, 0), V(0, 0, 1), Math.sin(Math.PI * 0.42) * r, Math.sin(Math.PI * 0.42) * r, 24), 0.005 * u, { closed: true, n: 6 }), mat(body.trim), p); }
@@ -244,7 +290,8 @@ export function buildHero(heroKey, gear, o = {}) {
   const head = new THREE.Group(); head.position.set(0, S.headY, 0.006 * u); root.add(head); rig.head = head;
   const r = S.headR;
   const blind = !!H.blindfold;
-  const faceM = mat(H.skin).clone(); faceM.map = faceTexture(H, H.skin, H.hairMat, { blind, big: S.chibi }); faceM.color = new THREE.Color(1, 1, 1);
+  const faceM = new THREE.MeshPhysicalMaterial({ roughness: 0.55, sheen: 0.4, sheenRoughness: 0.5, sheenColor: skinM.sheenColor });
+  faceM.map = faceName ? paintedFace(faceName) : faceTexture(H, H.skin, H.hairMat, { blind, big: S.chibi });
   const skull = sph(r, 64, 40);
   { const p = skull.attributes.position; for (let i = 0; i < p.count; i++) { let x = p.getX(i), y = p.getY(i), z = p.getZ(i); const low = clamp01(-y / r); const k = 1 - low * low * 0.3 * (z > 0 ? 1 : 0.6); x *= k * 0.94; z *= (z > 0 ? 1 - low * 0.05 : 1.04); if (z > 0) z += low * low * r * 0.08 * (1 - Math.abs(x) / r); y *= 1.06; p.setXYZ(i, x, y, z); } skull.computeVertexNormals(); }
   add(skull, faceM, head);
@@ -252,7 +299,8 @@ export function buildHero(heroKey, gear, o = {}) {
     if (H.ears === 'long') { const e = add(tube(curve([V(s * r * 0.86, -r * 0.05, -r * 0.1), V(s * r * 1.2, r * 0.18, -r * 0.25), V(s * r * 1.45, r * 0.42, -r * 0.42)]), t => [lerp(r * 0.16, 0.001, t), lerp(r * 0.06, 0.001, t)], { n: 8 }), skinM, head); }
     else add(sph(r * 0.17, 10, 8), skinM, head, s * r * 0.9, -r * 0.08, -r * 0.08).scale.set(0.5, 1, 0.8);
   }
-  if (blind) add(lathe([[r * 1.0, r * 0.12], [r * 1.03, r * 0.12], [r * 1.03, -r * 0.22], [r * 1.0, -r * 0.22]], { n: 40, sx: 0.96 }), mat(H.blindfold), head, 0, 0, 0.004 * u);
+  // the cloth band round the head (with Chris's face it sits over the blindfold he painted, a little higher)
+  if (blind) { const b0 = faceName ? 0.27 : 0.12, b1 = faceName ? -0.06 : -0.22; add(lathe([[r * 1.0, r * b0], [r * 1.03, r * b0], [r * 1.03, r * b1], [r * 1.0, r * b1]], { n: 40, sx: 0.96 }), mat(H.blindfold), head, 0, 0, 0.004 * u); }
   const HL = L.head, look = HL?.look;
   const covers = look === 'helm' || look === 'coif' || look === 'hood' || look === 'kettle';
   buildHair(head, H, r, covers, look, strHash(heroKey));
@@ -481,7 +529,7 @@ function buildHeadgear(head, root, HL, art, r, S, u, fx) {
     if (cloth && HL.tip) add(tube(curve([V(0, r * 0.9, -r * 0.8), V(0, r * 0.75, -r * 1.35), V(0, r * 0.2, -r * 1.8)], 12), t => [lerp(r * 0.45, 0.002, t), lerp(r * 0.35, 0.002, t)], { n: 12 }), m, head);
     if (trim) { const ed = (rad, y, sd) => V(sd * Math.sin(0.95) * rad * 0.97, y, Math.cos(0.95) * rad); const pts = [ed(r * 0.86 * k, -r * 0.98, -1), ed(r * 0.95 * k, -r * 0.6, -1), ed(r * 1.05 * k, r * 0.1, -1), ed(r * 1.0 * k, r * 0.62 * k, -1), V(0, r * 0.66 * k, r * 1.02 * k), ed(r * 1.0 * k, r * 0.62 * k, 1), ed(r * 1.05 * k, r * 0.1, 1), ed(r * 0.95 * k, -r * 0.6, 1), ed(r * 0.86 * k, -r * 0.98, 1)]; add(tube(curve(pts, 30), 0.007 * u, { n: 6 }), trim, head, 0, 0, 0.002 * u); }
   } else if (look === 'circlet' || look === 'crown') {
-    const mk = MAT[HL.mat]?.metal ? HL.mat : HL.metal || (MAT[HL.mat]?.metal ? HL.mat : 'gold'), m = mat(mk);
+    const mk = MAT[HL.mat]?.metal ? HL.mat : HL.metal || (MAT[HL.mat]?.metal ? HL.mat : 'gold'), m = mat(mk, look === 'crown' && /gold/.test(mk) && TEXTURES.on ? { tex: 'metal-filigree' } : {});
     const band = new THREE.Group(); band.position.y = r * 0.42; band.rotation.x = -0.12; head.add(band);
     const h = look === 'crown' ? r * 0.28 : r * 0.08;
     const bR = r * 1.12; // over the hair, not through it
