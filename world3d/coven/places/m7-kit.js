@@ -220,7 +220,8 @@
     const ALL = place.extraTrees || [];
     Object.defineProperty(place, 'extraTrees', { configurable: true, enumerable: true, get() { return G.W3D && W3D.quality === 'phone' ? phoneTrees(ALL, d) : ALL; } });
     Object.defineProperty(place, 'lightTrees', { configurable: true, enumerable: true, get() { return G.W3D && W3D.quality === 'phone'; } });
-    Object.defineProperty(place, 'treePatch', { configurable: true, enumerable: true, get() { return G.W3D && W3D.quality === 'phone' ? 33 : 22; } });
+    Object.defineProperty(place, 'groundPatch', { configurable: true, enumerable: true, get() { return G.W3D && W3D.quality === 'phone' ? 64 : 32; } });
+    Object.defineProperty(place, 'treePatch', { configurable: true, enumerable: true, get() { return G.W3D && W3D.quality === 'phone' ? 48 : 22; } });
     return place;
   }
   const PHONE_TREES = new Map();

@@ -86,15 +86,18 @@
 
   | Page | Phone detail: median (heaviest) | Laptop detail: median (heaviest) | The place alone, phone / laptop (median) |
   |---|---|---|---|
-  | Act One | 42 calls, 102k tris (Hearth Road 108, 204k) | 106, 230k (Thornway 335, 567k) | 34, 56k / 47, 78k |
-  | Sunscorch | 30, 71k (Miragewell 35, 71k) | 77, 172k (Dust Trail 181, 264k) | 22, 25k / 27, 32k |
-  | Ironspire | 43, 87k (Plankford 55, 146k) | 113, 225k (Shrinewood 222, 469k) | 35, 41k / 43, 52k |
-  | Gloomfen | 43, 118k (Willowmurk 78, 163k) | 101, 242k (Long Boardwalk 195, 308k) | 35, 71k / 53, 96k |
-  | Act Three | 26, 69k (Worldforge 31, 86k) | 98, 198k (Ash Stair 177, 257k) | 17, 23k / 19, 26k |
+  | Act One | 36 calls, 132k tris (Mossfall 69, 160k) | 108, 232k (Thornway 336, 570k) | 28, 86k / 47, 78k |
+  | Sunscorch | 24, 84k (Miragewell 30, 81k) | 78, 174k (Dust Trail 182, 267k) | 16, 36k / 27, 32k |
+  | Ironspire | 30, 103k (Old Bridge 49, 155k) | 114, 227k (Shrinewood 223, 472k) | 22, 56k / 43, 52k |
+  | Gloomfen | 36, 132k (Willowmurk 67, 201k) | 102, 244k (Long Boardwalk 196, 311k) | 28, 84k / 53, 96k |
+  | Act Three | 21, 78k (Worldforge 24, 99k) | 98, 200k (Ash Stair 177, 260k) | 12, 31k / 19, 26k |
 
+  On phone detail the trees are drawn in 48 m batches and the ground in 64-cell patches (`place.treePatch`,
+  `place.groundPatch`, engine additive): the Hearth Road's place alone went from 99 to 54 calls, and the Thornway's from
+  86 to 47. The cost is some 10-30k more triangles, since bigger batches are culled less finely.
   With Models' light figures (the hub's d96e11e; m7places.js: the leader 'auto' and the followers 'lite' on a phone,
   'auto-high' and 'auto' on a laptop) the party costs about 9 draw calls on phone detail, where it took about 144.
-  Phone medians fell from 60-82 calls to 26-43. The heaviest places are now the long wooded roads (the Hearth Road,
+  Phone medians fell from 60-82 calls to 26-43 (and then to 21-36 with the bigger batches). The heaviest places are now the long wooded roads (the Hearth Road,
   99 calls for the place alone), not the party.
   The Thornway on phone went from 105 to 82 calls and 279k to 168k triangles for the place alone; the Hindwood from
   128k to 75k.
