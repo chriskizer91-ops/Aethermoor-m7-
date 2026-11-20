@@ -1,7 +1,7 @@
 # How the sessions work together (November 20)
 
-Chris's word (November 20): five sessions build the 3D game. Session one is **the hub**; three **jobs** build alongside
-it; a fresh fifth session **puts it all together**. These notes are how they stay in step. Read `CLAUDE.md` first,
+Chris's word (November 20): six sessions build the 3D game. Session one is **the hub**; three **jobs** build alongside
+it; a fresh fifth session **puts it all together**; a sixth builds **one foe in full detail**. These notes are how they stay in step. Read `CLAUDE.md` first,
 then this, then `BOARD.md`, then your own brief in `jobs/`.
 
 | Session | Job | Brief | Branch | Slip |
@@ -11,6 +11,7 @@ then this, then `BOARD.md`, then your own brief in `jobs/`.
 | 3 | **Models**: Chris's textures and faces on the heroes, the creatures from his sheets | `jobs/models.md` | `job/models` | `slips/models.md` |
 | 4 | **Places**: Acts Two and Three as 3D places | `jobs/places.md` | `job/places` | `slips/places.md` |
 | 5 | **Together**: one playable 3D game | `jobs/together.md` | `job/together` | `slips/together.md` |
+| 6 | **One Foe**: Briarmaw in full detail (a 600k to 1M triangle sculpt baked onto 50k), side by side | `jobs/foe-hd.md` | `job/foe-hd` | `slips/foe-hd.md` |
 
 ## The rules
 

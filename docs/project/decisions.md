@@ -4,6 +4,11 @@ Written by the hub. His newer word beats anything older, here or anywhere in the
 
 ## November 20
 
+- **A sixth session builds one foe in full detail**: a 600,000 to 1,000,000-triangle sculpt baked onto a
+  50,000-triangle light version, so many foes and characters can be on screen at once; shown side by side with the
+  painted cut-out and the code-built model, so he can choose. "Building games takes months or years, and we will do it
+  in a week."
+- **The foes as they are now aren't good enough** ("need serious work, or we need to think about it a different way").
 - **Five sessions build the 3D game**: session one the hub, three jobs alongside it (the Fight, Models, Places), and a
   fresh fifth to put it all together. Project notes in the repo (`docs/project/`).
 - **Build the 3D game the way Aethermoor was built, a milestone at a time, with M7's current combat**, all of it in

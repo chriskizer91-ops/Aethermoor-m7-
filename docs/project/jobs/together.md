@@ -18,8 +18,8 @@ rule: every milestone keeps its own save; read M7's saves to carry a party over 
   as M7 has them), and the spoils after.
 - **People standing in places** (`people` on each place; looks from `game/src/art/` by the heroes' builder), talking
   through M7's own dialogue screens; quests, the journal, the party, the forge and the codex as M7's own screens over the 3D.
-- **The Atlas** opens the 3D continent (`world3d/continent/`, as `world3d/aethermoor.js` does), with travel between
-  kindled Hearthfires as M7 allows.
+- **The Atlas** opens the 3D continent with travel between kindled Hearthfires as M7 allows. The Places job is building
+  it as a piece you call (`docs/project/jobs/places.md`, step 3).
 - Act One first (the Verdant slice: Briarmaw, the Rotwarden, the two Brands), then Acts Two and Three as the Places
   job delivers them. A page per act if the 16 MB limit needs it.
 
