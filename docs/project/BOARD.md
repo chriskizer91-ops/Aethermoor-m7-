@@ -4,13 +4,13 @@ Where the 3D game stands. Written by the hub only. Last updated November 20.
 
 ## The sessions
 
-| # | Job | Branch | State | Latest link |
-|---|---|---|---|---|
-| 1 | the hub | `claude/brave-davinci-790efm` | running | (the board) |
-| 2 | The Fight | `job/fight` | starting: step 1, one fight on Thornhollow's road | - |
-| 3 | Models | `job/models` | starting: step 1, Chris's textures and faces on the heroes | - |
-| 4 | Places | `job/places` | starting: step 1, Act Two's three regions | - |
-| 5 | Together | `job/together` | waiting until the three have first deliveries | - |
+| # | Job | Session | Branch | State | Latest link |
+|---|---|---|---|---|---|
+| 1 | the hub | `session_01DgbUKb6orvjjc1cMgBGPJK` | `claude/brave-davinci-790efm` | running | (the board) |
+| 2 | The Fight | `session_01DgbUKYR9qmKyBdACUWGViw` | `job/fight` | starting: step 1, one fight on Thornhollow's road | - |
+| 3 | Models | `session_01DgbUKcWh5MEvjHnxzp4HHo` | `job/models` | starting: step 1, Chris's textures and faces on the heroes | - |
+| 4 | Places | `session_01DgbUKZVFBfm1dVautXEw5f` | `job/places` | starting: step 1, Act Two's three regions | - |
+| 5 | Together | (not started) | `job/together` | waiting until the three have first deliveries | - |
 
 ## What's built (on the hub's branch)
 
