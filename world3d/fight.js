@@ -24,6 +24,9 @@ import { PATROLS } from '../game/src/data/encounters.js';
 import { heroGear } from '../game/src/ui/battle/sprites.js';
 import { arena, foeFigure, setBeastLook } from './battle/arena.js';
 import { standeeLook } from '../prototypes/bestiary/standee.js';
+import { buildBeast } from '../prototypes/bestiary/beasts.js';
+import { ready as hdReady, makeShared, briarmawLook } from '../prototypes/foe-hd/page/briarmaw.js';
+import { A as HD_ASSETS } from 'fight-briarmaw-assets';
 import { runFight } from './battle/run.js';
 import { openParty } from './battle/party-room.js';
 
@@ -38,8 +41,13 @@ const SCENES = {
     hint: 'walk into the den', foes: () => ['briarmaw'], at: [[8, 5.6]], trigger: 7.5,
     battle: (game) => startBattle(game, { nodeId: 'briarmaw-den' }) },
 };
-let cutout = Q.get('foes') === 'cutout';
-setBeastLook(cutout ? standeeLook : null);
+// the beasts' look: '3d' (sculpted), 'cutout' (Chris's painted standees) or 'hd' (Briarmaw in full detail, session 6)
+const LOOKS = ['3d', 'cutout', 'hd'];
+let look = LOOKS.includes(Q.get('foes')) ? Q.get('foes') : '3d', hdLook = null;
+async function useLook(k) {
+  if (k === 'hd' && !hdLook) { await hdReady(); hdLook = briarmawLook(makeShared(HD_ASSETS, 1024), buildBeast); }
+  setBeastLook(k === 'cutout' ? standeeLook : k === 'hd' ? hdLook : null);
+}
 let SC = SCENES[Q.get('fight') === 'briarmaw' ? 'den' : 'road'];
 const tilePx = (c, r) => [c * 50 + 25, r * 40 + 20];       // a tile to the walking map's px (m7-kit.js: 50 x 40)
 
@@ -75,7 +83,7 @@ async function main() {
   const party = window.M7_PARTY.create(W);
   const setFollowers = () => {
     for (const f of followers) W.P.scene.remove(f.root);
-    followers = H.HEROES.filter(([id]) => id !== 'warden').map(([id]) => get(id, 'light'));
+    followers = H.HEROES.filter(([id]) => id !== 'warden').map(([id]) => get(id, PHONE ? 'lite' : 'light'));
     for (const f of followers) W.P.scene.add(f.root);
     party.set(leader, followers);
   };
@@ -94,6 +102,7 @@ async function main() {
     });
     pack = { keys, figs, near: false };
   }
+  await useLook(look);
   spawnPack();
   let last = performance.now(), fighting = false;
   (function tick() {
@@ -133,7 +142,7 @@ async function main() {
       const k = gearKey(id); if (worn[id] === k) continue;
       const first = worn[id] === undefined; worn[id] = k; if (first) continue;
       for (const m of Object.keys(made)) if (m.startsWith(id)) delete made[m];
-      const A = get(id, id === 'warden' ? (PHONE ? 'light' : 'high') : 'light');
+      const A = get(id, id === 'warden' ? (PHONE ? 'light' : 'high') : (PHONE ? 'lite' : 'light'));
       if (arena.on) arena.swapHero(id, A);
       toast(`${H.HEROES.find((h) => h[0] === id)[1]} puts it on`);
     }
@@ -227,12 +236,13 @@ async function main() {
   }
   const label = () => { $('scenebtn').textContent = SC === SCENES.road ? 'To Briarmaw\'s den' : 'To Thornhollow'; $('fightbtn').textContent = SC === SCENES.road ? 'Meet the pack' : 'Face Briarmaw'; };
   // the beasts' look, for Chris to choose: the painted standees from his sheets, or the sculpted ones
-  const looks = () => { $('looksbtn').textContent = cutout ? 'Foes: Painted' : 'Foes: 3D'; };
-  $('looksbtn').addEventListener('click', () => {
+  const looks = () => { $('looksbtn').textContent = { '3d': 'Foes: 3D', cutout: 'Foes: Painted', hd: 'Foes: Full detail' }[look]; };
+  $('looksbtn').addEventListener('click', async () => {
     if (fighting) return;
-    cutout = !cutout; setBeastLook(cutout ? standeeLook : null); looks();
+    look = LOOKS[(LOOKS.indexOf(look) + 1) % LOOKS.length]; await useLook(look); looks();
     if (pack) for (const F of pack.figs) W.P.scene.remove(F.root);
-    pack = null; spawnPack(); toast(cutout ? 'The foes as Chris painted them' : 'The foes as 3D models');
+    pack = null; spawnPack();
+    toast({ '3d': 'The foes as 3D models', cutout: 'The foes as Chris painted them', hd: SC === SCENES.den ? 'Briarmaw in full detail' : 'Full detail: Briarmaw, in his den' }[look]);
   });
   looks();
   $('scenebtn').addEventListener('click', () => goScene(SC === SCENES.road ? 'den' : 'road'));

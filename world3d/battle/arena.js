@@ -491,7 +491,14 @@ function stepFoe(ar, F, d, t, heroCenter) {
   F.body.position.z = o.fwd; F.body.rotation.set(o.lean, 0, o.roll); F.body.scale.set(1, o.sq, 1);
   // the figure's own moving parts: a person's rig, a beast's legs and tail
   if (F.fig.rig) { if (walking) { F.step += d * 11; setPose(F.fig.rig, 'walk', t, F.step); } else poseHero(F.fig.rig, move === 'attack' || move === 'bite' ? 'strike' : move === 'hurt' ? 'hurt' : 'ready', move === 'bite' ? 0.45 : mu, t + F.ph, 'slash'); }
-  else if (F.fig.beast) { if (walking) F.step += d * 12; F.fig.beast.update(t + F.ph, walking ? F.step : 0); }
+  else if (F.fig.beast) {
+    if (walking) F.step += d * 12;
+    const B = F.fig.beast;
+    // a beast with its own moves (One Foe's full-detail Briarmaw: pose(move, u, t)) makes them itself, the figure only
+    // carried where it goes; every other beast is leaned and turned whole, as moves.js poses it
+    if (B.pose && !walking && move !== 'idle') { B.pose({ attack: mu < 0.4 ? 'roar' : 'swipe', bite: 'bite', hurt: 'hurt', ko: 'ko' }[move] || 'idle', move === 'attack' ? Math.min(1, mu * 1.2) : mu, t + F.ph); F.body.rotation.set(0, 0, 0); F.body.scale.set(1, 1, 1); }
+    else B.update(t + F.ph, walking ? F.step : 0);
+  }
   F.root.visible = true;
 }
 
