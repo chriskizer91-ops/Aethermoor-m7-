@@ -21,6 +21,14 @@
   (never their witches, battle or story); keep M7's lore, combat, loot and gear. Plan: `docs/3d-world-plan.md`.
 - When copying assets or code from another repo, note the source repo and path in the commit message.
 
+## Several sessions at once (Chris, November 20)
+
+Five sessions build the 3D game: the hub (session one, branch `claude/brave-davinci-790efm`), three jobs alongside it
+(the Fight, Models, Places, each on `job/<name>`), and a fresh fifth that puts it together. **Every session reads
+`docs/project/README.md` (the rules), `docs/project/BOARD.md` and its own brief in `docs/project/jobs/` before
+working.** Only the hub writes the board, Chris's decisions (`docs/project/decisions.md`), his open calls
+(`docs/project/questions.md`) and this file; each job writes its own slip in `docs/project/slips/`.
+
 ## Where things are
 
 - `game/`: the game, as it was at Milestone 7. `game/ARCHITECTURE.md` is the technical contract, and
