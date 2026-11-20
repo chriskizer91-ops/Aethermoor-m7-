@@ -8,7 +8,8 @@ can share the screen with. The 39 people foes stay built by the heroes' builder 
 ## The recipe (session 6's, `prototypes/foe-hd/README.md`)
 
 - **Shape first, then detail** (Chris): a ~100,000-triangle shape model checked against the sheet's outlines from
-  front, side and back; then the detail, up to **2 or 3 million triangles** (Chris, November 20: his laptop draws 2 million). **No fuzz of tiny hairs** ("that'll look
+  front, side and back; then the detail, aimed at **about 500,000 to 1 million triangles**, more only where the detail needs it (Chris, November 20; his
+  laptop can take 2 or 3 million). **No fuzz of tiny hairs** ("that'll look
   fuzzy, but it won't look like it's supposed to"): fur, leaves, scales, plates and robes are sculpted as real shapes
   (tufts that overlap like shingles, plates, folds).
 - **The sculpt is kept as an asset Chris can look at** (Chris, November 20): in the foe's folder, compressed (Draco or
