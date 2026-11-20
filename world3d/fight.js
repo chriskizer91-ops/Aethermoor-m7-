@@ -32,7 +32,9 @@ window.addEventListener('DOMContentLoaded', () => { main().catch((e) => { consol
 async function main() {
   const $ = (id) => document.getElementById(id);
   const H = window.M7_HEROES, PL = window.W3D_PLACES, W3D = window.W3D;
-  const PHONE = matchMedia('(pointer: coarse)').matches && !matchMedia('(any-pointer: fine)').matches;
+  // a phone (a touch screen with no mouse) gets the lighter heroes and foes; ?quality=phone|high forces either (as the walk does)
+  const QP = (location.search.match(/[?&]quality=(high|phone)/) || [])[1];
+  const PHONE = QP ? QP === 'phone' : matchMedia('(pointer: coarse)').matches && !matchMedia('(any-pointer: fine)').matches;
   let toastT = 0;
   const toast = (s, name) => { const t = $('toast'); t.textContent = s; t.classList.toggle('name', !!name); t.style.opacity = 1; clearTimeout(toastT); toastT = setTimeout(() => { t.style.opacity = 0; }, name ? 3200 : 2800); };
 
