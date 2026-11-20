@@ -29,7 +29,7 @@ export function personLook(npcId) {
 }
 export function buildPerson(npcId, o = {}) {
   const P = personLook(npcId);
-  const h = buildHero('warden', {}, { H: P.H, looks: P.L, build: o.build });
+  const h = buildHero('warden', {}, { H: P.H, looks: P.L, build: o.build, lite: o.lite });
   return { ...h, name: P.name, role: P.role, id: npcId };
 }
 // everyone with a name in M7 (data/npcs.js), and the looks with no name entry (gate guards, miners...)
@@ -42,11 +42,30 @@ import * as THREE from 'three';
 import { setPose } from './model.js';
 import { Q } from './kit.js';
 export function personFigure(npcId, detail = 'light') {
-  Q.d = detail === 'high' ? 2 : 1;
-  const h = buildPerson(npcId), TALL = 1.72;
-  const root = new THREE.Group(); root.add(h.group); h.group.scale.setScalar(TALL / 1.22);
+  const L = buildLod(lite => buildPerson(npcId, { lite }), detail), h = L.hero, TALL = 1.72;
   const ph = Math.random() * 20; let step = 0;
-  const F = { root, height: TALL, rig: h.rig, hero: h, name: h.name, role: h.role, talking: false,
-    update(t, dt, walking) { if (walking) { step += dt * 7.2; setPose(h.rig, 'walk', t, step); } else setPose(h.rig, F.talking ? 'talk' : 'stand', t + ph, 0); } };
+  const F = { root: L.root, height: TALL, rig: h.rig, hero: h, lod: L, name: h.name, role: h.role, talking: false,
+    update(t, dt, walking) { const c = L.pick(); F.rig = c.rig; if (walking) { step += dt * 7.2; setPose(c.rig, 'walk', t, step); } else setPose(c.rig, F.talking ? 'talk' : 'stand', t + ph, 0); } };
   return F;
+}
+
+/* ---- detail for walkers in the world (November 20, for phones) */
+// buildLod(make, detail): make(lite) builds one figure (buildHero's result); detail is 'high' (laptops), 'light'
+// (phones), 'lite' (phones, the figure in two draws: liteFigure), 'auto' (Light within LOD.near metres of the camera,
+// Lite beyond; only the one showing is posed) or 'auto-high' (the same with High close up, for laptops). Returns { root, hero, lite, current, pick() } with every figure already
+// scaled to a grown person's height (1.72 m) inside root; call pick() each frame (it returns the figure showing).
+export const LOD = { near: 6, liteQ: 0.6 };
+export function buildLod(make, detail = 'light') {
+  const root = new THREE.Group(), TALL = 1.72;
+  const mk = (q, lite) => { const keep = Q.d; Q.d = q; const h = make(lite); Q.d = keep; h.group.scale.setScalar(TALL / 1.22); root.add(h.group); return h; };
+  if (detail !== 'auto' && detail !== 'auto-high') { const h = mk(detail === 'high' ? 2 : detail === 'lite' ? LOD.liteQ : 1, detail === 'lite'); return { root, hero: h, lite: null, current: h, pick: () => h }; }
+  const full = mk(detail === 'auto-high' ? 2 : 1, false), lite = mk(LOD.liteQ, true);
+  let cam = null; const seen = (r, s, c) => { if (c.isPerspectiveCamera) cam = c; };
+  for (const h of [full, lite]) h.group.traverse(o => { if (o.isMesh) o.onBeforeRender = seen; });
+  const p = new THREE.Vector3(), q = new THREE.Vector3();
+  const L = { root, hero: full, lite, current: lite, pick() {
+    let near = false; if (cam) { root.getWorldPosition(p); cam.getWorldPosition(q); near = p.distanceTo(q) < LOD.near; }
+    full.group.visible = near; lite.group.visible = !near; return (L.current = near ? full : lite); } };
+  lite.group.visible = true; full.group.visible = false;
+  return L;
 }
