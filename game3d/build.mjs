@@ -13,7 +13,7 @@ export const ACT_ONE = ['keep', 'keep-hall', 'hearth-road', 'thornhollow', 'thor
 // Keep and its Great Hall to start from)
 export const ACTS = {
   act1: { places: ACT_ONE, out: 'game3d-act1', name: null, foesHd: null },
-  sunscorch: { places: ['keep', 'keep-hall', 'sun-road', 'sandspire', 'dust-trail', 'dusthaven', 'deep-shaft-1', 'deep-shaft-2', 'glass-flats', 'miragewell', 'scorchgate', 'scorchgate-vaults'], out: 'game3d-sunscorch', name: 'Act Two, the Sunscorch', foesHd: 'none' },
+  sunscorch: { title: 'Hearth & Heirloom: the Sunscorch', places: ['keep', 'keep-hall', 'sun-road', 'sandspire', 'dust-trail', 'dusthaven', 'deep-shaft-1', 'deep-shaft-2', 'glass-flats', 'miragewell', 'scorchgate', 'scorchgate-vaults'], out: 'game3d-sunscorch', name: 'Act Two, the Sunscorch', foesHd: 'none' },
 };
 const pass = process.argv.slice(2);
 const has = (k) => pass.some((a) => a.startsWith('--' + k + '='));
@@ -28,3 +28,12 @@ const args = [
   ...pass.filter((a) => !/^--(places|out|act)=/.test(a)),
 ];
 execFileSync('node', args, { cwd: path.join(here, '../world3d'), stdio: 'inherit', env: process.env });
+// the page's tab title, per act (the shared builder's --name only rewrites the words "Act One")
+if (ACT.title) {
+  const { readFileSync, writeFileSync } = await import('node:fs');
+  const out = (has('out') ? pass.find((a) => a.startsWith('--out=')).split('=')[1] : ACT.out) + '-' + (has('tex') ? pass.find((a) => a.startsWith('--tex=')).split('=')[1] : '400');
+  for (const f of [`${out}.html`, `${out}.artifact.html`]) {
+    const p = path.join(here, '../world3d/dist', f);
+    writeFileSync(p, readFileSync(p, 'utf8').replace('<title>Hearth &amp; Heirloom in 3D</title>', `<title>${ACT.title.replace(/&/g, '&amp;')}</title>`));
+  }
+}
