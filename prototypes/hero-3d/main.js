@@ -18,6 +18,7 @@ import { RELICS } from '../../game/src/data/relics.js';
 import { createRng } from '../../game/src/core/rng.js';
 import { buildHero, setPose, glowColor } from './model.js';
 import { Q, TEXTURES } from './kit.js';
+import { auditList, gearFor, checkBuilt, HERO_NAMES } from './audit.js';
 
 const HEROES = [{ id: 'warden', name: 'Wren' }, { id: 'pip', name: 'Pip' }, { id: 'bryn', name: 'Bryn' }, { id: 'alondra', name: 'Alondra' }];
 const SLOT_NAME = { weapon: 'Weapon', offhand: 'Off hand', head: 'Head', body: 'Body', hands: 'Hands', feet: 'Feet', amulet: 'Amulet', ring: 'Ring' };
@@ -348,6 +349,68 @@ function loop() {
   spriteT += dt; if (spriteT > 0.31) { spriteT = 0; drawSprite(t); }
   frames++; fpsT += dt; if (fpsT > 1) { $('fps').textContent = `${Math.round(frames / fpsT)} fps · ${Math.round(S.tris / 1000)}k triangles · ${S.meshes} pieces · ${S.calls} draws · built in ${S.lastBuild} ms`; frames = 0; fpsT = 0; }
 }
+/* ------------------------------------------------------------------ the item audit */
+// Every item M7 can roll or hand out, built on the hero it suits and checked (audit.js); a small picture of each is made
+// as it scrolls into view; tap one to put it on the hero above for a close look.
+const AUD = { list: null, filter: 'all', res: new Map(), queue: [], busy: false };
+let tR = null, tScene, tCam;
+function thumbSetup() {
+  tR = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true }); tR.setSize(150, 150); tR.setPixelRatio(1); tR.toneMapping = renderer.toneMapping;
+  tScene = new THREE.Scene(); tScene.environment = new THREE.PMREMGenerator(tR).fromScene(new RoomEnvironment(), 0.04).texture; tScene.environmentIntensity = 0.6;
+  tScene.add(new THREE.HemisphereLight(0xffe8d0, 0x302018, 1.3)); const d = new THREE.DirectionalLight(0xfff0e0, 2.6); d.position.set(1, 2, 2.2); tScene.add(d);
+  tCam = new THREE.PerspectiveCamera(30, 1, 0.005, 30);
+}
+function auditOne(e, picture = true) {
+  const keepQ = Q.d; Q.d = 1; let B, flags;
+  try { B = buildHero(e.hero, gearFor(e), {}); setPose(B.rig, 'idle', 0); flags = checkBuilt(B, e); }
+  catch (err) { Q.d = keepQ; return { flags: [{ level: 'broken', text: 'error building it: ' + err.message }], img: null }; }
+  Q.d = keepQ;
+  let img = null;
+  if (picture) {
+    if (!tR) thumbSetup();
+    const R = B.rig, node = e.slot === 'weapon' ? R.weapon : e.slot === 'offhand' ? R.offhand : e.slot === 'head' ? R.head : e.slot === 'hands' || e.slot === 'ring' ? R.armL.hand : e.slot === 'feet' ? R.legs[0] : e.slot === 'amulet' ? R.chest : null;
+    tScene.add(B.group); B.group.updateMatrixWorld(true);
+    let box = new THREE.Box3().setFromObject(node || B.group); if (box.isEmpty() || e.slot === 'body') box = new THREE.Box3().setFromObject(B.group);
+    if (e.slot === 'amulet') { const c0 = R.head.getWorldPosition(new THREE.Vector3()).add(new THREE.Vector3(0, -0.2, 0.04)); box = new THREE.Box3().setFromCenterAndSize(c0, new THREE.Vector3(0.22, 0.22, 0.22)); }
+    const c = box.getCenter(new THREE.Vector3()), r = Math.max(0.06, box.getSize(new THREE.Vector3()).length() / 2);
+    const dist = r / Math.tan(THREE.MathUtils.degToRad(15)) * 1.05; tCam.position.copy(c).add(new THREE.Vector3(0.32, 0.14, 0.94).normalize().multiplyScalar(dist)); tCam.lookAt(c);
+    tR.render(tScene, tCam); img = tR.domElement.toDataURL('image/webp', 0.82);
+    tScene.remove(B.group);
+  }
+  B.group.traverse(o => o.geometry?.dispose?.());
+  return { flags, img };
+}
+const AF = [['all', 'All'], ['flagged', 'Flagged'], ['weapon', 'Weapons'], ['offhand', 'Off hand'], ['head', 'Head'], ['body', 'Body'], ['hands', 'Hands'], ['feet', 'Feet'], ['jewel', 'Amulets, rings'], ['relic', 'Relics']];
+function auditShown() {
+  return AUD.list.filter(e => AUD.filter === 'all' || (AUD.filter === 'flagged' ? (AUD.res.get(e.key)?.flags.length) : AUD.filter === 'relic' ? e.relic : AUD.filter === 'jewel' ? (e.slot === 'amulet' || e.slot === 'ring') : e.slot === AUD.filter));
+}
+function auditSummary() { const done = [...AUD.res.values()], bad = done.filter(r => r.flags.some(f => f.level === 'broken')).length, warn = done.filter(r => r.flags.length && !r.flags.some(f => f.level === 'broken')).length; $('audit-sum').textContent = `${AUD.list.length} items · ${done.length} checked so far · ${bad} broken · ${warn} to look at · tap one for a close look`; }
+function auditCard(e) {
+  const b = document.createElement('button'); b.className = 'acard'; b.dataset.k = e.key;
+  b.innerHTML = `<div class="ph"></div><span class="an"></span><span class="as"></span><span class="af"></span>`;
+  b.querySelector('.an').textContent = e.label; b.querySelector('.as').textContent = `${e.sub} · on ${HERO_NAMES[e.hero]}`;
+  b.onclick = () => { S.gears[e.hero] = gearFor(e); setHero(e.hero); lookAt(e.slot === 'weapon' ? 'weapon' : e.slot === 'offhand' && hero.rig.offhand ? 'offhand' : e.slot === 'head' ? 'face' : 'whole'); };
+  const fill = r => { const ph = b.querySelector('.ph'); if (r.img && ph.tagName !== 'IMG') { const im = new Image(); im.src = r.img; im.alt = e.label; ph.replaceWith(im); } const af = b.querySelector('.af'); af.innerHTML = r.flags.length ? r.flags.map(f => (f.level === 'broken' ? '<b>' : '<i>') + f.text.replace(/</g, '&lt;') + (f.level === 'broken' ? '</b>' : '</i>')).join('<br>') : '<span class="ok">looks right</span>'; };
+  b._fill = fill; if (AUD.res.has(e.key)) fill(AUD.res.get(e.key)); else { b._entry = e; io.observe(b); }
+  return b;
+}
+const io = new IntersectionObserver(es => { for (const x of es) if (x.isIntersecting) { io.unobserve(x.target); AUD.queue.push(x.target); } pump(); }, { rootMargin: '200px' });
+function pump() {
+  if (AUD.busy || !AUD.queue.length) return; AUD.busy = true;
+  setTimeout(() => { const b = AUD.queue.shift(); const e = b._entry; if (e && !AUD.res.has(e.key)) AUD.res.set(e.key, auditOne(e)); if (e) b._fill(AUD.res.get(e.key)); auditSummary(); AUD.busy = false; pump(); }, 16);
+}
+function drawAudit() {
+  if (!AUD.list) AUD.list = auditList();
+  const fl = $('audit-filters'); fl.innerHTML = '';
+  for (const [k, n] of AF) { const b = document.createElement('button'); b.textContent = n; b.setAttribute('aria-pressed', AUD.filter === k); b.onclick = () => { AUD.filter = k; drawAudit(); }; fl.append(b); }
+  const g = $('audit-grid'); g.innerHTML = ''; io.disconnect(); AUD.queue.length = 0;
+  for (const e of auditShown()) g.append(auditCard(e));
+  auditSummary();
+}
+$('b-audit').onclick = () => { $('auditPanel').hidden = false; $('gearPanel').hidden = true; $('b-audit').hidden = true; drawAudit(); };
+$('b-audit-back').onclick = () => { $('auditPanel').hidden = true; $('gearPanel').hidden = false; $('b-audit').hidden = false; };
+// for checks without pictures (headless): every item, flags only
+window.__audit = { thumbs(from, to) { return window.__audit.list().slice(from, to).map(e => ({ key: e.key, label: e.label, sub: e.sub, img: auditOne(e, true).img })); }, list: () => (AUD.list ||= auditList()), run(from = 0, to = 1e9) { const L = window.__audit.list().slice(from, to); return L.map(e => ({ key: e.key, hero: e.hero, flags: auditOne(e, false).flags })).filter(r => r.flags.length); } };
 window.__gear = { renderer, S, rebuild, setHero, rollFor, nextRelic, lookAt: w => lookAt(w), get hero() { return hero; }, camera, controls };
 applyDetail();
 setHero('warden');

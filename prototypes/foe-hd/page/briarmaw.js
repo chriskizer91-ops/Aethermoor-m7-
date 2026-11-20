@@ -80,7 +80,7 @@ export function makeShared(A, res) {
   const geo = decodeLight(A.lightMeta, A.lightBin);
   const mat = new THREE.MeshStandardMaterial({
     map: tex(A.tex[res].color, true), normalMap: tex(A.tex[res].normal, false), aoMap: tex(A.ao, false), aoMapIntensity: 1.0,
-    emissiveMap: tex(A.emit, true), emissive: new THREE.Color(0xffffff), emissiveIntensity: 0.9, roughness: 0.82, metalness: 0,
+    emissiveMap: tex(A.emit, true), emissive: new THREE.Color(0xffffff), emissiveIntensity: 1.3, roughness: 0.82, metalness: 0,
   });
   return { geo, mat, meta: A.lightMeta };
 }

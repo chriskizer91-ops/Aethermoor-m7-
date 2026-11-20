@@ -395,7 +395,8 @@ export function buildHero(heroKey, gear, o = {}) {
     if (robe) add(tube([V(0, -S.fore * 0.25, 0), V(0, -S.fore * 0.8, 0.01 * u), V(0, -S.fore * 1.05, 0.02 * u)], t => [lerp(ar * 1.1, ar * 1.7, t * t), lerp(ar * 1.1, ar * 1.6, t * t)], { n: 16, capA: false, capB: false }), mat(body.mat, { side: true }), elbow);
     if (kind === 'plate') { add(tube([V(0, -S.fore * 0.15, 0), V(0, -S.fore * 0.9, 0)], t => [lerp(ar * 1.05, ar * 0.8, t), lerp(ar * 1.0, ar * 0.76, t)], { n: 12 }), torsoMat, elbow); add(sph(ar * 0.95, 12, 8), torsoMat, elbow); }
     const hand = new THREE.Group(); hand.position.y = -S.fore; elbow.add(hand);
-    const grip = buildHand(hand, side, mat(gloveKey, { tint: bareTint }), gloves, u * S.hand, fx, gripRadius(L, side, uw));
+    const grip = buildHand(hand, side, mat(gloveKey, { tint: bareTint }), gloves, u * S.hand, fx, gripRadius(L, side, uw), side === 1 ? L.ring : null);
+    if (side === 1 && L.ring) rig.ring = true;
     // pauldrons: three lames over the shoulder
     const pk = body?.pauldrons || (kind === 'plate' ? body.mat : null);
     if (pk) for (let k = 0; k < 3; k++) { const r = ar * (2.0 - k * 0.22); const p = add(sph(r, 18, 10, 0, TAU, 0, Math.PI * 0.42), mat(pk, { side: true }), sh, side * 0.006 * u, 0.025 * u - k * 0.03 * u, 0); p.rotation.z = -side * (0.35 + k * 0.12); p.scale.set(1.1, 0.75, 1); if (body?.trim && k === 0) add(tube(ellipse(V(0, Math.cos(Math.PI * 0.42) * r, 0), V(1, 0, 0), V(0, 0, 1), Math.sin(Math.PI * 0.42) * r, Math.sin(Math.PI * 0.42) * r, 24), 0.005 * u, { closed: true, n: 6 }), mat(body.trim), p); }
@@ -459,12 +460,13 @@ export function buildHero(heroKey, gear, o = {}) {
   /* ---- the amulet on its chain */
   if (L.amulet) {
     const A2 = L.amulet, cy = S.shY - 0.13 * u, [w, d] = torsoAt(S, cy), off = kind === 'plate' ? 0.05 : kind === 'mail' ? 0.02 : 0.014;
-    const pts = []; for (let i = 0; i <= 16; i++) { const a = lerp(-1, 1, i / 16); const yy = lerp(neckTop - 0.02 * u, cy, 1 - a * a); const [ww, dd] = torsoAt(S, yy); pts.push(V(a * ww * 0.55, yy, Math.sqrt(1 - (a * 0.55) ** 2) * ww * dd + off * u + (1 - a * a) * 0.006 * u)); }
-    for (let i = 0; i < pts.length - 1; i++) { const m = pts[i].clone().lerp(pts[i + 1], 0.5), l = add(ring(0.006 * u, 0.0016 * u, 10), mat(A2.chain || 'gold'), chest, m.x, m.y, m.z); l.lookAt(chest.localToWorld(pts[i + 1].clone())); l.rotation.z += i % 2 ? Math.PI / 2 : 0; }
-    const pd = new THREE.Group(); pd.position.set(0, cy - 0.012 * u, w * d + off * u + 0.01 * u); chest.add(pd);
-    add(lathe([[0, 0.004 * u], [0.022 * u, 0.003 * u], [0.024 * u, 0], [0.022 * u, -0.003 * u], [0, -0.004 * u]], { n: 24 }), mat(A2.metal || 'gold'), pd).rotation.x = Math.PI / 2;
-    if (A2.style === 'sun') for (let i = 0; i < 12; i++) { const a = i / 12 * TAU; const ray = add(wedge([[0, -0.004 * u], [0.014 * u, 0], [0, 0.004 * u]], 0.003 * u), mat(A2.metal || 'gold'), pd, Math.cos(a) * 0.024 * u, Math.sin(a) * 0.024 * u, 0); ray.rotation.z = a; }
-    gem(A2.gem, 0.011 * u, pd, 0, 0, 0.005 * u, A2.metal || 'gold');
+    // over a mantle or pelt, not under it (November 20 audit: the chain vanished under Alondra's mantle)
+    const mantled = (H.mantle || H.pelt) && look !== 'hood' && look !== 'coif', mTop = S.neckY + 0.01 * u, mBot = S.shY - 0.085 * u;
+    const overM = yy => (mantled && yy > mBot - 0.01 * u ? (0.018 + 0.022 * clamp01((mTop - yy) / (mTop - mBot))) * u + 0.006 * u : 0);
+    const pts = []; for (let i = 0; i <= 16; i++) { const a = lerp(-1, 1, i / 16); const yy = lerp(neckTop - 0.02 * u, cy, 1 - a * a); const [ww, dd] = torsoAt(S, yy); pts.push(V(a * ww * 0.55, yy, Math.sqrt(1 - (a * 0.55) ** 2) * ww * dd + Math.max(off * u, overM(yy)) + (1 - a * a) * 0.006 * u)); }
+    for (let i = 0; i < pts.length - 1; i++) { const m = pts[i].clone().lerp(pts[i + 1], 0.5), l = add(ring((A2.style === 'office' ? 0.009 : 0.006) * u, (A2.style === 'office' ? 0.0028 : 0.0016) * u, 10), mat(A2.chain || 'gold'), chest, m.x, m.y, m.z); l.lookAt(chest.localToWorld(pts[i + 1].clone())); l.rotation.z += i % 2 ? Math.PI / 2 : 0; }
+    const pd = new THREE.Group(); pd.position.set(0, cy - 0.016 * u, Math.max(w * d + off * u, w * d + overM(cy)) + 0.012 * u); chest.add(pd);
+    buildPendant(pd, { ...(arts.amulet?.p || {}), ...A2 }, u, fx);
   }
 
   /* ---- High detail: stitches, rivets, straps and a pouch */
@@ -654,6 +656,84 @@ export function liteFigure(group, rig) {
   return draws;
 }
 
+
+/* ------------------------------------------------------------------ pendants (November 20 audit: every style its own) */
+// The amulet's own shape from its art (art/item-looks.js): a sun, a seal, a seed, an orrery, a lens, a heart, a bell, a
+// cage of ribs, a coin, a deep-sea pearl, a chain of office; anything else a disc with its gem. Faces +z, hangs at 0.
+function buildPendant(pd, P, u, fx) {
+  const metal = P.metal || 'gold', M = mat(metal), s = u * (P.scale || 1), st = P.style;
+  const glowM = key => { const c = glowColor(key || 'ember'); const m = new THREE.MeshStandardMaterial({ color: c, emissive: c, emissiveIntensity: 1.6 }); return m; };
+  const glowOn = (o, key, power = 0.6) => fx.glows.push({ obj: o, color: glowColor(key || 'ember'), power });
+  const disc = (r, t = 0.004, m = M) => add(lathe([[0, t * s], [r * 0.92 * s, t * 0.8 * s], [r * s, 0], [r * 0.92 * s, -t * 0.8 * s], [0, -t * s]], { n: 28 }), m, pd).rotation.x = Math.PI / 2;
+  const ringAt = (r, t, m = M, z = 0) => add(tor(r * s, t * s, 6, 28), m, pd, 0, 0, z * s);
+  if (st === 'sun') {
+    disc(0.024); ringAt(0.024, 0.003, mat(P.frame || metal));
+    for (let i = 0; i < 12; i++) { const a = i / 12 * TAU, long = i % 2 === 0; add(wedge([[0, -0.004 * s], [(long ? 0.018 : 0.011) * s, 0], [0, 0.004 * s]], 0.003 * s), mat(P.rays || metal), pd, Math.cos(a) * 0.024 * s, Math.sin(a) * 0.024 * s, 0).rotation.z = a; }
+    if (P.core && isEmit(P.core)) glowOn(add(sph(0.006 * s, 10, 8), glowM(P.core), pd, 0, 0, 0.004 * s), P.core);
+    if (P.glyph) glowOn(ringAt(0.017, 0.0012, glowM(P.glyph), 0.004), P.glyph, 0.4);
+    gem(P.gem, 0.011 * s, pd, 0, 0, 0.006 * s, metal);
+  } else if (st === 'seal') {
+    disc(0.026, 0.006); ringAt(0.026, 0.003, mat(P.frame || metal));
+    for (let i = 0; i < 8; i++) { const a = i / 8 * TAU; add(new THREE.BoxGeometry(0.004 * s, 0.009 * s, 0.002 * s), mat(P.frame || metal), pd, Math.cos(a) * 0.019 * s, Math.sin(a) * 0.019 * s, 0.006 * s).rotation.z = a; }
+    if (P.glyph) glowOn(ringAt(0.014, 0.0013, glowM(P.glyph), 0.006), P.glyph, 0.4);
+    gem(P.gem, 0.01 * s, pd, 0, 0, 0.007 * s, metal);
+  } else if (st === 'seed') {
+    // a seed like a teardrop of thorn-wood, veins of light, a leaf and a bud at its stem
+    const sd = add(lathe([[0, -0.034 * s], [0.012 * s, -0.026 * s], [0.017 * s, -0.012 * s], [0.015 * s, 0.002 * s], [0.007 * s, 0.012 * s], [0, 0.016 * s]], { n: 20 }), mat(P.seed || 'thorn'), pd, 0, -0.01 * s, 0); sd.scale.z = 0.7;
+    if (P.veins && P.glow) for (let i = 0; i < 3; i++) glowOn(add(tube(curve([V((i - 1) * 0.006 * s, 0.004 * s, 0.011 * s), V((i - 1) * 0.008 * s, -0.016 * s, 0.012 * s), V((i - 1) * 0.004 * s, -0.036 * s, 0.006 * s)], 8), 0.0012 * s, { n: 4 }), glowM(P.glow), pd), P.glow, 0.3);
+    add(tube(curve([V(0, 0.006 * s, 0), V(0.002 * s, 0.016 * s, 0), V(-0.002 * s, 0.024 * s, 0)], 6), 0.0018 * s, { n: 5 }), mat(P.stem || 'moss'), pd);
+    add(wedge([[0, 0], [0.008 * s, 0.006 * s], [0.016 * s, 0.004 * s], [0.008 * s, -0.002 * s]], 0.0015 * s), mat(P.leaf || 'moss', { side: true }), pd, 0.001 * s, 0.018 * s, 0.002 * s).rotation.z = 0.3;
+    if (P.bud) glowOn(add(sph(0.004 * s, 8, 6), glowM(P.bud), pd, -0.003 * s, 0.025 * s, 0), P.bud, 0.3);
+    gem(P.gem, 0.006 * s, pd, 0, 0.004 * s, 0.012 * s, metal);
+  } else if (st === 'orrery') {
+    // an armillary: a storm-glass core, rings at three tilts, a planet riding one of them
+    glowOn(add(sph(0.009 * s, 14, 10), P.core ? glowM(P.core) : mat(P.gem || 'stormglass'), pd), P.core || 'storm', 0.6);
+    for (const [rx, ry] of [[0, 0], [1.1, 0.3], [0.5, 1.2]]) { const r = add(tor(0.022 * s, 0.0016 * s, 6, 32), M, pd); r.rotation.set(rx, ry, 0); }
+    add(sph(0.004 * s, 10, 8), mat(P.planet || 'topaz'), pd, 0.022 * s, 0, 0);
+    add(tube([V(0, 0.022 * s, 0), V(0, 0.03 * s, 0)], 0.0015 * s, { n: 5 }), M, pd);
+  } else if (st === 'lens') {
+    ringAt(0.022, 0.0035); add(new THREE.CylinderGeometry(0.02 * s, 0.02 * s, 0.003 * s, 28), mat(P.lens || 'glass'), pd).rotation.x = Math.PI / 2;
+    if (P.water) glowOn(add(new THREE.CylinderGeometry(0.012 * s, 0.012 * s, 0.0035 * s, 20), glowM(P.water), pd), P.water, 0.4);
+    if (P.runes) for (let i = 0; i < 10; i++) { const a = i / 10 * TAU; add(new THREE.BoxGeometry(0.002 * s, 0.005 * s, 0.002 * s), glowM(P.runes), pd, Math.cos(a) * 0.027 * s, Math.sin(a) * 0.027 * s, 0).rotation.z = a; }
+  } else if (st === 'heart') {
+    const hs = new THREE.Shape(); hs.moveTo(0, -0.026 * s); hs.bezierCurveTo(0.03 * s, -0.006 * s, 0.018 * s, 0.02 * s, 0, 0.008 * s); hs.bezierCurveTo(-0.018 * s, 0.02 * s, -0.03 * s, -0.006 * s, 0, -0.026 * s);
+    const hg = new THREE.ExtrudeGeometry(hs, { depth: 0.01 * s, bevelEnabled: true, bevelThickness: 0.003 * s, bevelSize: 0.003 * s, bevelSegments: 3, curveSegments: 16 }); hg.translate(0, 0, -0.005 * s);
+    add(hg, mat(P.stone || 'amber'), pd);
+    if (P.core) glowOn(add(sph(0.006 * s, 10, 8), glowM(P.core), pd, 0, -0.004 * s, 0.006 * s), P.core, 0.7);
+    add(tube([V(-0.012 * s, 0.012 * s, 0.002 * s), V(0, 0.004 * s, 0.009 * s), V(0.012 * s, 0.012 * s, 0.002 * s)], 0.0016 * s, { n: 5 }), M, pd);
+  } else if (st === 'bell') {
+    add(lathe([[0, 0.018 * s], [0.006 * s, 0.016 * s], [0.01 * s, 0.006 * s], [0.013 * s, -0.008 * s], [0.017 * s, -0.016 * s], [0, -0.014 * s]], { n: 24 }), mat(metal, { side: true }), pd);
+    add(tor(0.017 * s, 0.0015 * s, 6, 24), mat(P.trim || 'silver'), pd, 0, -0.016 * s, 0).rotation.x = Math.PI / 2;
+    add(sph(0.004 * s, 8, 6), mat(P.clapper || 'silver'), pd, 0, -0.019 * s, 0);
+    if (P.crack) glowOn(add(tube([V(0.004 * s, 0.012 * s, 0.008 * s), V(0.002 * s, 0.002 * s, 0.011 * s), V(0.006 * s, -0.01 * s, 0.014 * s)], 0.0009 * s, { n: 4 }), glowM(P.crack), pd), P.crack, 0.3);
+    gem(P.gem, 0.004 * s, pd, 0, 0.012 * s, 0.006 * s, P.trim || metal);
+  } else if (st === 'ribs') {
+    // a cage of black iron ribs round a burning stone
+    glowOn(add(sph(0.012 * s, 14, 10), mat(P.stone || 'ruby'), pd), P.core || 'ember', 0.7);
+    if (P.core) add(sph(0.007 * s, 10, 8), glowM(P.core), pd);
+    for (let i = 0; i < 6; i++) { const a = i / 6 * Math.PI; const r = add(tor(0.016 * s, 0.0018 * s, 6, 20, Math.PI * 1.6), M, pd); r.rotation.set(0, a, Math.PI * 0.7); }
+    add(tube([V(0, 0.016 * s, 0), V(0, 0.026 * s, 0)], 0.0022 * s, { n: 5 }), M, pd);
+  } else if (st === 'coin') {
+    add(new THREE.CylinderGeometry(0.02 * s, 0.02 * s, 0.004 * s, 28), M, pd).rotation.x = Math.PI / 2; ringAt(0.019, 0.0015);
+    for (let i = 0; i < 5; i++) add(new THREE.BoxGeometry(0.0015 * s, 0.012 * s, 0.002 * s), mat('dark'), pd, (i - 2) * 0.004 * s, 0, 0.002 * s).rotation.z = i === 4 ? 1.1 : 0;
+  } else if (st === 'deep') {
+    // a pearl in a nest of coral and barnacles, its light from the deep
+    add(sph(0.012 * s, 16, 12), mat(P.pearl || 'pearl'), pd);
+    if (P.glow && isEmit(P.glow)) glowOn(add(sph(0.014 * s, 12, 8), Object.assign(glowM(P.glow), { transparent: true, opacity: 0.35 }), pd), P.glow, 0.5);
+    for (let i = 0; i < 6; i++) { const a = i / 6 * TAU; add(tube(curve([V(Math.cos(a) * 0.01 * s, Math.sin(a) * 0.01 * s, -0.004 * s), V(Math.cos(a) * 0.02 * s, Math.sin(a) * 0.02 * s, 0), V(Math.cos(a + 0.3) * 0.024 * s, Math.sin(a + 0.3) * 0.024 * s, 0.006 * s)], 6), t => 0.0025 * s * (1 - t * 0.6), { n: 5 }), mat(P.coral || 'rotwood'), pd); }
+    for (let i = 0; i < 5; i++) { const a = i / 5 * TAU + 0.4; add(cone(0.003 * s, 0.004 * s, 6), mat(P.barnacles && MAT[P.barnacles] ? P.barnacles : 'bone'), pd, Math.cos(a) * 0.016 * s, Math.sin(a) * 0.016 * s, 0.004 * s).rotation.x = Math.PI / 2; }
+  } else if (st === 'office') {
+    // a mayor's badge: a heavy medallion, a stone of violet-black glass, a ring of tally cuts that glow
+    disc(0.03, 0.006); ringAt(0.03, 0.004);
+    if (P.tally) for (let i = 0; i < 16; i++) { const a = i / 16 * TAU; glowOn(add(new THREE.BoxGeometry(0.0016 * s, 0.006 * s, 0.002 * s), glowM(P.tally), pd, Math.cos(a) * 0.023 * s, Math.sin(a) * 0.023 * s, 0.006 * s), P.tally, 0.05); }
+    gem(P.gem, 0.013 * s, pd, 0, 0, 0.008 * s, metal);
+    if (P.glow) glowOn(add(sph(0.006 * s, 10, 8), glowM(P.glow), pd, 0, 0, 0.01 * s), P.glow, 0.5);
+  } else {
+    disc(0.024); ringAt(0.024, 0.0025, mat(P.frame || metal));
+    gem(P.gem, 0.011 * s, pd, 0, 0, 0.006 * s, metal);
+  }
+}
+
 /* ------------------------------------------------------------------ a hand closed round a grip */
 // how thick the grip is that this hand closes round (the right holds the weapon, the left a bow or a shield's handle)
 function gripRadius(L, side, uw) {
@@ -668,7 +748,7 @@ function gripRadius(L, side, uw) {
 
 // The fist's grip runs along the hand's local z (the weapon's +Y is turned onto it), across the palm, which faces in
 // toward the body; the fingers curl round it and the thumb closes over them.
-function buildHand(hand, side, m, gloves, u, fx, gr = 0.012) {
+function buildHand(hand, side, m, gloves, u, fx, gr = 0.012, ring = null) {
   const med = -side; // toward the middle of the body
   const pw = 0.042 * u, pl = 0.06 * u, pd = 0.018 * u;
   // the grip's centre: against the palm, as far out as the grip is thick (the fist opens round a thick haft)
@@ -680,6 +760,15 @@ function buildHand(hand, side, m, gloves, u, fx, gr = 0.012) {
     const rad = (0.0068 - f * 0.0004) * u, z = (f - 1.5) * 0.0175 * u, R = gr + rad * 0.95;
     const pts = []; for (let i = 0; i <= 8; i++) { const a = lerp(0.2, 4.2, i / 8); pts.push(V(gc.x - med * Math.cos(a) * R, gc.y + Math.sin(a) * R * 0.95 - 0.004 * u, z * (1 + i * 0.01) + gc.z)); }
     add(tube(curve(pts, 12), t => rad * (1 - t * 0.2), { n: 8 }), m, hand);
+  }
+  // a ring on the ring finger (November 20: rings were never shown): a band round the finger where it leaves the palm,
+  // its gem facing out
+  if (ring) {
+    const f = 2, rad = (0.0068 - f * 0.0004) * u, z = (f - 1.5) * 0.0175 * u + gc.z, R = gr + rad * 0.95, a = 0.55;
+    const p = V(gc.x - med * Math.cos(a) * R, gc.y + Math.sin(a) * R * 0.95 - 0.004 * u, z), along = V(med * Math.sin(a), Math.cos(a) * 0.95, 0).normalize(), out = V(-med * Math.cos(a), Math.sin(a), 0).normalize();
+    const metal = ring.metal || ring.mat || ring.p?.metal || 'gold', band = add(tor(rad * 1.2, rad * 0.32, 6, 16), mat(metal), hand, p.x, p.y, p.z);
+    band.quaternion.setFromUnitVectors(V(0, 0, 1), along);
+    const g = ring.gem || ring.p?.gem; if (g) gem(g, rad * 0.75, hand, p.x + out.x * rad * 1.4, p.y + out.y * rad * 1.4, p.z, metal, out);
   }
   // thumb over the fingers
   { const tr = 0.0085 * u, Rt = gr + tr * 0.9, pts = [V(-med * 0.004 * u, -0.022 * u, 0.026 * u)]; for (let i = 0; i <= 6; i++) { const a = lerp(-0.2, 2.1, i / 6); pts.push(V(gc.x - med * Math.cos(a) * Rt, gc.y + Math.sin(a) * Rt, gc.z + 0.034 * u - i * 0.002 * u)); } add(tube(curve(pts, 12), t => tr * (1 - t * 0.25), { n: 8 }), m, hand); }

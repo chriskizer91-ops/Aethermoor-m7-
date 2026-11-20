@@ -95,7 +95,6 @@ function buttons() {
 function refresh() {
   for (const b of document.querySelectorAll('#moves button')) b.setAttribute('aria-pressed', b.dataset.k === S.move);
   $('turn').setAttribute('aria-pressed', S.turn); $('crowd').setAttribute('aria-pressed', S.crowd);
-  $('sculpt').setAttribute('aria-pressed', S.sculpt);
   $('stands').hidden = S.crowd; $('crowdnote').hidden = !S.crowd;
 }
 $('turn').onclick = () => { S.turn = !S.turn; refresh(); };
@@ -104,23 +103,6 @@ $('crowd').onclick = () => {
   if (S.crowd) buildCrowd();
   crowd.group.visible = S.crowd; for (const s of stands) s.g.visible = !S.crowd;
   frame(); refresh();
-};
-$('sculpt').onclick = async () => {
-  if (!A.sculptBin) { $('sculptnote').hidden = false; return; }
-  S.sculpt = !S.sculpt;
-  if (S.sculpt && !sculptMesh) {
-    $('sculpt').textContent = 'Loading…';
-    await new Promise((r) => setTimeout(r, 30));
-    const g = decodeSculpt(A.sculptMeta, A.sculptBin);
-    sculptMesh = new THREE.Mesh(g, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.82 }));
-    sculptMesh.castShadow = true; sculptMesh.receiveShadow = true;
-    stands[2].top.add(sculptMesh); $('sculpt').textContent = 'The sculpt';
-  }
-  sculptMesh.visible = S.sculpt; hd.group.visible = !S.sculpt;
-  $('hdname').textContent = S.sculpt ? 'The sculpt itself' : 'Full detail (light version)';
-  $('hdtris').textContent = S.sculpt ? `${A.sculptMeta.triangles.toLocaleString()} triangles` : `${hdNote.tris.toLocaleString()} triangles`;
-  $('hdhow').textContent = S.sculpt ? 'What the light version is baked from. Too heavy to have many of on screen.' : 'Baked from the sculpt: its surface, shading and colour in three pictures.';
-  refresh();
 };
 
 function frame() {
@@ -187,7 +169,6 @@ function loop() {
   $('cuttris').textContent = `${triCount(cut.group).toLocaleString()} triangles (flat cards)`;
   $('hdtris').textContent = `${hdNote.tris.toLocaleString()} triangles`;
   $('sculptfrom').textContent = `${A.lightMeta.sculptTriangles.toLocaleString()}`;
-  if (!A.sculptBin) $('sculpt').textContent = 'The sculpt (laptop page)';
   refresh(); resize();
   if (new URLSearchParams(location.search).has('crowd')) $('crowd').onclick();
   window.__ready = true;
