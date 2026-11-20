@@ -32,7 +32,8 @@ def data_url(path, mime=None):
 def palette(path):
     """five colours from a sprite: dark, body, light, a second colour, and its brightest glow"""
     im = Image.open(path).convert('RGBA')
-    px = [p[:3] for p in im.get_flattened_data() if hasattr(im, 'get_flattened_data') else im.getdata() if p[3] > 200] or [(128, 128, 128)]
+    pixels = im.get_flattened_data() if hasattr(im, 'get_flattened_data') else im.getdata()
+    px = [p[:3] for p in pixels if p[3] > 200] or [(128, 128, 128)]
     lum = lambda c: c[0] * .3 + c[1] * .59 + c[2] * .11
     sat = lambda c: (max(c) - min(c)) / (max(c) + 1)
     px.sort(key=lum)
