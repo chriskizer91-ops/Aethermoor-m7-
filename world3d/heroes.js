@@ -3,7 +3,7 @@
 import * as T from 'three';
 import { mergeGeometries, mergeVertices } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { buildHero, setPose } from '../prototypes/hero-3d/model.js';
-import { buildPerson, PEOPLE } from '../prototypes/hero-3d/people.js';
+import { buildPerson, PEOPLE, buildLod, LOD } from '../prototypes/hero-3d/people.js';
 import { Q } from '../prototypes/hero-3d/kit.js';
 import { generateItem, relicItem } from '../game/src/rules/loot.js';
 import { HERO_ART } from '../game/src/art/hero-looks.js';
@@ -31,12 +31,14 @@ export function rollOutfit(id, rarity) {
   return g;
 }
 // actor(id, gear, detail): what the borrowed walker asks of whoever walks: root, walkRun, animate(phase, walking, time, dt)
+// detail: 'high' (laptops), 'light' (phones), 'lite' (phones: the hero in two draws) or 'auto' (Light near the camera,
+// Lite beyond LOD.near metres; only the one showing is posed). A.hero is the Light/High figure; A.lod.current is the one
+// showing.
 export function actor(id, gear, detail = 'high') {
-  Q.d = detail === 'high' ? 2 : 1;
-  const H = buildHero(id, gear, {});
-  const root = new T.Group(); root.add(H.group); H.group.scale.setScalar(TALL / 1.22);
-  const A = { id, root, hero: H, walkRun: false, camera: null, step: 0, strike: -1,
+  const Ld = buildLod(lite => buildHero(id, gear, { lite }), detail), H = Ld.hero, root = Ld.root;
+  const A = { id, root, hero: H, lod: Ld, walkRun: false, camera: null, step: 0, strike: -1,
     animate(phase, walking, t, dt) {
+      const H = { rig: Ld.pick().rig };
       H.rig.run = A.walkRun;
       if (A.strike >= 0) { A.strike += dt / 0.75; setPose(H.rig, 'strike', t, Math.min(1, A.strike)); if (A.strike >= 1) A.strike = -1; return; }
       if (walking > 0.5) { A.step += dt * (A.walkRun ? 11 : 7.2); setPose(H.rig, 'walk', t, A.step); }
@@ -47,16 +49,15 @@ export function actor(id, gear, detail = 'high') {
 // person(npcId, detail): one of M7's townsfolk as a walker, the same shape as actor(); standing it shifts its weight and
 // looks round, A.talking = true makes it talk with its hands, walking it walks
 export function person(npcId, detail = 'high') {
-  Q.d = detail === 'high' ? 2 : 1;
-  const H = buildPerson(npcId, {});
-  const root = new T.Group(); root.add(H.group); H.group.scale.setScalar(TALL / 1.22);
-  const A = { id: npcId, name: H.name, role: H.role, root, hero: H, rig: H.rig, height: TALL, walkRun: false, talking: false, step: 0, phase: Math.random() * 20,
+  const Ld = buildLod(lite => buildPerson(npcId, { lite }), detail), H = Ld.hero, root = Ld.root;
+  const A = { lod: Ld, id: npcId, name: H.name, role: H.role, root, hero: H, rig: H.rig, height: TALL, walkRun: false, talking: false, step: 0, phase: Math.random() * 20,
     update(t, dt, walking) { A.animate(0, walking ? 1 : 0, t, dt); },
     animate(phase, walking, t, dt) {
-      H.rig.run = A.walkRun;
-      if (walking > 0.5) { A.step += dt * (A.walkRun ? 11 : 7.2); setPose(H.rig, 'walk', t, A.step); }
-      else setPose(H.rig, A.talking ? 'talk' : 'stand', t + A.phase, 0);
+      const R = Ld.pick().rig; A.rig = R;
+      R.run = A.walkRun;
+      if (walking > 0.5) { A.step += dt * (A.walkRun ? 11 : 7.2); setPose(R, 'walk', t, A.step); }
+      else setPose(R, A.talking ? 'talk' : 'stand', t + A.phase, 0);
     } };
   return A;
 }
-window.M7_HEROES = { actor, person, PEOPLE, starterKit, rollOutfit, HEROES: [['warden', 'Wren'], ['pip', 'Pip'], ['bryn', 'Bryn'], ['alondra', 'Alondra']] };
+window.M7_HEROES = { actor, person, PEOPLE, LOD, starterKit, rollOutfit, HEROES: [['warden', 'Wren'], ['pip', 'Pip'], ['bryn', 'Bryn'], ['alondra', 'Alondra']] };

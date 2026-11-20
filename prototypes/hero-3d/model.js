@@ -11,7 +11,7 @@ import * as THREE from 'three';
 import { MAT } from '../../game/src/art/forge.js';
 import { HERO_ART } from '../../game/src/art/hero-looks.js';
 import { itemArt, lookFor, RARITY_LOOK, ASPECT_LOOK, SLOTS, rarityTier } from '../../game/src/art/item-looks.js';
-import { V, lerp, smooth, clamp01, loft, ellipse, tube, curve, lathe, wedge, plate, blade, mat, glowColor, isEmit, sRGB, KIND, Q, sph, tor, cone, ico, bake, etchMaterial, stitchGeo, add, gem, rngOf, ring, FACES, TEXTURES } from './kit.js';
+import { V, lerp, smooth, clamp01, loft, ellipse, tube, curve, lathe, wedge, plate, blade, mat, glowColor, isEmit, sRGB, KIND, Q, sph, tor, cone, ico, bake, etchMaterial, stitchGeo, add, gem, rngOf, ring, FACES, TEXTURES, mergeGeometries } from './kit.js';
 import { buildWeapon, buildOffhand } from './weapons.js';
 
 export { glowColor };
@@ -303,6 +303,7 @@ export function buildHero(heroKey, gear, o = {}) {
   const blind = !!H.blindfold;
   const faceM = new THREE.MeshPhysicalMaterial({ roughness: 0.55, sheen: 0.4, sheenRoughness: 0.5, sheenColor: skinM.sheenColor });
   faceM.map = faceName ? paintedFace(faceName) : faceTexture(H, H.skin, H.hairMat, { blind, big: S.chibi });
+  faceM.userData.face = true;
   const skull = sph(r, 64, 40);
   { const p = skull.attributes.position; for (let i = 0; i < p.count; i++) { let x = p.getX(i), y = p.getY(i), z = p.getZ(i); const low = clamp01(-y / r); const k = 1 - low * low * 0.3 * (z > 0 ? 1 : 0.6); x *= k * 0.94; z *= (z > 0 ? 1 - low * 0.05 : 1.04); if (z > 0) z += low * low * r * 0.08 * (1 - Math.abs(x) / r); y *= 1.06; p.setXYZ(i, x, y, z); } skull.computeVertexNormals(); }
   add(skull, faceM, head);
@@ -405,6 +406,7 @@ export function buildHero(heroKey, gear, o = {}) {
   if (rig.weapon) keep.add(rig.weapon);
   if (rig.offhand) { keep.add(rig.offhand); if (rig.offhand.userData.float) keep.add(rig.offhand.userData.float); }
   rig.draws = bake(group, keep);
+  if (o.lite) rig.draws = liteFigure(group, rig);
   root.scale.setScalar(SHOWN_H / S.total);
   rig.scale = SHOWN_H / S.total;
   setPose(rig, 'idle', 0);
@@ -470,6 +472,76 @@ function buildFoeLooks({ H, rig, S, u, r, head, chest, root, look, wrap, kind, r
   if (H.icicles) for (let k = 0; k < 7; k++) { const a = (k - 3) * 0.22; add(cone(r * 0.04, r * 0.35, 5), mat(H.icicles), head, Math.sin(a) * r * 0.8, -r * 1.0, Math.cos(a) * r * 0.7).rotation.x = Math.PI; }
   // the Hollow Council hold the gift: a light in the off hand
   if (H.giftHeld && !L.offhand) { const o = add(sph(0.035 * u, 16, 12), glow('arcane', 2.2), rig.armL.hand, 0, -0.08 * u, 0.02 * u); fx.glows.push({ obj: o, color: glowColor('arcane'), power: 0.9 }); }
+}
+
+/* ------------------------------------------------------------------ the lite figure, for phones (November 20) */
+// liteFigure(group, rig): the whole figure in two draws. Every piece (already joined by material into the nodes that
+// move) is merged into one skinned mesh whose "bones" are those same nodes, so setPose moves it exactly as before; each
+// piece keeps its own colour, shine, roughness and glow per vertex (one material for everything), and the face keeps its
+// picture in a second mesh. The grain pictures and small see-through decals are left off. Returns the draw count.
+const LITE_MAT = (() => {
+  let m = null;
+  return () => {
+    if (m) return m;
+    m = new THREE.MeshStandardMaterial({ vertexColors: true, side: THREE.DoubleSide, roughness: 1, metalness: 1 });
+    m.onBeforeCompile = sh => {
+      sh.vertexShader = sh.vertexShader.replace('void main() {', 'attribute vec2 mr; attribute vec3 em; varying vec2 vMr; varying vec3 vEm;\nvoid main() {\nvMr = mr; vEm = em;');
+      sh.fragmentShader = sh.fragmentShader.replace('void main() {', 'varying vec2 vMr; varying vec3 vEm;\nvoid main() {')
+        .replace('#include <metalnessmap_fragment>', '#include <metalnessmap_fragment>\nmetalnessFactor = vMr.x;')
+        .replace('#include <roughnessmap_fragment>', '#include <roughnessmap_fragment>\nroughnessFactor = vMr.y;')
+        .replace('#include <emissivemap_fragment>', '#include <emissivemap_fragment>\ntotalEmissiveRadiance = vEm;');
+    };
+    m.customProgramCacheKey = () => 'aeth-lite';
+    return m;
+  };
+})();
+const AVG = new WeakMap();
+function averageOf(tex) {
+  if (AVG.has(tex)) return AVG.get(tex);
+  const src = tex.image, c = document.createElement('canvas'); c.width = c.height = 8; const g = c.getContext('2d'); g.drawImage(src, 0, 0, 8, 8);
+  const d = g.getImageData(0, 0, 8, 8).data; let r = 0, gg = 0, b = 0, n = 0; for (let i = 0; i < d.length; i += 4) if (d[i + 3] > 128) { r += d[i]; gg += d[i + 1]; b += d[i + 2]; n++; }
+  const col = new THREE.Color().setRGB(r / n / 255, gg / n / 255, b / n / 255, THREE.SRGBColorSpace);
+  AVG.set(tex, col); return col;
+}
+export function liteFigure(group, rig) {
+  group.updateMatrixWorld(true);
+  const G = group.matrixWorld.clone(), Gi = G.clone().invert();
+  const bones = [], index = new Map(), main = [], face = [];
+  const meshes = []; group.traverse(o => { if (o.isMesh && !o.isSkinnedMesh) meshes.push(o); });
+  const c = new THREE.Color();
+  for (const o of meshes) {
+    const m = o.material, owner = o.parent || group; // the node it moved with
+    owner.remove(o);
+    if (m.transparent && !m.userData.face) continue; // etched runes, glass glints: left off
+    let bi = index.get(owner);
+    if (bi === undefined) { bi = bones.length; bones.push(owner); index.set(owner, bi); }
+    const g = (o.geometry.index ? o.geometry.toNonIndexed() : o.geometry.clone());
+    g.applyMatrix4(new THREE.Matrix4().multiplyMatrices(Gi, o.matrixWorld));
+    const n = g.attributes.position.count;
+    const si = new Uint16Array(n * 4), sw = new Float32Array(n * 4);
+    for (let i = 0; i < n; i++) { si[i * 4] = bi; sw[i * 4] = 1; }
+    g.setAttribute('skinIndex', new THREE.Uint16BufferAttribute(si, 4)); g.setAttribute('skinWeight', new THREE.Float32BufferAttribute(sw, 4));
+    if (m.userData.face) { for (const k of Object.keys(g.attributes)) if (!['position', 'normal', 'uv', 'skinIndex', 'skinWeight'].includes(k)) g.deleteAttribute(k); face.push({ g, m }); continue; }
+    const grain = m.userData.grain ? 0.9 : 1;
+    c.copy(m.color || new THREE.Color(1, 1, 1)).multiplyScalar(grain);
+    if (m.map?.image?.getContext) c.multiply(averageOf(m.map)); // a painted face (a shield's heraldry): its average colour
+    const col = new Float32Array(n * 3), mr = new Float32Array(n * 2), em = new Float32Array(n * 3);
+    const e = m.emissive ? m.emissive.clone().multiplyScalar(m.emissiveIntensity ?? 1) : new THREE.Color(0, 0, 0);
+    for (let i = 0; i < n; i++) { col[i * 3] = c.r; col[i * 3 + 1] = c.g; col[i * 3 + 2] = c.b; mr[i * 2] = m.metalness ?? 0; mr[i * 2 + 1] = m.roughness ?? 0.8; em[i * 3] = e.r; em[i * 3 + 1] = e.g; em[i * 3 + 2] = e.b; }
+    for (const k of Object.keys(g.attributes)) if (!['position', 'normal', 'skinIndex', 'skinWeight'].includes(k)) g.deleteAttribute(k);
+    g.setAttribute('color', new THREE.Float32BufferAttribute(col, 3)); g.setAttribute('mr', new THREE.Float32BufferAttribute(mr, 2)); g.setAttribute('em', new THREE.Float32BufferAttribute(em, 3));
+    main.push(g);
+  }
+  // the bones are the nodes that move; their inverses are taken now, in the same pose the pieces were laid in
+  group.updateMatrixWorld(true);
+  const inverses = bones.map(b => new THREE.Matrix4().multiplyMatrices(Gi, b.matrixWorld).invert());
+  const skeleton = new THREE.Skeleton(bones, inverses);
+  let draws = 0;
+  const skinned = (geo, mat) => { const sm = new THREE.SkinnedMesh(geo, mat); sm.bind(skeleton, new THREE.Matrix4()); sm.castShadow = sm.receiveShadow = true; sm.frustumCulled = false; group.add(sm); draws++; return sm; };
+  if (main.length) skinned(mergeGeometries(main, false), LITE_MAT());
+  if (face.length) { const fm = face[0].m, mat = new THREE.MeshStandardMaterial({ map: fm.map, roughness: 0.6 }); skinned(mergeGeometries(face.map(f => f.g), false), mat); }
+  rig.lite = true;
+  return draws;
 }
 
 /* ------------------------------------------------------------------ a hand closed round a grip */
