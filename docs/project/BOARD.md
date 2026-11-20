@@ -8,7 +8,7 @@ Where the 3D game stands. Written by the hub only. Last updated November 20, lat
 |---|---|---|---|---|---|
 | 1 | the hub | `session_01DgbUKb6orvjjc1cMgBGPJK` | `claude/brave-davinci-790efm` | running | (the board) |
 | 2 | The Fight | `session_01DgbUKYR9qmKyBdACUWGViw` | `job/fight` | step 3 well along: every Act One fight on one page (28), cameras clear indoors, status auras, swallow, guest ally, charm, the Legend Strike close-up, phone fight 152 draws (was 278); next: Twinned splits, the toll, the region event fights | https://claude.ai/artifact/Q9T8quXCTVgiVUZoMuUaP4 |
-| 3 | Models | `session_01DgbUKcWh5MEvjHnxzp4HHo` | `job/models` | the item audit done and brought in (all 458 items M7 hands out, on their heroes, none flagged; rings, relic pendants, tempered glow fixed); next: capes, hair and gear that swing | https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL |
+| 3 | Models | `session_01DgbUKcWh5MEvjHnxzp4HHo` | `job/models` | things that swing done and brought in (capes, hair, skirts, quivers, pouches and charms on springs, in every detail level, no extra draws) | https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL |
 | 4 | Places | `session_01DgbUKZVFBfm1dVautXEw5f` | `job/places` | roofs back to crisp textures coloured from the painting, chimneys; the light figures on every page; all brought in, Act One republished | https://claude.ai/artifact/GBxRVSqwMwYUTy1xLNjATA |
 | 5 | Together | `session_01DgbUKbyjzZFe1BXHHxzHBn` | `job/together` | the spoils, the Party room and the light figures in the game; an end-of-Act-One run (the Rotwarden, the second Brand, home, the Council) being checked before republishing | https://claude.ai/artifact/RaeSK5hezqb3qH7jmuM5aj |
 | 6 | One Foe | `session_01DgbUKZCNBFY7zwSzwAXR8y` | `job/foe-hd` | the foe kit done and brought in (`prototypes/foe-hd/README.md`: sculpt helpers, sheet checks, bake, rigs, packing, loader, moves, one `setBeastLook` for every finished foe, the sculpt viewer); Briarmaw rebuilt through it; next: its lane, the briarling first | https://claude.ai/artifact/5iUqJsPw3NGrvun4Ng73eh |
@@ -70,6 +70,10 @@ Where the 3D game stands. Written by the hub only. Last updated November 20, lat
 
 - **The foes, from now:** every beast in full detail (sessions 6, 7, 8; `docs/project/jobs/foes.md`). Models' sculpted
   and painted beasts stand in until each full-detail one lands; Models keeps the heroes and the people.
+
+- **Known break on the hub's branch:** the fight page doesn't build since the foe kit moved Briarmaw's assets
+  (`prototypes/foe-hd/assets/` → `foes/briarmaw/`); the Fight is switching to the kit's `foeLook`. The published
+  fight page is unaffected.
 
 ## Next for the hub
 
