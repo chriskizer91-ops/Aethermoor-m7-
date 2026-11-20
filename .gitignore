@@ -1,0 +1,5 @@
+node_modules/
+game/tools/shots/
+game/dist/aethermoor.html
+game/dist/aethermoor.artifact.html
+prototypes/*/dist/
