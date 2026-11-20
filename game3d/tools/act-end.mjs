@@ -97,6 +97,18 @@ check(!!story['council-done'], `the Council sits (${Object.keys(story).filter((k
 const saved = await E(() => { const g = JSON.parse(localStorage.getItem('aethermoor.save.3d') || 'null'); return g && { brands: g.progress.brands, council: !!g.progress.flags.story['council-done'], m7: localStorage.getItem('aethermoor.save.m7') }; });
 check(saved && saved.council && saved.brands.length === 2 && saved.m7 === null, `saved under the 3D game's own key (${JSON.stringify(saved)})`);
 await page.waitForTimeout(1500); await shot('after-council');
+// the menu's Party: M7's Party screen with the hero turning in 3D (the Fight's party room), then back to walking
+await page.click('#menubtn').catch(() => {});
+await page.waitForSelector('.ov-pause', { timeout: 10000 }).catch(() => {});
+await page.click('.pause-party').catch(() => {});
+await page.waitForSelector('#fight.party-room .screen-party', { timeout: 30000 }).catch(() => {});
+await page.waitForTimeout(3000);
+check(await E(() => !!document.querySelector('#fight.party-room .screen-party') && !!document.querySelector('#fight .f3-has-turn canvas')), 'the menu opens the Party with the hero in 3D');
+await shot('party');
+await page.click('#fight .screen-party button.back').catch(() => {});
+await page.waitForFunction(() => document.getElementById('fight').hidden, null, { timeout: 20000 }).catch(() => {});
+await settle();
+check(await E(() => document.getElementById('fight').hidden && !window.__g3.world.busy), 'back from the Party to the walk');
 
 console.log('\n' + results.map(([ok, w]) => (ok ? 'PASS ' : 'FAIL ') + w).join('\n'));
 console.log(`${results.filter((r) => r[0]).length} of ${results.length} passed in ${((Date.now() - t0) / 1000).toFixed(0)} s`);
