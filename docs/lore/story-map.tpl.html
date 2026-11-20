@@ -1,0 +1,78 @@
+<title>Aethermoor Story Map</title>
+<style>
+:root{color-scheme:dark;--ink:#0b0910;--soot:#120e0c;--soot2:#1b1511;--seam:#3f3229;--parch:#ecdfc3;--ash:#b4a48c;--hot:#ffcb66}
+*{box-sizing:border-box}html,body{margin:0;background:var(--soot);color:var(--parch);font:16px/1.5 Georgia,serif}
+header{padding:14px 16px 6px;max-width:1200px;margin:0 auto}h1{margin:0;font-size:26px}header p{margin:4px 0 0;color:var(--ash);font-size:15px}
+.wrap{max-width:1200px;margin:0 auto;padding:0 16px 24px;display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:14px}
+.mapbox{align-self:start;position:relative;overflow:auto;border-radius:8px;box-shadow:0 0 0 2px var(--ink),0 0 0 4px var(--seam);background:#0a1830;max-height:78vh}
+.map{position:relative;width:100%;aspect-ratio:3/2}.map.zoom{width:220%}
+.map img{position:absolute;inset:0;width:100%;height:100%;display:block}
+.map svg{position:absolute;inset:0;width:100%;height:100%}
+.pin{position:absolute;width:30px;height:30px;margin:-15px 0 0 -15px;border:0;background:none;padding:0;cursor:pointer;display:grid;place-items:center}
+.pin i{width:16px;height:16px;border-radius:50%;border:2px solid #0b0910;box-shadow:0 0 0 2px rgba(255,255,255,.75),0 2px 6px rgba(0,0,0,.7)}
+.pin.built i{width:20px;height:20px;box-shadow:0 0 0 3px #fff,0 0 12px #fff}
+.pin.on i{transform:scale(1.35);box-shadow:0 0 0 3px var(--hot),0 0 18px var(--hot)}
+.pin.dim{opacity:.18}
+.map.zoom .pin{width:44px;height:44px;margin:-22px 0 0 -22px}
+.list{display:flex;flex-wrap:wrap;gap:6px}.list button{min-height:44px;padding:0 10px;font:14px system-ui;color:var(--parch);background:var(--soot2);border:1px solid var(--seam);border-left:4px solid;border-radius:6px;cursor:pointer;text-align:left}.list button.on{background:#2e2216;color:var(--hot)}
+.lab{position:absolute;transform:translate(-50%,14px);font:600 12px system-ui;color:#fff;text-shadow:0 1px 3px #000,0 0 6px #000;white-space:nowrap;pointer-events:none}
+.map:not(.zoom) .lab.small{display:none}
+.tools{position:absolute;right:8px;top:8px;display:flex;gap:6px;z-index:3}
+button.t{min-height:44px;padding:0 12px;font:600 14px system-ui;color:var(--parch);background:rgba(18,14,12,.85);border:1px solid var(--seam);border-radius:8px;cursor:pointer}
+button.t[aria-pressed=true]{border-color:var(--hot);color:var(--hot)}
+aside{display:flex;flex-direction:column;gap:10px}
+.acts{display:flex;flex-wrap:wrap;gap:6px}
+.card{background:var(--soot2);padding:14px;border-radius:8px;box-shadow:0 0 0 2px var(--ink),0 0 0 3px var(--seam)}
+.card h2{margin:0 0 2px;font-size:21px}.card .reg{font:13px system-ui;color:var(--ash);margin-bottom:8px}
+.card h3{font:600 12px system-ui;letter-spacing:.08em;text-transform:uppercase;color:var(--ash);margin:10px 0 2px}
+.card p{margin:0;font-size:15px}.card .body.built{color:#d8f0c0}.card .body.todo{color:#f0d0a0}
+.key{font:13px system-ui;color:var(--ash)}.key span{display:inline-flex;align-items:center;gap:6px;margin-right:12px}.key i{width:12px;height:12px;border-radius:50%;display:inline-block}
+.decide{background:#241a12;border-left:3px solid var(--hot)}.decide li{margin:4px 0;font-size:15px}
+@media (max-width:860px){.wrap{grid-template-columns:1fr}.mapbox{max-height:none}}
+</style>
+<header><h1>Aethermoor: the story on the map</h1><p>M7's story, places and order, set on your atlas of Aethermoor (the same land the 3D continent is built from). Tap a place for what happens there, which finished 3D place can be it, and what changed. A proposal.</p></header>
+<div class="wrap">
+  <div class="mapbox"><div class="tools"><button class="t" id="zoom" aria-pressed="false">Zoom</button></div>
+    <div class="map" id="map"><img src="ATLAS_URL" alt="Chris's atlas of Aethermoor"><svg id="routes" viewBox="0 0 4608 3072" preserveAspectRatio="none"></svg></div></div>
+  <aside>
+    <div class="acts" id="acts"></div>
+    <div class="key"><span><i style="background:#fff;box-shadow:0 0 6px #fff"></i>a finished 3D place can be it</span><span><i style="background:#888"></i>to build</span></div>
+    <div class="card" id="card"></div>
+    <div class="list" id="list"></div>
+    <div class="card decide"><b>Your calls</b><ul>
+      <li><b>Frostmere earlier.</b> On this map the frozen lake is on the road up to the peaks, so Hush and the Rime-Abbot come before Ironhold instead of at the far end. Keep it, or move Frostmere back past Stormwatch?</li>
+      <li><b>The Hearth Road runs west.</b> M7's "Hearth Road North" becomes a boat from the Keep and a road west. Rename it, or keep "North"?</li>
+      <li><b>Fawnrest and the Highfold</b> no longer join (the mountains are across the sea). Fine?</li>
+      <li><b>The Mother's Hollow:</b> keep M7's own name, though Envoi and Moon Faire retired it from their lore?</li>
+      <li><b>Envoi's places with no M7 place</b> (Dawnroost, the Warm Roads camp, the dead Moonwell's own story): left as scenery, or new stops?</li>
+    </ul></div>
+  </aside>
+</div>
+<script>
+const D = /*DATA*/;
+const $ = id => document.getElementById(id), map = $('map'), svg = $('routes');
+const R = D.regions, P = Object.fromEntries(D.places.map(p => [p.id, p]));
+let actOn = 'all', sel = 'keep';
+// the roads, dashed in each region's colour
+for (const [rg, ids] of D.routes) { const pts = ids.map(i => P[i].at.join(',')).join(' '); const pl = document.createElementNS('http://www.w3.org/2000/svg', 'polyline'); pl.setAttribute('points', pts); pl.setAttribute('fill', 'none'); pl.setAttribute('stroke', R[rg].color); pl.setAttribute('stroke-width', '16'); pl.setAttribute('stroke-dasharray', '40 24'); pl.setAttribute('stroke-linecap', 'round'); pl.setAttribute('opacity', '.9'); pl.dataset.region = rg; svg.append(pl);
+  const sh = pl.cloneNode(); sh.setAttribute('stroke', '#000'); sh.setAttribute('stroke-width', '26'); sh.setAttribute('opacity', '.45'); sh.removeAttribute('stroke-dasharray'); svg.insertBefore(sh, pl); }
+// the pins
+for (const p of D.places) {
+  const b = document.createElement('button'); b.className = 'pin' + (p.body ? ' built' : ''); b.style.left = (p.at[0] / 4608 * 100) + '%'; b.style.top = (p.at[1] / 3072 * 100) + '%'; b.dataset.id = p.id; b.setAttribute('aria-label', p.name);
+  const i = document.createElement('i'); i.style.background = p.body ? R[p.region].color : '#7a7a7a'; i.style.borderColor = R[p.region].color; b.append(i); b.onclick = () => show(p.id); map.append(b);
+  const l = document.createElement('div'); l.className = 'lab' + (['keep', 'thornhollow', 'bogmire', 'sandspire', 'peaks-veil', 'ironhold', 'eldergrove'].includes(p.id) ? '' : ' small'); l.style.left = b.style.left; l.style.top = b.style.top; l.textContent = p.name.replace(/ and .*/, ''); l.dataset.id = p.id; map.append(l);
+}
+function show(id) {
+  sel = id; const p = P[id], r = R[p.region];
+  $('card').innerHTML = `<h2>${p.name}</h2><div class="reg" style="color:${r.color}">${r.name} · ${r.act}</div><h3>What happens here</h3><p>${p.beat}</p><h3>Its 3D place</h3><p class="body ${p.body ? 'built' : 'todo'}">${p.body ? p.body : 'To build (with the same engine and your textures)'}</p><h3>What changed from M7</h3><p>${p.change}</p>`;
+  for (const b of map.querySelectorAll('.pin')) b.classList.toggle('on', b.dataset.id === id);
+  for (const b of $('list').children) b.classList.toggle('on', b.dataset.id === id);
+}
+function drawList() { $('list').innerHTML = ''; for (const p of D.places) { if (actOn !== 'all' && p.region !== actOn) continue; const b = document.createElement('button'); b.textContent = p.name; b.dataset.id = p.id; b.style.borderLeftColor = R[p.region].color; b.onclick = () => show(p.id); if (p.id === sel) b.classList.add('on'); $('list').append(b); } }
+// the acts, as filters
+const acts = [['all', 'Everything'], ['keep', 'Prologue'], ['verdant', 'Act I'], ['gloomfen', 'Gloomfen'], ['ironspire', 'Ironspire'], ['sunscorch', 'Sunscorch'], ['below', 'Act III']];
+for (const [k, label] of acts) { const b = document.createElement('button'); b.className = 't'; b.textContent = label; b.setAttribute('aria-pressed', k === 'all'); if (k !== 'all') b.style.borderColor = R[k].color; b.onclick = () => { actOn = k; for (const x of $('acts').children) x.setAttribute('aria-pressed', x === b); filter(); const first = D.places.find(p => k === 'all' || p.region === k); if (first) show(first.id); }; $('acts').append(b); }
+function filter() { for (const b of map.querySelectorAll('.pin')) b.classList.toggle('dim', actOn !== 'all' && P[b.dataset.id].region !== actOn && P[b.dataset.id].region !== 'keep'); for (const l of svg.querySelectorAll('polyline')) l.style.display = actOn === 'all' || l.dataset.region === actOn ? '' : 'none'; drawList(); }
+$('zoom').onclick = () => { const z = map.classList.toggle('zoom'); $('zoom').setAttribute('aria-pressed', z); if (z) { const p = P[sel]; const box = map.parentElement; box.scrollLeft = p.at[0] / 4608 * map.offsetWidth - box.clientWidth / 2; box.scrollTop = p.at[1] / 3072 * map.offsetHeight - box.clientHeight / 2; } };
+drawList(); show('keep');
+</script>
