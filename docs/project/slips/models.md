@@ -45,6 +45,15 @@ https://claude.ai/artifact/CA6CcAKVHSxGPB5TAZF5sY (commit c32ec2f; page version 
   `act.fall` (0 to 1, posed by update) and `hit()`. `hasStandee(key)` says whether a sheet exists (all 54 do).
 - Size: the Bestiary page is now 10.4 MB (standees 5 MB inside it).
 
+**The 39 people foes made as good as the heroes.** The Bestiary (People): https://claude.ai/artifact/CA6CcAKVHSxGPB5TAZF5sY
+- They already wore Chris's gear textures (same builder); now their faces read from across a fight (features half again
+  as big, a scowl and stubble on the rough ones, face paint), and the looks their sprites carry that the 3D builder
+  ignored are built: scarves and neckerchiefs, masks, shadowed faces with glowing eyes (the Tallymen, the Hollowed
+  Rangers), head-wraps and turbans, antlers, feathers, buns, emblems, bandoliers of vials, satchels, sacks, ledgers and
+  coin purses, lanterns at the belt, bone charms, the Hollow Council's held light, their own trousers, boots and buckles,
+  a dwarf build. A coif of cloth or leather is now a hood of that stuff, not shiny mail. The heroes have none of these
+  looks, so they are unchanged.
+
 ## Next
 
 - Paused (the hub, November 20): more 3D reshaping waits until Chris chooses painted or 3D. Then: the Champions and Relic-Bearers beyond Act One (Kharzul, Mother Anvil, the Rime-Abbot, the
