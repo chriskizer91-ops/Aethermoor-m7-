@@ -50,7 +50,8 @@ export function person(npcId, detail = 'high') {
   Q.d = detail === 'high' ? 2 : 1;
   const H = buildPerson(npcId, {});
   const root = new T.Group(); root.add(H.group); H.group.scale.setScalar(TALL / 1.22);
-  const A = { id: npcId, name: H.name, role: H.role, root, hero: H, walkRun: false, talking: false, step: 0, phase: Math.random() * 20,
+  const A = { id: npcId, name: H.name, role: H.role, root, hero: H, rig: H.rig, height: TALL, walkRun: false, talking: false, step: 0, phase: Math.random() * 20,
+    update(t, dt, walking) { A.animate(0, walking ? 1 : 0, t, dt); },
     animate(phase, walking, t, dt) {
       H.rig.run = A.walkRun;
       if (walking > 0.5) { A.step += dt * (A.walkRun ? 11 : 7.2); setPose(H.rig, 'walk', t, A.step); }

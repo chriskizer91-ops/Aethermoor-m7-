@@ -68,6 +68,10 @@ https://claude.ai/artifact/CA6CcAKVHSxGPB5TAZF5sY (commit c32ec2f; page version 
   `talking = true` makes it talk, walking it walks. Also on `window.M7_HEROES.person` and `M7_HEROES.PEOPLE` (every id).
   The builder underneath: `prototypes/hero-3d/people.js` `buildPerson(npcId, { build })` (buildHero's result plus
   `name`, `role`) and `personLook(npcId)`. `npcId` is a place's `people[].npc` (an `NPCS` id); an art key works too.
+- For Together's `game3d/figures.js`: `prototypes/hero-3d/people.js` `personFigure(npcId, detail = 'light')` has
+  exactly the shape of its `person()` (`{ root, height, rig, update(t, dt, walking) }`, plus `talking`, `name`,
+  `role`), so it switches in by name: `import { personFigure as person } from '../prototypes/hero-3d/people.js'`.
+  (heroes.js `person()` carries `rig`, `height` and `update(t, dt, walking)` too.)
 - Size: heroes.js now reads the map sprites' looks, so a world page grows about 0.6 MB (Act One's Keep and Thornhollow:
   10.2 MB at --tex=768).
 

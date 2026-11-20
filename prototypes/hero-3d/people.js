@@ -34,3 +34,19 @@ export function buildPerson(npcId, o = {}) {
 }
 // everyone with a name in M7 (data/npcs.js), and the looks with no name entry (gate guards, miners...)
 export const PEOPLE = [...new Set([...Object.keys(NPCS), ...Object.keys(NPC_LOOKS)])];
+
+// personFigure(npcId, detail = 'light'): the same shape as Together's game3d/figures.js person() ({ root, height, rig,
+// update(t, dt, walking) }), so it can be switched in by name; standing it stands about, fig.talking = true makes it
+// talk, walking it walks. (world3d/heroes.js person() is the same person in actor()'s walker shape.)
+import * as THREE from 'three';
+import { setPose } from './model.js';
+import { Q } from './kit.js';
+export function personFigure(npcId, detail = 'light') {
+  Q.d = detail === 'high' ? 2 : 1;
+  const h = buildPerson(npcId), TALL = 1.72;
+  const root = new THREE.Group(); root.add(h.group); h.group.scale.setScalar(TALL / 1.22);
+  const ph = Math.random() * 20; let step = 0;
+  const F = { root, height: TALL, rig: h.rig, hero: h, name: h.name, role: h.role, talking: false,
+    update(t, dt, walking) { if (walking) { step += dt * 7.2; setPose(h.rig, 'walk', t, step); } else setPose(h.rig, F.talking ? 'talk' : 'stand', t + ph, 0); } };
+  return F;
+}
