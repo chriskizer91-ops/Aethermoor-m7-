@@ -162,7 +162,9 @@
         const q = tries.shift();
         if (!q) { used[t.id] = 'none'; tex.image = W3D.flatImage(t.flat || [128, 128, 128]); tex.needsUpdate = true; return res(); }
         // a made texture counts only when the page carries it (the build put it inside); otherwise the stand-in
-        if (q[0] === 'made' && !/^data:/.test(q[1])) { next(); return; }
+        // (Aethermoor, hub, November 20) or when the build put it beside the page as a file (build.mjs --files): only a
+        // source path the build never touched ("./...", "../...") falls back to the stand-in
+        if (q[0] === 'made' && !/^data:/.test(q[1]) && /^\.\.?\//.test(q[1])) { next(); return; }
         const im = new Image();
         im.onload = () => { tex.image = im; tex.needsUpdate = true; used[t.id] = q[0]; res(); };
         im.onerror = next; im.src = q[1];
@@ -349,7 +351,7 @@
           vec3 pcol = toLin(texture2D(tPaintM, vec2(pu.x, 1.0 - pu.y)).rgb);
           float own = dot(sqrt(max(alb, vec3(0.0))), vec3(0.3333)) / max(dot(sqrt(toLin(uTint)), vec3(0.3333)), 0.05);
           float upk = smoothstep(0.25, 0.6, n.y) * step(0.0, pu.x) * step(pu.x, 1.0) * step(0.0, pu.y) * step(pu.y, 1.0);
-          alb = mix(alb, pcol * clamp(0.55 + own * 0.9, 0.7, 1.35), uPaintMix * upk);
+          alb = mix(alb, pcol * clamp(0.1 + own * 1.35, 0.3, 2.0), uPaintMix * upk);   // the texture's own light and dark kept crisp
         #endif
         float sh = shade(vW);
         vec3 c = alb * (nightLight(vW, n, sh) + lampLight(vW, n) * uGlowUse) * uLit + alb * (1.0 - uLit) + toLin(uEmis);

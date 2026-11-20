@@ -3,5 +3,10 @@
   "private": true,
   "type": "module",
   "description": "Briarmaw in full detail: the sculpt, the light version baked from it, and the side-by-side page.",
-  "devDependencies": { "esbuild": "0.28.2", "three": "0.170.0", "meshoptimizer": "0.22.0" }
+  "devDependencies": {
+    "esbuild": "0.28.2",
+    "three": "0.170.0",
+    "meshoptimizer": "0.22.0",
+    "@gltf-transform/cli": "4.3.0"
+  }
 }

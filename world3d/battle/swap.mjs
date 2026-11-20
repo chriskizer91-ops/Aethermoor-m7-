@@ -8,7 +8,8 @@
 //                                       the field knows a command (a drink, a guard) before its events play
 // Nothing else is swapped, and only for the battle screen: every other importer of those files gets M7's own.
 import path from 'node:path';
-import { readFileSync } from 'node:fs';
+import { readFileSync, existsSync, mkdirSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -31,7 +32,30 @@ const trimPack = {
   },
 };
 
-export default [trimPack, {
+// One Foe's full-detail Briarmaw (prototypes/foe-hd, session 6): its assets as one module, 'fight-briarmaw-assets',
+// shaped as its page/assets.js A. His colour and surface pictures go in at 1024 px (shrunk once into .cache) to keep
+// the page under 16 MB; the sculpt (the laptop-only high version) stays out.
+const HD = path.join(here, '..', '..', 'prototypes', 'foe-hd', 'assets'), CACHE = path.join(here, '..', '.cache', 'foe-hd');
+function shrink(name, px) {
+  const out = path.join(CACHE, `${px}-${name}`);
+  if (!existsSync(out)) { mkdirSync(CACHE, { recursive: true }); execFileSync('python3', ['-I', '-c', `import sys\nfrom PIL import Image\nim=Image.open(sys.argv[1]);im.load();im=im.resize((${px},${px}),Image.LANCZOS);im.save(sys.argv[2],quality=82,method=6)`, path.join(HD, name), out]); }
+  return out;
+}
+const uri = (f) => 'data:image/webp;base64,' + readFileSync(f).toString('base64');
+const briarmawAssets = {
+  name: 'aethermoor-fight-briarmaw',
+  setup(b) {
+    b.onResolve({ filter: /^fight-briarmaw-assets$/ }, () => ({ path: 'fight-briarmaw-assets', namespace: 'fight-hd' }));
+    b.onLoad({ filter: /.*/, namespace: 'fight-hd' }, () => {
+      const meta = readFileSync(path.join(HD, 'light.json'), 'utf8'), bin = readFileSync(path.join(HD, 'light.bin')).toString('base64');
+      return { loader: 'js', contents: `const b = atob(${JSON.stringify(bin)}), lightBin = new Uint8Array(b.length); for (let i = 0; i < b.length; i++) lightBin[i] = b.charCodeAt(i);
+export const A = { lightMeta: ${meta}, lightBin, tex: { 1024: { color: ${JSON.stringify(uri(shrink('color-2048.webp', 1024)))}, normal: ${JSON.stringify(uri(shrink('normal-2048.webp', 1024)))} } },
+  ao: ${JSON.stringify(uri(path.join(HD, 'ao-1024.webp')))}, emit: ${JSON.stringify(uri(path.join(HD, 'emit-256.webp')))}, sculptMeta: null, sculptBin: null };` };
+    });
+  },
+};
+
+export default [trimPack, briarmawAssets, {
   name: 'aethermoor-fight-swap',
   setup(b) {
     b.onResolve({ filter: /^(\.\.\/battle\/(stage|party|tray)|\.\.\/\.\.\/rules\/battle)\.js$/ }, (a) => {

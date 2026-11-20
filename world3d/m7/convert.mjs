@@ -208,8 +208,9 @@ async function convert(id) {
     };
   });
 
-  // ---- (Places, step 4) the roofs' own painting: each building's roof rows (its H tiles) stretched over its whole footprint,
-  // so the front wall row's painted façade (doors, windows, a stall's wares) isn't laid on the roof; blank elsewhere ----
+  // ---- (Places, step 4) the roofs' colours: each building's footprint in one flat colour, the average of its roof rows
+  // (its H tiles) in the painting, blank elsewhere. The roof keeps its own crisp texture and takes only this colour
+  // (hub, November 20: the painting stretched over a roof read blurry, and its dormers and gables smeared) ----
   const roofJobs = rects(BLD).map(([i0, j0, i1, j1]) => {
     let hEnd = j0; for (let j = j0; j <= j1; j++) if ([...Array(i1 - i0 + 1)].some((_, k) => rows[j][i0 + k] === 'H')) hEnd = j + 1;
     return [i0, j0, i1 + 1, Math.max(j0 + 1, hEnd), i0, j0, i1 + 1, j1 + 1];
@@ -222,7 +223,9 @@ out=Image.new('RGB',(W,H),(96,92,88))
 for a in json.loads(sys.argv[3]):
     s=[round(a[0]*kx),round(a[1]*ky),round(a[2]*kx),round(a[3]*ky)]; d=[a[4],a[5],a[6],a[7]]
     pad=0.3; d=[round((d[0]-pad)*kx),round((d[1]-pad)*ky),round((d[2]+pad)*kx),round((d[3]+pad)*ky)]
-    out.paste(im.crop(s).resize((max(1,d[2]-d[0]),max(1,d[3]-d[1])),Image.LANCZOS),(d[0],d[1]))
+    px=sorted(im.crop(s).resize((24,24),Image.BOX).getdata(),key=lambda q:q[0]*0.3+q[1]*0.55+q[2]*0.15); px=px[len(px)//4:len(px)*9//10]
+    m=[sum(q[k] for q in px)/len(px) for k in range(3)]; g=sum(m)/3; c=tuple(max(0,min(255,round(g+(v-g)*1.35))) for v in m)
+    out.paste(Image.new('RGB',(max(1,d[2]-d[0]),max(1,d[3]-d[1])),c),(d[0],d[1]))
 out.save(sys.argv[2],quality=80,method=6)`, webp, roofFile, JSON.stringify(roofJobs)]);
 
   // ---- the walls: runs of # and * that aren't a house's front ----

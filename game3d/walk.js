@@ -35,6 +35,12 @@ import { playBrandBanner, playCrownwalls, showLetter, playCouncil, showToBeConti
 import { reliquaryLine } from '../game/src/ui/screens/codex.js';
 import { person, foe, artOf } from './figures.js';
 
+// what a hero wears, as M7's game holds it (inventory ids to items); empty slots keep the starting look
+export function gearFor(game, id) {
+  const h = game.party.roster[id], g = {};
+  for (const [slot, iid] of Object.entries(h?.gear || {})) g[slot] = iid ? (game.inventory || []).find((it) => it.id === iid) || null : null;
+  return g;
+}
 export const TX = 50, TY = 40;          // a tile in a place's painting px (world3d/m7/convert.mjs)
 const IDLE_TICK_MS = 400, SAVE_EVERY = 20;
 const YAW = { s: 0, n: Math.PI, e: Math.PI / 2, w: -Math.PI / 2 };
@@ -75,23 +81,21 @@ export function createWorld(o) {
 
   // ---- the heroes, in their M7 gear ----
   // what each hero wears, as M7's game holds it (inventory ids to items); empty slots keep the starting look
-  function gearOf(id) {
-    const h = game.party.roster[id], g = {};
-    for (const [slot, iid] of Object.entries(h?.gear || {})) g[slot] = iid ? (game.inventory || []).find((it) => it.id === iid) || null : null;
-    return g;
-  }
+  const gearOf = (id) => gearFor(game, id);
   const gearKey = (id) => JSON.stringify(game.party.roster[id]?.gear || {});
   function actor(id, detail) {
     const k = id + ':' + detail + ':' + gearKey(id);
     return made[k] || (made[k] = H.actor(id, gearOf(id), detail));
   }
   const leadId = () => game.party.active[0] || 'warden';
-  W3D.witch = (id) => actor(id, o.phone ? 'light' : 'high');
+  // detail (Models' light figures): on a phone the leader 'auto' and everyone else 'lite'; on a laptop 'auto-high' and 'auto'
+  const D = o.phone ? { lead: 'auto', rest: 'lite' } : { lead: 'auto-high', rest: 'auto' };
+  W3D.witch = (id) => actor(id, D.lead);
   function dressParty() {
     if (!Wk) return;
     for (const f of followers) Wk.P.scene.remove(f.root);
     Wk.setWho(leadId()); leader = W3D.witch(leadId());
-    followers = game.party.active.slice(1).map((id) => actor(id, 'light'));
+    followers = game.party.active.slice(1).map((id) => actor(id, D.rest));
     for (const f of followers) Wk.P.scene.add(f.root);
     party.set(leader, followers);
   }
@@ -158,7 +162,7 @@ export function createWorld(o) {
       if (standing.has(e.id)) continue;
       let fig = null;
       try {
-        if (e.kind === 'npc') fig = person(e.npc, 'light');
+        if (e.kind === 'npc') fig = person(e.npc, D.rest);
         else { const sp = ENCOUNTERS[e.enc]?.spawns?.[0]; fig = foe(sp ? artOf(sp.family) : 'cutpurse', 'light'); }
       } catch (err) { console.error(err); continue; }
       placeFig(fig, e.at[0], e.at[1], e.face || 's');
@@ -399,12 +403,15 @@ export function createWorld(o) {
       case 'encounter': return encounterFlow(e.id);
       case 'gate': return gateFlow(e);
       case 'lock': return lockFlow(e);
-      case 'trigger': return dialogueFlow(e.dialogue);
+      case 'trigger': {
+        if (leader) { leader.talking = true; if (leader.face) leader.face('talk', 30); }
+        try { return await dialogueFlow(e.dialogue); } finally { if (leader) { leader.talking = false; if (leader.face) leader.face('neutral', 0.1); } }
+      }
       case 'talk': {
         // the one spoken to turns to the party and talks (Models' townsfolk gesture while .talking is true)
         const who = e.npc && [...standing.values()].find((q) => q.e.npc === e.npc);
-        if (who) { who.fig.talking = true; if (leader) { const p = who.fig.root.position, L = leader.root.position; who.fig.root.rotation.y = Math.atan2(L.x - p.x, L.z - p.z); } }
-        try { return await dialogueFlow(e.dialogue, { enc: e.enc }); } finally { if (who) who.fig.talking = false; }
+        if (who) { who.fig.talking = true; if (who.fig.face) who.fig.face('talk', 30); if (leader) { const p = who.fig.root.position, L = leader.root.position; who.fig.root.rotation.y = Math.atan2(L.x - p.x, L.z - p.z); } }
+        try { return await dialogueFlow(e.dialogue, { enc: e.enc }); } finally { if (who) { who.fig.talking = false; if (who.fig.face) who.fig.face('neutral', 0.1); } }
       }
       case 'sign': await openMessage(ctx, { text: e.text }); return null;
       case 'use': return useFlow(e);
@@ -678,6 +685,18 @@ export function createWorld(o) {
       for (const s of [...standing.values()]) { if (!Wk.P.scene.children.includes(s.fig.root)) standing.delete(s.e.id); }
     },
     pause(on) { if (Wk) Wk.pause(on); },
+    // the spoils: a hero who put something on is re-dressed on the field there and then (arena.swapHero)
+    redress(g, arena) {
+      const before = {}; for (const id of game.party.active) before[id] = gearKey(id);
+      game = g;
+      for (const id of game.party.active) {
+        if (before[id] === gearKey(id)) continue;
+        const A = id === leadId() ? W3D.witch(id) : actor(id, D.rest);
+        if (arena && arena.on) arena.swapHero(id, A);
+        if (id === leadId()) leader = A; else { const i = game.party.active.indexOf(id) - 1; if (i >= 0) followers[i] = A; }
+        o.toast(`${game.party.roster[id]?.name?.split(' ')[0] || id} puts it on`);
+      }
+    },
     pressA, openMenu, save, target,
     // the headless playthrough's hooks (tools/play.mjs)
     teleport(x, y, face) { const [px, py] = centre(x, y); walk = { ...walk, x, y, face: face || walk.face }; Wk.setIo(px, py, YAW[face] ?? Wk.io.yaw); blocked = null; },
@@ -719,7 +738,7 @@ export function createWorld(o) {
 
   async function afterReturn(params, was) {
     const brand = params.brand;
-    if (brand) { await playBrandBanner(ctx, brand, game); if (brand.first !== false && CROWNWALL.open?.brand === brand.id) await playCrownwalls(ctx); }
+    if (brand) { for (const A of [leader, ...followers]) if (A && A.face) A.face('cheer', 4); await playBrandBanner(ctx, brand, game); if (brand.first !== false && CROWNWALL.open?.brand === brand.id) await playCrownwalls(ctx); }
     if (params.rematch) o.toast('A rematch: the Brand is already yours.');
     if (params.wokeAt) o.toast(`You wake at ${HEARTHS[params.wokeAt]?.name || ENCOUNTERS[params.wokeAt]?.name || 'the Hearthfire'}.`);
     const enc = was?.enc || params.enc, res = params.yield ? 'yield' : params.result;

@@ -305,7 +305,9 @@ export function mat(key, o = {}) {
     default: m = new THREE.MeshPhysicalMaterial({ color: sRGB(mixC(p[3], p[4], 0.3)), roughness: 0.85, sheen: 0.6, sheenRoughness: 0.6, sheenColor: sRGB(p[5]), normalMap: nm(surface('cloth'), 10), normalScale: new THREE.Vector2(0.45, 0.45) });
   }
   // a tempered metal glows from +7 and burns white at +10
-  if (M.temper >= 7) { m.emissive = sRGB(p[3]); m.emissiveIntensity = M.temper >= 10 ? 0.9 : 0.3 + (M.temper - 7) * 0.12; }
+  // (November 20 audit: a softer glow in the metal's own deep colour, so the metal still shines and isn't flat cream)
+  if (M.temper >= 7) { m.emissive = sRGB(p[2]); m.emissiveIntensity = M.temper >= 10 ? 0.55 : 0.12 + (M.temper - 7) * 0.08; }
+  m.userData.kind = kind; // the audit tells hair, skin, gems and headgear apart by it
   if (o.tint) m.color = sRGB(o.tint);
   if (grain) triplanar(m, grain, kind);
   if (o.side) m.side = THREE.DoubleSide;

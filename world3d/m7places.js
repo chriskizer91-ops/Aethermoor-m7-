@@ -14,7 +14,7 @@
   const gear = {}; for (const [id] of H.HEROES) gear[id] = H.starterKit(id);
   const made = {}, lead = { id: 'warden' };
   const get = (id, detail) => { const k = id + detail; return made[k] || (made[k] = H.actor(id, gear[id], detail)); };
-  W3D.witch = (id) => get(id, PHONE ? 'light' : 'high');
+  W3D.witch = (id) => get(id, PHONE ? 'auto' : 'auto-high');   // Models' figures: the leader near and full, lighter far off
   let W, armed = false, said = null;
   // a way out: on to the next place where it's built (once the party has stepped off the doorstep they arrived on)
   function onFrame(dt, ex) {
@@ -36,7 +36,7 @@
   const party = window.M7_PARTY.create(W);
   function setFollowers() {
     for (const f of followers) W.P.scene.remove(f.root);
-    followers = H.HEROES.filter(([id]) => id !== lead.id).map(([id]) => get(id, 'light'));
+    followers = H.HEROES.filter(([id]) => id !== lead.id).map(([id]) => get(id, PHONE ? 'lite' : 'auto'));   // the followers: Models' light figures on a phone
     for (const f of followers) W.P.scene.add(f.root);
     party.set(leader, followers);
   }

@@ -42,7 +42,7 @@ export function runFight({ W, battle, center, yaw, heroes, foes = [], ctx, host,
       const result = p.result?.result || 'victory';
       if (result === 'victory') arena.victory();
       const back = () => new Promise((r) => arena.end(() => {
-        for (const A of arena.actors()) { A.hero.group.rotation.set(0, 0, 0); A.hero.group.position.set(0, 0, 0); A.root.visible = true; }
+        for (const A of arena.heroActors()) { A.hero.group.rotation.set(0, 0, 0); A.hero.group.position.set(0, 0, 0); A.root.visible = true; }
         document.body.classList.remove('fighting');
         if (resume) W.pause(false);
         r();

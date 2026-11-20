@@ -1,23 +1,25 @@
 # The board
 
-Where the 3D game stands. Written by the hub only. Last updated November 20, evening.
+Where the 3D game stands. Written by the hub only. Last updated November 20, late evening.
 
 ## The sessions
 
 | # | Job | Session | Branch | State | Latest link |
 |---|---|---|---|---|---|
 | 1 | the hub | `session_01DgbUKb6orvjjc1cMgBGPJK` | `claude/brave-davinci-790efm` | running | (the board) |
-| 2 | The Fight | `session_01DgbUKYR9qmKyBdACUWGViw` | `job/fight` | step 2 complete and brought in: the spoils and M7's Party screen with the hero turning in 3D (`openParty()` for Together); next: Full-detail Briarmaw as a third Foes setting | https://claude.ai/artifact/NpeXL5Pf4RxNfkQsguTnEK |
-| 3 | Models | `session_01DgbUKcWh5MEvjHnxzp4HHo` | `job/models` | lighter heroes and people done and brought in (Lite: 2 draw calls a figure; `'auto'` by distance; a town on a phone 113 → 39 calls); the painted / 3D choice waits on Chris | https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL |
-| 4 | Places | `session_01DgbUKZVFBfm1dVautXEw5f` | `job/places` | step 4 brought in (phones: Act One ~82 draw calls on phone; the paintings on roofs, water, decks, rocks; signposts, chests, pedestals); fixing: roofs over a house's front row show the painted front | https://claude.ai/artifact/MXyu3A9zTjoCavHFKXCbpi |
-| 5 | Together | `session_01DgbUKbyjzZFe1BXHHxzHBn` | `job/together` | version 2 brought in: the townsfolk talk and turn, the light Atlas; the playthrough passed 15 of 16 (the chest step being re-run) | https://claude.ai/artifact/RaeSK5hezqb3qH7jmuM5aj |
-| 6 | One Foe | `session_01DgbUKZCNBFY7zwSzwAXR8y` | `job/foe-hd` | first look done and brought in: Briarmaw three ways (a 407k sculpt baked onto 50,167 triangles, 19 bones, 7 moves, the crowd test); next: pass 3 (~1M), the face, smoother moves | https://claude.ai/artifact/5iUqJsPw3NGrvun4Ng73eh |
+| 2 | The Fight | `session_01DgbUKYR9qmKyBdACUWGViw` | `job/fight` | step 3 well along: every Act One fight on one page (28), cameras clear indoors, status auras, swallow, guest ally, charm, the Legend Strike close-up, phone fight 152 draws (was 278); next: Twinned splits, the toll, the region event fights | https://claude.ai/artifact/Q9T8quXCTVgiVUZoMuUaP4 |
+| 3 | Models | `session_01DgbUKcWh5MEvjHnxzp4HHo` | `job/models` | things that swing done and brought in (capes, hair, skirts, quivers, pouches and charms on springs, in every detail level, no extra draws) | https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL |
+| 4 | Places | `session_01DgbUKZVFBfm1dVautXEw5f` | `job/places` | roofs back to crisp textures coloured from the painting, chimneys; the light figures on every page; all brought in, Act One republished | https://claude.ai/artifact/GBxRVSqwMwYUTy1xLNjATA |
+| 5 | Together | `session_01DgbUKbyjzZFe1BXHHxzHBn` | `job/together` | version 3 brought in: **Act One playable start to end** (both playthroughs pass: the prologue to Thornhollow, and the Rotwarden, the second Brand, home, the Council); next: Briarmaw's den in the game, then the Sunscorch behind the Keep's south-east gate | https://claude.ai/artifact/RaeSK5hezqb3qH7jmuM5aj |
+| 6 | One Foe | `session_01DgbUKZCNBFY7zwSzwAXR8y` | `job/foe-hd` | the foe kit done and brought in (`prototypes/foe-hd/README.md`: sculpt helpers, sheet checks, bake, rigs, packing, loader, moves, one `setBeastLook` for every finished foe, the sculpt viewer); Briarmaw rebuilt through it; next: its lane, the briarling first | https://claude.ai/artifact/5iUqJsPw3NGrvun4Ng73eh |
+| 7 | Foes: beasts | `session_01DgbUKZ4qEpafSazysExsYV` | `job/foes-beasts` | starting: the thornhound, then Act One's other beasts, in full detail | - |
+| 8 | Foes: walkers | `session_01DgbUKcTDUjKDVHw3sPhu7R` | `job/foes-walkers` | the Rotwarden (1.07M sculpt → 47,500) and the sapwight (900k → 19,913) done and brought in, sculpts kept as assets; `walkersLook` for the Fight; next: lighter phone copies, then Old Horn and the rest | https://claude.ai/artifact/YBLUHaLG3bNdfcjBdeq3aj |
 
 ## What's built (on the hub's branch)
 
 | What | Where | Link |
 |---|---|---|
-| **The game: Act One playable in 3D** (title, prologue, walking with M7's rules, fights, chests, rest, the Atlas, its own save) | `game3d/` | https://claude.ai/artifact/RaeSK5hezqb3qH7jmuM5aj |
+| **The game: Act One playable start to end in 3D** (prologue, walking with M7's rules, fights and spoils, chests, rest, the party room, the Atlas, the Rotwarden, both Brands, the Council; its own save) | `game3d/` | https://claude.ai/artifact/RaeSK5hezqb3qH7jmuM5aj |
 | Act One's 14 places, from M7's own maps and paintings, by day (a Light switch), the party walking as a group | `world3d/m7/` | https://claude.ai/artifact/GBxRVSqwMwYUTy1xLNjATA |
 | The Sunscorch's 10 places, by day, in Chris's desert textures | `world3d/m7/` | https://claude.ai/artifact/Awn5YJ761bD7rPyp4AkEdf |
 | The Ironspire with the East Road (17 places), in snow, ice, dwarf stone and forge brick | `world3d/m7/` | https://claude.ai/artifact/BPcAuRLL3njp1Q3ZHPTUWQ |
@@ -28,6 +30,10 @@ Where the 3D game stands. Written by the hub only. Last updated November 20, eve
 | The Verdant Wilds (Coven's zone 1, borrowed), the small and big maps, the 3D continent | `world3d/` | https://claude.ai/artifact/R3Ecr7e1VVbb9Qi7GXEPpx |
 | The Gear Room: a hero whose outfit is built from M7's gear, in Chris's 47 textures and the four faces | `prototypes/hero-3d/` | https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL |
 | Briarmaw three ways: code-built, painted, full detail (baked from a sculpt), with a crowd test | `prototypes/foe-hd/` | https://claude.ai/artifact/5iUqJsPw3NGrvun4Ng73eh |
+| Every Act One fight, from M7's own map data (28) | `world3d/battle/` | https://claude.ai/artifact/Q9T8quXCTVgiVUZoMuUaP4 |
+| The walkers in full detail: the Rotwarden and the sapwight | `prototypes/foe-hd/pages/walkers/` | https://claude.ai/artifact/YBLUHaLG3bNdfcjBdeq3aj |
+| The walkers' sculpts, for a laptop | `prototypes/foe-hd/foes/` | https://claude.ai/artifact/JCdvpAPKT781gZiU49jTh2 |
+| Briarmaw's full sculpt (982,634 triangles) beside his light version, for a laptop | `prototypes/foe-hd/` | https://claude.ai/artifact/AVSmLbEu3jz1NVnohgqT9P |
 | The Bestiary: all 93 foes; the 54 beasts painted (cut from Chris's sheets) or in 3D (Act One's 12 sculpted), with a switch | `prototypes/bestiary/` | https://claude.ai/artifact/CA6CcAKVHSxGPB5TAZF5sY |
 | The story on the atlas: M7's places on the map of Aethermoor | `docs/lore/` | https://claude.ai/artifact/XTicYjY9EcZ4V54cjSzJcZ |
 | Chris's 136 pictures | `art-in/3d/` | `art-requests/RECEIVED.md` |
@@ -61,6 +67,19 @@ Where the 3D game stands. Written by the hub only. Last updated November 20, eve
 - **Light figures (Models, hub d96e11e):** `actor`, `person` and `personFigure` take `'lite'`, `'auto'` and
   `'auto-high'`. Suggested: phones, leader `'auto'`, followers and townsfolk `'lite'`; laptops, leader `'auto-high'`,
   followers `'auto'`. The world page uses it; Places (Act One and the regions), Together and the Fight to switch theirs.
+
+- **The foes, from now:** every beast in full detail (sessions 6, 7, 8; `docs/project/jobs/foes.md`). Models' sculpted
+  and painted beasts stand in until each full-detail one lands; Models keeps the heroes and the people.
+
+- **Known break on the hub's branch:** the fight page doesn't build since the foe kit moved Briarmaw's assets
+  (`prototypes/foe-hd/assets/` → `foes/briarmaw/`); the Fight is switching to the kit's `foeLook`. The published
+  fight page is unaffected.
+
+- **Pages beyond 16 MB (hub, being tried):** `world3d/build.mjs --files` puts the pictures beside the page as files
+  (published with the `files` map in `dist/<name>.files.json`) instead of inside it; the 3D engine accepts them
+  (`core.js`, marked "Aethermoor, hub"). Act One with every texture and painting at full size is up as a test:
+  https://claude.ai/artifact/HD9GL1Ao4ymzRRodVY2ozm. Once Chris sees it work on his phone, the game and the heavy pages
+  can stop shrinking textures.
 
 ## Next for the hub
 

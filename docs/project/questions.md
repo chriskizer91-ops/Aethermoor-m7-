@@ -19,6 +19,9 @@ until Chris answers. When he does, it moves to `decisions.md`.
 5b. **Small beasts on the field** (briarlings, hounds) stand 1.3 times life size so they read beside the heroes. Keep
     it *(suggested)*?
 
+5c. **Sizes of the big foes** (session 8): the Rotwarden stands 2.5 m and the sapwight 2.0 m, beside the heroes' 1.72 m.
+    Right *(suggested: yes)*, or bigger or smaller?
+
 ## The story on the map (asked November 20, on the story map page)
 
 5. **Frostmere earlier**: on the atlas the frozen lake is on the road up to the peaks, so Hush and the Rime-Abbot come

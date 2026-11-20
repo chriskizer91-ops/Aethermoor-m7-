@@ -44,7 +44,7 @@ import { Q } from './kit.js';
 export function personFigure(npcId, detail = 'light') {
   const L = buildLod(lite => buildPerson(npcId, { lite }), detail), h = L.hero, TALL = 1.72;
   const ph = Math.random() * 20; let step = 0;
-  const F = { root: L.root, height: TALL, rig: h.rig, hero: h, lod: L, name: h.name, role: h.role, talking: false,
+  const F = { root: L.root, height: TALL, rig: h.rig, hero: h, lod: L, name: h.name, role: h.role, talking: false, face: L.face,
     update(t, dt, walking) { const c = L.pick(); F.rig = c.rig; if (walking) { step += dt * 7.2; setPose(c.rig, 'walk', t, step); } else setPose(c.rig, F.talking ? 'talk' : 'stand', t + ph, 0); } };
   return F;
 }
@@ -58,12 +58,12 @@ export const LOD = { near: 6, liteQ: 0.6 };
 export function buildLod(make, detail = 'light') {
   const root = new THREE.Group(), TALL = 1.72;
   const mk = (q, lite) => { const keep = Q.d; Q.d = q; const h = make(lite); Q.d = keep; h.group.scale.setScalar(TALL / 1.22); root.add(h.group); return h; };
-  if (detail !== 'auto' && detail !== 'auto-high') { const h = mk(detail === 'high' ? 2 : detail === 'lite' ? LOD.liteQ : 1, detail === 'lite'); return { root, hero: h, lite: null, current: h, pick: () => h }; }
+  if (detail !== 'auto' && detail !== 'auto-high') { const h = mk(detail === 'high' ? 2 : detail === 'lite' ? LOD.liteQ : 1, detail === 'lite'); return { root, hero: h, lite: null, current: h, pick: () => h, face: (e, sec) => h.face(e, sec) }; }
   const full = mk(detail === 'auto-high' ? 2 : 1, false), lite = mk(LOD.liteQ, true);
   let cam = null; const seen = (r, s, c) => { if (c.isPerspectiveCamera) cam = c; };
   for (const h of [full, lite]) h.group.traverse(o => { if (o.isMesh) o.onBeforeRender = seen; });
   const p = new THREE.Vector3(), q = new THREE.Vector3();
-  const L = { root, hero: full, lite, current: lite, pick() {
+  const L = { root, hero: full, lite, current: lite, face: (e, sec) => { full.face(e, sec); lite.face(e, sec); }, pick() {
     let near = false; if (cam) { root.getWorldPosition(p); cam.getWorldPosition(q); near = p.distanceTo(q) < LOD.near; }
     full.group.visible = near; lite.group.visible = !near; return (L.current = near ? full : lite); } };
   lite.group.visible = true; full.group.visible = false;
