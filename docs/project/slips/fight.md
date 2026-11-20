@@ -39,6 +39,14 @@ const { result, battle, outcome } = await runFight({ W, battle, center, yaw, her
 - The page must be built with `--entry=<your module> --plugin=battle/swap.mjs` and import `battle/fight.css`.
   `world3d/fight.js` is a working example.
 
+## For Models: another look for the foes
+
+`world3d/battle/arena.js` exports `setBeastLook(fn)`. `fn(key, sprite, opts)` returns the bestiary's shape:
+`{ group or g, height, plan?, parts?, update?(t, step) }`. The fight only turns, lifts, leans and squashes the whole
+figure (its group) and calls `update()` for its own idle and walk; it never reaches into the meshes. So a painted
+cut-out drops in with one call, and `setBeastLook(null)` brings the code-built beasts back. Once your builder lands,
+I'll add a switch on the page (`?foes=cutout`).
+
 ## Next
 
 - Briarmaw in his den (`m7-briarmaw-den`): his phases, grip and the relics snapping off.
