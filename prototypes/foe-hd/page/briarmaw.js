@@ -203,3 +203,15 @@ export function cloneBriarmaw(B) {
     update(t, step = 0) { pose(C, step ? 'walk' : 'idle', 0, t, step); }, pose(move, u, t, step = 0) { pose(C, move, u, t, step); } };
   return C;
 }
+
+// For the Fight (world3d/battle/arena.js setBeastLook): Briarmaw in full detail, every other beast as before.
+//   await ready(); const shared = makeShared(A, 2048);
+//   setBeastLook(beastLookWithBriarmaw(shared, buildBeast));
+export function beastLookWithBriarmaw(shared, fallback) {
+  let first = null;
+  return (key, sprite, opts) => {
+    if (key !== 'briarmaw') return fallback(key, sprite, opts);
+    const B = first ? cloneBriarmaw(first) : (first = buildBriarmawHD(shared));
+    return B;
+  };
+}

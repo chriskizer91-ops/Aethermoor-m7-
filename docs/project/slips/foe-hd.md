@@ -6,9 +6,9 @@ shown side by side with the code-built model and a cut-out of Chris's sheet.
 ## Done
 
 - **First look, published:** https://claude.ai/artifact/5iUqJsPw3NGrvun4Ng73eh (9.8 MB)
-  - Three stands turning together under the same light: built in code (12,032 triangles), the painted cut-out of
-    Chris's sheet (front, side or back, whichever faces you), and the full-detail light version (50,167 triangles,
-    baked from a 407,000-triangle sculpt, pictures at 2048 px on a laptop and 1024 on a phone).
+  - Three stands turning together under the same light: built in code (Models' beast, 77,452 triangles), the painted
+    cut-out (Models' standee, `prototypes/bestiary/standee.js`, from the hub's branch), and the full-detail light
+    version (50,167 triangles, baked from a 407,000-triangle sculpt, 2048 px pictures). Page 14.4 MB.
   - His moves: breathe, walk, roar, swipe, bite, hit, fall (19 bones).
   - **Six of him with the heroes**: six full-detail Briarmaws walking round the four heroes, with the frame rate.
 - **How it's made** (Chris, November 20: "start with a 100,000 triangle shape model, and then add in detail... if you
@@ -28,7 +28,15 @@ shown side by side with the code-built model and a cut-out of Chris's sheet.
 2. The face closer to the sheet (heavier brow, bigger golden fangs), the body rounder in the side view.
 3. His moves smoothed, and a proper "hit" flash; the eyes' glow.
 
-## Needs
+## For the Fight
+
+- Done: `prototypes/foe-hd/page/briarmaw.js` `beastLookWithBriarmaw(shared, buildBeast)` is a function for
+  `setBeastLook` (the hub's description of your interface): Briarmaw in full detail, every other beast as before. It
+  returns `{ group, plan: 'quad', height: 1.7, parts: { head, tail }, update(t, step) }`, plus `pose(move, u, t)`
+  for his own moves. It needs `await ready()` and `makeShared(A, 2048)` first (see `page/main.js`, `build.mjs` for the
+  assets, about 3 MB).
+
+## Earlier ask (answered by the hub)
 
 - **From the Fight:** the shape of your foe interface, so Briarmaw drops into your fight. What I read in
   `world3d/battle/arena.js` and `prototypes/bestiary/beasts.js`: a foe figure wraps `buildBeast(key, sprite)`, which

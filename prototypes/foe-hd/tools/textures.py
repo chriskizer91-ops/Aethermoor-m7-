@@ -10,7 +10,7 @@ col = Image.open(os.path.join(bake, 'color.png')).convert('RGB')
 nrm = Image.open(os.path.join(bake, 'normal.png')).convert('RGB')
 ao = Image.open(os.path.join(bake, 'ao.png')).convert('L')
 emit = Image.open(os.path.join(bake, 'emit.png')).convert('RGB')
-for res in (2048, 1024):
+for res in (2048,):
     save(col.resize((res, res), Image.LANCZOS), f'color-{res}.webp', 88)
     save(nrm.resize((res, res), Image.LANCZOS), f'normal-{res}.webp', 90)
 save(ao.resize((1024, 1024), Image.LANCZOS).convert('RGB'), 'ao-1024.webp', 85)
