@@ -366,8 +366,12 @@
       uRep4: { value: new THREE.Vector4(1 / t.rep[0], 1 / t.rep[1], 1 / t.rep[2], 1 / t.rep[3]) }, uGrassTint: { value: new THREE.Vector3(...(t.grassTint || [0.5, 0.58, 0.55])) },
       uCobTint: { value: new THREE.Vector3(...(t.cobTint || [1, 1, 1])) }, uDirtTint: { value: new THREE.Vector3(...(t.dirtTint || [1, 1, 1])) }, uPaveTint: { value: new THREE.Vector3(...(t.paveTint || [1, 1, 1])) },
       uRep: { value: new THREE.Vector2(1, 1) }, uTint: { value: new THREE.Color(0xffffff) }, uEmis: { value: new THREE.Color(0) }, uLit: { value: 1 }, uGlowUse: { value: 1 }, uSpec: { value: 0 }, uShadeK: { value: 1 },
+      // (Aethermoor, November 20) a painted map laid over the ground as its colour (Hearth & Heirloom's own maps): the
+      // textures under it keep their grain, the painting gives the colour. t.paint, t.paintK (world to painting), t.paintGain
+      tPaint: { value: t.paint || null }, uPaintK: { value: t.paintK || new THREE.Vector4(0, 0, 0, 0) }, uPaintGain: { value: t.paintGain || 0.6 },
     });
     const frag = CHUNK_F_HEAD + `
+      uniform sampler2D tPaint; uniform vec4 uPaintK; uniform float uPaintGain;
       uniform sampler2D tCob, tGrass, tDirt, tPave, uSplat; uniform vec4 uRep4; uniform vec3 uGrassTint, uCobTint, uDirtTint, uPaveTint;
       vec3 two(sampler2D t, vec2 w, float rep) {
         vec3 a = texture2D(t, w * rep).rgb, b = texture2D(t, w * rep * 0.29 + vec2(0.37, 0.71)).rgb;
@@ -381,6 +385,15 @@
         vec3 c = mix(g, two(tDirt, w, uRep4.z) * uDirtTint, s.g);
         c = mix(c, two(tCob, w, uRep4.x) * uCobTint, s.r);
         c = mix(c, two(tPave, w, uRep4.w) * uPaveTint, s.b);
+        #ifdef PAINT
+          // (Aethermoor) the painting's colour, with the texture's light and dark as its grain; it fades out a tile past its edge
+          vec2 pu = vec2(w.x * uPaintK.x + uPaintK.z, w.y * uPaintK.y + uPaintK.w);
+          vec3 pc = toLin(texture2D(tPaint, vec2(pu.x, 1.0 - pu.y)).rgb * uPaintGain);
+          float gl = dot(sqrt(max(c, vec3(0.0))), vec3(0.3333));
+          vec3 pg = pc * clamp(0.45 + gl * 2.2, 0.6, 1.45);
+          float pin = smoothstep(-0.03, 0.0, pu.x) * (1.0 - smoothstep(1.0, 1.03, pu.x)) * smoothstep(-0.03, 0.0, pu.y) * (1.0 - smoothstep(1.0, 1.03, pu.y));
+          c = mix(c, pg, pin);
+        #endif
         vec3 n = normalize(vN);
         #ifdef HIGH
           // on the laptop: fine grain close up, and relief from the ground's own light and dark (cobbles stand up from
@@ -397,7 +410,7 @@
         vec3 col = c * (nightLight(vW, n, sh) + lampLight(vW, n));
         gl_FragColor = outC(fogged(col, vW));
       }`;
-    const gm = new THREE.ShaderMaterial({ uniforms: uni, vertexShader: CHUNK_V, fragmentShader: frag, vertexColors: true, defines: W3D.quality === 'high' ? { HIGH: '' } : {} });
+    const gm = new THREE.ShaderMaterial({ uniforms: uni, vertexShader: CHUNK_V, fragmentShader: frag, vertexColors: true, defines: Object.assign(W3D.quality === 'high' ? { HIGH: '' } : {}, t.paint ? { PAINT: '' } : {}) });
     gm.extensions = { derivatives: W3D.quality === 'high' };
     return gm;
   };

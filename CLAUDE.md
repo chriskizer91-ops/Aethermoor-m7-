@@ -39,6 +39,8 @@
   engine, places and downsized textures, unchanged; `hero-entry.js` joins our heroes and three.js to it).
 - `world3d/`: **the 3D world**: Coven's zone 1 and Envoi's 3D continent, copied in, with our party, the small and big
   maps and the continent (`node build.mjs --tex=512` there; link and sources in its README).
+- `world3d/m7/`: **the game's own places in 3D**, each built from its M7 map and painting (`node m7/convert.mjs <ids>`,
+  then `node build.mjs --page=m7-places --places=<ids>`; Act One is published, link in its README).
 - `prototypes/bestiary/`: all 93 foes in 3D (people by the hero builder, beasts by `beasts.js`; link in its README).
 - `art-requests/`: picture prompts for Chris. Batch 4 (the four Act III maps) is still waiting, and so is
   `texture-pack-gear.md` (the seamless surfaces the 3D gear is made of). Everything asked for is gathered in one page,

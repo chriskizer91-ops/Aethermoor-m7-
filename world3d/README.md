@@ -10,6 +10,9 @@ Hearth & Heirloom's names. Published (phone size): https://claude.ai/artifact/R3
   **The whole of Aethermoor** opens the continent in 3D, with the party's pin where they stand. **Back to walking**
   returns.
 
+**The game's own places** (Act One, built from M7's own maps and paintings): `m7/README.md`,
+https://claude.ai/artifact/GBxRVSqwMwYUTy1xLNjATA
+
 ## What is whose
 
 | Here | Copied from | What it is |
@@ -19,9 +22,11 @@ Hearth & Heirloom's names. Published (phone size): https://claude.ai/artifact/R3
 | `heroes.js` | ours | three.js 0.170 as the `THREE` the borrowed scripts expect (they were written for r128), and our heroes as walkers |
 | `names.js` | ours | the borrowed places under M7's names (provisional; the table is at its top) |
 | `aethermoor.js`, `coven/pages/aethermoor.html` | ours (the look after Coven's `pages/zone-1.html`) | the page |
+| `m7/`, `coven/places/m7-*.js`, `coven/art/m7/`, `m7places.js`, `coven/pages/m7-places.html` | ours, from `game/src/data/maps/` and `game/src/ui/assets/paint/` | the game's own places in 3D (`m7/README.md`) |
 
 Changes to copied files (each marked "Aethermoor" in a comment): `continent/map/map3d.js` takes the pin's name from
-the page, can start again after stopping, and can put the pin at any spot (`start`, `setIoAt`). Nothing else.
+the page, can start again after stopping, and can put the pin at any spot (`start`, `setIoAt`); `coven/engine/place/core.js`
+and `world.js` can lay a painting over the ground as its colour (for the game's own places). Nothing else.
 
 Left out on purpose: the witches, Coven's battle, encounters, party and fair folk (their talk is Moon Faire's story).
 

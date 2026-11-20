@@ -67,6 +67,17 @@ leader's footsteps, each in their own gear. *Gear* rolls new outfits for everyon
 5. **Size.** A phone link holds 16 MB. The whole world won't fit one link, so each region is its own page (as Coven
    builds a page per zone), or the game goes out as a file for the laptop.
 
+## The game's own places (November 20, evening)
+
+Chris asked whether more 3D places were needed for M7's story: yes. Of the 32 places on the story map, 14 have a
+borrowed 3D body; the rest had none. Every M7 map already has a painting and a tile map, and those are enough to build
+it: `world3d/m7/convert.mjs` turns one into a place for Coven's engine (the painting is the ground's colour, the tiles
+stand up as walls, houses, water, trees, roots and bridges, and the walkable tiles are where the party walks). Act One's
+fourteen maps are built and joined door to door: https://claude.ai/artifact/GBxRVSqwMwYUTy1xLNjATA (`world3d/m7/README.md`).
+
+So step 4 changes: every M7 place can have its own 3D version straight from the game. The borrowed places (Coven's
+Wickhollow, Envoi's Frostmere...) stay for the open land between them and the continent, where they fit.
+
 ## Chris's calls
 
 - **Names**: where a finished 3D place stands where M7 has a different place (Wickhollow in the Verdant Wilds, where M7
