@@ -1,0 +1,25 @@
+/* The Fight (November 20): M7's battle screen laid over the 3D land. Only what must change for that is here: the
+   stage and the space over the hero cards are see-through (the 3D shows there), the strip's pixel figures are hidden
+   (the heroes stand on the field instead), the tray's pixel d20s give way to the 3D dice, and the markers over the
+   foes are drawn in CSS. Everything else is M7's own battle.css. */
+#fight { position: fixed; inset: 0; z-index: 20; }
+#fight[hidden] { display: none; }
+#fight .screen-battle { padding: 0; max-width: none; background: transparent; }
+#fight .bt { background: transparent; }
+#fight .bt-stage { background: transparent; box-shadow: none; }
+#fight .bt-party { background: linear-gradient(180deg, rgba(18, 13, 11, 0) 0, rgba(18, 13, 11, 0) calc(var(--strip-h) - 30px), rgba(25, 18, 14, .85) var(--strip-h), var(--soot-2) 100%); }
+#fight .bt-party-cv { visibility: hidden; }
+#fight .bt-ribbon { background: rgba(25, 19, 15, .78); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); }
+#fight .bt-intro { background: radial-gradient(70% 60% at 50% 50%, rgba(18, 14, 12, .55), rgba(7, 6, 10, .25)); }
+#fight .bt-hero.active .bt-hero-space::after { content: ""; position: absolute; left: 50%; bottom: 4px; width: 70%; height: 10px; transform: translateX(-50%); border-radius: 50%; border: 2px solid rgba(255, 203, 102, .85); box-shadow: 0 0 10px rgba(255, 203, 102, .6); pointer-events: none; }
+.f3-flash { position: absolute; inset: 0; pointer-events: none; opacity: 0; z-index: 5; mix-blend-mode: screen; }
+.f3-marks { position: absolute; inset: 0; pointer-events: none; z-index: 2; }
+.f3-mark { position: absolute; width: 0; height: 0; border-left: 9px solid transparent; border-right: 9px solid transparent; border-top: 12px solid #ffcb66; transform: translate(-50%, -100%); filter: drop-shadow(0 0 2px #000); animation: f3-bob .7s steps(2, start) infinite; }
+.f3-mark.aim { border-top-color: rgba(255, 203, 102, .75); }
+.f3-mark.turn { border-top-color: #ee6c54; border-left-width: 7px; border-right-width: 7px; border-top-width: 9px; }
+.f3-ring { position: absolute; height: 16px; border: 2px solid #ffcb66; border-radius: 50%; transform: translate(-50%, -50%); box-shadow: 0 0 10px #ffcb66, inset 0 0 6px #ffcb66; pointer-events: none; }
+@keyframes f3-bob { 50% { margin-top: -3px; } }
+.f3-tray .bt-tray-dice { position: relative; }
+.f3-tray .bt-d20 { visibility: hidden; }
+.f3-dice { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); pointer-events: none; z-index: 1; }
+body.fighting #world > button, body.fighting #party, body.fighting #toast.hidefight { display: none; }

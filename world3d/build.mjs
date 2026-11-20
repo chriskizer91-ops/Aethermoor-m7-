@@ -36,11 +36,19 @@ const inline = (code, dir) => code.replace(PIC, (m, p, ext) => {
   return `(window.__PIC[${seen.get(key)}])`;
 });
 const seen = new Map(), table = [];
-const res = await build({ entryPoints: [path.join(here, 'heroes.js')], bundle: true, format: 'iife', target: 'es2020', write: false, minify: true, legalComments: 'none' });
-const heroes = res.outputFiles[0].text.replace(/<\/script/gi, '<\\/script');
+//   --entry=fight.js            bundle that module at <!--HEROES--> in place of heroes.js (it imports heroes.js itself); the
+//                               CSS it imports goes in a <style> there too, and its pictures (png, webp) inside it
+//   --plugin=battle/swap.mjs    esbuild plugins for that bundle (the module's default export: a list of plugins)
+// (the Fight, November 20: both flags are new; without them the build is as it was)
+const ENTRY = arg('entry'), PLUG = arg('plugin');
+const plugins = PLUG ? (await import(path.join(here, PLUG))).default : [];
+const res = await build({ entryPoints: [path.join(here, ENTRY || 'heroes.js')], bundle: true, format: 'iife', target: 'es2020', write: false, minify: true, legalComments: 'none',
+  ...(ENTRY ? { outdir: path.join(here, '.cache/entry'), nodePaths: [path.join(here, 'node_modules')], loader: { '.png': 'dataurl', '.webp': 'dataurl' }, plugins } : {}) });
+const heroes = res.outputFiles.filter((f) => !f.path.endsWith('.css')).map((f) => f.text).join('\n').replace(/<\/script/gi, '<\\/script');
+const entryCss = res.outputFiles.filter((f) => f.path.endsWith('.css')).map((f) => f.text).join('\n');
 let html = readFileSync(PAGE, 'utf8').replace('<!--M7PLACES-->', () => M7.map((id) => `<script src="../places/m7-${id}.js"></script>`).join('\n'));
 html = html.replace(/<script src="([^"]+)"><\/script>/g, (m, src) => { const f = path.normalize(path.join(PAGES, src)); return '<script>' + inline(readFileSync(f, 'utf8'), path.dirname(f)).replace(/<\/script/gi, '<\\/script') + '</script>'; });
-html = html.replace('<!--HEROES-->', () => '<script>window.__PIC=[' + table.join(',') + '];</script><script>' + heroes + '</script>');
+html = html.replace('<!--HEROES-->', () => (entryCss ? '<style>' + entryCss.replace(/<\/style/gi, '<\\/style') + '</style>' : '') + '<script>window.__PIC=[' + table.join(',') + '];</script><script>' + heroes + '</script>');
 mkdirSync(path.join(here, 'dist'), { recursive: true });
 const full = '<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">\n</head>\n<body>\n' + html + '</body>\n</html>\n';
 const base = PAGE_ID === 'aethermoor' ? 'aethermoor-3d' : PAGE_ID, name = TEX ? `${base}-${TEX}` : base;
