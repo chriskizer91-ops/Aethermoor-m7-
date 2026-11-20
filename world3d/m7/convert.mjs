@@ -24,6 +24,16 @@ const GAME = path.join(ROOT, 'game/src');
 const { LEGEND } = await import(pathToFileURL(path.join(GAME, 'data/tiles.js')));
 const { MAPS } = await import(pathToFileURL(path.join(GAME, 'data/maps/index.js')));
 const TX = 50, TY = 40, PAD = 9;
+const cl0 = (v, a, b) => Math.max(a, Math.min(b, v));
+// (Places) Chris's textures each region's places wear (web copies of art-in/3d/world/), written into each place's file so a
+// page carries only its own region's (the build puts every picture in once)
+const AW = (id) => [id, `./../texture-packs/aeth-web/${id}.webp`];
+const REGION_TEX = {
+  sunscorch: ['sun_sand_ground', 'sun_sandstone_wall', 'sun_adobe_plaster', 'sun_awning_canvas', 'sun_glass_flats'],
+  ironspire: ['iron_dwarf_stone', 'iron_forge_brick', 'iron_ice_lake', 'iron_snow_ground', 'shared_stone_wall_frosted_b', 'sun_awning_canvas', 'shared_bough_birch'],
+  gloomfen: ['gloom_boardwalk_old', 'gloom_bog_water', 'gloom_stilt_wood', 'shared_bough_birch'],
+  below: ['iron_forge_brick', 'iron_dwarf_stone', 'keep_floor_flags', 'keep_wall_hearthstone'],
+};
 
 // per-tile average colours of a painting (python: Pillow is here, sharp isn't)
 function tileColours(webp, w, h) {
@@ -42,6 +52,20 @@ async function convert(id) {
   const webp = path.join(ROOT, 'world3d/coven/art/m7', id + '.webp');
   writeFileSync(webp, Buffer.from(paint.src.split(',')[1], 'base64'));
   const COL = tileColours(webp, w, h);
+  // ---- (Places, November 20) Acts Two and Three: each region's own things. Act One (verdant) is made exactly as before ----
+  const ACT2 = (map.region || 'verdant') !== 'verdant', BIO = map.biome || '';
+  // the land's masses: cliffs, scarps, dune crests, a mine's rock. Where they are thick the ground itself rises (the kit's
+  // tileH '4'); a lone tile of them is a boulder, as in Act One
+  const MASSC = !ACT2 ? '' : /^(mine|crystal|ice-cave|dwarf-hall|forge)$/.test(BIO) ? '^R' : '^';
+  const isMass = (i, j) => MASSC.includes(rows[cl0(j, 0, h - 1)][cl0(i, 0, w - 1)]);
+  const cornerMass = (i, j) => isMass(i - 1, j - 1) && isMass(i, j - 1) && isMass(i - 1, j) && isMass(i, j);
+  const RAISED = rows.map((r, j) => [...r].map((c, i) => MASSC.includes(c) && (cornerMass(i, j) || cornerMass(i + 1, j) || cornerMass(i, j + 1) || cornerMass(i + 1, j + 1))));
+  // what a 'T', a 't' and an 'f' are in each biome (the 2D game's art/tiles.js and the maps' headers)
+  const TREEK = { desert: 'cactus', 'desert-town': 'palm', oasis: 'palm', canyon: 'palm', 'mine-camp': 'dead', mine: 'prop', crystal: 'spire', dunes: 'spire', ash: 'charred', vault: 'column', tundra: 'frostdead' }[BIO];
+  const YK = { monastery: 'column', mountain: 'statue', 'dwarf-hall': 'column', forge: 'anvil', 'ice-cave': 'icecol' }[BIO];
+  const SMALLK = { desert: 'shrub', oasis: 'shrub', canyon: 'shrub', 'desert-town': 'jar', 'mine-camp': 'crate', mine: 'cart', crystal: 'cluster', dunes: 'shard', ash: 'stump', vault: 'urn', tundra: 'sledge', 'frozen-lake': 'sledge', outpost: 'crate', 'dwarf-hall': 'barrel', forge: 'barrel', monastery: 'shrub', mountain: 'shrub', scree: 'shrub' }[BIO];
+  const GLOWK = { mine: 'amber', 'mine-camp': 'amber', canyon: 'amber', crystal: 'frost', dunes: 'glint', desert: 'glint', ash: 'ember', vault: 'ember', oasis: 'wisp', 'dwarf-hall': 'rune', forge: 'ember', 'ice-cave': 'frost' }[BIO];
+  const PADK = map.region === 'sunscorch' ? 'rocks' : 'woods';
 
   // an indoor map: walls nearly all round its edge (the Great Hall, a vault, a mine's gallery). Indoors the walls are low
   // (a doll's house seen from above, as the 2D game shows it), pillars stand full height, and there's nothing outside
@@ -246,12 +270,23 @@ async function convert(id) {
 
   // ---- trees, bushes, rocks, flowers ----
   const region = map.region || 'verdant';
-  const treeKind = /iron|frost|peak/.test(region) ? 1 : /gloom|fen/.test(region) ? 2 : 0;
+  const treeKind = ACT2 && BIO === 'wilds' ? 0 : /iron|frost|peak/.test(region) ? 1 : /gloom|fen/.test(region) ? 2 : 0;
   let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
-  const extraTrees = [], props = [], flowers = [], cliffs = [], roots = [], firsts = [], glows = [];
+  const extraTrees = [], props = [], flowers = [], cliffs = [], roots = [], firsts = [], glows = [], stand = [], smalls = [], faces = [];
   for (let j = 0; j < h; j++) for (let i = 0; i < w; i++) {
     const c = rows[j][i], x = (i + 0.5) * TX, y = (j + 0.5) * TY;
-    if (c === 'T') extraTrees.push([Math.round(x + (rnd() - 0.5) * 10), Math.round(y + (rnd() - 0.5) * 8), +(([[1,0],[-1,0],[0,1],[0,-1]].some(([a, b]) => at(i + a, j + b) === 'T') ? 0.92 : 1.5) + rnd() * 0.25).toFixed(2), treeKind, Math.floor(rnd() * 900)]);
+    if (ACT2 && MASSC.includes(c)) {
+      if (!RAISED[j][i]) { if (BIO !== 'dunes') cliffs.push([x, y, +(1.5 + rnd() * 0.7).toFixed(2)]); }
+      else if (BIO !== 'dunes') for (const [a, b] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const n = at(i + a, j + b); if (n !== null && !MASSC.includes(n) && rnd() < 0.16) faces.push([Math.round(x + a * TX * 0.42), Math.round(y + b * TY * 0.42), +(0.9 + rnd() * 0.6).toFixed(2)]); }
+      continue;
+    }
+    if (ACT2 && c === 'T' && TREEK) stand.push([Math.round(x + (rnd() - 0.5) * 12), Math.round(y + (rnd() - 0.5) * 10), TREEK, Math.floor(rnd() * 900), +(0.85 + rnd() * 0.35).toFixed(2)]);
+    else if (ACT2 && c === 't' && SMALLK === 'crate') props.push({ k: 'crates', at: [x, y] });
+    else if (ACT2 && c === 't' && SMALLK === 'barrel') props.push({ k: 'barrel', at: [x, y] });
+    else if (ACT2 && c === 'Y' && YK) stand.push([x, y, YK, Math.floor(rnd() * 900), 1]);
+    else if (ACT2 && c === 't' && SMALLK) smalls.push([Math.round(x + (rnd() - 0.5) * 10), Math.round(y + (rnd() - 0.5) * 8), SMALLK, Math.floor(rnd() * 900)]);
+    else if (ACT2 && c === 'f' && GLOWK) glows.push([x, y, GLOWK]);
+    else if (c === 'T') extraTrees.push([Math.round(x + (rnd() - 0.5) * 10), Math.round(y + (rnd() - 0.5) * 8), +(([[1,0],[-1,0],[0,1],[0,-1]].some(([a, b]) => at(i + a, j + b) === 'T') ? 0.92 : 1.5) + rnd() * 0.25).toFixed(2), treeKind, Math.floor(rnd() * 900)]);
     else if (c === 't') flowers.push([x, y, 0.95, 'mix']);
     else if (c === '^') cliffs.push([x, y, +(1.7 + rnd() * 0.8).toFixed(2)]);
     else if (c === 'R') roots.push([x, y, Math.floor(rnd() * 900)]);
@@ -266,6 +301,7 @@ async function convert(id) {
   for (let J = 0; J < PH; J++) for (let I = 0; I < PW; I++) {
     const i = I - PAD, j = J - PAD; if (i >= 0 && j >= 0 && i < w && j < h) continue;
     if (interior || padWet(I, J) || clear(I, J)) continue;
+    if (PADK === 'rocks') { if (!isMass(i, j) && rnd() < 0.05) props.push({ k: 'rock', at: [Math.round((i + rnd()) * TX), Math.round((j + rnd()) * TY)], size: +(0.9 + rnd() * 0.9).toFixed(2) }); continue; }
     if (rnd() < 0.55) extraTrees.push([Math.round((i + rnd()) * TX), Math.round((j + rnd()) * TY), +(0.95 + rnd() * 0.4).toFixed(2), treeKind === 0 && rnd() < 0.25 ? 1 : treeKind, Math.floor(rnd() * 900)]);
   }
 
@@ -294,11 +330,12 @@ async function convert(id) {
   const people = (map.entities || []).filter((e) => e.kind === 'npc' && e.at).map((e) => ({ id: e.id, npc: e.npc, at: [(e.at[0] + 0.5) * TX, (e.at[1] + 0.5) * TY], face: FACE[e.face] ?? 0 }));
 
   const place = {
-    id: 'm7-' + id, m7: id, name: map.name, region, biome: map.biome, interior, pillars, palisades, cliffs, roots, firsts, glows, size: [w * TX, h * TY], tiles: [w, h],
+    id: 'm7-' + id, m7: id, name: map.name, region, biome: map.biome, interior, dark: !!map.dark || undefined,
+    ...(ACT2 ? { stand, smalls, faces, texFiles: Object.fromEntries((REGION_TEX[region] || []).map(AW)) } : {}), pillars, palisades, cliffs, roots, firsts, glows, size: [w * TX, h * TY], tiles: [w, h],
     painting: `art/m7/${id}.webp`, extent: [-PAD * TX, -PAD * TY, (w + PAD) * TX, (h + PAD) * TY],
     start: first.at, startFace: first.face, anchors, exits, people,
     water: water.map((p) => ({ poly: p })), decks, buildings, walls: segs, towers, torches, lamps, props, flowers, extraTrees, lawns, groundPatches,
-    tileH: rows.map((r, j) => [...r].map((c, i) => c === 'x' ? 3 : c === 'w' ? 2 : WET[j][i] ? 1 : 0).join('')),
+    tileH: rows.map((r, j) => [...r].map((c, i) => c === 'x' ? 3 : c === 'w' ? 2 : WET[j][i] ? 1 : ACT2 && MASSC.includes(c) ? 4 : 0).join('')),
   };
   const mapsEntry = { walk, block: [] };
   // pictures are written as "art/..." in double quotes so the build puts them inside the page
