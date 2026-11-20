@@ -35,6 +35,12 @@ import { playBrandBanner, playCrownwalls, showLetter, playCouncil, showToBeConti
 import { reliquaryLine } from '../game/src/ui/screens/codex.js';
 import { person, foe, artOf } from './figures.js';
 
+// what a hero wears, as M7's game holds it (inventory ids to items); empty slots keep the starting look
+export function gearFor(game, id) {
+  const h = game.party.roster[id], g = {};
+  for (const [slot, iid] of Object.entries(h?.gear || {})) g[slot] = iid ? (game.inventory || []).find((it) => it.id === iid) || null : null;
+  return g;
+}
 export const TX = 50, TY = 40;          // a tile in a place's painting px (world3d/m7/convert.mjs)
 const IDLE_TICK_MS = 400, SAVE_EVERY = 20;
 const YAW = { s: 0, n: Math.PI, e: Math.PI / 2, w: -Math.PI / 2 };
@@ -75,11 +81,7 @@ export function createWorld(o) {
 
   // ---- the heroes, in their M7 gear ----
   // what each hero wears, as M7's game holds it (inventory ids to items); empty slots keep the starting look
-  function gearOf(id) {
-    const h = game.party.roster[id], g = {};
-    for (const [slot, iid] of Object.entries(h?.gear || {})) g[slot] = iid ? (game.inventory || []).find((it) => it.id === iid) || null : null;
-    return g;
-  }
+  const gearOf = (id) => gearFor(game, id);
   const gearKey = (id) => JSON.stringify(game.party.roster[id]?.gear || {});
   function actor(id, detail) {
     const k = id + ':' + detail + ':' + gearKey(id);

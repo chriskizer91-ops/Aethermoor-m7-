@@ -192,6 +192,19 @@ await settle();
 const s2 = await state();
 check(s2.map === s.map && s2.x === s.x && s2.y === s.y, `the journey goes on from the same spot (${s2.map} ${s2.x},${s2.y})`);
 await page.waitForTimeout(1500); await shot('reloaded');
+// the menu's Party: M7's Party screen with the hero turning in 3D (the Fight's party room), then back to walking
+await page.click('#menubtn');
+await page.waitForSelector('.ov-pause', { timeout: 10000 }).catch(() => {});
+await page.click('.pause-party').catch(() => {});
+await page.waitForSelector('#fight.party-room .screen-party', { timeout: 20000 }).catch(() => {});
+await page.waitForTimeout(2500);
+check(await E(() => !!document.querySelector('#fight.party-room .screen-party') && !!document.querySelector('#fight .f3-has-turn canvas')), 'the menu opens the Party with the hero in 3D');
+await shot('party');
+const back = await page.$('#fight .screen-party button.back, #fight .screen-party [data-back], #fight .screen-party .btn.ghost');
+if (back) await back.click(); else await page.keyboard.press('Escape');
+await page.waitForFunction(() => document.getElementById('fight').hidden, null, { timeout: 20000 }).catch(() => {});
+await settle();
+check(await E(() => document.getElementById('fight').hidden && !window.__g3.world.busy), 'back from the Party to the walk');
 
 console.log('\n' + results.map(([ok, w]) => (ok ? 'PASS ' : 'FAIL ') + w).join('\n'));
 console.log(`${results.filter((r) => r[0]).length} of ${results.length} passed in ${((Date.now() - t0) / 1000).toFixed(0)} s`);

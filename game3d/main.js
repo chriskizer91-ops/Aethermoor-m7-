@@ -33,7 +33,8 @@ import { HEARTHS } from '../game/src/data/world.js';
 import { arena } from '../world3d/battle/arena.js';
 import { runFight } from '../world3d/battle/run.js';
 import { loadLive, hasLive, saveLive, backupLive, clearLive, readM7, loadSettings, saveSettings } from './save.js';
-import { createWorld } from './walk.js';
+import { createWorld, gearFor } from './walk.js';
+import { openParty } from '../world3d/battle/party-room.js';
 
 const Q = new URLSearchParams(location.search);
 window.__g3 = window.__g3 || {};
@@ -98,6 +99,7 @@ async function main() {
     }
     if (name === 'title') { unmountScreen(); if (world) world.pause(true); title(); return; }
     if (name === 'battle') { fightOn(params); return; }
+    if (name === 'party' && world) { partyRoom(params); return; }
     if (name === 'atlas' && window.M7_ATLAS && window.M7_ATLAS.open) { atlas3d(); return; }
     const S = SCREENS[name];
     if (!S) { toast('Not in the 3D game yet.'); go('world'); return; }
@@ -171,6 +173,17 @@ async function main() {
       screen = aftermath.mount(main, actx, { battle, returnTo: 'world' }) || {};
       if (screen.onAction) off = input.onAction(screen.onAction);
     });
+  }
+
+  // ---- the Party: the Fight's party room (world3d/battle/party-room.js): M7's own Party screen with the hero turning in
+  // 3D in their gear; equipping rebuilds them. Back on the walk, the party is dressed in what they now wear.
+  async function partyRoom(params = {}) {
+    unmountScreen(); world.pause(true); document.body.classList.add('g3-away'); currentName = 'party';
+    const H = window.M7_HEROES;
+    try { await openParty({ host: fhost, ctx, input, figure: (id) => H.actor(id, gearFor(game, id), PHONE ? 'light' : 'high'), hero: params.hero || game.party.active[0] }); }
+    catch (e) { console.error(e); }
+    fhost.hidden = true; fhost.replaceChildren(); fhost.classList.remove('party-room'); document.body.classList.remove('g3-away'); currentName = null;
+    world.back({});
   }
 
   // ---- the Atlas on the 3D continent: the Places job's piece (world3d/m7/atlas.js), M7_ATLAS.open({ at, kindled }) ->
