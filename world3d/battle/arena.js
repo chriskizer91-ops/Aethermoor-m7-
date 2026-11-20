@@ -12,6 +12,7 @@
 import * as THREE from 'three';
 import { buildHero, setPose } from '../../prototypes/hero-3d/model.js';
 import { Q } from '../../prototypes/hero-3d/kit.js';
+import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { buildBeast, BEASTS } from '../../prototypes/bestiary/beasts.js';
 import { FOE_ART, renderFoe, foeLooks } from '../../game/src/art/foes.js';
 import { poseHero, poseFoe, strikeStyle, RANGED, foeMover } from './moves.js';
@@ -518,6 +519,7 @@ export function foeFigure(unitOrKey, o = {}) {
   F.baseScale = big; F.grow = 1; F.phase = 1;
   if (big !== 1) { root.scale.setScalar(big); F.size.w *= big; F.size.d *= big; F.size.h *= big; }
   root.traverse((c) => { if (c.isMesh) { c.castShadow = false; } });
+  F.draws = fewerDraws(root);
   F.aura = aura(root, F.size.h / big);
   return F;
 }
@@ -595,3 +597,33 @@ function makeBlobs(scene, n) {
 }
 function placeBlob(b, p, s) { if (!b) return; b.visible = true; b.position.set(p.x, p.y + 0.03, p.z); b.scale.setScalar(s); }
 function removeBlobs(scene, bs) { for (const b of bs || []) { scene.remove(b); b.geometry.dispose(); b.material.dispose(); } }
+
+// ---- fewer draws (step 3, the phone's frame rate) ------------------------------------------------------------------
+// The pieces of a figure that hang from the same joint and share a material are drawn as one: their shapes are joined
+// in the joint's own space, so the figure looks and moves exactly as before (a leg's pieces still swing with the leg).
+// Skinned meshes, glowing parts the moves flicker (a beast's core, a lamp) and anything with a pose hook stay alone.
+function fewerDraws(root) {
+  const keep = new Set();
+  root.traverse((o) => { if (o.isMesh && (o.isSkinnedMesh || o.morphTargetInfluences || o.onBeforeRender?.length || (o.material && o.material.emissiveIntensity > 1.2))) keep.add(o); });
+  const groups = [];
+  root.traverse((node) => {
+    const by = new Map();
+    for (const c of node.children) {
+      if (!c.isMesh || keep.has(c) || c.children.length || !c.geometry?.attributes?.position || Array.isArray(c.material)) continue;
+      const k = c.material.uuid + '|' + Object.keys(c.geometry.attributes).sort().join(',') + '|' + !!c.geometry.index;
+      (by.get(k) || by.set(k, []).get(k)).push(c);
+    }
+    for (const list of by.values()) if (list.length > 1) groups.push([node, list]);
+  });
+  let saved = 0;
+  for (const [node, list] of groups) {
+    const geos = list.map((m) => { m.updateMatrix(); const g = m.geometry.clone(); g.applyMatrix4(m.matrix); return g; });
+    let merged = null; try { merged = mergeGeometries(geos, false); } catch (e) { merged = null; }
+    for (const g of geos) if (g !== merged) g.dispose();
+    if (!merged) continue;
+    const mesh = new THREE.Mesh(merged, list[0].material); mesh.castShadow = false; mesh.receiveShadow = true;
+    for (const m of list) node.remove(m);
+    node.add(mesh); saved += list.length - 1;
+  }
+  return saved;
+}
