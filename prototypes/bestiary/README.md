@@ -19,6 +19,19 @@ Mire-King, Old Snag, the Rot-Stag, Briarmaw, the Rotwarden) are shaped by hand t
 `skins/make.py`, tinted with colours read off the sheets). The rest still use the body plans in `beasts.js`, until
 their turn.
 
+## Painted or 3D (November 20, Chris's comparison)
+
+**Painted / 3D** at the top of the stage switches the beasts between two ways of making them, for Chris to choose:
+- **Painted** (`standee.js`): the creature stood in 3D as the painting on its model sheet, the HD-2D way. `standees/cut.py`
+  cuts each sheet into its front, side and back views with the grey taken away (all 54; 400 px tall WebP, 3.8 MB, in
+  `standees/web/` and `standees/pack.js`). The view that shows follows the camera round the creature; a normal map made
+  from the painting lets the light fall on it; a soft shadow sits under it. It breathes and bobs, and **Lunge**, **Hit**
+  and **Fall** show it leaning in, shaking and flashing, and tipping over and fading.
+- **3D**: the code-built creatures (Act One's twelve shaped to the sheets in `sculpt.js`, the rest first-pass plans).
+
+`buildStandee(key, { tall })` returns the same shape as `buildBeast` (`group`, `g`, `parts`, `height`, `update(t, step)`),
+plus `act.lunge` and `act.fall` (0 to 1) and `hit()`, so the Fight can show either.
+
 ## Build
 
 ```
