@@ -208,6 +208,23 @@ async function convert(id) {
     };
   });
 
+  // ---- (Places, step 4) the roofs' own painting: each building's roof rows (its H tiles) stretched over its whole footprint,
+  // so the front wall row's painted façade (doors, windows, a stall's wares) isn't laid on the roof; blank elsewhere ----
+  const roofJobs = rects(BLD).map(([i0, j0, i1, j1]) => {
+    let hEnd = j0; for (let j = j0; j <= j1; j++) if ([...Array(i1 - i0 + 1)].some((_, k) => rows[j][i0 + k] === 'H')) hEnd = j + 1;
+    return [i0, j0, i1 + 1, Math.max(j0 + 1, hEnd), i0, j0, i1 + 1, j1 + 1];
+  });
+  const roofFile = path.join(ROOT, 'world3d/coven/art/m7', id + '-roofs.webp');
+  if (roofJobs.length) execFileSync('python3', ['-I', '-c', `import sys,json
+from PIL import Image
+im=Image.open(sys.argv[1]).convert('RGB'); W,H=im.size; w,h=${w},${h}; kx=W/w; ky=H/h
+out=Image.new('RGB',(W,H),(96,92,88))
+for a in json.loads(sys.argv[3]):
+    s=[round(a[0]*kx),round(a[1]*ky),round(a[2]*kx),round(a[3]*ky)]; d=[a[4],a[5],a[6],a[7]]
+    pad=0.3; d=[round((d[0]-pad)*kx),round((d[1]-pad)*ky),round((d[2]+pad)*kx),round((d[3]+pad)*ky)]
+    out.paste(im.crop(s).resize((max(1,d[2]-d[0]),max(1,d[3]-d[1])),Image.LANCZOS),(d[0],d[1]))
+out.save(sys.argv[2],quality=80,method=6)`, webp, roofFile, JSON.stringify(roofJobs)]);
+
   // ---- the walls: runs of # and * that aren't a house's front ----
   let WALL = rows.map((r, j) => [...r].map((c, i) => (GLOOM ? '#' : '#*').includes(c) && !MASSC.includes(c) && !BLD[j][i]));
   // a wall piece of four tiles or fewer, on its own (a fire pit's kerb, a well's wall), is a low wall with no crenels
@@ -371,7 +388,7 @@ async function convert(id) {
   const place = {
     id: 'm7-' + id, m7: id, name: map.name, region, biome: map.biome, interior, dark: !!map.dark || undefined,
     ...(ACT2 ? { stand, smalls, faces, texFiles: Object.fromEntries((REGION_TEX[region] || []).map(AW)) } : {}), pillars, palisades, cliffs, roots, firsts, glows, size: [w * TX, h * TY], tiles: [w, h],
-    painting: `art/m7/${id}.webp`, standin: paint.standin || undefined, artIn: paint.artIn, extent: [-PAD * TX, -PAD * TY, (w + PAD) * TX, (h + PAD) * TY],
+    painting: `art/m7/${id}.webp`, roofPainting: roofJobs.length ? `art/m7/${id}-roofs.webp` : undefined, standin: paint.standin || undefined, artIn: paint.artIn, extent: [-PAD * TX, -PAD * TY, (w + PAD) * TX, (h + PAD) * TY],
     start: first.at, startFace: first.face, anchors, exits, people,
     water: water.map((p) => ({ poly: p })), decks, buildings, walls: segs, towers, torches, lamps, props, flowers, extraTrees, lawns, groundPatches,
     fence: GLOOM || undefined, things,

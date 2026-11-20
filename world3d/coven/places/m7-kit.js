@@ -158,7 +158,7 @@
     const ROOF = Object.assign({ slate: ['keep_roof_slate', 0xb4b8c4], red: ['shared_roof_tiles_red', 0xffffff], thatch: ['shared_roof_thatch', 0xffffff], moss: ['cottage_roof_moss', 0xffffff] }, LOOK ? LOOK.roofs : {});
     const extraMats = {};
     // (Places, step 4) every roof wears the painting where it looks up: from above it is the roof the painting shows
-    for (const [k, [tex, tint]] of Object.entries(ROOF)) extraMats['roof_' + k] = { tex, rep: 2.6, shade: 0.15, tint, side: 'double', paint: 'm7_paint', paintMix: 0.85 };
+    for (const [k, [tex, tint]] of Object.entries(ROOF)) extraMats['roof_' + k] = { tex, rep: 2.6, shade: 0.15, tint, side: 'double', paint: d.roofPainting ? 'm7_roofs' : null, paintMix: 0.85 };
     if (LOOK) Object.assign(extraMats, {
       rockL: { tex: LOOK.rock[0], rep: 2.2, tint: LOOK.rock[1], shade: 0.5, paint: 'm7_paint', paintMix: 0.6 },
       palmBark: { tex: 'shared_bark_oak', rep: 1.4, tint: 0xd8b890, shade: 0.5 },
@@ -196,6 +196,7 @@
       d.buildings.forEach((b) => { b.walls = b.walls.map((wl) => Object.assign({}, wl, { t: LOOK.houses || wl.t })); delete b.wear; if (ROOF[b.roof.kind] && ROOF[b.roof.kind][2]) b.roof.rise = ROOF[b.roof.kind][2]; });
     }
     textures.push({ id: 'm7_paint', made: d.painting, stand: d.painting, clamp: true });
+    if (d.roofPainting) textures.push({ id: 'm7_roofs', made: d.roofPainting, stand: d.roofPainting, clamp: true });   // (Places) the roofs' own painting
     const place = Object.assign({}, d, {
       mapId: d.id, pathsOnly: true, thicket: false, noRocks: [[-1e5, -1e5, 1e5, 1e5]],
       ground: Object.assign({ cob: 'shared_cobbles_town', grass: 'shared_grass_meadow', dirt: 'shared_dirt_track', pave: 'wick_bridge_paving', rep: [2.6, 3.6, 3.6, 2.4], paint: 'm7_paint', paintGain: 0.62 }, LOOK ? Object.assign({ rock: LOOK.rock[0], rockTint: LOOK.rock[1], rockRep: 4 }, LOOK.ground) : {}),
