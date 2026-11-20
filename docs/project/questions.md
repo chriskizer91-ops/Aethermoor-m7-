@@ -12,6 +12,11 @@ until Chris answers. When he does, it moves to `decisions.md`.
 3. **The dice**: real 3D dice tumbling in the tray *(suggested)*, or M7's 2D dice tray.
 4. **The card reveal**: kept exactly as approved, shown over the 3D *(suggested)*.
 
+5a. **The foes' look** (Chris, November 20: the 3D foes "need serious work or we need to think about it a different
+    way"): Chris's model sheets cut out and standing in the 3D as painted figures, with life added (breathing, leaning,
+    flashing when hit) *(suggested: they look like his art at once, for all 54 beasts)*; or the code-built models
+    reshaped to the sheets; or real 3D models Chris makes from his sheets with an AI 3D tool (as he makes the pictures),
+    which we bring in. Models is building a side-by-side in the Bestiary to choose from.
 5b. **Small beasts on the field** (briarlings, hounds) stand 1.3 times life size so they read beside the heroes. Keep
     it *(suggested)*?
 
