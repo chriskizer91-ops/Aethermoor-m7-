@@ -120,9 +120,11 @@ https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL
 
 ## Next
 
-- Paused (the hub, November 20): more 3D reshaping waits until Chris chooses painted or 3D. Then: the Champions and Relic-Bearers beyond Act One (Kharzul, Mother Anvil, the Rime-Abbot, the
-  Lantern-Mother, the Blackwater Leviathan, the Unsmith, the Wisp-Queen, the Glass Matriarch, the Thunder-Roc, Grandfather
-  Willow, Old Horn...), then the others.
+- Chris chose full detail for the beasts (November 20): sessions 6 to 8 build them (`docs/project/jobs/foes.md`;
+  sculpts of 500k to 1M triangles kept as viewable assets, baked to about 50k for the game). This job does no more
+  beast reshaping. The sculpted twelve (`sculpt.js`) and the painted standees (`standee.js`, `standeeLook`) stay as
+  stand-ins, and `buildBeast` and the Bestiary keep working, until each full-detail foe lands.
+- This job keeps the heroes, the townsfolk and the 39 people foes: next, whatever the hub asks for them.
 
 ## Changed outside my files
 
