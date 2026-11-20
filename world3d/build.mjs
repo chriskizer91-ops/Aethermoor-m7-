@@ -6,7 +6,7 @@
 //   node build.mjs              textures as kept (1024 px): a laptop file
 //   node build.mjs --tex=512    textures shrunk to 512 px for a page a phone opens from a link (16 MB at most)
 import { build } from 'esbuild';
-import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, existsSync, statSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
@@ -30,7 +30,7 @@ let pics = 0, bytes = 0; const left = new Set();
 // (Places, November 20) --paint=0.75: the game's paintings (coven/art/m7/) at that scale and quality 70, for a page with many
 function sized(f) {
   if (PAINTK && /\/art\/m7\//.test(f)) {
-    const out = path.join(here, '.cache', 'paint' + PAINTK, path.basename(f));
+    const st = statSync(f), out = path.join(here, '.cache', 'paint' + PAINTK, Math.round(st.mtimeMs) + '-' + st.size + '-' + path.basename(f));   // (Places) a changed painting is shrunk again
     if (!existsSync(out)) { mkdirSync(path.dirname(out), { recursive: true }); execFileSync('python3', ['-I', '-c', `import sys\nfrom PIL import Image\nim=Image.open(sys.argv[1]);im.load();w,h=im.size;k=${PAINTK}\nif k<1: im=im.resize((round(w*k),round(h*k)),Image.LANCZOS)\nim.save(sys.argv[2],quality=70,method=6)`, f, out]); }
     return out;
   }
