@@ -164,6 +164,113 @@ function paintedFace(name) {
   return t;
 }
 
+
+/* ------------------------------------------------------------------ faces that live (November 20) */
+// Eyelids and a mouth drawn in the face's own shader over its picture (painted by Chris or by faceTexture), so a blink
+// or an expression costs a few numbers a frame, never a new picture, and works the same in High, Light and Lite.
+//   rig.faceCtl.set(expr, seconds): 'neutral', 'hurt' (a wince), 'effort' (gritted, on a strike), 'cheer', 'worried',
+//   'asleep' (a fallen hero), 'talk'; seconds omitted = until the next set. It blinks by itself, and talks while the
+//   pose is 'talk' (or faceCtl.talking is true). setPose drives it; buildHero's result has face(expr, seconds).
+// Where the eyes and mouth are on Chris's four faces, as fractions of his pictures
+const FACE_MARKS = {
+  wren: { eyes: [[0.32, 0.45], [0.66, 0.45]], eye: [0.062, 0.032], mouth: [0.5, 0.705], mw: 0.11 },
+  pip: { eyes: [[0.32, 0.43], [0.66, 0.43]], eye: [0.062, 0.032], mouth: [0.53, 0.68], mw: 0.12 },
+  bryn: { eyes: [[0.33, 0.44], [0.66, 0.44]], eye: [0.056, 0.028], mouth: [0.5, 0.68], mw: 0.085 },
+  alondra: { eyes: null, mouth: [0.5, 0.67], mw: 0.09 },
+};
+// a point on Chris's picture -> where it falls on the head's canvas (1024 x 512 units), through paintedFace's projection
+function picToCanvas(X, Y) {
+  const { k, y0 } = FACE_FIT, x = (X - 0.5) * 2 * k, y = y0 + (0.5 - Y) * 2 * k, z = Math.sqrt(Math.max(0.01, 1 - x * x - y * y));
+  const th = Math.acos(Math.max(-1, Math.min(1, y))), ph = Math.atan2(z, -x);
+  return [ph / TAU * 1024, th / Math.PI * 512];
+}
+function faceMarksOf(faceName, big) {
+  if (faceName) {
+    const F = FACE_MARKS[faceName], c = picToCanvas(...F.mouth), cw = picToCanvas(F.mouth[0] + F.mw, F.mouth[1]);
+    const eyes = F.eyes ? F.eyes.map(e => picToCanvas(...e)) : null, ew = F.eyes ? picToCanvas(F.eyes[0][0] + F.eye[0], F.eyes[0][1] + F.eye[1]) : null;
+    return { eyes, eye: eyes ? [Math.abs(ew[0] - eyes[0][0]) * 1.3, Math.abs(ew[1] - eyes[0][1]) * 1.45] : [1, 1], mouth: c, mouthSize: [Math.abs(cw[0] - c[0]), Math.abs(cw[0] - c[0]) * 0.42] };
+  }
+  // faceTexture's own layout: eyes at cx +/- 52, ey; mouth at ey + 79; all scaled 1.45 about (cx, ey + 30) unless big
+  const F = big ? 1 : 1.45, at = (x, y) => [256 + (x - 256) * F, 298 + (y - 298) * F], eyY = big ? 274 : 268;
+  return { eyes: [at(256 - (big ? 50 : 52), eyY), at(256 + (big ? 50 : 52), eyY)], eye: [25 * F * (big ? 1.3 : 1), 19 * F * (big ? 1.38 : 1)], mouth: at(256, 347), mouthSize: [20 * F, 9 * F] };
+}
+const FACE_EXPR = {
+  neutral: {}, talk: {},
+  hurt: { lid: 0.62, low: 0.35, tilt: 0.5, open: 0.34, smile: -0.45, teeth: 1 },
+  effort: { lid: 0.45, tilt: 0.85, open: 0.24, smile: -0.1, teeth: 1 },
+  cheer: { low: 0.6, open: 0.6, smile: 1 },
+  worried: { lid: 0.22, tilt: -0.9, open: 0.06, smile: -0.75 },
+  asleep: { lid: 1, open: 0.05 },
+};
+const FACE_KEYS = ['lid', 'low', 'tilt', 'open', 'smile', 'teeth'];
+export function applyFaceShader(m, U) {
+  m.onBeforeCompile = sh => {
+    Object.assign(sh.uniforms, U);
+    sh.fragmentShader = sh.fragmentShader.replace('void main() {', `uniform vec2 fEyeL, fEyeR, fEyeSize, fMouth, fMouthSize; uniform vec3 fSkin;
+uniform float fLid, fLow, fTilt, fOpen, fSmile, fTeeth, fPatch, fNoEyes;
+void main() {`).replace('#include <map_fragment>', `#include <map_fragment>
+{
+  vec2 fp = vec2(vMapUv.x, 1.0 - vMapUv.y) * vec2(1024.0, 512.0);
+  vec3 fc = diffuseColor.rgb, lash = vec3(0.07, 0.045, 0.05);
+  if (fNoEyes < 0.5) for (int i = 0; i < 2; i++) {
+    vec2 e = i == 0 ? fEyeL : fEyeR; float side = i == 0 ? -1.0 : 1.0;
+    vec2 q = (fp - e) / fEyeSize;
+    float inside = 1.0 - smoothstep(0.95, 1.12, length(q));
+    float edge = -1.08 + fLid * 2.2 - fTilt * q.x * side * 0.55;
+    float up = inside * (1.0 - smoothstep(edge - 0.07, edge + 0.07, q.y)) * step(0.02, fLid);
+    float lowE = 1.08 - fLow * 1.7 + q.x * q.x * fLow * 0.9;
+    float dn = inside * smoothstep(lowE - 0.07, lowE + 0.07, q.y) * step(0.02, fLow);
+    fc = mix(fc, fSkin * 0.92, max(up, dn));
+    fc = mix(fc, lash, inside * (1.0 - smoothstep(0.0, 0.14, abs(q.y - edge))) * step(0.04, fLid) * 0.9);
+    float shut = smoothstep(0.82, 0.98, fLid), arc = 0.25 + 0.3 * q.x * q.x * (1.0 - fLow) - fLow * 0.35;
+    fc = mix(fc, lash, shut * (1.0 - smoothstep(0.75, 0.95, abs(q.x))) * (1.0 - smoothstep(0.0, 0.16, abs(q.y - arc))));
+    fc = mix(fc, lash, inside * (1.0 - smoothstep(0.0, 0.12, abs(q.y - lowE))) * step(0.04, fLow) * 0.7);
+  }
+  if (fPatch > 0.01) {
+    vec2 q = (fp - fMouth) / fMouthSize;
+    fc = mix(fc, fSkin, fPatch * (1.0 - smoothstep(0.85, 1.25, length(q * vec2(0.85, 0.5)))));
+    float yc = -fSmile * 0.55 * q.x * q.x + fSmile * 0.2, h = fOpen * 1.1 * (1.0 - q.x * q.x), d = q.y - yc, inX = step(abs(q.x), 1.0);
+    float mouthIn = inX * (1.0 - smoothstep(h - 0.08, h + 0.04, abs(d))) * step(0.02, fOpen);
+    vec3 inner = mix(vec3(0.22, 0.04, 0.05), vec3(0.93, 0.9, 0.84), fTeeth * (1.0 - smoothstep(0.08, 0.16, abs(d) - h * 0.55 + 0.08)) );
+    inner = mix(inner, vec3(0.93, 0.9, 0.84), (1.0 - fTeeth) * step(d, -h * 0.45));
+    fc = mix(fc, inner, mouthIn * fPatch);
+    float lip = inX * (1.0 - smoothstep(0.1, 0.24, abs(abs(d) - h))) * (1.0 - smoothstep(0.85, 1.0, abs(q.x)));
+    fc = mix(fc, vec3(0.42, 0.13, 0.13), lip * fPatch * 0.9);
+    fc = mix(fc, fTeeth > 0.5 ? vec3(0.25, 0.2, 0.18) : fc, mouthIn * fPatch * fTeeth * (1.0 - smoothstep(0.0, 0.07, abs(d))) );
+  }
+  diffuseColor.rgb = fc;
+}`);
+  };
+  m.customProgramCacheKey = () => 'aeth-face';
+  m.userData.faceU = U;
+  return m;
+}
+function faceRig(faceM, marks, skin, noEyes) {
+  const V2 = (a) => new THREE.Vector2(a[0], a[1]);
+  const U = { fEyeL: { value: V2(marks.eyes ? marks.eyes[0] : [0, 0]) }, fEyeR: { value: V2(marks.eyes ? marks.eyes[1] : [0, 0]) }, fEyeSize: { value: V2(marks.eye) },
+    fMouth: { value: V2(marks.mouth) }, fMouthSize: { value: V2(marks.mouthSize) }, fSkin: { value: skin }, fNoEyes: { value: noEyes || !marks.eyes ? 1 : 0 },
+    fLid: { value: 0 }, fLow: { value: 0 }, fTilt: { value: 0 }, fOpen: { value: 0 }, fSmile: { value: 0 }, fTeeth: { value: 0 }, fPatch: { value: 0 } };
+  applyFaceShader(faceM, U);
+  const C = { U, expr: 'neutral', until: Infinity, pending: null, talking: false, cur: {}, last: null, nextBlink: 2 + Math.random() * 3, blinkAt: -9 };
+  for (const k of FACE_KEYS) C.cur[k] = 0;
+  C.set = (expr, seconds) => { C.pending = { expr: FACE_EXPR[expr] ? expr : 'neutral', seconds }; };
+  C.update = (t, pose) => {
+    const dt = C.last == null ? 0 : Math.min(0.1, Math.max(0, t - C.last)); C.last = t;
+    if (C.pending) { C.expr = C.pending.expr; C.until = C.pending.seconds ? t + C.pending.seconds : Infinity; C.pending = null; }
+    if (t > C.until) { C.expr = 'neutral'; C.until = Infinity; }
+    const E = FACE_EXPR[C.expr], k = 1 - Math.exp(-dt * 14);
+    for (const key of FACE_KEYS) C.cur[key] += ((E[key] || 0) - C.cur[key]) * k;
+    // a blink every few seconds (not while asleep)
+    if (t > C.nextBlink) { C.blinkAt = t; C.nextBlink = t + 2.2 + Math.random() * 3.5; }
+    const b = t - C.blinkAt, blink = b < 0.16 ? Math.sin(b / 0.16 * Math.PI) : 0;
+    const talking = C.talking || pose === 'talk' || C.expr === 'talk';
+    const open = talking ? Math.max(C.cur.open, 0.12 + 0.38 * Math.abs(Math.sin(t * 9.1) * Math.sin(t * 3.7 + 1))) : C.cur.open;
+    U.fLid.value = Math.max(C.cur.lid, blink); U.fLow.value = C.cur.low; U.fTilt.value = C.cur.tilt; U.fOpen.value = open; U.fSmile.value = C.cur.smile; U.fTeeth.value = C.cur.teeth;
+    U.fPatch.value = Math.min(1, Math.max(open * 6, Math.abs(C.cur.smile) * 2, C.cur.teeth * 2, talking ? 1 : 0));
+  };
+  return C;
+}
+
 /* ------------------------------------------------------------------ small helpers */
 const strHash = str => { let h = 2166136261; for (const ch of String(str)) h = Math.imul(h ^ ch.charCodeAt(0), 16777619); return h >>> 0; };
 
@@ -304,6 +411,9 @@ export function buildHero(heroKey, gear, o = {}) {
   const faceM = new THREE.MeshPhysicalMaterial({ roughness: 0.55, sheen: 0.4, sheenRoughness: 0.5, sheenColor: skinM.sheenColor });
   faceM.map = faceName ? paintedFace(faceName) : faceTexture(H, H.skin, H.hairMat, { blind, big: S.chibi });
   faceM.userData.face = true;
+  // the face lives: blinks, a talking mouth, expressions (faceRig)
+  { const P0 = (MAT[H.skin] || MAT.skin).pal, sk = faceName ? FACES[faceName].skin : P0[3].map((v, i) => v + (P0[4][i] - v) * 0.35);
+    rig.faceCtl = faceRig(faceM, faceMarksOf(faceName, S.chibi), new THREE.Color().setRGB(sk[0] / 255, sk[1] / 255, sk[2] / 255, THREE.SRGBColorSpace), !!H.shade || (blind && !faceName)); }
   const skull = sph(r, 64, 40);
   { const p = skull.attributes.position; for (let i = 0; i < p.count; i++) { let x = p.getX(i), y = p.getY(i), z = p.getZ(i); const low = clamp01(-y / r); const k = 1 - low * low * 0.3 * (z > 0 ? 1 : 0.6); x *= k * 0.94; z *= (z > 0 ? 1 - low * 0.05 : 1.04); if (z > 0) z += low * low * r * 0.08 * (1 - Math.abs(x) / r); y *= 1.06; p.setXYZ(i, x, y, z); } skull.computeVertexNormals(); }
   add(skull, faceM, head);
@@ -410,7 +520,7 @@ export function buildHero(heroKey, gear, o = {}) {
   root.scale.setScalar(SHOWN_H / S.total);
   rig.scale = SHOWN_H / S.total;
   setPose(rig, 'idle', 0);
-  return { group, rig, fx, looks: L };
+  return { group, rig, fx, looks: L, face: (expr, seconds) => rig.faceCtl?.set(expr, seconds) };
 }
 
 
@@ -539,7 +649,7 @@ export function liteFigure(group, rig) {
   let draws = 0;
   const skinned = (geo, mat) => { const sm = new THREE.SkinnedMesh(geo, mat); sm.bind(skeleton, new THREE.Matrix4()); sm.castShadow = sm.receiveShadow = true; sm.frustumCulled = false; group.add(sm); draws++; return sm; };
   if (main.length) skinned(mergeGeometries(main, false), LITE_MAT());
-  if (face.length) { const fm = face[0].m, mat = new THREE.MeshStandardMaterial({ map: fm.map, roughness: 0.6 }); skinned(mergeGeometries(face.map(f => f.g), false), mat); }
+  if (face.length) { const fm = face[0].m, mat = new THREE.MeshStandardMaterial({ map: fm.map, roughness: 0.6 }); if (fm.userData.faceU) applyFaceShader(mat, fm.userData.faceU); skinned(mergeGeometries(face.map(f => f.g), false), mat); }
   rig.lite = true;
   return draws;
 }
@@ -718,6 +828,7 @@ function keepUpright(rig) {
 }
 // idle: the weapon held ready; strike (0..1): a move that suits the weapon's class
 export function setPose(rig, pose, t, u = 0) {
+  rig.faceCtl?.update(t, pose);
   const R = rig.armR, Lf = rig.armL, cls = rig.cls;
   const breathe = Math.sin(t * 2.1);
   rig.root.position.set(0, 0, 0); rig.root.rotation.set(0, 0, 0);

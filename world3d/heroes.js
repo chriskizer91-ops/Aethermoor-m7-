@@ -36,7 +36,7 @@ export function rollOutfit(id, rarity) {
 // showing.
 export function actor(id, gear, detail = 'high') {
   const Ld = buildLod(lite => buildHero(id, gear, { lite }), detail), H = Ld.hero, root = Ld.root;
-  const A = { id, root, hero: H, lod: Ld, walkRun: false, camera: null, step: 0, strike: -1,
+  const A = { id, root, hero: H, lod: Ld, face: Ld.face, walkRun: false, camera: null, step: 0, strike: -1,
     animate(phase, walking, t, dt) {
       const H = { rig: Ld.pick().rig };
       H.rig.run = A.walkRun;
@@ -50,7 +50,7 @@ export function actor(id, gear, detail = 'high') {
 // looks round, A.talking = true makes it talk with its hands, walking it walks
 export function person(npcId, detail = 'high') {
   const Ld = buildLod(lite => buildPerson(npcId, { lite }), detail), H = Ld.hero, root = Ld.root;
-  const A = { lod: Ld, id: npcId, name: H.name, role: H.role, root, hero: H, rig: H.rig, height: TALL, walkRun: false, talking: false, step: 0, phase: Math.random() * 20,
+  const A = { lod: Ld, face: Ld.face, id: npcId, name: H.name, role: H.role, root, hero: H, rig: H.rig, height: TALL, walkRun: false, talking: false, step: 0, phase: Math.random() * 20,
     update(t, dt, walking) { A.animate(0, walking ? 1 : 0, t, dt); },
     animate(phase, walking, t, dt) {
       const R = Ld.pick().rig; A.rig = R;
