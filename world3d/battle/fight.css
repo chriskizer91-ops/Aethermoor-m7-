@@ -23,3 +23,6 @@
 .f3-tray .bt-d20 { visibility: hidden; }
 .f3-dice { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); pointer-events: none; z-index: 1; }
 body.fighting #world > button, body.fighting #party, body.fighting #toast.hidefight { display: none; }
+/* the spoils: M7's after-fight screen over the field, the field still showing above and round it */
+#fight.spoils { overflow-y: auto; background: linear-gradient(180deg, rgba(10, 8, 12, 0) 0, rgba(10, 8, 12, 0) 36vh, rgba(10, 8, 12, .6) 48vh, rgba(14, 10, 9, .92) 70vh); }
+#fight.spoils .screen-aftermath { padding-top: 40vh; background: transparent; }

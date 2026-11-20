@@ -13,6 +13,8 @@
 //     host,     // an element over the canvas for M7's battle screen (position: fixed; inset: 0; see battle/fight.css)
 //     auto,     // optional: the party fights on its own
 //     resume,   // optional, default true: the walk starts again once the camera is back behind the leader
+//     keep,     // optional: stay on the field after the cheer (for the spoils); the result then carries end(), which
+//               // swings the camera back (and resumes the walk) and resolves when it has
 //   });
 //   result: 'victory' | 'defeat' | 'fled'; battle: the finished state (hand it to M7's aftermath screen, or
 //   rules/gauntlet.js resolveBattle); outcome: rules/battle.js outcome(battle) (xp, gold, drops, claimed...).
@@ -22,7 +24,7 @@
 import * as battleScreen from '../../game/src/ui/screens/battle.js';
 import { arena } from './arena.js';
 
-export function runFight({ W, battle, center, yaw, heroes, foes = [], ctx, host, auto = false, resume = true }) {
+export function runFight({ W, battle, center, yaw, heroes, foes = [], ctx, host, auto = false, resume = true, keep = false }) {
   return new Promise((resolve, reject) => {
     let screen = null, off = null;
     W.pause(true); document.body.classList.add('fighting');
@@ -39,12 +41,16 @@ export function runFight({ W, battle, center, yaw, heroes, foes = [], ctx, host,
       cleanup();
       const result = p.result?.result || 'victory';
       if (result === 'victory') arena.victory();
-      setTimeout(() => arena.end(() => {
-        for (const A of Object.values(heroes)) { A.hero.group.rotation.set(0, 0, 0); A.hero.group.position.set(0, 0, 0); A.root.visible = true; }
+      const back = () => new Promise((r) => arena.end(() => {
+        for (const A of arena.actors()) { A.hero.group.rotation.set(0, 0, 0); A.hero.group.position.set(0, 0, 0); A.root.visible = true; }
         document.body.classList.remove('fighting');
         if (resume) W.pause(false);
-        resolve({ result, battle: p.battle, outcome: p.result });
-      }), result === 'victory' ? 2600 : 1600);
+        r();
+      }));
+      setTimeout(() => {
+        if (keep) resolve({ result, battle: p.battle, outcome: p.result, end: back });
+        else back().then(() => resolve({ result, battle: p.battle, outcome: p.result }));
+      }, result === 'victory' ? 2600 : 1600);
     }
   });
 }
