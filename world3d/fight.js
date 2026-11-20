@@ -179,12 +179,12 @@ async function main() {
   }
   const label = () => { $('scenebtn').textContent = SC === SCENES.road ? 'To Briarmaw\'s den' : 'To Thornhollow'; $('fightbtn').textContent = SC === SCENES.road ? 'Meet the pack' : 'Face Briarmaw'; };
   // the beasts' look, for Chris to choose: the painted standees from his sheets, or the sculpted ones
-  const looks = () => { $('looksbtn').textContent = cutout ? 'Foes: painted' : 'Foes: sculpted'; };
+  const looks = () => { $('looksbtn').textContent = cutout ? 'Foes: Painted' : 'Foes: 3D'; };
   $('looksbtn').addEventListener('click', () => {
     if (fighting) return;
     cutout = !cutout; setBeastLook(cutout ? standeeLook : null); looks();
     if (pack) for (const F of pack.figs) W.P.scene.remove(F.root);
-    pack = null; spawnPack(); toast(cutout ? 'The foes as Chris painted them' : 'The foes as sculpted in 3D');
+    pack = null; spawnPack(); toast(cutout ? 'The foes as Chris painted them' : 'The foes as 3D models');
   });
   looks();
   $('scenebtn').addEventListener('click', () => goScene(SC === SCENES.road ? 'den' : 'road'));
