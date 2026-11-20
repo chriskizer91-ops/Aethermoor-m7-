@@ -335,7 +335,7 @@ function tint(h, d) {
   const want = h.flash ? h.flash.c : null;
   if (h.flash) { h.flash.t += d; if (h.flash.t >= h.flash.dur) h.flash = null; }
   const k = h.flash ? 1 - h.flash.t / h.flash.dur : 0;
-  if (!h._mats) { h._mats = []; h.body.traverse((o) => { if (o.isMesh && o.material && o.material.emissive) { const m = o.material.clone(); o.material = m; h._mats.push([m, m.emissive.clone(), m.emissiveIntensity]); } }); }
+  if (!h._mats) { h._mats = []; h.body.traverse((o) => { if (o.isMesh && o.material && o.material.emissive) { const m0 = o.material, m = m0.clone(); m.onBeforeCompile = m0.onBeforeCompile; if (m0.customProgramCacheKey) m.customProgramCacheKey = m0.customProgramCacheKey; m.userData = { ...m0.userData }; o.material = m; h._mats.push([m, m.emissive.clone(), m.emissiveIntensity]); } }); }
   if (!want && !h._lit) return;
   h._lit = !!want;
   for (const [m, e0, i0] of h._mats) { if (want) { m.emissive.copy(e0).lerp(want, k * 0.8); m.emissiveIntensity = i0 + k * 0.9; } else { m.emissive.copy(e0); m.emissiveIntensity = i0; } }
