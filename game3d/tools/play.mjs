@@ -149,6 +149,15 @@ await page.waitForFunction(() => window.__g3.world.walk.map === 'hearth-road' &&
 s = await state();
 check(s.map === 'hearth-road', `the north gate leads to the Hearth Road (${s.map} ${s.x},${s.y})`);
 await settle(); await shot('hearth-road');
+// a chest: the nearest the party can reach on the Hearth Road (M7's own: the ditch by the road)
+{
+  const c = await E(() => window.__g3.world.nearestChest());
+  const opened0 = await E(() => window.__g3.chests || 0);
+  if (c) { await useThing(c.id); await settle(); }
+  const n = await E(() => window.__g3.chests || 0);
+  check(!!c && n > opened0 && (await E((id) => !!window.__g3.world.game.progress.flags.opened[id], c.id)), `a chest is opened (${c ? c.id : 'none reachable'})`);
+  await shot('chest');
+}
 const fightsRoad = await E(() => window.__g3.fights || 0);
 for (let i = 0; i < 12; i++) { s = await walkTo(12, 0, { map: 'hearth-road' }); if (s.map !== 'hearth-road') break; }
 await page.waitForFunction(() => window.__g3.world.walk.map === 'thornhollow' && !window.__g3.world.busy, null, { timeout: 60000 }).catch(() => {});
@@ -156,13 +165,6 @@ await settle();
 s = await state();
 check(s.map === 'thornhollow', `the Hearth Road leads to Thornhollow (${s.map} ${s.x},${s.y}; ${(await E(() => window.__g3.fights || 0)) - fightsRoad} road fights on the way)`);
 await shot('thornhollow');
-// a chest: Thornhollow's cache
-const gold0 = await E(() => window.__g3.world.game.gold);
-const opened0 = await E(() => window.__g3.chests || 0);
-await useThing('th-cache');
-await settle();
-check((await E(() => window.__g3.chests || 0)) > opened0 && (await E(() => !!window.__g3.world.game.progress.flags.opened['th-cache'])), `a chest is opened (gold ${gold0} -> ${await E(() => window.__g3.world.game.gold)})`);
-await shot('chest');
 // a rest at Thornhollow's Hearthfire (lit first if it is cold)
 const rested0 = await E(() => window.__g3.rested || 0);
 await useThing('thornhollow');

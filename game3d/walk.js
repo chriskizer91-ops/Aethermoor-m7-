@@ -683,6 +683,15 @@ export function createWorld(o) {
     teleport(x, y, face) { const [px, py] = centre(x, y); walk = { ...walk, x, y, face: face || walk.face }; Wk.setIo(px, py, YAW[face] ?? Wk.io.yaw); blocked = null; },
     setGame(g) { game = g; ctx.setGame(g); stand(); },
     // the playthrough's: the standing foe (a road's guard) nearest by path, with a tile beside it to stand on
+    nearestChest() {
+      let best = null;
+      for (const e of W.present(game, walk.map)) {
+        if (e.kind !== 'chest' || e.state === 'opened' || e.hidden || e.lock) continue;
+        const b = api.besideOf(e.id);
+        if (b && (!best || b.n < best.n)) best = { id: e.id, n: b.n };
+      }
+      return best;
+    },
     nearestGuard() {
       let best = null;
       for (const e of W.present(game, walk.map)) {
