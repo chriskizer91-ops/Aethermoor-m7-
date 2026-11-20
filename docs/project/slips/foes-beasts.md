@@ -17,10 +17,16 @@ session 6 made Briarmaw.
     Pack Howl, hit, fall.
   - On the page: his turning stand, the moves, the numbers, his renders under Chris's sheet, and **a pack of five
     walking round the four heroes**.
+- **The laptop page, with the sculpt itself:** https://claude.ai/artifact/8pCvG7xuqHuCcARiUYa9SX (9.8 MB). A button
+  swaps the light model for the full 606,104-triangle sculpt (kept in `foes/thornhound/assets/sculpt.bin`, 3.1 MB
+  compressed), as Chris asked (sculpts 500,000 to 1,000,000 triangles, kept as something he can look at).
 - Checks: the page loads headless with no errors at laptop and phone sizes, no sideways scroll; 20 frames a second in
   software drawing (much slower than a phone's graphics chip), with the pack too.
 
 ## Next
+
+0. Move onto session 6's shared kit (commit f384b7d / 8f3b6e2 on job/foe-hd) once the hub brings it into its branch; my
+   kit folder then goes, and the thornhound is rebuilt on it.
 
 1. The rotstag, Old Snag, the Mirelord, the rotgrub and the Gloamwing (Act One), then the rest in the order they're met.
 2. The thornhound, pass two: the fur still reads a little like bark from far off; softer locks, the face's markings

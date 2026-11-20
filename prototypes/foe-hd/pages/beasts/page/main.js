@@ -7,7 +7,7 @@ import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment
 import { HERO_ART } from '../../../../../game/src/art/hero-looks.js';
 import { SLOTS } from '../../../../../game/src/art/item-looks.js';
 import { buildHero, setPose } from '../../../../hero-3d/model.js';
-import { ready, makeShared, buildFoe, cloneFoe } from '../kit/foe.js';
+import { ready, makeShared, buildFoe, cloneFoe, decodeSculpt } from '../kit/foe.js';
 import { quad } from '../kit/moves-quad.js';
 import { FOES, WITH_HEROES } from 'virtual:foes';
 
@@ -52,7 +52,8 @@ function show(key) {
   S.foe = key; S.move = 'idle'; S.moveT = 0;
   while (top.children.length) top.remove(top.children[0]);
   const { f, F } = foeOf(key);
-  top.add(F.group);
+  top.add(F.group); S.sculpt = false;
+  $('sculpt').hidden = !f.A.sculptBin;
   const size = Math.max(f.height, f.length || f.height * 1.4);
   disc.scale.set(size * 0.6, 1, size * 0.6);
   $('name').textContent = f.name;
@@ -112,9 +113,20 @@ function buttons() {
 function refresh() {
   for (const b of document.querySelectorAll('#moves button')) b.setAttribute('aria-pressed', b.dataset.k === S.move);
   for (const b of document.querySelectorAll('#roster button')) b.setAttribute('aria-pressed', b.dataset.k === S.foe);
-  $('turn').setAttribute('aria-pressed', S.turn); $('pack').setAttribute('aria-pressed', S.pack);
+  $('turn').setAttribute('aria-pressed', S.turn); $('sculpt').setAttribute('aria-pressed', !!S.sculpt); $('pack').setAttribute('aria-pressed', S.pack);
 }
 $('turn').onclick = () => { S.turn = !S.turn; refresh(); };
+$('sculpt').onclick = () => {
+  const cur = made[S.foe]; if (!cur.f.A.sculptBin) return;
+  if (!cur.sculpt) {
+    cur.sculpt = new THREE.Mesh(decodeSculpt(cur.f.A.sculptMeta, cur.f.A.sculptBin), new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.85 }));
+    cur.sculpt.castShadow = cur.sculpt.receiveShadow = true;
+  }
+  S.sculpt = !S.sculpt;
+  top.remove(S.sculpt ? cur.F.group : cur.sculpt); top.add(S.sculpt ? cur.sculpt : cur.F.group);
+  $('ntri').textContent = (S.sculpt ? cur.f.A.sculptMeta.triangles : cur.F.triangles).toLocaleString();
+  refresh();
+};
 $('pack').onclick = () => {
   if (S.pack) clearPack(); else { buildPack(); S.pack = true; pack.group.visible = true; standG.visible = false; }
   frame(); refresh();

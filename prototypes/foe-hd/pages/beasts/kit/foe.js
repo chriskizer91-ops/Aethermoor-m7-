@@ -121,3 +121,23 @@ export function fullDetailLook(makers, fallback) {
     return first[key] ? cloneFoe(first[key]) : (first[key] = makers[key]());
   };
 }
+
+// the sculpt itself (export_sculpt.py + pack.mjs), as a plain coloured mesh for the laptop page
+export function decodeSculpt(meta, bin) {
+  const n = meta.vertices;
+  const vb = new Uint8Array(n * 12);
+  MeshoptDecoder.decodeVertexBuffer(vb, n, 12, bin.subarray(0, meta.vbytes));
+  const ib = new Uint32Array(meta.indices);
+  MeshoptDecoder.decodeIndexBuffer(new Uint8Array(ib.buffer), meta.indices, 4, bin.subarray(meta.vbytes, meta.vbytes + meta.ibytes));
+  const dv = new DataView(vb.buffer), pos = new Float32Array(n * 3), col = new Uint8Array(n * 3);
+  for (let i = 0; i < n; i++) {
+    for (let a = 0; a < 3; a++) pos[i * 3 + a] = meta.lo[a] + dv.getUint16(i * 12 + a * 2, true) / 65535 * (meta.hi[a] - meta.lo[a]);
+    for (let a = 0; a < 3; a++) col[i * 3 + a] = vb[i * 12 + 8 + a];
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  g.setAttribute('color', new THREE.BufferAttribute(col, 3, true));
+  g.setIndex(new THREE.BufferAttribute(ib, 1));
+  g.computeVertexNormals(); g.computeBoundingSphere();
+  return g;
+}
