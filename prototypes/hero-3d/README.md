@@ -7,22 +7,31 @@ https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL
   generator; **Named relic** steps through the Codex relics for that slot; **Temper +1** is Hilda's forge (+7 glows,
   +10 burns white); **Roll a whole outfit** dresses them at once, at any rarity you choose.
 - **Swing** plays a move that suits the weapon (a cut, a smash, a thrust, a raised staff, a drawn bow).
-  **Pixel look** draws the 3D model in big pixels. Drag to turn the hero round.
+  **Shape** switches between a taller storybook hero and the sprite's own proportions. **Pixel look** draws the 3D model in big pixels. Drag to turn the hero round.
 - The small picture is the game's own battle sprite in the same gear, so you can see they match.
 
 ## How it's made
 
-`model.js` builds the hero from the game's files in `game/src/`, with nothing drawn by hand:
+`model.js` builds the hero from the game's files in `game/src/`, with nothing drawn by hand, and `kit.js` is the
+modelling kit it builds with.
 
-- the body's proportions are the pixel rig's (`art/heroes.js` `BUILD`: head, shoulders, waist, hem, legs, hands);
-- who the hero is comes from `art/hero-looks.js` `HERO_ART` (skin, hair and its style, eyes, cloak, mantle, tabard,
-  quiver, Alondra's blindfold, Bryn's ears);
-- each item becomes the same "look" the pixel heroes draw (`art/item-looks.js` `itemArt` and `lookFor`): a helm's
-  shape, crest and plume; armour's kind (mail, leather, plate, robe), trim, pauldrons, sash, studs and runes; a
-  sword's blade length and width, guard, fuller and gems; an axe's blade, a hammer's head, a staff's orb, a bow's limbs;
-  a shield's shape, rim, boss and paint;
-- every colour comes from the Forge's palettes (`art/forge.js` `MAT`): metals shine, gems glint, aspect glows give
-  light, and a tempered metal brightens step by step.
+- **Who the hero is** comes from `art/hero-looks.js` `HERO_ART`: skin, hair and its style (in locks), eyes (painted
+  onto the face), cloak, mantle, tabard, quiver, Alondra's blindfold, Bryn's ears.
+- **Each item** becomes the same "look" the pixel heroes draw (`art/item-looks.js` `itemArt` and `lookFor`), made
+  with the kit:
+  - blades are faceted, with a diamond cross-section, bevels to the edges, a fuller and a point;
+  - grips are wound with wire, and guards are curved bars with knobs at the ends;
+  - hafts have leather wound round them; axe heads and spearheads thin to their edges;
+  - helms, hoods and crowns are turned shapes with face openings, crests, plumes, rivets, points and gems;
+  - shields are domed plates with painted heraldry (chevron, quarters, thorns), a rim, rivets and a boss;
+  - armour follows the body: mail, stitched leather with studs, plate with a ridge, rolled edges, lames and layered
+    shoulder plates, robes that flare to the floor;
+  - hands close round what they hold.
+- **Every colour** comes from the Forge's palettes (`art/forge.js` `MAT`). The kit gives each kind of material its
+  own generated surface: leather grain, cloth weave, chain mail, wood grain, scratched metal. Metals shine, gems
+  sparkle, glows give light, and a tempered metal brightens step by step.
+- **Two shapes:** "storybook" (a taller hero) and "like the sprite" (the pixel rig's own proportions,
+  `art/heroes.js` `BUILD`).
 
 `main.js` is the room: the light, the plinth whose rune circle takes the outfit's best rarity colour, the motes of the
 weapon's aspect, the swing and its trail, and the panel.

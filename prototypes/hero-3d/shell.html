@@ -21,7 +21,7 @@ button[aria-pressed=true]{border-color:var(--hot);color:var(--hot)}
 .inset{position:absolute;left:16px;bottom:calc(16px + env(safe-area-inset-bottom));background:rgba(18,14,12,.85);box-shadow:0 0 0 2px var(--ink),0 0 0 4px var(--seam);padding:6px 8px 4px;text-align:center}
 .inset .lab{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ash)}
 #sprite canvas{width:128px;height:128px;display:block}
-.acts{position:absolute;right:16px;bottom:calc(16px + env(safe-area-inset-bottom));display:flex;gap:8px}
+.acts{position:absolute;right:16px;bottom:calc(16px + env(safe-area-inset-bottom));display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px;max-width:calc(100% - 180px)}
 #fps{position:absolute;right:16px;top:calc(64px + env(safe-area-inset-top));font-size:11px;color:var(--ash)}
 canvas.px{image-rendering:pixelated;image-rendering:crisp-edges}
 .panel{background:var(--soot2);border-left:3px solid var(--ink);box-shadow:inset 2px 0 0 var(--seam);overflow:auto;padding:14px 16px calc(16px + env(safe-area-inset-bottom))}
@@ -49,7 +49,11 @@ canvas.px{image-rendering:pixelated;image-rendering:crisp-edges}
   .stage{position:sticky;top:0;z-index:2;height:52vh}
   .panel{border-left:0;border-top:3px solid var(--ink);box-shadow:inset 0 2px 0 var(--seam)}
   .title b{font-size:18px}
-  #sprite canvas{width:72px;height:72px}
+  #sprite canvas{width:64px;height:64px}
+  .inset{top:calc(66px + env(safe-area-inset-top));bottom:auto;left:auto;right:16px}
+  .acts{left:16px;right:16px;max-width:none;flex-wrap:nowrap;justify-content:stretch}
+  .acts button{flex:1 1 auto;padding:0 8px;font-size:13px}
+  #fps{top:auto;right:auto;left:16px;bottom:calc(68px + env(safe-area-inset-bottom))}
   .inset{padding:4px 6px 2px}
   .acts button{min-width:44px}
   .top button{padding:0 9px}
@@ -64,7 +68,7 @@ canvas.px{image-rendering:pixelated;image-rendering:crisp-edges}
     </div>
     <div id="fps"></div>
     <div class="inset"><div id="sprite"></div><div class="lab">In the game</div></div>
-    <div class="acts"><button id="b-strike" class="primary">Swing</button><button id="b-pixel" aria-pressed="false">Pixel look</button></div>
+    <div class="acts"><button id="b-strike" class="primary">Swing</button><button id="b-build">Shape: storybook</button><button id="b-pixel" aria-pressed="false">Pixel look</button></div>
   </div>
   <div class="panel">
     <div class="lab2">What they wear · tap a slot</div>

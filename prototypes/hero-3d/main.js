@@ -22,7 +22,7 @@ const SLOT_NAME = { weapon: 'Weapon', offhand: 'Off hand', head: 'Head', body: '
 const rng = createRng(`gear-room:${Date.now() % 100000}`);
 const relicsFor = slot => Object.values(RELICS).filter(r => r.slot === slot).sort((a, b) => a.codex - b.codex);
 
-const S = { hero: 'warden', gear: {}, slot: 'weapon', rarity: 'any', relicAt: {}, pixel: false, strike: -1 };
+const S = { hero: 'warden', gear: {}, slot: 'weapon', rarity: 'any', relicAt: {}, pixel: false, strike: -1, build: 'hero' };
 
 /* ------------------------------------------------------------------ scene */
 const canvas = document.getElementById('view');
@@ -40,7 +40,7 @@ scene.environmentIntensity = 0.55;
 const camera = new THREE.PerspectiveCamera(30, 1, 0.05, 50);
 camera.position.set(0.9, 1.0, 3.1);
 const controls = new OrbitControls(camera, canvas);
-controls.target.set(0, 0.6, 0);
+controls.target.set(0, 0.66, 0);
 controls.enablePan = false; controls.enableDamping = true; controls.dampingFactor = 0.08;
 controls.minDistance = 1.2; controls.maxDistance = 5; controls.maxPolarAngle = Math.PI * 0.55; controls.minPolarAngle = Math.PI * 0.18;
 controls.autoRotate = true; controls.autoRotateSpeed = 1.1;
@@ -103,7 +103,7 @@ composer.addPass(new OutputPass());
 let hero = null;
 function rebuild() {
   if (hero) { scene.remove(hero.group); hero.group.traverse(o => { o.geometry?.dispose?.(); }); }
-  hero = buildHero(S.hero, S.gear);
+  hero = buildHero(S.hero, S.gear, { build: S.build });
   scene.add(hero.group);
   const fx = hero.fx;
   runeCircle.material.color.copy(fx.aura || new THREE.Color(0xffb04a));
@@ -205,6 +205,7 @@ $('b-off').onclick = () => { S.gear[S.slot] = null; rebuild(); };
 $('b-all').onclick = () => { for (const s of SLOTS) if (s !== 'offhand' || !['staff', 'bow', 'spear'].includes(S.gear.weapon?.kind)) S.gear[s] = rollFor(s); rebuild(); };
 $('b-starter').onclick = () => setHero(S.hero);
 $('b-strike').onclick = () => { S.strike = 0; trailPts.length = 0; };
+$('b-build').onclick = () => { S.build = S.build === 'hero' ? 'pixel' : 'hero'; $('b-build').textContent = S.build === 'hero' ? 'Shape: storybook' : 'Shape: like the sprite'; rebuild(); };
 $('b-pixel').onclick = () => { S.pixel = !S.pixel; $('b-pixel').setAttribute('aria-pressed', S.pixel); resize(); };
 
 /* ------------------------------------------------------------------ loop */
@@ -219,8 +220,8 @@ function resize() {
   camera.aspect = w / h;
   // a tall phone stage: a wider view, and the hero nudged down out from under the buttons
   const tall = w / h < 1.1 || innerWidth <= 820;
-  camera.fov = tall ? 44 : 30;
-  if (tall) camera.setViewOffset(w, h, 0, -h * 0.17, w, h); else camera.clearViewOffset();
+  camera.fov = tall ? 48 : 30;
+  if (tall) camera.setViewOffset(w, h, 0, -h * 0.05, w, h); else camera.clearViewOffset();
   camera.updateProjectionMatrix();
   moteMat.uniforms.px.value = pr * h / 700;
 }
