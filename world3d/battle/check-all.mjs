@@ -21,7 +21,7 @@ for (const enc of list.split(',')) {
     window.__seen = { events: {}, statuses: {}, log: [] };
     globalThis.__btHooks = {
       log(line) { window.__seen.log.push(line.text); if (window.__seen.log.length > 400) window.__seen.log.shift(); },
-      peak(ev) { const s = window.__seen; s.events[ev.t] = (s.events[ev.t] || 0) + 1; if (ev.t === 'status' && ev.status) s.statuses[ev.status + ':' + ev.op] = 1; return null; },
+      peak(ev) { const s = window.__seen; s.events[ev.t] = (s.events[ev.t] || 0) + 1; if (ev.t === 'roll') s.events['roll:' + (ev.purpose || 'attack')] = (s.events['roll:' + (ev.purpose || 'attack')] || 0) + 1; if (ev.t === 'status' && ev.status) s.statuses[ev.status + ':' + ev.op] = 1; return null; },
     };
   });
   const t0 = Date.now();
@@ -34,7 +34,7 @@ for (const enc of list.split(',')) {
     await p.waitForFunction(() => window.__fight.result, null, { timeout: +(process.env.WAIT || 900000) });
     await p.waitForTimeout(5000);
     await p.screenshot({ path: path.join(out, `${enc}-after.png`) });
-    r = { enc, result: await p.evaluate(() => window.__fight.result), ...(await p.evaluate(() => ({ events: window.__seen.events, statuses: Object.keys(window.__seen.statuses) }))) };
+    r = { enc, result: await p.evaluate(() => window.__fight.result), ...(await p.evaluate(() => ({ events: window.__seen.events, statuses: Object.keys(window.__seen.statuses), notes: window.__seen.log.filter((t) => /toll|swallow|burrow|dive|charm|split|joins|guest|beside/i.test(t)).slice(0, 8) }))) };
   } catch (e) { r.fail = String(e.message).slice(0, 200); }
   r.secs = Math.round((Date.now() - t0) / 1000); r.errors = errs.slice(0, 5);
   results.push(r); console.log(JSON.stringify(r));

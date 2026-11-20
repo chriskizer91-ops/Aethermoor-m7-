@@ -5,6 +5,7 @@
 // back behind the leader and the party walks on; another pack comes out on the road.
 //   ?pack=0|1 which of Thornhollow's patrols (M7's PATROLS.thornhollow); ?lose=1 a pack far too strong (to see a defeat)
 //   ?foes=cutout the beasts as Chris's painted standees (Models' prototypes/bestiary/standee.js); the Foes button switches
+//   ?toll=1 Wren wears Hodge's Unfair Toll (M7's toll); ?omen=twinned the road's pack with M7's Twinned omen
 //   ?surge=100 every hero's Legend Surge full (to see a Legend Strike); ?enc=<id> any M7 fight on this page's places
 //   ?auto=1 the party fights on its own; ?speed=2|4; ?go=1 the fight starts at once (headless checks)
 import './heroes.js';
@@ -21,6 +22,7 @@ import { escalateSpawn } from '../game/src/rules/foe.js';
 import { grantXp, xpForLevel } from '../game/src/rules/progression.js';
 import { deriveHero } from '../game/src/rules/stats.js';
 import { createRng } from '../game/src/core/rng.js';
+import { relicItem } from '../game/src/rules/loot.js';
 import { PATROLS, ENCOUNTERS } from '../game/src/data/encounters.js';
 import { MAPS } from '../game/src/data/maps/index.js';
 import { FOES } from '../game/src/data/foes.js';
@@ -39,7 +41,7 @@ const SCENES = {
   road: { place: 'm7-thornhollow', name: 'Thornhollow', anchor: 'from-road', level: 4, near: 'A pack on the road!', again: 'Another pack comes down the road',
     hint: 'walk up the road', foes: () => PATROLS.thornhollow[Q.get('pack') === '0' ? 0 : 1].map((s) => s.family),
     at: [[12, 14.2], [11.2, 13.6], [12.9, 13.5]], trigger: 5.2,
-    battle: (game, keys) => startBattle(game, { patrol: { spawns: PATROLS.thornhollow[Q.get('pack') === '0' ? 0 : 1].map((sp, i) => escalateSpawn({ ...sp, level: Number(Q.get('lose')) ? 12 : 4 }, game.progress.waking, `fight3d#${i}`)), where: 'Thornhollow', backdrop: 'thornhollow' } }) },
+    battle: (game, keys) => startBattle(game, { patrol: { spawns: PATROLS.thornhollow[Q.get('pack') === '0' ? 0 : 1].map((sp, i) => escalateSpawn({ ...sp, level: Number(Q.get('lose')) ? 12 : 4, ...(Q.get('omen') ? { omens: [Q.get('omen')] } : {}) }, game.progress.waking, `fight3d#${i}`)), where: 'Thornhollow', backdrop: 'thornhollow' } }) },
 };
 // any of M7's placed fights (step 3), from M7's own data: the map it is on (its 3D place), where the foes stand and which
 // way they face (the map's encounter entity), the party's level (the strongest spawn's, one more for a lair)
@@ -294,5 +296,7 @@ function makeGame(seed, level = 4) {
     const d = deriveHero(h, game.inventory);
     game.party.roster[id] = { ...h, hp: d.maxHp, mp: d.maxMp, ...(Q.get('surge') ? { surge: Number(Q.get('surge')) } : {}) };
   }
+  // ?toll=1: Wren wears Hodge's Unfair Toll, so M7's toll is due at the fight's start (the strongest foe's CHA save)
+  if (Q.get('toll')) { const it = relicItem('unfair-toll', rng, { from: 'Hodge' }); game.inventory = [...game.inventory, it]; game.party.roster.warden = { ...game.party.roster.warden, gear: { ...game.party.roster.warden.gear, amulet: it.uid } }; }
   return game;
 }
