@@ -7,7 +7,7 @@ Where the 3D game stands. Written by the hub only. Last updated November 20, eve
 | # | Job | Session | Branch | State | Latest link |
 |---|---|---|---|---|---|
 | 1 | the hub | `session_01DgbUKb6orvjjc1cMgBGPJK` | `claude/brave-davinci-790efm` | running | (the board) |
-| 2 | The Fight | `session_01DgbUKYR9qmKyBdACUWGViw` | `job/fight` | step 2 complete and brought in: the spoils and M7's Party screen with the hero turning in 3D (`openParty()` for Together); next: Full-detail Briarmaw as a third Foes setting | https://claude.ai/artifact/NpeXL5Pf4RxNfkQsguTnEK |
+| 2 | The Fight | `session_01DgbUKYR9qmKyBdACUWGViw` | `job/fight` | steps 1 and 2 done and brought in, with full-detail Briarmaw in his den (Foes: 3D / Painted / Full detail); on step 3: the camera indoors, every M7 battle event and status in 3D, the Legend Strike | https://claude.ai/artifact/NpeXL5Pf4RxNfkQsguTnEK |
 | 3 | Models | `session_01DgbUKcWh5MEvjHnxzp4HHo` | `job/models` | lighter heroes and people done and brought in (Lite: 2 draw calls a figure; `'auto'` by distance; a town on a phone 113 → 39 calls); the painted / 3D choice waits on Chris | https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL |
 | 4 | Places | `session_01DgbUKZVFBfm1dVautXEw5f` | `job/places` | step 4 brought in (phones: Act One ~82 draw calls on phone; the paintings on roofs, water, decks, rocks; signposts, chests, pedestals); fixing: roofs over a house's front row show the painted front | https://claude.ai/artifact/MXyu3A9zTjoCavHFKXCbpi |
 | 5 | Together | `session_01DgbUKbyjzZFe1BXHHxzHBn` | `job/together` | version 2 brought in: the townsfolk talk and turn, the light Atlas; the playthrough passed 15 of 16 (the chest step being re-run) | https://claude.ai/artifact/RaeSK5hezqb3qH7jmuM5aj |
