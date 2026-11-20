@@ -8,9 +8,11 @@ can share the screen with. The 39 people foes stay built by the heroes' builder 
 ## The recipe (session 6's, `prototypes/foe-hd/README.md`)
 
 - **Shape first, then detail** (Chris): a ~100,000-triangle shape model checked against the sheet's outlines from
-  front, side and back; then the detail, up to 600,000 to 1,000,000 triangles. **No fuzz of tiny hairs** ("that'll look
+  front, side and back; then the detail, up to **2 or 3 million triangles** (Chris, November 20: his laptop draws 2 million). **No fuzz of tiny hairs** ("that'll look
   fuzzy, but it won't look like it's supposed to"): fur, leaves, scales, plates and robes are sculpted as real shapes
   (tufts that overlap like shingles, plates, folds).
+- **The sculpt is kept as an asset Chris can look at** (Chris, November 20): in the foe's folder, compressed (Draco or
+  meshopt; aim under about 25 MB a foe so the repo stays healthy), with a laptop page in your lane that opens it.
 - **Baked onto a light model** in Blender (run headless): normal map, ambient occlusion, colour (Chris's skins,
   `art-in/3d/skins/`, and the sheet's own colours) and any glow.
 - **Rigged** with the bones its body needs, and moved: breathe or idle, walk (or float, slither, fly), the attacks its

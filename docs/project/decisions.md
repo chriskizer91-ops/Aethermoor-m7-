@@ -4,6 +4,11 @@ Written by the hub. His newer word beats anything older, here or anywhere in the
 
 ## November 20
 
+- **Full-detail sculpts can run to 2 or 3 million triangles** ("my upper limit is not 1 million triangles... my laptop
+  can do two... I think 3 million"), and **each full-detail model is kept as an asset he can look at**; the game uses
+  the baked light version (about 50,000 triangles). He saw the crowd test (six full-detail Briarmaws and the four
+  heroes) at 144 frames a second on his laptop and called the baked one "kind of amazing looking". (To session 6,
+  passed on to every session.)
 - **The foes in full detail, the way session 6 made Briarmaw** ("already looking fantastic; I'm excited to see other
   foes rendered with the techniques it learned"), with more sessions building them: sessions 7 (beasts) and 8
   (walkers) join session 6 (`docs/project/jobs/foes.md`).
