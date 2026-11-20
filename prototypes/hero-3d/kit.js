@@ -4,7 +4,8 @@
 import * as THREE from 'three';
 import { MAT } from '../../game/src/art/forge.js';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
-export { mergeGeometries };
+import { PACK, FACES } from './textures/pack.js';
+export { mergeGeometries, FACES };
 
 // the detail level: 1 (Light, for phones) or 2 (High): every curve gets this many times the segments, every surface
 // picture this many times the pixels, and model.js adds the small parts (stitches, rivets, straps, etching, prongs)
@@ -167,12 +168,99 @@ export const KIND = key => {
   if (/bone|claw|pearl|granite|stone|rime/.test(k)) return 'bone';
   return 'cloth';
 };
+
+/* ------------------------------------------------------------------ Chris's texture pack (November 20) */
+// Every item's surface comes from Chris's gear pictures (textures/pack.js, made by textures/make.py): a grey grain
+// tinted by the item's own palette colour, so the colour is still the Forge's and the picture gives the detail. The
+// grain is laid on by position, from three sides at once (triplanar), so it has the same size on a ring and on a robe
+// and no seams; its light and dark also raise the surface a little (a bump worked out as it draws). TEXTURES.on turns
+// the whole pack off (the generated surfaces come back), to compare.
+export const TEXTURES = { on: true };
+const GRAIN_BY_KEY = {
+  steel: 'metal-steel', heat: 'metal-steel', iron: 'metal-iron', gold: 'metal-gold', bronze: 'metal-bronze', brass: 'metal-brass',
+  silver: 'metal-silver', blackiron: 'metal-blackiron', verdigris: 'metal-bronze',
+  leather: 'leather-smooth', leatherDark: 'leather-worn', leatherRed: 'leather-tooled', boarHide: 'hide-fur', wolfFur: 'hide-fur',
+  wolfPale: 'hide-fur', grizzle: 'hide-fur', stagWhite: 'hide-fur', drake: 'hide-scaled', snout: 'leather-smooth',
+  wool: 'cloth-wool', gambeson: 'cloth-gambeson', robe: 'cloth-linen', robeRed: 'cloth-velvet', robeBark: 'cloth-rough-sack',
+  rags: 'cloth-rough-sack', clothWhite: 'cloth-linen', clothGrey: 'cloth-wool', clothBlue: 'cloth-canvas', clothTeal: 'cloth-canvas',
+  cloakRed: 'cloth-wool', cloakGreen: 'cloth-wool', hoodGreen: 'cloth-felt', pants: 'cloth-canvas', parchment: 'cloth-linen',
+  string: 'cloth-linen', dark: 'cloth-felt', moss: 'cloth-felt',
+  wood: 'wood-oak', bogwood: 'wood-bogwood', bark: 'wood-bark', rotwood: 'wood-bogwood', bramble: 'wood-bark', thorn: 'horn-antler',
+  bone: 'bone-ivory', claw: 'horn-antler', pearl: 'bone-ivory', rime: 'stone-granite', granite: 'stone-granite', flesh: 'skin-soft',
+};
+// how big one tile of each kind of picture is, in the hero's own units (a hero stands about 1.7 of them)
+const TILE = { metal: 0.34, mail: 0.11, leather: 0.2, hide: 0.22, cloth: 0.16, wood: 0.3, stone: 0.32, bone: 0.26, horn: 0.26, skin: 0.3, hair: 0.22 };
+// how much each kind's light and dark raises its surface, and how much it roughens a metal's shine
+const BUMP = { metal: 0.6, mail: 1.3, leather: 1.2, hide: 1.6, cloth: 1.0, wood: 1.4, stone: 1.6, bone: 0.8, horn: 1.2, skin: 0.25, hair: 1.2 };
+export function grainFor(key, kind, o = {}) {
+  if (!TEXTURES.on) return null;
+  if (o.tex !== undefined) return PACK[o.tex] ? o.tex : null;
+  if (kind === 'glow' || kind === 'gem' || kind === 'glass') return null;
+  if (kind === 'mail') return 'mail-riveted';
+  if (kind === 'scale') return 'mail-scale';
+  if (kind === 'skin') return 'skin-soft';
+  if (kind === 'hair') return 'hair-strands';
+  const of = String(MAT[key]?.of || key);
+  const name = GRAIN_BY_KEY[key] || GRAIN_BY_KEY[of] || (() => {
+    const k = (key + ' ' + of).toLowerCase();
+    if (/void/.test(k)) return 'metal-voidiron'; if (/brass/.test(k)) return 'metal-brass'; if (/blackiron|scorch/.test(k)) return 'metal-blackiron';
+    if (kind === 'metal') return /gold/.test(k) ? 'metal-gold' : /silver/.test(k) ? 'metal-silver' : /bronze|copper/.test(k) ? 'metal-bronze' : /iron/.test(k) ? 'metal-iron' : 'metal-steel';
+    if (kind === 'leather') return /wyrm|scale|drake/.test(k) ? 'hide-scaled' : /hide|fur/.test(k) ? 'hide-fur' : 'leather-smooth';
+    if (kind === 'wood') return /bark|dead/.test(k) ? 'wood-bark' : /bog|rot/.test(k) ? 'wood-bogwood' : 'wood-oak';
+    if (kind === 'stone') return /sand/.test(k) ? 'stone-sandstone' : /obsid|char|cinder|ash|slag|husk/.test(k) ? 'stone-obsidian' : 'stone-granite';
+    if (kind === 'bone') return /horn|antler|claw|thorn/.test(k) ? 'horn-antler' : 'bone-ivory';
+    if (kind === 'cloth') return /velvet|indigo|royal/.test(k) ? 'cloth-velvet' : /saffron|silk|brocade/.test(k) ? 'cloth-brocade' : /robe|cloth|hood|cloak|gambeson|wool|rags|pants|tunic|parchment|string/.test(k) ? 'cloth-wool' : null;
+    return null;
+  })();
+  return name && PACK[name] ? name : null;
+}
+const GRAIN_TEX = {};
+function grainTexture(name) {
+  if (GRAIN_TEX[name]) return GRAIN_TEX[name];
+  const t = new THREE.TextureLoader().load(PACK[name].url);
+  t.colorSpace = THREE.SRGBColorSpace; t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = 8;
+  return (GRAIN_TEX[name] = t);
+}
+const TRI_VERT = ['varying vec3 vTriP;\nvarying vec3 vTriN;\nvoid main() {', 'vTriP = position; vTriN = normal;\n#include <begin_vertex>'];
+const TRI_FRAG_HEAD = `uniform sampler2D triMap; uniform float triScale; uniform float triGain; uniform float triBump; uniform float triRough;
+varying vec3 vTriP; varying vec3 vTriN; float triH = 0.5; float triFade = 1.0;
+vec3 triSample() {
+  vec3 w = pow(abs(normalize(vTriN)), vec3(4.0)); w /= (w.x + w.y + w.z + 1e-5);
+  vec3 p = vTriP * triScale;
+  // the bump fades out where one pixel on screen covers several of the picture's (far away it would only sparkle)
+  vec3 fw = fwidth(p) * 512.0; triFade = clamp(1.5 - max(max(fw.x, fw.y), fw.z) * 0.5, 0.0, 1.0);
+  return texture2D(triMap, p.zy).rgb * w.x + texture2D(triMap, p.xz).rgb * w.y + texture2D(triMap, vec2(-p.x, p.y)).rgb * w.z;
+}
+vec3 triPerturb(vec3 sp, vec3 n, vec2 dH, float fd) {
+  vec3 sx = dFdx(sp), sy = dFdy(sp), r1 = cross(sy, n), r2 = cross(n, sx);
+  float det = dot(sx, r1) * fd;
+  return normalize(abs(det) * n - sign(det) * (dH.x * r1 + dH.y * r2));
+}
+void main() {`;
+function triplanar(m, name, kind) {
+  const fam = name.split('-')[0], tile = TILE[kind === 'mail' || kind === 'scale' ? 'mail' : fam] || 0.25;
+  const U = { triMap: { value: grainTexture(name) }, triScale: { value: 1 / tile }, triGain: { value: 0.9 / PACK[name].mean },
+    triBump: { value: (BUMP[kind === 'mail' || kind === 'scale' ? 'mail' : fam] || 1) * 0.0012 * (Q.d > 1 ? 1 : 0.8) }, triRough: { value: kind === 'metal' ? 0.6 : 0.25 } };
+  m.userData.grain = name; m.userData.tri = U;
+  m.onBeforeCompile = sh => {
+    Object.assign(sh.uniforms, U);
+    sh.vertexShader = sh.vertexShader.replace('void main() {', TRI_VERT[0]).replace('#include <begin_vertex>', TRI_VERT[1]);
+    sh.fragmentShader = sh.fragmentShader.replace('void main() {', TRI_FRAG_HEAD)
+      .replace('#include <map_fragment>', '#include <map_fragment>\n{ vec3 tt = triSample(); triH = tt.r; diffuseColor.rgb *= tt * triGain; }')
+      .replace('#include <roughnessmap_fragment>', '#include <roughnessmap_fragment>\nroughnessFactor = clamp(roughnessFactor * mix(1.0, 1.5 - triH, triRough), 0.04, 1.0);')
+      .replace('#include <normal_fragment_maps>', '#include <normal_fragment_maps>\nnormal = triPerturb(-vViewPosition, normal, vec2(dFdx(triH), dFdy(triH)) * triBump * triFade, faceDirection);');
+  };
+  m.customProgramCacheKey = () => 'aeth-tri';
+  m.normalMap = null;
+  return m;
+}
+
 const cache = new Map();
 const baseKey = key => (MAT[key] ? key : key && MAT[String(key).split(/[\^~]/)[0]] ? String(key).split(/[\^~]/)[0] : 'wool');
 // mat(key, { as, rep, side }): as forces a surface (mail, scale); rep scales its picture
 export function mat(key, o = {}) {
   key = baseKey(key);
-  const kind = o.as || KIND(key), id = `${key}|${kind}|${o.rep || 1}|${o.side ? 2 : 1}|${Q.d}`;
+  const kind = o.as || KIND(key), grain = grainFor(key, kind, o), id = `${key}|${kind}|${o.rep || 1}|${o.side ? 2 : 1}|${Q.d}|${grain}|${o.tint || ''}`;
   if (cache.has(id)) return cache.get(id);
   const M = MAT[key], p = M.pal, rep = o.rep || 1;
   const nm = (t, r) => { const c = t.clone(); c.repeat.set(r * rep, r * rep); c.needsUpdate = true; return c; };
@@ -194,6 +282,8 @@ export function mat(key, o = {}) {
   }
   // a tempered metal glows from +7 and burns white at +10
   if (M.temper >= 7) { m.emissive = sRGB(p[3]); m.emissiveIntensity = M.temper >= 10 ? 0.9 : 0.3 + (M.temper - 7) * 0.12; }
+  if (o.tint) m.color = sRGB(o.tint);
+  if (grain) triplanar(m, grain, kind);
   if (o.side) m.side = THREE.DoubleSide;
   cache.set(id, m);
   return m;

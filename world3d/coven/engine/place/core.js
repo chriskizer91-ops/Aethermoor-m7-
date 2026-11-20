@@ -190,6 +190,7 @@
       uMoonDir: { value: new THREE.Vector3(-0.35, 0.8, -0.48).normalize() }, uMoon: { value: new THREE.Color().setRGB(...(opt.moon || [0.42, 0.43, 0.56])) },
       uFog: { value: new THREE.Color().setRGB(...(opt.fog || [0.075, 0.08, 0.16])) }, uFogNear: { value: opt.fogNear || 30 }, uFogFar: { value: opt.fogFar || 115 },
       uGlowK: { value: opt.glowK || 1.7 }, uTime: { value: 0 },
+      uDay: { value: opt.day || 0 },   // (Aethermoor, Places, November 20) 0 night, 1 day: only the sky reads it (skyMat)
       uCam: { value: new THREE.Vector3() }, uIo: { value: new THREE.Vector3(0, -99, 0) }, uCut: { value: 0 }, uCutW: { value: 0 },
     };
   };
@@ -369,9 +370,13 @@
       // (Aethermoor, November 20) a painted map laid over the ground as its colour (Hearth & Heirloom's own maps): the
       // textures under it keep their grain, the painting gives the colour. t.paint, t.paintK (world to painting), t.paintGain
       tPaint: { value: t.paint || null }, uPaintK: { value: t.paintK || new THREE.Vector4(0, 0, 0, 0) }, uPaintGain: { value: t.paintGain || 0.6 },
+      // (Aethermoor, Places, November 20) steep ground (a cliff's face, a mesa's side) wears a rock texture wrapped round it
+      // instead of the painting stretched down it: t.rock, t.rockTint, t.rockRep
+      tRock: { value: t.rock || null }, uRockTint: { value: new THREE.Color(t.rockTint || 0xffffff) }, uRockRep: { value: 1 / (t.rockRep || 3) },
     });
     const frag = CHUNK_F_HEAD + `
       uniform sampler2D tPaint; uniform vec4 uPaintK; uniform float uPaintGain;
+      uniform sampler2D tRock; uniform vec3 uRockTint; uniform float uRockRep;
       uniform sampler2D tCob, tGrass, tDirt, tPave, uSplat; uniform vec4 uRep4; uniform vec3 uGrassTint, uCobTint, uDirtTint, uPaveTint;
       vec3 two(sampler2D t, vec2 w, float rep) {
         vec3 a = texture2D(t, w * rep).rgb, b = texture2D(t, w * rep * 0.29 + vec2(0.37, 0.71)).rgb;
@@ -394,6 +399,15 @@
           float pin = smoothstep(-0.03, 0.0, pu.x) * (1.0 - smoothstep(1.0, 1.03, pu.x)) * smoothstep(-0.03, 0.0, pu.y) * (1.0 - smoothstep(1.0, 1.03, pu.y));
           c = mix(c, pg, pin);
         #endif
+        #ifdef STEEP
+          // (Aethermoor, Places) a cliff's face: rock, wrapped round it from the side (no stretching), darker low down
+          vec3 sn = normalize(vN); float st = 1.0 - smoothstep(0.5, 0.8, sn.y);
+          if (st > 0.0) {
+            vec3 ax = abs(sn); float bx = ax.x / (ax.x + ax.z + 1e-4);
+            vec3 rk = mix(toLin(texture2D(tRock, vW.xy * uRockRep).rgb), toLin(texture2D(tRock, vW.zy * uRockRep).rgb), bx) * toLin(uRockTint);
+            c = mix(c, rk * 1.15, st);
+          }
+        #endif
         vec3 n = normalize(vN);
         #ifdef HIGH
           // on the laptop: fine grain close up, and relief from the ground's own light and dark (cobbles stand up from
@@ -410,7 +424,7 @@
         vec3 col = c * (nightLight(vW, n, sh) + lampLight(vW, n));
         gl_FragColor = outC(fogged(col, vW));
       }`;
-    const gm = new THREE.ShaderMaterial({ uniforms: uni, vertexShader: CHUNK_V, fragmentShader: frag, vertexColors: true, defines: Object.assign(W3D.quality === 'high' ? { HIGH: '' } : {}, t.paint ? { PAINT: '' } : {}) });
+    const gm = new THREE.ShaderMaterial({ uniforms: uni, vertexShader: CHUNK_V, fragmentShader: frag, vertexColors: true, defines: Object.assign(W3D.quality === 'high' ? { HIGH: '' } : {}, t.paint ? { PAINT: '' } : {}, t.rock ? { STEEP: '' } : {}) });
     gm.extensions = { derivatives: W3D.quality === 'high' };
     return gm;
   };
@@ -423,16 +437,16 @@
       uTint: { value: new THREE.Color(t.tint || 0xffffff) }, uEmis: { value: new THREE.Color(0) }, uLit: { value: 1 }, uGlowUse: { value: 1 }, uSpec: { value: 0 }, uShadeK: { value: 1 },
     });
     const frag = CHUNK_F_HEAD + `
-      uniform sampler2D tWater; uniform vec2 uFlow;
+      uniform sampler2D tWater; uniform vec2 uFlow; uniform float uDay;
       void main() {
         vec3 n = normalize(vN);
         float fall = 1.0 - smoothstep(0.55, 0.92, n.y);
         vec2 fl = uFlow * uTime * (1.0 + fall * 30.0);
         vec3 a = toLin(texture2D(tWater, vUv + fl).rgb), b = toLin(texture2D(tWater, vUv * 0.61 - fl * 0.7 + 0.3).rgb);
-        vec3 c = (a + b) * 0.5 * toLin(uTint);
+        vec3 c = (a + b) * 0.5 * toLin(uTint) * (1.0 + uDay * 0.9);
         vec3 v = normalize(cameraPosition - vW);
         float fres = pow(1.0 - max(v.y, 0.0), 3.0);
-        vec3 sky = vec3(0.16, 0.14, 0.32) * (0.06 + fres * 1.3);
+        vec3 sky = mix(vec3(0.16, 0.14, 0.32), vec3(0.42, 0.56, 0.74), uDay) * (0.06 + fres * 1.3);   // (Aethermoor, Places) a day sky on the water
         // the lamps on the water: their light map read a little toward the camera, wobbling
         // ripples from three directions at once, so the moon's glints scatter instead of lining up
         float r1 = sin(dot(vW.xz, vec2(1.7, 2.3)) + uTime * 1.6), r2 = sin(dot(vW.xz, vec2(-2.9, 1.1)) + uTime * 1.1), r3 = sin(dot(vW.xz, vec2(0.6, -3.7)) + uTime * 2.1);
@@ -452,9 +466,9 @@
   // story is one long night, and the stars only come back at its end)
   W3D.skyMat = function (U) {
     return new THREE.ShaderMaterial({
-      uniforms: { uMoonDir: { value: new THREE.Vector3(-0.45, 0.42, -0.79).normalize() }, uTime: U.uTime, uFog: U.uFog },
+      uniforms: { uMoonDir: { value: new THREE.Vector3(-0.45, 0.42, -0.79).normalize() }, uTime: U.uTime, uFog: U.uFog, uDay: U.uDay || { value: 0 } },
       vertexShader: 'varying vec3 vD; void main(){ vD = normalize(position); vec4 p = projectionMatrix * modelViewMatrix * vec4(position,1.0); gl_Position = p.xyww; }',
-      fragmentShader: `varying vec3 vD; uniform vec3 uMoonDir, uFog; uniform float uTime;
+      fragmentShader: `varying vec3 vD; uniform vec3 uMoonDir, uFog; uniform float uTime, uDay;
         float h21(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
         float n2(vec2 p){ vec2 i = floor(p), f = fract(p); f = f*f*(3.0-2.0*f); return mix(mix(h21(i), h21(i+vec2(1,0)), f.x), mix(h21(i+vec2(0,1)), h21(i+vec2(1,1)), f.x), f.y); }
         void main(){
@@ -472,6 +486,10 @@
           float cl = smoothstep(0.55, 0.85, n2(cp * vec2(1.0, 3.0)) * 0.65 + n2(cp * 3.1) * 0.35) * smoothstep(0.03, 0.25, y);
           c = mix(c, c * 0.55 + vec3(0.18, 0.17, 0.3) * (0.5 + pow(max(m, 0.0), 30.0) * 1.5), cl * 0.6);
           c = mix(c, moon, disc * (1.0 - cl * 0.5));
+          // (Aethermoor, Places) by day: a pale blue sky over a warm haze, white clouds, no moon
+          vec3 dsky = mix(sqrt(uFog) * 1.02, mix(vec3(0.62, 0.76, 0.92), vec3(0.34, 0.54, 0.84), smoothstep(0.15, 0.8, y)), smoothstep(-0.02, 0.16, d.y));
+          dsky = mix(dsky, vec3(0.97, 0.96, 0.94), cl * 0.75);
+          c = mix(c, dsky, uDay);
           gl_FragColor = vec4(c, 1.0);
         }`,
       side: THREE.BackSide, depthWrite: false,
