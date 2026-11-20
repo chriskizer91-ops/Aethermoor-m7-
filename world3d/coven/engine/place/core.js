@@ -162,7 +162,9 @@
         const q = tries.shift();
         if (!q) { used[t.id] = 'none'; tex.image = W3D.flatImage(t.flat || [128, 128, 128]); tex.needsUpdate = true; return res(); }
         // a made texture counts only when the page carries it (the build put it inside); otherwise the stand-in
-        if (q[0] === 'made' && !/^data:/.test(q[1])) { next(); return; }
+        // (Aethermoor, hub, November 20) or when the build put it beside the page as a file (build.mjs --files): only a
+        // source path the build never touched ("./...", "../...") falls back to the stand-in
+        if (q[0] === 'made' && !/^data:/.test(q[1]) && /^\.\.?\//.test(q[1])) { next(); return; }
         const im = new Image();
         im.onload = () => { tex.image = im; tex.needsUpdate = true; used[t.id] = q[0]; res(); };
         im.onerror = next; im.src = q[1];

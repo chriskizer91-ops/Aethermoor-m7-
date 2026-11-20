@@ -75,6 +75,12 @@ Where the 3D game stands. Written by the hub only. Last updated November 20, lat
   (`prototypes/foe-hd/assets/` → `foes/briarmaw/`); the Fight is switching to the kit's `foeLook`. The published
   fight page is unaffected.
 
+- **Pages beyond 16 MB (hub, being tried):** `world3d/build.mjs --files` puts the pictures beside the page as files
+  (published with the `files` map in `dist/<name>.files.json`) instead of inside it; the 3D engine accepts them
+  (`core.js`, marked "Aethermoor, hub"). Act One with every texture and painting at full size is up as a test:
+  https://claude.ai/artifact/HD9GL1Ao4ymzRRodVY2ozm. Once Chris sees it work on his phone, the game and the heavy pages
+  can stop shrinking textures.
+
 ## Next for the hub
 
 - Bring each job's work in as it's ready; tell the jobs on this board when to merge the hub's branch.
