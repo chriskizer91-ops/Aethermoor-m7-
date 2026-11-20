@@ -39,7 +39,8 @@ Last updated November 20.
 
 ## Needs
 
-- Nothing. (The Atlas carries Places' light tree and place models.)
+- The Fight: indoors (Sneck's fight in the Great Hall), `arena.spoilsView()` puts the camera behind the hall's wall, so
+  the spoils' field is hidden by stone (the after-fight screen itself is fine). Outdoors it's as on the Fight's page.
 
 ## For Chris
 

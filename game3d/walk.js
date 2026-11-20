@@ -35,6 +35,12 @@ import { playBrandBanner, playCrownwalls, showLetter, playCouncil, showToBeConti
 import { reliquaryLine } from '../game/src/ui/screens/codex.js';
 import { person, foe, artOf } from './figures.js';
 
+// what a hero wears, as M7's game holds it (inventory ids to items); empty slots keep the starting look
+export function gearFor(game, id) {
+  const h = game.party.roster[id], g = {};
+  for (const [slot, iid] of Object.entries(h?.gear || {})) g[slot] = iid ? (game.inventory || []).find((it) => it.id === iid) || null : null;
+  return g;
+}
 export const TX = 50, TY = 40;          // a tile in a place's painting px (world3d/m7/convert.mjs)
 const IDLE_TICK_MS = 400, SAVE_EVERY = 20;
 const YAW = { s: 0, n: Math.PI, e: Math.PI / 2, w: -Math.PI / 2 };
@@ -75,23 +81,21 @@ export function createWorld(o) {
 
   // ---- the heroes, in their M7 gear ----
   // what each hero wears, as M7's game holds it (inventory ids to items); empty slots keep the starting look
-  function gearOf(id) {
-    const h = game.party.roster[id], g = {};
-    for (const [slot, iid] of Object.entries(h?.gear || {})) g[slot] = iid ? (game.inventory || []).find((it) => it.id === iid) || null : null;
-    return g;
-  }
+  const gearOf = (id) => gearFor(game, id);
   const gearKey = (id) => JSON.stringify(game.party.roster[id]?.gear || {});
   function actor(id, detail) {
     const k = id + ':' + detail + ':' + gearKey(id);
     return made[k] || (made[k] = H.actor(id, gearOf(id), detail));
   }
   const leadId = () => game.party.active[0] || 'warden';
-  W3D.witch = (id) => actor(id, o.phone ? 'light' : 'high');
+  // detail (Models' light figures): on a phone the leader 'auto' and everyone else 'lite'; on a laptop 'auto-high' and 'auto'
+  const D = o.phone ? { lead: 'auto', rest: 'lite' } : { lead: 'auto-high', rest: 'auto' };
+  W3D.witch = (id) => actor(id, D.lead);
   function dressParty() {
     if (!Wk) return;
     for (const f of followers) Wk.P.scene.remove(f.root);
     Wk.setWho(leadId()); leader = W3D.witch(leadId());
-    followers = game.party.active.slice(1).map((id) => actor(id, 'light'));
+    followers = game.party.active.slice(1).map((id) => actor(id, D.rest));
     for (const f of followers) Wk.P.scene.add(f.root);
     party.set(leader, followers);
   }
@@ -158,7 +162,7 @@ export function createWorld(o) {
       if (standing.has(e.id)) continue;
       let fig = null;
       try {
-        if (e.kind === 'npc') fig = person(e.npc, 'light');
+        if (e.kind === 'npc') fig = person(e.npc, D.rest);
         else { const sp = ENCOUNTERS[e.enc]?.spawns?.[0]; fig = foe(sp ? artOf(sp.family) : 'cutpurse', 'light'); }
       } catch (err) { console.error(err); continue; }
       placeFig(fig, e.at[0], e.at[1], e.face || 's');
@@ -678,6 +682,18 @@ export function createWorld(o) {
       for (const s of [...standing.values()]) { if (!Wk.P.scene.children.includes(s.fig.root)) standing.delete(s.e.id); }
     },
     pause(on) { if (Wk) Wk.pause(on); },
+    // the spoils: a hero who put something on is re-dressed on the field there and then (arena.swapHero)
+    redress(g, arena) {
+      const before = {}; for (const id of game.party.active) before[id] = gearKey(id);
+      game = g;
+      for (const id of game.party.active) {
+        if (before[id] === gearKey(id)) continue;
+        const A = id === leadId() ? W3D.witch(id) : actor(id, D.rest);
+        if (arena && arena.on) arena.swapHero(id, A);
+        if (id === leadId()) leader = A; else { const i = game.party.active.indexOf(id) - 1; if (i >= 0) followers[i] = A; }
+        o.toast(`${game.party.roster[id]?.name?.split(' ')[0] || id} puts it on`);
+      }
+    },
     pressA, openMenu, save, target,
     // the headless playthrough's hooks (tools/play.mjs)
     teleport(x, y, face) { const [px, py] = centre(x, y); walk = { ...walk, x, y, face: face || walk.face }; Wk.setIo(px, py, YAW[face] ?? Wk.io.yaw); blocked = null; },
