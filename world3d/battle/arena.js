@@ -45,7 +45,7 @@ export const arena = {
     // the heroes' height as built (with hats and hair), so their heads come to the top of the space over their cards
     { const hs = [...this.heroes.values()].map((h) => { h.body.rotation.set(0, 0, 0); const b = new THREE.Box3().setFromObject(h.body); return b.max.y - h.A.root.position.y; }).filter((x) => x > 0.5 && x < 3); if (hs.length) HERO_H = Math.min(1.9, hs.reduce((a, b) => a + b, 0) / hs.length); }
     this.from = { pos: this.cam.position.clone(), q: this.cam.quaternion.clone(), fov: this.cam.fov };
-    this.swing = null; this.want = null; this.layoutIn = null; this.actor = null;
+    this.swing = null; this.want = null; this.layoutIn = null; this.actor = null; this.close = null;
     this.blobs = makeBlobs(this.scene, 12);
     const last = { t: performance.now() };
     const loop = (now) => {
@@ -102,6 +102,23 @@ export const arena = {
       return d;
     });
     for (const d of this.drops) this.fx.ring(d.g.position.clone(), '#' + new THREE.Color(RARITY[d.item.rarity] || '#e8e4da').getHexString(), 1, 0.7);
+  },
+  // the Legend Strike close-up (step 3): the camera cuts in low and close on the hero, a little to the side, while they
+  // raise the relic and M7's card slams; then back to the fight's camera
+  closeUp(h, dur = 2.4) {
+    if (this.reduced) return;
+    const f = this.facing(h), side = V3(f.z, 0, -f.x), at = h.pos.clone().setY(h.pos.y + 1.05);
+    // a little above head height (over low bushes), to one side; the first spot with nothing built in the way
+    const P = this.W.P, clear = (p) => { try { return P.sight.hit(p.x, p.y, p.z, at.x, at.y, at.z) > 0.97; } catch (e) { return true; } };
+    let pos = null;
+    for (const [fw, sd, up] of [[3.9, 1.5, 1.7], [3.9, -1.5, 1.7], [3.2, 2.4, 2.0], [3.2, -2.4, 2.0], [2.6, 0.8, 2.4]]) {
+      const p = h.pos.clone().addScaledVector(f, fw).addScaledVector(side, sd); p.y = h.pos.y + up;
+      if (clear(p)) { pos = p; break; }
+      pos = pos || p;
+    }
+    const q = new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().lookAt(pos, at, UP));
+    this.close = { t: 0, dur, pos, q, fov: 38 };
+    this.stage?.host.classList.add('f3-close'); // the foes' plates step aside for the moment
   },
   // the spoils' view: round in front of the party, looking back at them over the chests, the party in the screen's
   // upper part (M7's after-fight screen fills the lower part)
@@ -296,7 +313,7 @@ export const arena = {
     const h = this.heroByUnit(unitId); if (!h) return;
     const c = this.lastCmd && this.lastCmd.actor === unitId ? this.lastCmd : null;
     if (c?.type === 'item') this.play(h, 'item', 0.9);
-    else if (c?.type === 'surge') { this.play(h, 'legend', 1.2); this.fx.pillar(h.pos.clone(), '#ffcb66', 5); }
+    else if (c?.type === 'surge') { this.play(h, 'legend', 1.6); this.closeUp(h, 2.4); this.fx.pillar(h.pos.clone(), '#ffcb66', 5); }
     else {
       this.play(h, 'cast', 0.9);
       const at = h.pos.clone(); at.y += 0.05; this.fx.ring(at, '#bfa8ff', 1.2, 0.7);
@@ -347,7 +364,7 @@ export const arena = {
   // the party's cheer, or their fall, once the fight is done
   victory() { for (const h of this.heroes.values()) if (!h.down) { h.forward = false; this.play(h, 'cheer', 2.4); } },
   busy() {
-    if (this.swing || this.fx?.busy()) return true;
+    if (this.swing || this.close || this.fx?.busy()) return true;
     for (const h of this.heroes.values()) if (h.act || h.fall || h.walk) return true;
     for (const f of this.foes.values()) if (f.act || f.hurt || (f.ko && !f.removed) || f.gone || f.walk) return true;
     return false;
@@ -366,6 +383,12 @@ export const arena = {
       this.cam.quaternion.slerpQuaternions(S.from.q, to.q, u);
       this.cam.fov = S.from.fov + (to.fov - S.from.fov) * u; this.cam.updateProjectionMatrix();
       if (S.t >= S.dur) { this.swing = null; if (S.done) S.done(); }
+    } else if (this.close) {
+      const C = this.close; C.t += dt;
+      const k = 1 - Math.exp(-dt * (C.t < 0.25 ? 18 : 6));
+      this.cam.position.lerp(C.pos, k); this.cam.quaternion.slerp(C.q, k);
+      this.cam.fov += (C.fov - this.cam.fov) * k; this.cam.updateProjectionMatrix();
+      if (C.t >= C.dur) { this.close = null; this.stage?.host.classList.remove('f3-close'); }
     } else if (this.want) {
       const k = 1 - Math.exp(-dt * 6);
       this.cam.position.lerp(this.want.pos, k); this.cam.quaternion.slerp(this.want.q, k);

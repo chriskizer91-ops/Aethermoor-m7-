@@ -5,6 +5,7 @@
 // back behind the leader and the party walks on; another pack comes out on the road.
 //   ?pack=0|1 which of Thornhollow's patrols (M7's PATROLS.thornhollow); ?lose=1 a pack far too strong (to see a defeat)
 //   ?foes=cutout the beasts as Chris's painted standees (Models' prototypes/bestiary/standee.js); the Foes button switches
+//   ?surge=100 every hero's Legend Surge full (to see a Legend Strike); ?enc=<id> any M7 fight on this page's places
 //   ?auto=1 the party fights on its own; ?speed=2|4; ?go=1 the fight starts at once (headless checks)
 import './heroes.js';
 import '../game/src/ui/theme.css';
@@ -291,7 +292,7 @@ function makeGame(seed, level = 4) {
     const need = xpForLevel(level) - (h.xp || 0);
     if (need > 0) h = grantXp(h, need, rng).hero;
     const d = deriveHero(h, game.inventory);
-    game.party.roster[id] = { ...h, hp: d.maxHp, mp: d.maxMp };
+    game.party.roster[id] = { ...h, hp: d.maxHp, mp: d.maxMp, ...(Q.get('surge') ? { surge: Number(Q.get('surge')) } : {}) };
   }
   return game;
 }
