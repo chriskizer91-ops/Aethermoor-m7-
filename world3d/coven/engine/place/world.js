@@ -1079,6 +1079,8 @@
     const groundTex = { cob: T(place.ground.cob), grass: T(place.ground.grass), dirt: T(place.ground.dirt), pave: T(place.ground.pave), splat: T_(splat), rep: place.ground.rep, grassTint: place.ground.grassTint, cobTint: place.ground.cobTint, dirtTint: place.ground.dirtTint, paveTint: place.ground.paveTint,
       // (Aethermoor, November 20) a painted map as the ground's colour: from world metres to the painting's 0..1
       paint: place.ground.paint ? T(place.ground.paint) : null, paintGain: place.ground.paintGain,
+      // (Aethermoor, Places) a rock texture for steep ground (core.js groundMat)
+      rock: place.ground.rock ? T(place.ground.rock) : null, rockTint: place.ground.rockTint, rockRep: place.ground.rockRep,
       paintK: place.ground.paint ? new THREE.Vector4(1 / (M.SX * place.size[0]), 1 / (M.SZ * place.size[1]), M.CX / place.size[0], M.CY / place.size[1]) : null };
     const groundMat = W3D.groundMat(U, groundTex); for (const g of grounds) g.material = groundMat;
 
