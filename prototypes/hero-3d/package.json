@@ -1,0 +1,8 @@
+{
+  "name": "aethermoor-hero-3d",
+  "private": true,
+  "type": "module",
+  "description": "A 3D hero whose outfit is built by the game's own gear code.",
+  "scripts": { "build": "node build.mjs" },
+  "devDependencies": { "esbuild": "0.28.2", "three": "0.170.0" }
+}

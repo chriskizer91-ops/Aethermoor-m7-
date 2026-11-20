@@ -25,6 +25,8 @@
 - `docs/DESIGN-BRIEF.md`: the game's design. `docs/3d-options.md`: going 3D or upgrading the 2D (November 20).
 - `prototypes/`: try-outs that import the real game code. `prototypes/hd2d-world/`: four places as lit 3D
   dioramas (`npm install && node build.mjs` there; published at the link in its README).
+  `prototypes/hero-3d/`: the Gear Room, a 3D hero whose outfit is built from the game's own gear code (same build;
+  link in its README).
 - `art-requests/`: picture prompts for Chris. Batch 4 (the four Act III maps) is still waiting.
 
 ## The game's rules (from New-game, still in force)
