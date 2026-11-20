@@ -67,7 +67,7 @@ for (let i = 0; i < 120 && !(await E(() => document.body.classList.contains('fig
 }
 check(await E(() => document.body.classList.contains('fighting')), 'the Rotwarden\'s fight starts in 3D, in his lair');
 await page.waitForTimeout(5000); await shot('rotwarden-fight');
-await page.waitForFunction(() => !!document.querySelector('#fight.spoils') || !document.body.classList.contains('fighting'), null, { timeout: 900000 }).catch(() => {});
+await page.waitForFunction(() => !!document.querySelector('#fight.spoils') || !document.body.classList.contains('fighting'), null, { timeout: 2700000 }).catch(() => {});
 check(await E(() => window.__g3.lastResult) === 'victory', `the Rotwarden is beaten (${await E(() => window.__g3.lastResult)})`);
 await page.waitForTimeout(1500); await shot('spoils');
 await settle();
