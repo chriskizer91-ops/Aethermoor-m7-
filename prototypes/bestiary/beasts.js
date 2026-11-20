@@ -5,6 +5,7 @@
 // colours Chris has seen in the fights. The 39 humanoid foes are built by the heroes' own builder instead (bestiary.js).
 // buildBeast(key, sprite ImageData, { tier }) -> { group, update(t), height }
 import * as THREE from 'three';
+import { SCULPT } from './sculpt.js';
 import { V, lerp, smooth, tube, curve, lathe, wedge, sph, tor, cone, ico, add, surface, Q } from '../hero-3d/kit.js';
 
 const TAU = Math.PI * 2;
@@ -354,14 +355,17 @@ export const BEASTS = {
 
 export function buildBeast(key, sprite) {
   const [plan, skin, tall, opts = {}] = BEASTS[key] || ['mound', 'hide', 1];
-  const pal = paletteOf(sprite), m = mats(pal, skin);
-  const b = P[plan](m, opts);
+  const pal = paletteOf(sprite);
+  // Act One's creatures are shaped by hand to Chris's model sheets (sculpt.js); the rest still use the body plans
+  let b;
+  if (SCULPT[key]) { b = SCULPT[key](); b.height = new THREE.Box3().setFromObject(b.g).max.y; b.sculpted = true; }
+  else b = P[plan](mats(pal, skin), opts);
   const group = new THREE.Group(); group.add(b.g);
   b.g.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
   b.g.scale.setScalar(tall / b.height);
   const parts = b.parts;
   return {
-    group, plan, height: tall, palette: pal,
+    group, plan, height: tall, palette: pal, parts, sculpted: !!b.sculpted, g: b.g,
     update(t, step = 0) {
       const br = Math.sin(t * 2);
       if (parts.legs) parts.legs.forEach((l, i) => { l.rotation.x = Math.sin(step + (i % 2 ? Math.PI : 0) + (i > 1 ? Math.PI : 0)) * (step ? 0.4 : 0); });
@@ -375,6 +379,7 @@ export function buildBeast(key, sprite) {
       if (parts.lamp) parts.lamp.material.emissiveIntensity = 1.6 + Math.sin(t * 3) * 0.4;
       if (parts.embers) parts.embers.forEach((e, i) => { const a = t * 0.8 + i; e.position.set(Math.sin(a) * 0.22, 0.25 + ((t * 0.2 + i * 0.13) % 1) * 0.5, Math.cos(a) * 0.22); });
       if (parts.fronds) parts.fronds.forEach((f, i) => { f.rotation.x = Math.sin(t * 1.2 + i) * 0.04; });
+      if (parts.segments) parts.segments.forEach((sg, i) => { sg.position.x = Math.sin(t * 2.2 - i * 0.7) * 0.012 * (1 + (step ? 2 : 0)); sg.scale.y = 1 + Math.sin(t * 2 - i * 0.6) * 0.03; });
       if (parts.arms) parts.arms.forEach((a, i) => { a.rotation.x = Math.sin(t * 1.5 + i * Math.PI) * 0.08; });
     },
   };

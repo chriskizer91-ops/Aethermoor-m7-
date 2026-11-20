@@ -11,6 +11,14 @@ All 93 of M7's foe looks in 3D (November 20, first pass). Published: https://cla
   sprite (`paletteOf`).
 - **Walk** sets them walking. The game's own sprite stands in the corner to compare.
 
+## Act One shaped to Chris's sheets (November 20, Models step 2)
+
+The twelve foes of Act One (thornhound, briarling, boglurcher, glowcap, rotgrub, sapwight, the Gloamwing, Gorrow the
+Mire-King, Old Snag, the Rot-Stag, Briarmaw, the Rotwarden) are shaped by hand to Chris's model sheets
+(`art-in/3d/sheets/`) in `sculpt.js`, with his creature skins (`art-in/3d/skins/`, made into grey grains by
+`skins/make.py`, tinted with colours read off the sheets). The rest still use the body plans in `beasts.js`, until
+their turn.
+
 ## Build
 
 ```
