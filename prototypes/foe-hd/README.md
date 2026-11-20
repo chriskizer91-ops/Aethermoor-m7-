@@ -1,50 +1,109 @@
-# One Foe: Briarmaw in full detail
+# The foe kit: foes in full detail
 
-Briarmaw, Act One's first Champion, three ways side by side (the code-built model, a cut-out of Chris's sheet, and
-the full-detail light version baked from a sculpt), with his moves and a crowd test.
-Published: https://claude.ai/artifact/5iUqJsPw3NGrvun4Ng73eh (three ways, with the crowd test)
-and https://claude.ai/artifact/AVSmLbEu3jz1NVnohgqT9P (the sculpt itself beside its light version, for a laptop).
+Every beast is made the way Briarmaw was (Chris, November 20: "already looking fantastic. I'm excited to see other foes
+rendered with the techniques it learned"): a **sculpt** shaped to Chris's model sheet from front, side and back, **kept
+as an asset** he can look at, and **baked onto a light model** that many can share the screen with.
 
-**The full-detail model is kept as an asset:** `assets/briarmaw-sculpt.glb` (982,634 triangles with their colours,
-meshopt-compressed, 4.5 MB; three.js `GLTFLoader` with `MeshoptDecoder`). Chris, November 20: aim sculpts at 500,000 to
-1,000,000 triangles, more only where the detail needs it; the game uses the ~50,000-triangle bake.
+- Briarmaw three ways, with the crowd test: https://claude.ai/artifact/5iUqJsPw3NGrvun4Ng73eh
+- Briarmaw's sculpt beside its light model (laptop): https://claude.ai/artifact/AVSmLbEu3jz1NVnohgqT9P
 
-## The recipe
+Chris's rules: shape first (~100k triangles, checked against the sheet), then detail, **aimed at 500,000 to 1,000,000
+triangles, more only where the detail needs it**; **no fuzz of tiny hairs**: fur, leaves, scales, plates and robes are
+sculpted as real shapes; the game uses the bake (~50k for a Champion; the hub's budgets: Relic-Bearers ~40k, veterans
+~30k, rabble ~20k).
 
-Needs Blender 4.0 (`apt-get install blender`) and Python 3.12 with numpy, scipy and scikit-image
-(`apt-get install python3-numpy python3-scipy python3-skimage`), and `npm install` here.
+## Setting up (once per container)
 
 ```
-python3.12 blender/sculpt.py build 1        # pass 1, shape (~130k triangles): build/high-1.npz
-python3.12 blender/sculpt.py build 2        # pass 2, form  (~400k): feather barbs and broken tips in each tuft
-python3.12 blender/sculpt.py build 3        # pass 3, detail (~980k): the full-detail sculpt
-python3.12 blender/sculpt.py build 0        # level 0: the same shape with its parts built light, for the bake
-blender -b -P blender/preview.py -- build/high-3.npz build/p3       # front, side, back renders
-python3 blender/compare.py build/p3 build/cmp3.png                  # beside the sheet
-python3 blender/outline.py build/p3 build/out3.png                  # outlines over the sheet's
-blender -b -P blender/bake.py -- build/high-3.npz build/high-0.npz build/bake 2048
-python3 tools/textures.py build/bake assets                         # the pictures
-node tools/pack.mjs build/bake "" assets                            # the light mesh, compressed
-blender -b -P blender/export_glb.py -- build/high-3.npz build/sculpt-raw.glb
-npx gltf-transform meshopt build/sculpt-raw.glb assets/briarmaw-sculpt.glb --level high   # the asset
-node build.mjs && node build.mjs --page=sculpt                      # dist/briarmaw.html, dist/briarmaw-sculpt.html
-node tools/check.mjs dist/briarmaw.html build/shots                 # headless check and screenshots
+apt-get install -y blender python3-numpy python3-scipy python3-skimage     # Blender 4.0 and its Python 3.12
+cd prototypes/foe-hd && npm install
 ```
 
-1. **The sculpt** (`blender/sculpt.py`): the body is one smooth signed-distance shape measured off the sheet (barrel,
-   hump, shoulders, haunches, head with brow, snout, nose, jowls and grin, legs and paws, the tail). His coat is about
-   1,500 big leaf-feather tufts sculpted into that surface: at every point the topmost tuft sets the height, so they
-   overlap like shingles. Pass 2 gives each tuft feather barbs (strands angled out from a midrib) with broken tips; pass
-   3 finer strands. Thorns, the crown, vines, tusks, teeth, claws and eyes are real geometry on top.
-2. **The light version** (`blender/bake.py`): level 0 of the same script (the parts built light, so they keep their
-   true shape), the coat reduced to ~29,500 triangles, ~50,000 in all; UVs by Smart UV Project; Cycles bakes surface
-   (normal map), shading (ambient occlusion), colour and the eyes' glow from the sculpt, in two runs: the coat with a
-   long reach, the parts with a short one against the sculpt's parts only, so thin vines don't pick up their
-   neighbours. Lessons: this Blender has no denoiser, so denoising must be off or every bake cancels; parts must be
-   placed the same at every level (`place_sdf`, and each vine's thorns from its own dice), or the bake misses them.
-3. **The rig**: 19 bones (hips, spine, chest, neck, head, jaw, tail, three in each leg), four weights a vertex; thorns,
-   tusks, teeth, claws and eyes move rigidly.
-4. **The page** (`page/`): `briarmaw.js` decodes him and poses his moves (breathe, walk, roar, swipe, bite, hit, fall);
-   it returns the same shape as `buildBeast`, so the Fight can use him.
+## Making a foe
 
-For another foe: change the shape and the tuft zones in `sculpt.py`, keep the rest.
+```
+foes/<key>/foe.json      its settings (below)
+foes/<key>/sculpt.py     build(K) -> K.Mesh: its shape, its surface, its parts
+foes/<key>/rig.py        BONES (and weigh, rigid), usually from a template in kit/rigs/
+
+kit/make.sh <key>                        # everything: sculpt (light and full levels), sheet, bake, pack, asset
+kit/make.sh <key> sculpt,sheet           # or some steps
+python3.12 kit/py/sculpt.py foes/<key> 1 # one level: 0 light, 1 shape, 2 form, 3 detail, 4 finer
+python3 kit/py/sheet.py foes/<key> 1     # build/compare-1.png (sheet above renders), build/outline-1.png (outlines)
+blender -b -P kit/blender/preview.py -- foes/<key> 3 front,side,back,three,head
+node build.mjs --foe=<key>               # dist/<key>.html: three ways (code-built, standee, full detail) + crowd test
+node build.mjs --foe=<key> --page=sculpt # dist/<key>-sculpt.html: the sculpt beside its light model (laptop)
+node kit/tools/check.mjs dist/<key>.html build/shots     # headless: no errors, screenshots, frame rate
+```
+
+Made files: `foes/<key>/build/` (not in git: the levels, renders, the bake) and `foes/<key>/assets/` (in git: the
+light model `light.bin/json`, its pictures, and **the sculpt `<key>-sculpt.glb`**, meshopt-compressed; keep it under
+about 25 MB).
+
+### foe.json
+
+```json
+{ "key": "briarmaw", "name": "Briarmaw", "plan": "quad", "rank": "champion", "height": 1.7,
+  "sheet": "art-in/3d/sheets/sheet-briarmaw.webp", "crops": [[0, 600], [600, 1530], [1560, 2172]],
+  "bounds": [[-0.86, -1.48, -0.02], [0.86, 1.34, 1.62]],
+  "view": { "center": [0, 0, 0.78], "width": 3.0, "head": [0, 0.95, 1.02] },
+  "light": { "level": 0, "coat": 29500 }, "sculpt": { "level": 3 },
+  "bake": { "res": 2048, "phone": 1024, "ao": 48, "reach": { "coat": [0.07, 0.2], "parts": [0.02, 0.05] } },
+  "rig": "rig.py", "blurb": "...", "next": "...", "pages": { "sculpt": "<link>", "three": "<link>" } }
+```
+
+- `crops`: the sheet's front, side and back figures as [x0, x1] in sheet pixels (the sheet checks use them).
+- `bounds`: the box the body is meshed in (sculpt coordinates: x his right, y forward, z up, metres, feet at 0).
+- `light.coat`: the light model's coat (kinds 0-1) in triangles; parts come built light (level 0) and keep their shape;
+  `light.kinds` can cap other kinds. Total ≈ coat + parts: aim at the rank's budget.
+- `voxel` (optional) {level: metres} overrides the meshing size per level (small foes want finer).
+
+### The kit's Python (`K` in `build(K)`)
+
+- `K.sdf`: `smin smax ell cap` (shapes), `fbm vnoise mix sstep tri`, `grad project drop mc`.
+- `K.geom`: `Mesh` (vertices with a colour and a **kind**: 0 body/coat, 1 cloth/skin layer, 2 thorn/spike, 3 vine/rope,
+  4 plate/band, 5 tusk/tooth, 6 claw, 7 eye/glow, 8 other rigid piece), `tube horn ellipsoid frames resample lay
+  sample_surface`.
+- `K.Coat(body_sdf, lo, hi, LV, VOX, tuft_len, flow, bare, style, shape='tuft'|'scale'|'plate')`: a surface of
+  overlapping shapes sculpted into the body (topmost wins), the same at every level; gives `full_sdf` (to mesh),
+  `place_sdf` (to place parts on: **use it for every part**, so parts sit the same at every level and the bake finds
+  them) and `colours(V, bare_colour)`.
+- `kit/py/cloth.py`: `robe_folds`, `drape` (folds as real shapes, subtract from a robe's distance).
+- Levels: `K.LV`, `K.VOX`, `K.SIDES`, `K.SEG` (roundness of parts). Random choices that place parts must not depend on
+  the level (give each its own seeded dice), or the light model's parts won't match the sculpt's.
+
+### Rigs (`kit/rigs/`)
+
+- `quad.py` `make(legs, hips, spine, chest, neck, head, jaw, tail, jaw_region, jaw_parts)`: hips, spine, chest, neck,
+  head, jaw, tail, fl/fr/bl/br _upper/_lower/_paw.
+- `biped.py` `make(hips, spine, chest, neck, head, arm, leg, jaw, jaw_region, held)`: plus r_/l_ upperarm, forearm,
+  hand, thigh, shin, foot (r_ is his right, +x; give the right side, the left mirrors it).
+- `serpent.py` (seg0..segN rooted at the head end, head, jaw), `frog.py` (hips, chest, head, jaw, arms, long back
+  legs), `winged.py` (body, neck, head, jaw?, tail?, r_/l_ wing1-3, legs); moves in `kit/js/moves/<plan>.js` (first
+  passes; the lanes improve them).
+- A rig file gives `BONES`, and may give `weigh(D, P, idx)` (adjust distances) and `rigid(kind, P, idx)` (a bone name
+  for a rigid piece, e.g. tusks to the jaw, a weapon to a hand).
+
+### The page side (`kit/js/`)
+
+- `loader.js`: `ready, makeShared(A, res), makeFoe(shared, moves), cloneFoe(F)`: the Fight's face
+  `{ group, plan, height, parts, update(t, step), hit(), act: { lunge, fall }, pose(move, u, t) }`.
+- `moves/quad.js`, `moves/biped.js`: `MOVES, DUR, LUNGE, pose(F, move, u, t, step)` by bone name.
+- `looks.js`: **one `setBeastLook` for every finished foe**: `register(assets)` each, then
+  `setBeastLook(foeLook(buildBeast))`.
+- `viewer.js`: the sculpt viewer page. `pages/kit/`: the three-ways page. A lane's gallery: its own entry and shell in
+  `pages/<lane>/`, `node build.mjs --foes=a,b --entry=pages/<lane>/main.js --shell=pages/<lane>/shell.html --out=<lane>`
+  (the entry imports `{ FOES }` from `./assets.js`).
+
+## How it works (from Briarmaw)
+
+1. **The sculpt**: the body as smooth signed-distance masses measured off the sheet, its outline checked against the
+   sheet's from three sides; the surface (tufts, scales, plates, folds) sculpted into it; parts (thorns, vines, tusks,
+   claws, eyes) as real geometry placed on `place_sdf`.
+2. **The light model** (`kit/blender/bake.py`): the light level (parts built light), the coat reduced; UVs by Smart
+   UV Project; Cycles bakes surface, shading, colour and glow from the sculpt in two runs (coat with a long reach, parts
+   with a short one against the sculpt's parts only). This Blender has no denoiser: denoising off, or bakes cancel.
+3. **The rig**: four weights a vertex by distance to the bones (with the template's rules); rigid kinds move as one.
+4. **Packed** for the page with meshoptimizer; the sculpt exported as glb and compressed with gltf-transform.
+
+Briarmaw is `foes/briarmaw/`. `page/briarmaw.js` stays for earlier callers (`briarmawLook`).

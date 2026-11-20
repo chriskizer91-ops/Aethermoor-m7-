@@ -140,6 +140,22 @@ https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL
     the fist.
 - Checked: all 458 build and pass the checks (no flags), and I looked at every picture.
 
+**Things that swing.** Gear Room, **Walk about** (walking a figure of eight, running, a dead stop):
+https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL
+- Capes (in two hinged halves, so the hem swings further than the shoulders), long hair down the back, ponytails and
+  braids, skirts and robes (they now turn about the waist), quivers, belt pouches, scarf ends and tails, satchels,
+  sacks, ledgers, lanterns, trinkets and charms each hang from a pivot of their own with a spring: they lag when the
+  figure starts, fly back when it runs, swing on when it stops or turns, and react to the fight's strikes and hits, within
+  limits that keep them out of the body and legs (a cape never swings forward into the back, front pieces never back
+  into the belly).
+- It is all inside `setPose` (`swing()` at its end), so every page has it with no change; it works in High, Light and
+  Lite (the pivots are Lite's bones). `SWING_ON.on = false` (model.js) turns it off. Locks framing the face stay put.
+- Cost, measured (`__swingCost()` in the Gear Room, setPose 2000 times with and without): 2 to 5 swinging pieces per
+  hero, about 0.005 to 0.015 ms more per figure per frame (High 0.010 to 0.018 ms with it, against 0.002 to 0.005
+  without); for a party of four and ten townsfolk, about 0.15 ms a frame. No extra draws.
+- For the Fight and Together: nothing to do; a figure that moves through the world (its group or root moving) swings
+  by itself, and a figure standing on the spot sways only with its own pose.
+
 ## Next
 
 - Chris chose full detail for the beasts (November 20): sessions 6 to 8 build them (`docs/project/jobs/foes.md`;

@@ -49,6 +49,23 @@
   1024 px; the page is 14.6 MB. `?foes=hd` starts there.
 - On phones the three who follow the leader are Models' lite heroes (two draws each).
 
+## Step 3 (in progress)
+
+- **Every Act One fight**: https://claude.ai/artifact/Q9T8quXCTVgiVUZoMuUaP4 (14.2 MB). The **Fights** button lists all
+  28 of Act One's fights, each from M7's own map data (where the foes stand, which way they face, the party's level);
+  `?enc=<id>` starts one. Any M7 fight can be put on a page this way: build with its place in `--places`.
+- **Cameras indoors and among walls**: the fight picks which way it faces at its start, by the place's own sight test
+  (`W.P.sight`) and open ground, so its camera sees every hero and foe; the spoils camera searches round the party for a
+  clear spot; so does the Legend close-up. Sneck in the Great Hall: fight and spoils both see everyone.
+- **In 3D now**: statuses you can see on each figure (burning, bleeding, rot, poison, hex, chill, charm, regeneration);
+  the swallow (gone in a burst, back in a ring); a guest ally standing over her card (Tamsin against the Unsmith); a
+  charmed hero lunging at a friend; Twinned splits (`?omen=twinned`); the toll (`?toll=1`: Wren wears Hodge's Unfair
+  Toll; "the toll is due", the foe loses a turn). Already in: summons, burrowing and diving, phases, disarms, escapes.
+- **The Legend Strike close-up** (`?surge=100`): the camera cuts in on the hero; the foes' plates step aside.
+- **Phone frame rate**: each figure's pieces on one joint with one material are drawn as one; a phone fight is 152
+  draws (was 278).
+- **Headless proof** (`battle/check-all.mjs`, with the test-only `?fast=1`): results below as they come.
+
 ## For Together: starting a fight from outside
 
 `world3d/battle/run.js` exports one function. It pauses the walk, swings the camera round, plays M7's battle screen
