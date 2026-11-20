@@ -1,6 +1,6 @@
 # Slip: Models (session 3, branch `job/models`)
 
-Last updated November 20 (step 2, Act One).
+Last updated November 20 (painted standees for Chris's comparison).
 
 ## Done
 
@@ -32,9 +32,22 @@ https://claude.ai/artifact/CA6CcAKVHSxGPB5TAZF5sY (commit c32ec2f; page version 
 - A fix that helps everything: the modelling kit built tubes inside out, so the far inside wall was what showed (the
   flat, papery look). Every closed shape now faces outward; the heroes are rounder too (Gear Room version 6).
 
+**Chris's comparison: painted standees or 3D.** The Bestiary: https://claude.ai/artifact/CA6CcAKVHSxGPB5TAZF5sY
+(commit 70f0341; page version 3). Opens on **Painted**; the switch at the top changes to **3D**.
+
+- All 54 beasts as painted standees cut from Chris's sheets (`prototypes/bestiary/standees/cut.py`: background flood
+  filled away, enclosed holes too, views split on empty columns, all three sharing one scale and ground line; 400 px
+  WebP, 3.8 MB). `standee.js` stands them facing the camera, showing the front, side (mirrored for the other side) or
+  back as the camera goes round, lit through a normal map made from each painting, with a soft shadow; they breathe,
+  bob, and the **Lunge**, **Hit** and **Fall** buttons show leaning in, a shake and flash, tipping over and fading.
+- For the Fight: `buildStandee(key, { tall })` returns `group`, `g`, `height`, `parts` (`body`: the whole, `face`:
+  turned to the camera, `pose`: leans in the picture's plane, `shadow`), `update(t, step)`, plus `act.lunge` and
+  `act.fall` (0 to 1, posed by update) and `hit()`. `hasStandee(key)` says whether a sheet exists (all 54 do).
+- Size: the Bestiary page is now 10.4 MB (standees 5 MB inside it).
+
 ## Next
 
-- Step 2, the rest: the Champions and Relic-Bearers beyond Act One (Kharzul, Mother Anvil, the Rime-Abbot, the
+- Paused (the hub, November 20): more 3D reshaping waits until Chris chooses painted or 3D. Then: the Champions and Relic-Bearers beyond Act One (Kharzul, Mother Anvil, the Rime-Abbot, the
   Lantern-Mother, the Blackwater Leviathan, the Unsmith, the Wisp-Queen, the Glass Matriarch, the Thunder-Roc, Grandfather
   Willow, Old Horn...), then the others.
 
