@@ -182,14 +182,20 @@ export const arena = {
     // from the foes' side, or round about, near or far, high or low: the first spot that sees every hero's head
     const P = this.W.P, heads = [...this.heroes.values()].map((h) => h.home.clone().setY(h.home.y + 1.3));
     const clear = (a, b) => { try { return P.sight.hit(a.x, a.y, a.z, b.x, b.y, b.z) > 0.97; } catch (e) { return true; } };
+    // indoors (Together, November 21): the camera stands over the room's own floor, never out past its walls where the
+    // sight test can't see the stone it's behind (the fight's camera does the same since step 3); small rooms get
+    // closer, lower spots to try
+    const open = (p) => { try { return P.walkable(P.M.px(p.x), P.M.py(p.z)); } catch (e) { return true; } };
     let pos = null, bestN = -1, bestPos = null;
-    search: for (const [dist, up] of [[10.5, 3.4], [8, 3.2], [6, 3.6], [4.5, 4.2]]) for (const off of [0, 0.5, -0.5, 1.0, -1.0, 1.6, -1.6]) {
+    search: for (const [dist, up] of [[10.5, 3.4], [8, 3.2], [6, 3.6], [4.5, 4.2], [3.6, 2.8], [2.8, 2.4]]) for (const off of [0, 0.5, -0.5, 1.0, -1.0, 1.6, -1.6, 2.3, -2.3]) {
       const a = this.yaw + off, p = hc.clone().add(V3(Math.sin(a) * dist, up, Math.cos(a) * dist));
+      if (!open(p)) continue;
       const n = heads.filter((h) => clear(p, h)).length;
       if (n > bestN) { bestN = n; bestPos = p; }
       if (n === heads.length) { pos = p; break search; }
     }
-    pos = pos || bestPos;
+    // nowhere on open floor round the front: the fight's own camera, behind the party (it was solved over open ground)
+    pos = pos || bestPos || this.want.pos.clone();
     // look a little below the party, so they stand in the upper part of the screen
     const v = this.renderer.domElement.getBoundingClientRect(), f = (v.height / 2) / Math.tan(fov * Math.PI / 360);
     const off = Math.atan((0.5 - top) * v.height / f), d = aim.clone().sub(pos), L = d.length();
