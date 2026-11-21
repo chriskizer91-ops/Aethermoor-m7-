@@ -52,7 +52,8 @@ function ghost(h, o = {}) {
 // a robe from y0 (top) down to y1 (hem), width w(t) and depth ratio d; folds; a tattered or scalloped hem
 function robeRings({ y0, y1, w, d = 0.82, n = 40, steps = 14, folds = 0.03, k = 9, tatter = 0, scallop = 0, seed = 1, open = 0 }) {
   const N = Math.max(12, Math.round(n * (Q.d > 1 ? 1.4 : 1))), rnd = rngOf(seed), jag = [];
-  for (let j = 0; j < N; j++) jag.push(tatter * (0.25 + 0.75 * rnd()) * (j % 2 ? 1 : 0.55));
+  for (let j = 0; j < N; j++) { const r = rnd(); jag.push(tatter * (0.12 + 0.6 * r * r + (rnd() < 0.14 ? 0.9 + rnd() * 0.6 : 0))); }
+  for (let pass = 0; pass < 1; pass++) for (let j = 0; j < N; j++) jag[j] = Math.max(jag[j], (jag[(j + N - 1) % N] + jag[(j + 1) % N]) * 0.35); // points, not single threads
   const rings = [];
   for (let i = 0; i <= steps; i++) {
     const t = i / steps, y = lerp(y0, y1, t), R = w(t), ring = [];
@@ -69,7 +70,15 @@ function robeRings({ y0, y1, w, d = 0.82, n = 40, steps = 14, folds = 0.03, k = 
 }
 // a robe's width from the neck over the shoulders and down: neck, shoulder, bottom (k: how far down the shoulders end)
 const wsh = (neck, sh, low, k = 0.14) => t => (t < k ? lerp(neck, sh, Math.sqrt(smooth(t / k))) : lerp(sh, low, (t - k) / (1 - k)));
-function robe(parent, m, o, kind = 'skirt') { return add(fitMaster(loft(robeRings(o)), kind), m, parent); }
+function robe(parent, m, o, kind = 'skirt') {
+  const out = add(fitMaster(loft(robeRings(o)), kind), m, parent);
+  // rags: shorter, a little wider layers hung over it, each torn deeper, so the hem is rag over rag like the paintings
+  for (let i = 1; i <= (o.rags || 0); i++) {
+    const lift = (o.y0 - o.y1) * 0.16 * i, grow = 0.012 * i;
+    add(fitMaster(loft(robeRings({ ...o, y1: o.y1 + lift, w: t => o.w(t) + grow * t, tatter: (o.tatter || 0.08) * (1.25 + i * 0.25), seed: (o.seed || 1) * 7 + i, steps: Math.max(6, (o.steps || 14) - 3) })), kind), m, parent);
+  }
+  return out;
+}
 // a sleeve: an upper tube and a flared, maybe tattered cuff
 function sleeve(sh, el, side, m, { L1 = 0.27, L2 = 0.26, r = 0.055, flare = 1.6, tatter = 0 } = {}) {
   add(fitMaster(tube(curve([V(0, 0.03, 0), V(0, -L1 * 0.5, 0.004), V(0, -L1, 0)], 10), t => [r * (1.15 - t * 0.2), r * (1.1 - t * 0.2)], { n: 14 }), 'sleeve'), m, sh);
@@ -95,6 +104,21 @@ function hood(head, m, { r = 0.13, k = 1.25, point = 0, open = 0.95, drape = tru
 }
 const VOID = new Map();
 function glowless(h) { if (VOID.has(h)) return VOID.get(h); const m = new THREE.MeshStandardMaterial({ color: new THREE.Color(h), roughness: 1 }); m.userData.kind = 'void'; VOID.set(h, m); return m; }
+// a face (the drowned women, the weeping wraith, the lamplighter): a skull with a brow, a nose, cheekbones, sunk eye sockets,
+// eyes (lit or dark), a mouth (shut, or open in a cry) and, if they weep, tear-tracks of light
+function face(head, skin, { r = 0.1, eyes = null, iris = '#0a0e12', mouth = 0, tears = null, gaunt = 0.3 } = {}) {
+  add(sph(r, 28, 20), skin, head, 0, 0, 0.01).scale.set(0.88, 1.12, 0.95);
+  add(sph(r * 0.55, 16, 10), skin, head, 0, r * 0.32, r * 0.55).scale.set(1.35, 0.35, 0.7);                       // the brow
+  add(sph(r * 0.2, 12, 8), skin, head, 0, -r * 0.08, r * 0.92).scale.set(0.7, 1.4, 0.9);                         // the nose
+  for (const s of [-1, 1]) {
+    add(sph(r * 0.28, 12, 8), skin, head, s * r * 0.45, -r * 0.18, r * 0.66).scale.set(1, 0.6, 0.7);                // cheekbones
+    add(sph(r * 0.2, 12, 8), glowless('#0d1418'), head, s * r * 0.36, r * 0.12, r * 0.8).scale.set(1.2, 0.85, 0.5); // the socket
+    add(sph(r * 0.1, 10, 8), eyes ? glow(eyes, 2.4) : glowless(iris), head, s * r * 0.36, r * 0.12, r * 0.88);       // the eye
+    if (tears) add(fitMaster(tube(curve([V(s * r * 0.38, r * 0.02, r * 0.9), V(s * r * 0.42, -r * 0.3, r * 0.86), V(s * r * 0.44, -r * 0.62, r * 0.76)], 6), r * 0.035, { n: 5 }), 'rim'), glow(tears, 1.4), head);
+  }
+  if (gaunt) for (const s of [-1, 1]) add(sph(r * 0.22, 10, 8), glowless('#202a30'), head, s * r * 0.5, -r * 0.42, r * 0.62).scale.set(0.6, 1.2, 0.3);
+  add(sph(r * 0.22, 12, 8), glowless('#120a0c'), head, 0, -r * 0.5, r * 0.82).scale.set(1.1, 0.25 + mouth, 0.45);    // the mouth
+}
 // a face mask (a plate over the front of the head), with eye holes as dark cups and a mouth
 function mask(head, m, { r = 0.12, eyes = '#0a0a0a', mouth = 0, z = 1.02 } = {}) {
   const g = add(fitMaster(lathe([[0, r * 0.95], [r * 0.55, r * 0.85], [r * 0.82, r * 0.35], [r * 0.82, -r * 0.35], [r * 0.6, -r * 0.85], [0, -r * 1.05]], { n: 24, phi0: -1.25, phiLen: 2.5 }), 'forged'), m, head, 0, 0, r * (z - 1) + 0.002);
@@ -115,12 +139,12 @@ function weed(parent, m, { n = 18, len = 0.28, spread = 0.12, seed = 3, lights =
 }
 // coral or antler branches (the cantor's and bell-ringer's crowns)
 function branches(parent, m, { n = 5, len = 0.32, seed = 5, depth = 3, r = 0.016, spread = 0.9 } = {}) {
-  const rnd = rngOf(seed);
+  const rnd = rngOf(seed), light = Q.d < 2; if (light) depth = Math.max(1, depth - 1); // (the fight's detail: a level fewer)
   const grow = (p, dir, L, R, d) => {
     const q = p.clone().addScaledVector(dir, L), mid = p.clone().lerp(q, 0.5).add(V((rnd() - 0.5) * L * 0.2, 0, (rnd() - 0.5) * L * 0.2));
-    add(fitMaster(tube(curve([p, mid, q], 6), t => R * (1 - t * 0.45), { n: 7 }), 'haft'), m, parent);
+    add(fitMaster(tube(curve([p, mid, q], light ? 3 : 6), t => R * (1 - t * 0.45), { n: light ? 5 : 7 }), 'haft'), m, parent);
     if (d <= 0) return;
-    const kids = 2 + (rnd() < 0.4 ? 1 : 0);
+    const kids = 2 + (rnd() < (light ? 0.15 : 0.4) ? 1 : 0);
     for (let i = 0; i < kids; i++) { const nd = dir.clone().add(V((rnd() - 0.5) * spread, 0.25 + rnd() * 0.3, (rnd() - 0.5) * spread)).normalize(); grow(q, nd, L * (0.55 + rnd() * 0.2), R * 0.62, d - 1); }
   };
   for (let i = 0; i < n; i++) { const a = i / n * Math.PI * 2 + rnd(); grow(V(Math.cos(a) * 0.03, 0, Math.sin(a) * 0.03), V(Math.cos(a) * 0.45, 1, Math.sin(a) * 0.45).normalize(), len * 0.45, r, depth); }
@@ -203,7 +227,7 @@ B.drowned = (G, o) => {
     add(fitMaster(tube([V(0, -0.6, 0.0), V(0, -0.74, 0), V(0, -0.82, 0.0)], t => [0.065, 0.06], { n: 14, capA: false }), 'boot'), boot, leg);
     add(fitMaster(tube(curve([V(0, -0.83, -0.05), V(0, -0.82, 0.03), V(0, -0.84, 0.12)], 8), t => [0.04 * (1 - t * 0.3), 0.06], { n: 14, up: V(0, 1, 0) }), 'foot'), boot, leg); }
   robe(R.chest, coat, { y0: 1.46 - 0.84, y1: 0.0, w: wsh(0.075, 0.21, 0.27), tatter: 0.14, folds: 0.05, seed: 11 }, 'torso');
-  robe(R.hem, coat, { y0: 0.0, y1: 0.6 - 0.84, w: t => lerp(0.27, 0.34, t), tatter: 0.18, folds: 0.07, seed: 12 });
+  robe(R.hem, coat, { y0: 0.0, y1: 0.6 - 0.84, w: t => lerp(0.27, 0.34, t), tatter: 0.18, folds: 0.07, seed: 12, rags: 2 });
   // the tie with its green diamonds
   add(fitMaster(tube([V(0, 0.52, 0.16), V(0, 0.3, 0.2), V(0, 0.08, 0.21)], t => [0.004, lerp(0.03, 0.045, t)], { n: 8, up: V(0, 0, 1) }), 'tabard'), cloth('#23463e'), R.chest);
   for (let i = 0; i < 3; i++) add(cone(0.016, 0.03, 4), glow('#66c27a', 0.6), R.chest, 0, 0.44 - i * 0.12, 0.215).rotation.x = Math.PI / 2;
@@ -221,7 +245,7 @@ B.drowned = (G, o) => {
 B['bell-ringer'] = (G, o) => {
   const R = rigOf(G, { shY: 1.32, shX: 0.22, headY: 1.42 }), robeM = cloth('#17171f'), weedM = cloth('#2d5a50'), stone = solid('stone', '#77756c');
   robe(R.chest, robeM, { y0: 1.4 - 0.82, y1: 0.0, w: wsh(0.12, 0.25, 0.31), folds: 0.08, k: 6, seed: 21 }, 'torso');
-  robe(R.hem, robeM, { y0: 0.0, y1: 0.02 - 0.82, w: t => lerp(0.31, 0.44, t), tatter: 0.22, folds: 0.12, k: 6, seed: 22 });
+  robe(R.hem, robeM, { y0: 0.0, y1: 0.02 - 0.82, w: t => lerp(0.31, 0.44, t), tatter: 0.22, folds: 0.12, k: 6, seed: 22, rags: Q.d > 1 ? 2 : 1 });
   // the collar of stones, the weed and little skulls at the hem
   for (let i = 0; i < 9; i++) { const a = i / 9 * Math.PI * 2; add(sph(0.06, 10, 8), stone, R.chest, Math.cos(a) * 0.19, 0.6, Math.sin(a) * 0.16).scale.set(1.3, 0.75, 1.05); }
   weed(R.chest, weedM, { n: Q.d > 1 ? 20 : 12, len: 0.18, spread: 0.36, seed: 23, up: -1 }).forEach(w => w.position.y = 0.6);
@@ -242,8 +266,8 @@ B['bell-ringer'] = (G, o) => {
 B['drowned-choir'] = (G, o) => {
   const R = rigOf(G, { shY: 1.24, shX: 0.18, headY: 1.38 }), red = cloth('#7c2a22'), lace = cloth('#d8d4d8'), cape = cloth('#5a2420'), skin = solid('skin', SKIN.grey);
   robe(R.chest, lace, { y0: 1.34 - 0.77, y1: 0.0, w: wsh(0.07, 0.19, 0.25), folds: 0.04, seed: 31 }, 'torso');
-  robe(R.hem, red, { y0: 0.0, y1: 0.02 - 0.77, w: t => lerp(0.24, 0.34, t), tatter: 0.1, folds: 0.07, seed: 32 });
-  robe(R.hem, lace, { y0: 0.02, y1: -0.36, w: t => lerp(0.26, 0.38, t), scallop: 0.035, folds: 0.05, seed: 33, steps: 8 });
+  robe(R.hem, red, { y0: 0.0, y1: 0.02 - 0.77, w: t => lerp(0.24, 0.34, t), tatter: 0.12, folds: 0.07, seed: 32, rags: 1 });
+  robe(R.hem, lace, { y0: 0.02, y1: -0.36, w: t => lerp(0.26, 0.38, t), scallop: 0.035, folds: 0.05, seed: 33, steps: 8 }, 'lace');
   add(fitMaster(loft(robeRings({ y0: 0.56, y1: 0.43, w: t => lerp(0.13, 0.24, t), steps: 5, folds: 0.03, seed: 34 })), 'mantle'), cape, R.chest);
   for (const a of R.arms) { sleeve(a.sh, a.el, a.side, lace, { L1: 0.25, L2: 0.25, r: 0.055, flare: 1.7, tatter: 0.3 }); hand(a.hand, a.side, skin, { closed: true, len: 1.1 }); }
   armLengths(R, 0.25, 0.25);
@@ -261,9 +285,9 @@ B['drowned-choir'] = (G, o) => {
 B['drowned-cantor'] = (G, o) => {
   const R = rigOf(G, { shY: 1.36, shX: 0.2, headY: 1.5 , headK: 1.45 }), black = cloth('#141419'), green = cloth('#1f5a4c'), gold = cloth('#c89a2a', { key: 'wool' }), skin = solid('skin', SKIN.grey);
   robe(R.chest, black, { y0: 1.46 - 0.84, y1: 0.0, w: wsh(0.07, 0.2, 0.25), seed: 41 }, 'torso');
-  robe(R.hem, black, { y0: 0.0, y1: 0.02 - 0.84, w: t => lerp(0.25, 0.33, t), tatter: 0.06, folds: 0.06, seed: 42 });
+  robe(R.hem, black, { y0: 0.0, y1: 0.02 - 0.84, w: t => lerp(0.25, 0.33, t), tatter: 0.1, folds: 0.06, seed: 42, rags: 1 });
   // the green cope, open at the front, two gold bands down it
-  add(fitMaster(loft(robeRings({ y0: 0.6, y1: -0.74, w: wsh(0.1, 0.25, 0.4, 0.12), open: 6, folds: 0.07, seed: 43, steps: 16 })), 'cape'), green, R.chest);
+  add(fitMaster(loft(robeRings({ y0: 0.6, y1: -0.74, w: wsh(0.1, 0.25, 0.4, 0.12), open: 6, folds: 0.07, seed: 43, steps: 16, tatter: 0.04 })), 'embroid'), green, R.chest);
   for (const s of [-1, 1]) add(fitMaster(tube(curve([V(s * 0.08, 0.55, 0.17), V(s * 0.12, 0.0, 0.25), V(s * 0.16, -0.7, 0.33)], 12), [0.004, 0.022], { n: 6, up: V(0, 0, 1) }), 'braid'), gold, R.chest);
   beads(R.chest, solid('bone', '#e8e4dc'), ringAt(0.58, 0.19, 0.16, 26), 0.022);
   for (const a of R.arms) { sleeve(a.sh, a.el, a.side, black, { L1: 0.27, L2: 0.26, r: 0.06, flare: 1.7, tatter: 0.4 }); hand(a.hand, a.side, skin, { closed: a.side === -1, len: 1.15 }); }
@@ -288,9 +312,9 @@ B['drowned-abbess'] = (G, o) => {
   for (const a of R.arms) { sleeve(a.sh, a.el, a.side, teal, { L1: 0.27, L2: 0.26, r: 0.058, flare: 1.6 }); hand(a.hand, a.side, skin, { closed: a.side === -1, len: 1.1 }); }
   armLengths(R, 0.27, 0.26);
   // the face, the veil over it and down the back
-  add(sph(0.1, 24, 18), skin, R.head, 0, 0, 0.01).scale.set(0.92, 1.1, 0.95);
-  for (const s of [-1, 1]) { add(sph(0.016, 10, 8), glow('#a8e8ff', 2.4), R.head, s * 0.035, 0.015, 0.088); add(tor(0.02, 0.006, 6, 16), solid('silver', '#c8ccd0'), R.head, s * 0.1, -0.03, 0.0).rotation.y = Math.PI / 2; }
-  add(fitMaster(lathe([[0, 0.145], [0.06, 0.142], [0.11, 0.115], [0.14, 0.05], [0.15, -0.05], [0.19, -0.14], [0.26, -0.26], [0.3, -0.45], [0.31, -0.62]], { n: 40, phi0: 0.85, phiLen: Math.PI * 2 - 1.7 }), 'hood'), veil, R.head);
+  face(R.head, skin, { r: 0.1, eyes: '#a8e8ff', tears: '#5ac8ff', gaunt: 0.4 });
+  for (const s of [-1, 1]) add(tor(0.02, 0.006, 6, 16), solid('silver', '#c8ccd0'), R.head, s * 0.1, -0.03, 0.0).rotation.y = Math.PI / 2;
+  add(fitMaster(lathe([[0, 0.145], [0.06, 0.142], [0.11, 0.115], [0.14, 0.05], [0.15, -0.05], [0.18, -0.14], [0.22, -0.24], [0.24, -0.36], [0.25, -0.45]], { n: 40, phi0: 0.85, phiLen: Math.PI * 2 - 1.7 }), 'hood'), veil, R.head);
   add(fitMaster(lathe([[0.0, 0.125], [0.09, 0.115], [0.115, 0.05], [0.12, -0.06], [0.14, -0.2]], { n: 30, phi0: 0.7, phiLen: Math.PI * 2 - 1.4 }), 'hood'), cloth('#a8c8cc'), R.head);
   // the lantern in her right hand, burning blue
   const L = lantern(R.armR.hand, solid('silver', '#b8bcc0'), glow('#6ad8ff', 2.6), { r: 0.055, h: 0.16 }); L.group.position.set(0, -0.08, 0.02); R.props.lantern = L; R.swing.push(L.group); R.glows.push(L.core.material);
@@ -301,7 +325,7 @@ B['drowned-abbess'] = (G, o) => {
 B['choir-wraith'] = (G, o) => {
   const R = rigOf(G, { shY: 1.32, shX: 0.19, headY: 1.48 , headK: 1.45 }), teal = cloth('#2c4a4a'), dark = cloth('#1c2c2e'), skin = solid('skin', SKIN.blue);
   robe(R.chest, teal, { y0: 1.42 - 0.82, y1: 0.0, w: wsh(0.07, 0.2, 0.27), tatter: 0.04, seed: 61 }, 'torso');
-  [[0.0, -0.42, 0.27, 0.38], [-0.36, -0.8, 0.34, 0.46]].forEach(([a, b, w0, w1], i) => robe(R.hem, i ? dark : teal, { y0: a, y1: b, w: t => lerp(w0, w1, t), tatter: 0.12, folds: 0.06, k: 10, seed: 62 + i, steps: 9 }));
+  [[0.0, -0.42, 0.27, 0.38], [-0.36, -0.8, 0.34, 0.46]].forEach(([a, b, w0, w1], i) => robe(R.hem, i ? dark : teal, { y0: a, y1: b, w: t => lerp(w0, w1, t), tatter: 0.14, folds: 0.06, k: 10, seed: 62 + i, steps: 9, rags: i }));
   // studs round the tiers, and tags at the sides
   for (const y of [-0.38, -0.74]) beads(R.hem, solid('bronze', '#8a6a3a'), ringAt(y, y < -0.5 ? 0.43 : 0.35, y < -0.5 ? 0.36 : 0.29, 22), 0.012);
   for (const s of [-1, 1]) add(new THREE.BoxGeometry(0.012, 0.09, 0.06), solid('bronze', '#9a7a3a'), R.hem, s * 0.3, -0.14, 0);
@@ -325,16 +349,14 @@ B['choir-wraith'] = (G, o) => {
 B['rime-wraith'] = (G, o) => {
   const R = rigOf(G, { shY: 1.32, shX: 0.19, headY: 1.48 , headK: 1.45 }), frost = cloth('#4a6a6e'), dark = cloth('#2a3e44'), skin = solid('skin', SKIN.blue), ice = ghost('#cfefff', { glow: '#9adfff', k: 0.5, opacity: 0.85 });
   robe(R.chest, frost, { y0: 1.42 - 0.82, y1: 0.0, w: wsh(0.07, 0.2, 0.26), tatter: 0.04, seed: 71 }, 'torso');
-  robe(R.hem, dark, { y0: 0.0, y1: 0.04 - 0.82, w: t => lerp(0.26, 0.36, t), tatter: 0.18, folds: 0.07, seed: 72 });
-  add(fitMaster(loft(robeRings({ y0: 0.62, y1: 0.18, w: t => lerp(0.15, 0.36, t), steps: 8, tatter: 0.14, folds: 0.06, seed: 73 })), 'mantle'), frost, R.chest);
+  robe(R.hem, dark, { y0: 0.0, y1: 0.04 - 0.82, w: t => lerp(0.26, 0.36, t), tatter: 0.2, folds: 0.07, seed: 72, rags: 2 });
+  robe(R.chest, frost, { y0: 0.62, y1: 0.18, w: t => lerp(0.15, 0.36, t), steps: 8, tatter: 0.16, folds: 0.06, seed: 73, rags: 1 }, 'mantle');
   add(fitMaster(tube(ringAt(0.0, 0.2, 0.17, 24), 0.018, { closed: true, n: 8 }), 'braid'), cloth('#bfae84'), R.chest);
   add(fitMaster(tube(curve([V(0.05, 0.0, 0.17), V(0.07, -0.15, 0.2), V(0.06, -0.32, 0.22)], 8), 0.012, { n: 6 }), 'braid'), cloth('#bfae84'), R.chest);
   add(fitMaster(tube([V(0, 0.3, 0.19), V(0, -0.1, 0.24), V(0, -0.6, 0.3)], t => [0.004, 0.05], { n: 8, up: V(0, 0, 1) }), 'tabard'), cloth('#5a7a7c'), R.chest);
   for (const a of R.arms) { sleeve(a.sh, a.el, a.side, frost, { L1: 0.27, L2: 0.26, r: 0.06, flare: 1.7, tatter: 0.5 }); hand(a.hand, a.side, skin, { len: 1.2 }); }
   armLengths(R, 0.27, 0.26);
-  add(sph(0.1, 24, 18), skin, R.head, 0, -0.01, 0.01).scale.set(0.9, 1.1, 0.95);
-  for (const s of [-1, 1]) { add(sph(0.015, 8, 6), glowless('#14222a'), R.head, s * 0.034, 0.012, 0.09); add(cone(0.004, 0.05, 5), ice, R.head, s * 0.036, -0.02, 0.092).rotation.x = Math.PI; }
-  add(sph(0.022, 10, 8), glowless('#14222a'), R.head, 0, -0.05, 0.09).scale.set(0.8, 1.2, 0.5);
+  face(R.head, skin, { r: 0.1, iris: '#203038', mouth: 0.7, tears: '#8adcff', gaunt: 0.5 });
   hood(R.head, frost, { r: 0.12, k: 1.25, point: 0.2, open: 0.9, inner: '#0c1418' });
   // icicles from the hood's edge and the sleeves, blue water at the hem
   const rnd = rngOf(74);
@@ -352,7 +374,7 @@ B['rime-abbot'] = (G, o) => {
   robe(R.chest, teal, { y0: 1.76 - 1.02, y1: 0.0, w: wsh(0.08, 0.24, 0.3), seed: 81 }, 'torso');
   robe(R.hem, teal, { y0: 0.0, y1: 0.03 - 1.02, w: t => lerp(0.3, 0.42, t), folds: 0.05, k: 18, seed: 82 });
   // the cope over the shoulders to near the ground, edged with frost, tasselled
-  add(fitMaster(loft(robeRings({ y0: 0.76, y1: -0.85, w: wsh(0.11, 0.3, 0.5, 0.12), open: 4, folds: 0.08, seed: 83, steps: 16 })), 'cape'), navy, R.chest);
+  add(fitMaster(loft(robeRings({ y0: 0.76, y1: -0.85, w: wsh(0.11, 0.3, 0.5, 0.12), open: 4, folds: 0.08, seed: 83, steps: 16 })), 'embroid'), navy, R.chest);
   add(fitMaster(tube(ringAt(-0.85, 0.5, 0.41, 40), 0.016, { closed: true, n: 6 }), 'braid'), frost, R.chest);
   for (let i = 0; i < 7; i++) { const a = Math.PI * 0.62 + i / 6 * Math.PI * 0.76; const p = V(Math.cos(a) * 0.36, 0.25, Math.sin(a) * 0.3); add(fitMaster(tube([p, p.clone().add(V(0, -0.12, 0))], t => 0.006 + t * 0.012, { n: 6 }), 'braid'), frost, R.chest); }
   for (const s of [-1, 1]) add(fitMaster(tube(curve([V(s * 0.05, 0.62, 0.21), V(s * 0.06, 0.4, 0.25), V(s * 0.05, 0.2, 0.27)], 8), 0.01, { n: 6 }), 'braid'), frost, R.chest);
@@ -393,8 +415,7 @@ B['lantern-mother'] = (G, o) => {
   for (const a of R.arms) { sleeve(a.sh, a.el, a.side, coat, { L1: 0.3, L2: 0.29, r: 0.052, flare: 1.25 }); hand(a.hand, a.side, skin, { closed: true, len: 1.2 }); }
   armLengths(R, 0.3, 0.29);
   // her face, white hair, hood and crown of flowers
-  add(sph(0.095, 24, 18), skin, R.head, 0, 0, 0.01).scale.set(0.9, 1.1, 0.95);
-  for (const s of [-1, 1]) add(sph(0.014, 10, 8), glow('#ffb03a', 2.4), R.head, s * 0.033, 0.015, 0.084);
+  face(R.head, skin, { r: 0.095, eyes: '#ffb03a', gaunt: 0.25 });
   for (const s of [-1, 1]) add(fitMaster(tube(curve([V(s * 0.07, 0.05, 0.04), V(s * 0.09, -0.06, 0.05), V(s * 0.08, -0.16, 0.06)], 8), t => [0.012, 0.02], { n: 8 }), 'lock'), solid('wool', '#d8d8dc'), R.head);
   hood(R.head, black, { r: 0.12, k: 1.18, open: 1.0, inner: '#0a0808' });
   for (let i = 0; i < 9; i++) { const a = -1.3 + i / 8 * 2.6; add(sph(0.016, 8, 6), solid('bone', '#efe8d6'), R.head, Math.sin(a) * 0.14, 0.11 + Math.cos(a) * 0.01, Math.cos(a) * 0.12); add(sph(0.006, 6, 4), glow('#f0c860', 0.8), R.head, Math.sin(a) * 0.15, 0.115, Math.cos(a) * 0.13); }

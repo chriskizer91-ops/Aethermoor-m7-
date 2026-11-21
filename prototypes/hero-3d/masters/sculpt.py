@@ -66,6 +66,8 @@ KINDS = {
     'forged':   (30, 0.15, 0.15, None),  # a forged head (axe, spear, mace, hammer, pommel), laid on flat over it
     'hand':     (31, 0.11, 0.06, None),  # a bare hand: v 0 the wrist, 1 the knuckles; the back at u 0 or .5 (by the side)
     'head':     (32, 0.55, 0.30, 0.25),  # the skull under the painted face (a sphere: u .25 the front, v 0 the chin, 1 the crown)
+    'lace':     (33, 0.85, 0.36, None),  # a lace-edged robe (a surplice): v 0 the top, 1 the scalloped hem; eyelets toward the hem
+    'embroid':  (34, 0.85, 0.80, None),  # an embroidered cope or panel: vines of raised thread climbing from the hem
 }
 rng = np.random.default_rng(21)
 V_, U_ = np.mgrid[0:N, 0:N] / N          # V_ down the rows (v), U_ across (u)
@@ -394,6 +396,33 @@ def sculpt(kind):
         face = np.exp(-(wrapd(U_, 0.25) / 0.2) ** 2) * band(V_, 0.2, 0.8, 0.1)
         h = P.dents(3500, 0.0004, 0.0008, 0.00009, 0, 1, 321) * (0.4 + face)                         # pores, finer off the face
         h += P.noise(0.004, 0.004, 322) * 0.00008 + P.noise(0.02, 0.02, 323) * 0.0002
+    elif kind == 'lace':
+        h = P.folds(0.04, 0.2, 331) * 0.0025 * (0.3 + V_)
+        holes = np.zeros((N, N))
+        for row, (v0, n, r, k) in enumerate([(0.9, 64, 0.004, 1.0), (0.82, 40, 0.007, 1.0), (0.74, 64, 0.003, 0.7)]):
+            for i in range(n):
+                cu = (i + (row % 2) * 0.5) / n; du = wrapd(U_, cu) * C; dv = (V_ - v0) * L
+                holes -= np.exp(-(du * du + dv * dv) / r ** 2) ** 0.6 * k
+                if row == 1:                                                                          # little flowers of four eyelets
+                    for a in range(4):
+                        ox, oy = np.cos(a * np.pi / 2) * 0.012, np.sin(a * np.pi / 2) * 0.012
+                        holes -= np.exp(-((du - ox) ** 2 + (dv - oy) ** 2) / 0.0035 ** 2) * 0.7
+        h += holes * 0.0022 + P.noise(0.004, 0.004, 332) * 0.0002
+    elif kind == 'embroid':
+        h = P.folds(0.05, 0.3, 341) * 0.003 * (0.3 + V_)
+        thread = np.zeros((N, N)); r = np.random.default_rng(342)
+        for cu in np.linspace(0, 1, 9)[:-1] + 0.06:                                                  # vines climbing from the hem
+            u0, v = cu, 1.0
+            for step in range(140):
+                v -= 0.005; u0 += np.sin(v * 22 + cu * 9) * 0.0016
+                if v < 0.35: break
+                i, j = int(v * N), int((u0 % 1) * N); thread[max(0, i - 1):i + 2, max(0, j - 2):j + 3] += 1
+                if step % 16 == 8:                                                                   # a leaf to either side
+                    for sgn in (-1, 1):
+                        for t in range(12):
+                            ii = int((v - t * 0.0022) * N); jj = int(((u0 + sgn * t * 0.0028) % 1) * N)
+                            if 0 <= ii < N: thread[max(0, ii - 1):ii + 2, max(0, jj - 1):jj + 2] += 0.8
+        h += P.blur(np.clip(thread, 0, 1), 0.0012) * 0.0018 + P.noise(0.004, 0.004, 343) * 0.0002
     return P, h
 
 
