@@ -64,6 +64,20 @@ turning in 3D.
 - **Every finished foe on your pages as it lands** (`FIGHT_HD`): the glowcap now; the Rotwarden and the sapwight once
   session 8 saves them in the kit's standard form (the hub has asked).
 
+**Step 5 (from November 21, after step 4): the Champions' own moves.**
+- Every named move of a Champion and a Relic-Bearer (`game/src/data/foes.js`: Briarmaw's Maul, Thorn Volley, Call the
+  Briars, Fang Rake, Bramble Wall, Rootquake, Devour, Thornstorm; the Rotwarden's; and so on) gets its own moment in
+  3D, built from M7's own words for it: the model's move, an effect that shows what the text says (thorns flying like
+  arrows, the den floor heaving and roots taking hold of the heroes, bramble knitting over its hide, the thorn-crown
+  pulsing as a briarling tears up out of the ground), and a camera for the big ones, as the Legend Strike has.
+- A table in your files keyed by foe and move id: `{ move, effect, camera }`. The move comes from the foe's plan
+  through the kit (`F.pose`); where a foe has its own move of that name (session 8's walkers name theirs for M7's
+  moves: Rootlash, Grasping Roots, Bark Hide, Blacken the Sap, Devour), play that. Ask the foe's lane in your slip for
+  any move it lacks.
+- Act One's Champions first (Briarmaw, the Rotwarden, then the others in the order they're met as their full-detail
+  models land), proven by headless runs that play each move at least once.
+- No squash or stretch on the full-detail foes (Chris, November 21).
+
 ## Your files
 
 - Yours: `world3d/battle/**` (new), `world3d/fight.js` (new, the page), `world3d/coven/pages/m7-fight.html` (new),
