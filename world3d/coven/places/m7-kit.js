@@ -267,7 +267,7 @@
     for (const l of d.lamps || []) {
       const x = X(l.at[0]), z = Z(l.at[1]), g = gh(l.at[0], l.at[1]);
       if (l.kind === 'wood') FX.flames.push([x + 0.48, g + (l.h || 2.6) - 0.5, z, 0.9]);
-      else if (l.kind === 'pillar') FX.flames.push([x, g + (l.h || 1.45) + 0.3, z, 1.1]);
+      else if (l.kind === 'pillar') { if (!l.noLantern) FX.flames.push([x, g + (l.h || 1.45) + 0.3, z, 1.1]); }
       else FX.flames.push([x, g + (l.h || 3.0) + 0.1, z, 1.1]);
     }
     for (const wl of d.walls) {
@@ -641,10 +641,43 @@
     }
   }
 
+  // ---- (Places, step 5) a chest the game can open: kept out of the merge, a body and a lid hinged at its back edge, each one
+  // draw (the iron bands in the wood's own colour). Handles for the game (Together's game3d):
+  //   M7_CHESTS[chestId] = { group, lid, open(on) }   M7_SETCHEST(chestId, open)   (the place being built replaces the list)
+  // The lid swings back about 110 degrees over a third of a second when it opens ----
+  function chest(K, d, it, x, g, z, ry) {
+    const id = it[4] || ('chest@' + it[0] + ',' + it[1]);
+    if (G.M7_CHESTS_FOR !== d.id) { G.M7_CHESTS = {}; G.M7_CHESTS_FOR = d.id; }
+    const body = W3D.Builder(), lidB = W3D.Builder(), IRON = [0.42, 0.4, 0.4], GOLD = [1.2, 1.0, 0.5];
+    body.solid = false; lidB.solid = false;
+    body.box('wood', 0, 0, 0, 0.85, 0.48, 0.55, 0, [0.72, 0.52, 0.36]);
+    for (const e of [-0.28, 0.28]) body.box('wood', e, 0.01, 0, 0.07, 0.47, 0.57, 0, IRON);
+    body.box('wood', 0, 0.3, 0.28, 0.12, 0.14, 0.02, 0, GOLD);
+    // the lid, built with its hinge (the back top edge) at its origin
+    lidB.box('wood', 0, 0, 0.295, 0.89, 0.16, 0.59, 0, [0.64, 0.46, 0.32]);
+    for (const e of [-0.28, 0.28]) lidB.box('wood', e, -0.005, 0.295, 0.07, 0.17, 0.61, 0, IRON);
+    const group = new THREE.Group(), hinge = new THREE.Group();
+    group.position.set(x, g, z); group.rotation.y = ry; hinge.position.set(0, 0.48, -0.295);
+    for (const m of Object.values(body.build(K.mats))) group.add(m);
+    for (const m of Object.values(lidB.build(K.mats))) hinge.add(m);
+    group.add(hinge); group.name = 'chest:' + id; K.scene.add(group);
+    K.addBlock && K.addBlock(K.circlePx(it[0], it[1], 0.42, 8));
+    let t0 = 0, from = 0, to = 0, raf = 0;
+    const OPEN = -1.92, step = (now) => { const k = Math.min(1, (now - t0) / 330), e = 1 - Math.pow(1 - k, 3); hinge.rotation.x = from + (to - from) * e; if (k < 1) raf = requestAnimationFrame(step); };
+    const h = G.M7_CHESTS[id] = { group, lid: hinge, isOpen: false, open(on, now) {
+      on = on !== false; if (on === h.isOpen) return; h.isOpen = on; cancelAnimationFrame(raf);
+      from = hinge.rotation.x; to = on ? OPEN : 0;
+      if (now === true) { hinge.rotation.x = to; return; }   // open(true, true): at once (a chest already opened when the place loads)
+      t0 = performance.now(); raf = requestAnimationFrame(step);
+    } };
+    G.M7_SETCHEST = (cid, on, now) => { const c = (G.M7_CHESTS || {})[cid]; if (c) c.open(on, now); return !!c; };
+  }
+
   // ---- (Places, step 4) the map's own things, as the painting shows them ----
   function things(K, d, R) {
     const { B, X, Z, gh } = K, NS = { solid: false };
-    for (const [px, py, kind, face] of d.things || []) {
+    for (const it of d.things || []) {
+      const [px, py, kind, face] = it;
       const x = X(px), z = Z(py), g = gh(px, py), ry = face || 0, c = Math.cos(ry), s = Math.sin(ry);
       if (kind === 'sign') {   // a signpost with its board turned to the road
         B.box('wood', x, g - 0.2, z, 0.14, 1.75, 0.14, 0, [0.62, 0.5, 0.42]);
@@ -655,11 +688,11 @@
         B.box('wood', x, g + 1.25, z, 1.6, 0.9, 0.08, ry, [0.72, 0.58, 0.45], NS);
         for (let i = 0; i < 4; i++) B.box('paper', x + c * (-0.5 + i * 0.32) + s * 0.05, g + 1.2 + (i % 2) * 0.22, z - s * (-0.5 + i * 0.32) + c * 0.05, 0.24, 0.3, 0.01, ry, null, NS);
         B.box('wood', x, g + 1.78, z, 1.8, 0.08, 0.36, ry, [0.55, 0.42, 0.36], NS);
-      } else if (kind === 'chest') {   // a chest with iron bands
-        B.box('wood', x, g, z, 0.85, 0.48, 0.55, ry, [0.7, 0.5, 0.34]);
-        B.box('wood', x, g + 0.48, z, 0.89, 0.16, 0.59, ry, [0.62, 0.44, 0.3], NS);
-        for (const e of [-0.28, 0.28]) B.box('iron', x + c * e, g + 0.01, z - s * e, 0.06, 0.65, 0.6, ry, [0.55, 0.52, 0.5], NS);
-        B.box('iron', x + s * 0.3, g + 0.36, z + c * 0.3, 0.12, 0.14, 0.03, ry, [0.9, 0.78, 0.4], NS);
+      } else if (kind === 'chest') {   // a chest with iron bands: its own little group with a lid hinged at the back (step 5)
+        if (!(K.mats && K.scene && W3D.Builder)) {
+          B.box('wood', x, g, z, 0.85, 0.48, 0.55, ry, [0.7, 0.5, 0.34]);
+          B.box('wood', x, g + 0.48, z, 0.89, 0.16, 0.59, ry, [0.62, 0.44, 0.3], NS);
+        } else chest(K, d, it, x, g, z, ry);
       } else if (kind === 'pedestal') {   // a relic's pedestal: stone, with a warm glow on top where the relic is shown
         B.box('stone', x, g, z, 0.8, 0.18, 0.8, 0, [0.85, 0.84, 0.9]);
         B.box('stone', x, g + 0.18, z, 0.56, 0.75, 0.56, 0, [0.95, 0.94, 1]);
