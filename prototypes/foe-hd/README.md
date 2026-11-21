@@ -118,8 +118,10 @@ Chris saw the Rotwarden's belt and straps drag out into a web when he spread his
 - **Bones turn; they never grow or slide.** The moves in `kit/js/moves/` rotate bones only (breathing is a small turn
   of the chest or body; a squash is a tip). The root and the whole body may move.
 - **The stretch check**: `node kit/tools/stretch.mjs foes/<key>` poses every move at 48 frames, skins the light model as
-  three.js does, and fails a move if any triangle's edge grows past 1.3 times its rest length, or if a bone is scaled
-  or slid. It names the worst move, frame, place (sculpt coordinates) and the two parts the worst edge joins ("chest >
+  three.js does, and applies the one rule for every lane (hub, November 21): a **big** edge (longer than 1% of the
+  foe's height at rest) must stay under 1.3 times its rest length; a small **crease** edge may reach 3 times; no bone
+  scaled or slid. Big and crease edges are reported apart (foe.json `"stretch": {"crease": 3, "big": 0.01}` only if
+  the hub agrees). It names the worst move, frame, place (sculpt coordinates) and the two parts the worst edge joins ("chest >
   r_upper" means weight bleeding between those parts), writes `foes/<key>/stretch.json`, and draws the worst frame of
   each move in `foes/<key>/build/stretch/<move>.png` (front and side; stretched triangles yellow to red, past the
   limit magenta): look at them by eye. A soft part may have its own limit in foe.json, `"stretch": {"limit": 1.3,

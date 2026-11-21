@@ -49,18 +49,19 @@ for (let e = 0; e < rest.length; e++) {
 }
 const v = new THREE.Vector3(), P = new Float32Array(n * 3);
 const boneOf = (i) => meta.bones[ji[i * 4]].name;
-let worst = 0, visWorst = 0; const report = [];
+let worst = 0, visWorst = 0, ruleWorst = 0; const report = [];
 for (const [move] of quad.list) for (const u of [0, 0.2, 0.4, 0.5, 0.6, 0.8, 1]) {
   for (const b of Object.values(bones)) { b.rotation.set(0, 0, 0); b.position.copy(b.userData.p0); b.scale.set(1, 1, 1); }
   quad.pose(F, move, u, 1.3, move === 'walk' ? u * Math.PI * 2 : 0);
   mesh.updateMatrixWorld(true);
   for (let i = 0; i < n; i++) { v.fromArray(pos, i * 3); mesh.applyBoneTransform(i, v); v.toArray(P, i * 3); }
-  let bad = 0, vis = 0, max = 0, at = -1; const MM = foe.height * 0.01;
+  let bad = 0, vis = 0, ruleBad = 0, max = 0, at = -1; const MM = foe.height * 0.01;
   for (let e = 0; e < rest.length; e++) {
     if (rest[e] < 1e-5) continue;
     const a = edges[e * 2], b = edges[e * 2 + 1];
     const r = Math.hypot(P[a * 3] - P[b * 3], P[a * 3 + 1] - P[b * 3 + 1], P[a * 3 + 2] - P[b * 3 + 2]) / rest[e];
     if (r > LIMIT) { bad++; if ((r - 1) * rest[e] > MM) vis++; }
+    if ((rest[e] > MM && r > LIMIT) || r > 3) ruleBad++;
     if (r > max) { max = r; at = e; }
   }
   worst = Math.max(worst, max);
@@ -68,14 +69,15 @@ for (const [move] of quad.list) for (const u of [0, 0.2, 0.4, 0.5, 0.6, 0.8, 1])
     const rs = [];
     for (let e = 0; e < rest.length; e++) { const a = edges[e * 2], b = edges[e * 2 + 1];
       const r = Math.hypot(P[a * 3] - P[b * 3], P[a * 3 + 1] - P[b * 3 + 1], P[a * 3 + 2] - P[b * 3 + 2]) / rest[e];
-      if (r > LIMIT) rs.push([r, a, b, rest[e]]); }
+      if (r > LIMIT && (!process.env.BIG || rest[e] > MM)) rs.push([r, a, b, rest[e]]); }
     rs.sort((x, y) => y[0] - x[0]);
     for (const [r, a, b, l] of rs.slice(0, 12)) console.log(r.toFixed(2), 'rest mm', (l * 1000).toFixed(1), 'at three xyz', [0, 1, 2].map((k) => pos[a * 3 + k].toFixed(3)).join(','),
       'w', [0, 1, 2, 3].map((k) => meta.bones[ji[a * 4 + k]].name + ':' + jw[a * 4 + k]).join(' '), '|', [0, 1, 2, 3].map((k) => meta.bones[ji[b * 4 + k]].name + ':' + jw[b * 4 + k]).join(' '));
   }
-  visWorst = Math.max(visWorst, vis);
-  if (bad) report.push(`${move} u=${u}: ${bad} edges over ${LIMIT}x (${vis} also longer by over 1% of his height), worst ${max.toFixed(2)}x between ${boneOf(edges[at * 2])} and ${boneOf(edges[at * 2 + 1])}`);
+  visWorst = Math.max(visWorst, vis); ruleWorst = Math.max(ruleWorst, ruleBad);
+  if (bad) report.push(`${move} u=${u}: [rule ${ruleBad}] ${bad} edges over ${LIMIT}x (${vis} also longer by over 1% of his height), worst ${max.toFixed(2)}x between ${boneOf(edges[at * 2])} and ${boneOf(edges[at * 2 + 1])}`);
 }
 console.log(report.length ? report.join('\n') : `no edge stretches past ${LIMIT}x in any move`);
 console.log(`worst stretch: ${worst.toFixed(2)}x over ${rest.length.toLocaleString()} edges; most visibly stretched edges in one pose: ${visWorst}`);
-process.exit(report.length ? 1 : 0);
+console.log(`the lanes' rule (edges longer than 1% of the height under ${LIMIT}x, crease edges under 3x): ${ruleWorst ? 'FAIL, ' + ruleWorst + ' edges in the worst pose' : 'PASS'}`);
+process.exit(ruleWorst ? 1 : 0);
