@@ -54,6 +54,7 @@ export function makeShared(A, res) {
     map: tex(A.tex[res].color, true), normalMap: tex(A.tex[res].normal, false), aoMap: tex(A.ao, false), aoMapIntensity: 1.0,
     emissiveMap: tex(A.emit, true), emissive: new THREE.Color(A.glow ?? 0xffffff), emissiveIntensity: A.glowIntensity ?? 1.3,
     roughness: 0.82, metalness: 0,
+    side: A.lightMeta.split ? THREE.DoubleSide : THREE.FrontSide,     // a cut mouth shows the inside of the head, not the room behind
   });
   // ORM (R shading, G roughness, B metalness; session 8): plate and gold keep their shine
   if (A.orm) { const o = tex(A.orm, false); mat.roughnessMap = o; mat.metalnessMap = o; mat.roughness = 1; mat.metalness = 1; }
@@ -93,13 +94,22 @@ export function resolveMove(moves, move) {
 }
 export function moveDuration(moves, move) { return (moves.DUR || {})[resolveMove(moves, move)] || 1; }
 
+// helper joints (kit/rigs/common.py): after each pose, each helper takes its share of its one child's turn, and the
+// child keeps the rest, so the limb ends where the move put it and the shoulder, hip or throat keeps its volume
+export function applyHelpers(F) {
+  for (const [h, d, k] of F.helpers || []) {
+    const hb = F.bones[h], db = F.bones[d]; if (!hb || !db) continue;
+    const r = db.rotation;
+    hb.rotation.set(r.x * k, r.y * k, r.z * k); r.set(r.x * (1 - k), r.y * (1 - k), r.z * (1 - k));
+  }
+}
 function wrap(group, body, mesh, bones, meta, moves) {
   for (const b of Object.values(bones)) b.userData.p0 = b.position.clone();
   const F = { group, body, mesh, bones, key: meta.key, plan: meta.plan || 'quad', height: meta.height || 1.7,
-    parts: { head: bones.head, tail: bones.tail, jaw: bones.jaw }, triangles: meta.triangles, moves };
+    parts: { head: bones.head, tail: bones.tail, jaw: bones.jaw }, triangles: meta.triangles, moves, helpers: meta.helpers || [] };
   F.act = { lunge: 0, fall: 0 }; F.hitAt = -9; F.t = 0;
   F.hit = () => { F.hitAt = F.t; };
-  F.pose = (move, u, t, step = 0) => moves.pose(F, resolveMove(moves, move), u, t, step);
+  F.pose = (move, u, t, step = 0) => { moves.pose(F, resolveMove(moves, move), u, t, step); applyHelpers(F); };
   F.duration = (move) => moveDuration(moves, move);      // seconds the move takes (its plan's DUR)
   // what the Fight drives: act.fall plays the fall, a hit() a flinch, act.lunge the plan's lunge; else idle or walk
   F.update = (t, step = 0) => {
@@ -109,6 +119,7 @@ function wrap(group, body, mesh, bones, meta, moves) {
     else if (h >= 0 && h < 1) moves.pose(F, 'hurt', h, t, 0);
     else if (L > 0) moves.pose(F, moves.LUNGE || 'bite', L * 0.55, t, 0);
     else moves.pose(F, step ? 'walk' : 'idle', 0, t, step);
+    applyHelpers(F);
   };
   return F;
 }
@@ -121,5 +132,5 @@ export function cloneFoe(F, moves = F.moves) {
   const group = new THREE.Group(), body = new THREE.Group(); group.add(body);
   const mesh = cloneSkinned(F.mesh); body.add(mesh);
   const bones = {}; mesh.traverse((o) => { if (o.isBone) bones[o.name] = o; });
-  return wrap(group, body, mesh, bones, { key: F.key, plan: F.plan, height: F.height, triangles: F.triangles }, moves);
+  return wrap(group, body, mesh, bones, { key: F.key, plan: F.plan, height: F.height, triangles: F.triangles, helpers: F.helpers }, moves);
 }

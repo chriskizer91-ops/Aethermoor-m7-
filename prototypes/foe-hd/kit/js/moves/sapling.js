@@ -35,7 +35,7 @@ export function pose(B, move, u, t, step = 0) {
     B.body.position.y = -0.05 * (crouch + land * 0.5) + 0.12 * air;
     b.hips.rotation.x = 0.2 * crouch - 0.1 * air;     // it tips into the crouch (no squash: bones never scale)
     if (move === 'bite') { B.body.position.z = 0.22 * air; b.hips.rotation.x = 0.5 * air; }     // the whole of it pitches, legs and all
-    b.sprout.rotation.x += -0.5 * air + 0.4 * land;
+    b.sprout.rotation.x += -0.3 * air + 0.25 * land;
     return;
   }
   if (move === 'hurt') {
@@ -47,8 +47,8 @@ export function pose(B, move, u, t, step = 0) {
   if (move === 'ko') {
     // the legs give, and over it rolls
     const give = seg(u, 0, 0.4), roll = seg(u, 0.3, 0.8);
-    for (const s of ['l', 'r']) { b[s + '_thigh'].rotation.x = -0.8 * give; b[s + '_shin'].rotation.x = 1.4 * give; }
+    for (const s of ['l', 'r']) { b[s + '_thigh'].rotation.x = -0.55 * give; b[s + '_shin'].rotation.x = 0.95 * give; }     // knees bend no further than the root tubes can
     B.body.position.y = -0.1 * give; B.body.rotation.z = 1.5 * roll; B.body.position.x = -0.15 * roll;
-    b.sprout.rotation.z = 0.6 * roll;
+    b.sprout.rotation.z = 0.35 * roll;
   }
 }

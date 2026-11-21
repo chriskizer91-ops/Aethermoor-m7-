@@ -24,7 +24,7 @@ const glowMat = (c, o = 1) => new THREE.MeshBasicMaterial({ color: col(c), trans
 
 export class Fx {
   constructor(scene) { this.scene = scene; this.list = []; this.speed = 1; this.dropped = []; }
-  add(o, dur, step, done) { this.scene.add(o); this.list.push({ o, t: 0, dur: dur / this.speed, step, done }); return o; }
+  add(o, dur, step, done) { this.scene.add(o); this.list.push({ o, t: 0, dur, step, done }); return o; } // update() is given the fight's clock, already sped up
   busy() { return this.list.length > 0; }
   update(dt, cam) {
     this.list = this.list.filter((e) => {
@@ -160,7 +160,8 @@ export class Fx {
   // a pulse of light at `at` (the thorn-crown blazing): a bright sprite swelling and a light flaring
   pulse(at, color = '#8ad872', size = 1.4, dur = 0.8) {
     const grp = new THREE.Group(); grp.position.copy(at);
-    const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: dot(), color: col(color), blending: THREE.AdditiveBlending, transparent: true, depthWrite: false, toneMapped: false })); grp.add(sp);
+    const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: dot(), color: col(color), blending: THREE.AdditiveBlending, transparent: true, depthWrite: false, depthTest: false, toneMapped: false })); grp.add(sp);
+    sp.renderOrder = 10; // a glow over the body it bursts from, never hidden inside it
     const light = new THREE.PointLight(col(color), 3, 6, 2); grp.add(light);
     this.add(grp, dur, (u) => { const b = Math.sin(Math.min(1, u * 1.4) * Math.PI); sp.scale.setScalar(size * (0.4 + b)); sp.material.opacity = b; light.intensity = 3 * b; });
   }
@@ -176,7 +177,7 @@ export class Fx {
     let spin = 0;
     this.scene.add(grp);
     const drop = { o: grp, at: to.clone(), ph: Math.random() * 3, glint: (dt) => { drop.ph += dt; const g = (drop.ph % 2.2) / 2.2; glow.material.opacity = g < 0.15 ? 1 - Math.abs(g - 0.075) / 0.075 * 0.8 : 0.2; } };
-    this.list.push({ o: grp, t: 0, dur: 0.9 / this.speed, keep: true, done: () => { this.dropped.push(drop); },
+    this.list.push({ o: grp, t: 0, dur: 0.9, keep: true, done: () => { this.dropped.push(drop); },
       step: (u, dt) => {
         spin += dt * 14 * (1 - u);
         grp.position.copy(from).addScaledVector(d, u); grp.position.y = from.y + d.y * u + Math.sin(u * Math.PI) * 1.4 + (u > 0.85 ? Math.sin((u - 0.85) / 0.15 * Math.PI) * 0.12 : 0);

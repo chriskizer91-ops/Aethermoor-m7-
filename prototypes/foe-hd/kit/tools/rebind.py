@@ -60,6 +60,9 @@ for k_, a_ in out.items():
                   'type': 'uint32' if a_.dtype == np.uint32 else 'float32'}
     blob.append(b_); o += len(b_)
 meta['layout'] = layout
+meta['split'] = bool(getattr(RIG, 'SPLIT', None))     # a cut mouth: the page draws both sides
+from common import helpers_for
+meta['helpers'] = helpers_for(RIG.BONES, getattr(RIG, 'HELPERS', None))     # helper joints the loader drives
 open(os.path.join(B, 'low.bin'), 'wb').write(b''.join(blob))
 json.dump(meta, open(os.path.join(B, 'low.json'), 'w'))
 subprocess.run(['node', os.path.join(KIT, 'tools', 'pack.mjs'), FOE], check=True)

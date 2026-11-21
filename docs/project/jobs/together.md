@@ -23,6 +23,12 @@ rule: every milestone keeps its own save; read M7's saves to carry a party over 
 - Act One first (the Verdant slice: Briarmaw, the Rotwarden, the two Brands), then Acts Two and Three as the Places
   job delivers them. A page per act if the 16 MB limit needs it.
 
+**The place map in the game (Chris, November 21).** Places is making `world3d/m7/minimap.js`: a small map of the
+place in a corner, and the whole place's map when tapped (`docs/project/jobs/places.md`, "the place map"). When it
+lands, put it in every game page and feed it the game's live marks from M7's state: who is in the place, which chests
+are opened, the Hearthfire and whether it's kindled, shops, and the story's next goal (from the journal or the quest
+flags) as a star. Hide it in fights, talk, menus and the Atlas.
+
 ## Your files
 
 - Yours: `game3d/**` (new), `docs/project/slips/together.md`. You may add flags to `world3d/build.mjs` (rule 7).

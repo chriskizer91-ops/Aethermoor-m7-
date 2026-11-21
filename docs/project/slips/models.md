@@ -251,7 +251,54 @@ share every kind. The same coverage check over the 39 people foes and the townsf
 master. More than half of the rest is boot soles (never seen); the scarves, aprons and head wraps (and the wraps' and
 turbans' bands) are now fitted too (braid, tabard). Side by side with Wren (cutpurse, ash-wight, Hollow Brundar,
 Fenwick, Durra): the same folds, seams, dents and grain at the same scale. The Gear Room can now build any of them
-(\`window.__people\`); a picker for Chris comes with step 4.
+(`window.__people`); a picker for Chris comes with step 4.
+
+**Faces and hands, and anyone in full detail** (November 21). Gear Room: https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL
+- Faces: the head's sculpted shape (nose, brow, sockets, cheekbones, lips, chin) was already placed by each painted
+  face's own features. Now the skull also wears a head master: fine skin and pores, finer away from the face. It is
+  laid under Chris's painted face, after the face's living shader (blinks, mouth, expressions), so the approved faces
+  look the same and keep moving. `withMaster` now keeps a material's own shader and runs after it.
+- Hands: bare hands now have their own master (knuckles, tendons on the back, the wrist's creases; before they wore the
+  glove's seams); gloved hands keep the glove's. Fingers and thumbs keep the finger master (knuckle creases).
+- **Anyone in full detail:** a picker in the Gear Room ("Anyone in full detail") lists the four heroes, all
+  the townsfolk and all the people foes (96). Choosing one builds them in their own outfit, with their own game
+  sprite in the corner, at High, Light or Lite; **The sculpt** then shows their whole sculpt (a people foe: about
+  930,000 triangles). The heroes' tabs or the picker bring the heroes back with their gear.
+- Atlas: 4 x 9 cells, 1024 x 2304, 512 KB (34 kinds, two cells free), in `masters/pack.js`. Same pieces and draws
+  (Wren 48; 218 / 100 / 24). Item audit 458 items, 0 flags. Bestiary builds (11.9 MB). Gear Room 9.2 MB (the people
+  foes' and townsfolk's looks and sprites are in it now).
+
+**The wraiths, first pass: all eleven** (November 21; the lane moved here from session 6). Gallery:
+https://claude.ai/artifact/KiYfGSBcUQ6gU4WqVKGojD (each beside Chris's sheet, turning; its moves; "The sculpt"; a crowd
+of twelve at the fight's detail). Code: `prototypes/wraiths/` (`wraiths.js`, README).
+- Built from the heroes' kit, wearing the sculpted masters (robe, skirt, hood, mantle, cape, sleeves, hands, hafts,
+  forged metal), shaped to the sheets: the Drowned (weed head lit with drowned lights, torn coat, trousers and boots, a
+  green bell), the Bell-Ringer (stone collar, coral crown, weed and skulls at the hem, its bell on an iron crook), the
+  Drowned Choir (red cassock, lace surplice, skull-and-weed head, a brass bell held at the breast), the Drowned Cantor
+  (hood, sun-eyed mask, coral, pearl collar, green cope with gold bands, coral staff), the Drowned Abbess (veil, blue
+  face with glowing eyes, three scalloped tiers, bead belt, blue lantern), the Choir-Wraith (pointed hood, singing mask
+  breathing blue mist, studded tiers, hymn book), the Rime-Wraith (frozen tattered cloak, weeping face, icicles, rope
+  belt, a hem of blue water), the Rime-Abbot (braided cowl, ice grille, frost-edged tasselled cope, the Rime Crozier
+  with its blue lantern), the Lantern Mother (dress, coat and buttons, belt and pouch, apron, fringed shawl, hood and
+  flower crown, glowing eyes, her lantern and her hooked lamp-pole with its bell), the Mirage-Wisp (living water, a
+  flame crown, hollow eyes, a crystal heart) and the Wisp-Queen (rows of flame locks, mask, silver crown, blue jewel).
+- Mist round the hems of the rime ones, the Abbess and the Choir-Wraith, and round the wisps; lanterns, eyes, crystals
+  and water glow, and flare or dim with the moves.
+- Nothing stretches: every piece is rigid on one moving part (no skinning). The kit's `stretch.mjs` works on skinned
+  models, so it has nothing to check here.
+- Moves: the kit's common set (idle, walk, bite, strike, swipe, cast, roar, hurt, ko) for all, and the Champions' own
+  named for M7's: the Rime-Abbot's crozier-strike, toll, rime-ward, drown, call-the-choir, hushing, heartbeat,
+  rime-nova; the Lantern Mother's lamp-pole, lure, lantern-flare, hush-now, lead-them-down, moths, mourning, snuff,
+  lantern-nova, drown-the-light. **For the Fight:** `setBeastLook(withWraiths(foeLook(buildBeast)))`;
+  `wraithLook(key, sprite, opts)` returns the arena's shape (with `pose`, `moves.MOVES`, `duration`, `hit`, `act`).
+- Triangles (High / Light, the fight's detail): Drowned 40k / 10k, Bell-Ringer 96k / 23k, Drowned Choir 33k / 10k,
+  Drowned Cantor 97k / 28k, Drowned Abbess 39k / 12k, Choir-Wraith 52k / 15k, Rime-Wraith 23k / 9k, Rime-Abbot 25k /
+  10k, Lantern Mother 33k / 11k, Mirage-Wisp 9k / 3k, Wisp-Queen 59k / 10k. Pieces 9 to 24 each. All under the
+  Champion budget; the Bell-Ringer and the Cantor are over the rabble ~20k at Light (their coral branches: a later pass
+  thins them). The sculpt: about 900,000 triangles each. Gallery 6.7 MB, no horizontal scroll at 390 px.
+- Honestly, a first pass: the silhouettes, colours and props follow the sheets; the robes are still smoother and more
+  regular than the painted rags, and the faces simpler. Next: deeper tatters and layered rags, the sheets' embroidery
+  and lace patterns, then hand the Fight its build plugin entry.
 
 ## Next
 

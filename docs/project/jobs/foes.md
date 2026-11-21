@@ -30,9 +30,10 @@ can share the screen with. The 39 people foes stay built by the heroes' builder 
 
 | Session | Lane | Its foes (Act One first, then in the order they're met) |
 |---|---|---|
-| 6, One Foe | **the kit**, then the strange ones | finish Briarmaw (pass 3); turn the recipe into a shared kit (below); then briarling, glowcap, boglurcher, the willows (willow-wight, Grandfather Willow), the sparks (marsh-light, forge-spark), rockling, Mother Anvil, and the wraiths (drowned, bell-ringer, choir-wraith, drowned-choir, rime-wraith, mirage-wisp, drowned-cantor, drowned-abbess, wisp-queen, the Rime-Abbot, the Lantern Mother) |
+| 6, One Foe | **the kit**, then the strange ones | finish Briarmaw (pass 3); turn the recipe into a shared kit (below); then briarling, glowcap, boglurcher, the willows (willow-wight, Grandfather Willow), the sparks (marsh-light, forge-spark), rockling, Mother Anvil (the wraiths moved to Models, November 21) |
 | 7, Beasts | four legs, scorpions, serpents, frogs, wings | thornhound, rotstag, Old Snag, the Mirelord, rotgrub, the Gloamwing; then rime-wolf, sand-skink, mire-leech, blackwater-gar, lamp-moth, glass-scorpion, the Glass Matriarch, Old Jaws, the Sand Wyrm, the Thunder-Roc, Kharzul, the Blackwater Leviathan |
 | 8, Walkers | two legs | the Rotwarden, sapwight; then Old Horn, peak-troll, cinder-thrall, the Journeyman, iron-sentinel, forgeborn, bellows, forge-warden, thrall-overseer, unmade, the Sentinel-Captain, the Ashen Warden, the Unsmith |
+| 3, Models | the wraiths (from November 21) | the robed ones, in Act order: drowned, bell-ringer, drowned-choir, drowned-cantor, drowned-abbess, choir-wraith, rime-wraith, the Rime-Abbot, the Lantern Mother, mirage-wisp, wisp-queen. Built with the people builder and the sculpted masters (robe, hood, mantle, hands), shaped to Chris's sheets, each with its whole sculpt kept to look at; ghostly cloth, mist, weeds, lanterns, bells, books and staves as their sheets show. Same rules as every lane: no stretching, a look the Fight can take (`setBeastLook`, chained with the kit's `foeLook`), its own named moves for the Fight's Champions' table |
 
 The body plans are the Bestiary's (`prototypes/bestiary/beasts.js` `BEASTS`); Chris's sheets are
 `art-in/3d/sheets/sheet-<key>.webp`.
@@ -82,3 +83,6 @@ waist, belt and straps dragged out into a web after the spread arms). Rules for 
   stretches the outside of a bent joint a little; and no bone may be scaled or slid. Run it on every foe already made
   and on each new one before it is handed in, and look at the worst frame by eye: nothing may visibly web or pull.
   Helper bones at knees, elbows and throats (to keep a joint's volume) are a later pass, in the kit, for every lane.
+- **Only a foe that passes goes into the game** (hub, November 21). The Fight's and Together's pages show a foe in full
+  detail only once its stretch check passes on every move (`stretch.json` in its folder says so); until then it keeps
+  its stand-in look there. Passing now: Briarmaw, the briarling, the glowcap.

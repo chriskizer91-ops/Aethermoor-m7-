@@ -4,7 +4,7 @@ Last updated November 20.
 
 ## Done
 
-- **Step 1, Act One as one game**: https://claude.ai/artifact/RaeSK5hezqb3qH7jmuM5aj (version 5, 15.6 MB; page `game3d/`, built by
+- **Step 1, Act One as one game**: https://claude.ai/artifact/RaeSK5hezqb3qH7jmuM5aj (version 6, 15.6 MB; page `game3d/`, built by
   `node game3d/build.mjs`). On the title: Go on, A new journey (M7's own prologue and name screen), or Bring the party
   from the 2D game (M7's save, read only).
   - Walking with M7's world engine underneath: each time the leader crosses into a new 2 m tile, one step in
@@ -41,10 +41,10 @@ Last updated November 20.
   Road, the road's toll fight won, Sandspire, a rest at its Hearthfire, saved.
 
 - **Act One, full pictures** (beside the safe one, the hub's test of pictures as files): https://claude.ai/artifact/9rGvzRh4eocZrz4RYPQLz6
-  (`node game3d/build.mjs --full --files --herotex=384 --out=game3d-act1-full`; publish with
+  (version 2: `node game3d/build.mjs --full --files --out=game3d-act1-full`; publish with
   `world3d/dist/game3d-act1-full.files.json` as the files map). Every place texture and painting at full size (69
-  pictures, 14 MB, beside the page), the sculpted masters whole, the 3D Atlas in, Briarmaw, the Rotwarden and the
-  sapwight in full detail; the page itself 13.2 MB (the heroes' own textures at 384 px, which `--files` doesn't move).
+  pictures), the heroes whole (their textures, faces and the sculpted masters too: 169 files, 19.5 MB beside the page), the 3D Atlas in, Briarmaw, the Rotwarden and the
+  sapwight in full detail; the page itself 8.0 MB.
   Loads with no errors when served over http (opened from disk, a browser refuses the pictures).
 - **The Ironspire** (Act Two's second region): https://claude.ai/artifact/6jSwPVzbwwZWmmD6VsQ1sU (14.9 MB; `--act=ironspire`).
   Begins after the Wilds and the Sunscorch (four Brands, the Council sat twice, level 10) at the Keep's east postern.
@@ -91,6 +91,12 @@ Last updated November 20.
   (Briarmaw's Brand won, the party at level 10 in the Heartroot's depths): "Go on", the Rotwarden fought in 3D and won,
   the second Brand, Act One complete, back up the roots, the Last Green Coal's Hearthfire home to the Great Hall, the
   Council sits, saved with both Brands, the menu's Party with the hero in 3D, and back. (17 minutes headless.)
+- Version 6 (and full pictures, version 3): only foes whose stretch check passes on every move are in full detail
+  (`stretch.json` in each foe's folder, read by `game3d/foes-hd.mjs`): Briarmaw (re-weighted), the briarling and the
+  glowcap. The Rotwarden and the sapwight are back on their stand-in look until session 8 says they pass. Act One's
+  place textures at 360 px to keep it at 15.6 MB with the sculpted heroes. Checked: `den.mjs` (Briarmaw's den, his fight
+  in full detail, no page errors) and the full-pictures page loading over http with no errors. The region pages carry
+  no full-detail foes, so they're unchanged.
 - Version 5: the end-of-Act-One run again, 11 of 11, no page errors, with the Rotwarden in full detail (session 8's
   phone version). To fit the three full-detail foes, Act One's page has the heroes' textures at 192 px and the
   paintings at 0.4 (15.6 MB); the hub's pictures-as-files would bring the full sizes back.

@@ -9,18 +9,25 @@ import { fileURLToPath } from 'node:url';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(here, '..', 'prototypes', 'foe-hd', 'foes');
+// the stretch rule (hub, November 21; docs/project/jobs/foes.md): a foe goes into the game in full detail only once its
+// stretch check passes on every move (prototypes/foe-hd/foes/<key>/stretch.json); until then it keeps its stand-in look
+export function passes(k) {
+  const f = path.join(ROOT, k, 'stretch.json');
+  if (!existsSync(f)) return false;
+  try { const j = JSON.parse(readFileSync(f, 'utf8')), moves = Object.values(j.moves || {}); return moves.length > 0 && moves.every((m) => m.ok === true); } catch (e) { return false; }
+}
 export function finished() {
   if (!existsSync(ROOT)) return [];
   return readdirSync(ROOT).filter((k) => {
     const d = path.join(ROOT, k); if (!existsSync(path.join(d, 'foe.json'))) return false;
     const cfg = JSON.parse(readFileSync(path.join(d, 'foe.json'), 'utf8')), res = cfg.bake?.phone || 1024;
-    return ['light.json', 'light.bin', `color-${res}.webp`, `normal-${res}.webp`, 'ao-1024.webp'].every((f) => existsSync(path.join(d, 'assets', f)));
+    return passes(k) && ['light.json', 'light.bin', `color-${res}.webp`, `normal-${res}.webp`, 'ao-1024.webp'].every((f) => existsSync(path.join(d, 'assets', f)));
   });
 }
 // session 8's walkers (the Rotwarden, the sapwight): their phone versions only (prototypes/foe-hd/foes/<key>/assets/phone)
 export function walkers() {
   if (!existsSync(ROOT)) return [];
-  return readdirSync(ROOT).filter((k) => ['light.json', 'light.bin', 'color.webp', 'normal.webp', 'orm.webp'].every((f) => existsSync(path.join(ROOT, k, 'assets', 'phone', f))));
+  return readdirSync(ROOT).filter((k) => passes(k) && ['light.json', 'light.bin', 'color.webp', 'normal.webp', 'orm.webp'].every((f) => existsSync(path.join(ROOT, k, 'assets', 'phone', f))));
 }
 const want = process.env.GAME3D_FOES_HD;
 const WALK = want === 'none' ? [] : want ? want.split(',').filter((k) => walkers().includes(k)) : walkers();

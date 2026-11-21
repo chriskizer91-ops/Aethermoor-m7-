@@ -8,6 +8,7 @@
 #      nearest bone after the template's weigh() gating (side, height, front and back) that the point can SEE: the
 #      straight line from the point to the bone runs inside the body (as Blender's bone heat does). From a belly point
 #      the line to a paw crosses the air between the legs, so the belly can't be paw.
+#      A separate piece (a leaf, a strap) that part() names for the most part is all that part.
 #   2. Each rigid piece (kinds 2 thorn, 5 tusk, 6 claw, 7 eye, 8 rigid) is one part: rigid(kind, P, idx), or the part
 #      where its root meets the body. It takes no blending at all.
 #   3. The parts are cleaned on the mesh: lone points take their neighbours' part; a point behind its bone's joint
@@ -16,10 +17,15 @@
 #      A limb's first bone takes no point farther from it than 1.8 times the thickness of the limb's next bone (a
 #      wide body's belly is nearer a leg bone than the spine, but it isn't leg).
 #   4. Where two limbs merely touch in the sculpt (two boots, a hand on a thigh, a beard on a leg), the light mesh is
-#      joined across them; those few triangles are cut (parts more than one joint apart, neither in the trunk).
+#      joined across them; those few triangles are cut (parts more than one joint apart, neither in the trunk; never
+#      trunk against limb, which would open holes in the flank).
 #      TRUNK: the bones down the middle (default: the root and the bones the limbs branch from); a rig may set it.
+#      SPLIT = [('head', 'jaw')] cuts two parts apart where they meet, with no blend (a mouth that opens).
 #   5. Each joint blends its two parts in a band of half-width w across the joint, and only within a ball of radius R
 #      round it (w and R from the thickness of the limb; a rig may set BANDS = {bone: w or (w, R)}).
+#   Gates: in weigh(), +1000 on a bone means "never" for that point, and holds through every step below (labels, joint
+#   bands, smoothing); mask(P, idx) -> (n, bones) in 0..1 is a soft gate, multiplied in at each step (give it soft
+#   edges a few cm wide, or the hard edge tears when the parts move apart).
 #   6. The weights are smoothed over the surface a few passes (never across a cut), so each change of part is spread
 #      over a few centimetres. Smoothing runs along the skin, not through the air, so it can't bleed across a gap.
 #
@@ -86,6 +92,13 @@ def bind(RIG, P, kind, tris, height, mid, log=print):
     names = [b[0] for b in BONES]; idx = {n: i for i, n in enumerate(names)}; nb = len(BONES)
     par = np.array([idx[b[1]] if b[1] else -1 for b in BONES])
     kids = [[c for c in range(nb) if par[c] == b] for b in range(nb)]
+    # SPLIT = [('head', 'jaw')]: parts cut apart where they meet, no blend between them (a mouth that opens)
+    split = set()
+    for x_, y_ in getattr(RIG, 'SPLIT', ()):
+        split |= {(idx[x_], idx[y_]), (idx[y_], idx[x_])}
+    split_bones = {b for pr in split for b in pr}
+    jaws = {idx[y_] for x_, y_ in getattr(RIG, 'SPLIT', ())}         # the second of each pair (the jaw) is cut free of
+                                                                     # all but its partner: a beard on the chest lets go
     # the trunk: the root, the bones limbs branch from, and the bones between them
     def subtree_branches(b): return len(kids[b]) >= 2 or any(subtree_branches(c) for c in kids[b])
     trunk = set(idx[n] for n in getattr(RIG, 'TRUNK', ())) or \
@@ -102,9 +115,14 @@ def bind(RIG, P, kind, tris, height, mid, log=print):
     L = np.maximum(np.linalg.norm(T - H, axis=1), 1e-6); Dn = (T - H) / L[:, None]
 
     # weld the points split at UV seams, and join them by the triangles' edges
-    q = np.round(np.asarray(P, np.float64) / (height * 2e-4)).astype(np.int64)
-    _, first, wid = np.unique(q, axis=0, return_index=True, return_inverse=True)
-    wid = wid.ravel(); nw = len(first)
+    # (points closer than 0.05% of the height are one point: by distance, not by rounding, so no two near points
+    # land in different cells and get different weights)
+    from scipy.spatial import cKDTree
+    Pf = np.asarray(P, np.float64)
+    pairs = cKDTree(Pf).query_pairs(height * 5e-4, output_type='ndarray')
+    G = coo_matrix((np.ones(len(pairs)), (pairs[:, 0], pairs[:, 1])), shape=(len(Pf), len(Pf)))
+    nw, wid = connected_components(G, directed=False)
+    first = np.full(nw, -1); first[wid[::-1]] = np.arange(len(Pf))[::-1]
     Pw = np.asarray(P, np.float64)[first]; Kw = np.asarray(kind)[first]
     E = wid[np.concatenate([tris[:, [0, 1]], tris[:, [1, 2]], tris[:, [2, 0]]])]
     E = E[E[:, 0] != E[:, 1]]
@@ -115,14 +133,31 @@ def bind(RIG, P, kind, tris, height, mid, log=print):
     D = np.stack([seg_dist(Pw, H[i], T[i]) for i in range(nb)], 1)
     Dg = RIG.weigh(D.copy(), Pw, idx) if hasattr(RIG, 'weigh') else D.copy()
     seen = sight(Pw, wid, tris, H, T, height)
+    # gates hold everywhere: a bone the rig's weigh() put 500 or more away from a point (+1000 = "never") gives that point
+    # no weight at all, not through the labels, the joint bands or the smoothing; and a rig's soft mask(P, idx) ->
+    # (n, bones) in 0..1 is multiplied in at every one of those steps (soft edges a few cm wide blend; hard ones tear)
+    MASK = (Dg < 500).astype(np.float64)
+    if hasattr(RIG, 'mask'): MASK *= np.clip(np.asarray(RIG.mask(Pw, idx), np.float64), 0, 1)
     Dg[~seen] += 100.0                               # a bone it can't see only if it sees none
     lab = np.argmin(Dg, 1)
     if hasattr(RIG, 'part'):
-        own = np.asarray(RIG.part(Pw, Kw, idx)); lab = np.where(own >= 0, own, lab)
+        import inspect
+        if len(inspect.signature(RIG.part).parameters) >= 4:     # part(P, kind, idx, piece): which separate piece each point is in
+            own = np.asarray(RIG.part(Pw, Kw, idx, connected_components(A, directed=False)[1]))
+        else:
+            own = np.asarray(RIG.part(Pw, Kw, idx))
+        lab = np.where(own >= 0, own, lab)
     fixed = np.zeros(nw, bool) if not hasattr(RIG, 'part') else own >= 0
 
     # 2. rigid pieces: one part each
     ncomp, comp = connected_components(A, directed=False)
+    # a separate piece (a leaf, a strap) that part() mostly names is all that part
+    if fixed.any():
+        for c in np.unique(comp[fixed]):
+            m = comp == c
+            if fixed[m].mean() < 0.5: continue
+            bc = np.bincount(lab[m & fixed], minlength=nb)
+            if bc.max() >= 0.8 * bc.sum(): lab[m] = bc.argmax(); fixed[m] = True
     rigid = np.isin(Kw, RIGID_KINDS)
     for c in np.unique(comp[rigid]):
         m = comp == c
@@ -183,36 +218,48 @@ def bind(RIG, P, kind, tris, height, mid, log=print):
         else: w[idx[n]] = v; R[idx[n]] = 1.6 * r[idx[n]] + v
     Wd = np.zeros((nw, nb))
 
-    def share(b, X):                                 # how much of a point lies past joint b (into bone b)
+    def share(b, X):                                 # where a point lies across joint b: s along bone b, and near it
         s = (X - H[b]) @ Dn[b]; d = np.linalg.norm(X - H[b], axis=1)
-        return sstep(-w[b], w[b], s), 1 - sstep(R[b], 1.5 * R[b], d)
+        return s, 1 - sstep(R[b], 1.5 * R[b], d)
 
+    # a bone whose part is only separate pieces (leaf arms, a held thing) shares no joint band with the skin
+    skin = np.array([(free & (lab == b)).any() for b in range(nb)])
     for b in range(nb):
         m = lab == b
         if not m.any(): continue
         ii = np.flatnonzero(m); X = Pw[ii]
         own = np.ones(len(ii)); blend = free[ii]
-        if par[b] >= 0:
+        if par[b] >= 0 and skin[par[b]] and (b, par[b]) not in split:
             f, near = share(b, X)
-            mp = np.where(blend, (1 - f) * near, 0.0)
+            mp = np.where(blend & seen[ii, par[b]], (1 - sstep(-w[b], w[b], f)) * near, 0.0) * MASK[ii, par[b]]
             Wd[ii, par[b]] += mp; own -= mp
         for c in kids[b]:
+            if not skin[c] or (b, c) in split: continue
             f, near = share(c, X)
-            g = np.where(blend, f * near, 0.0)
+            # from a child only near the child bone itself, not merely near its joint (so a face in front of the
+            # jaw's hinge stays head)
+            dc = seg_dist(X, H[c], T[c]); rc = min(1.6 * r[c] + w[c], R[c])
+            nc = 1 - sstep(rc, 1.5 * rc, dc)
+            g = np.where(blend & seen[ii, c], sstep(-w[c], w[c], f) * near * nc, 0.0) * MASK[ii, c]     # only a bone it can see
             Wd[ii, c] += own * g; own *= 1 - g
         Wd[ii, b] += own
 
-    # cut where parts merely touch (by the bone that moves each point most): parts three or more joints apart, or two
-    # apart when neither is in the trunk (two boots, a hand on a thigh, a skirt of fur on a lower leg)
-    main = np.argmax(Wd, 1)
-    lt = main[wid][tris]
-    cut = np.zeros(len(tris), bool)
-    for e in range(3):
-        a, b = lt[:, e], lt[:, (e + 1) % 3]
-        dif = np.flatnonzero(a != b)
-        far = np.array([(lambda j: j >= 3 or (j >= 2 and x not in trunk and y not in trunk))(apart(x, y))
-                        for x, y in zip(a[dif], b[dif])], bool)
-        cut[dif[far]] = True
+    # cut where limbs merely touch (by the bone that moves each point most): two limbs, neither in the trunk, more than
+    # one joint apart (two boots, a hand on a thigh, a beard on a leg). Never trunk against limb: that leaves holes.
+    def cuts(Wd):
+        main = np.argmax(Wd, 1)
+        main = np.where(np.isin(lab, list(split_bones)), lab, main)       # a split's two sides are cut by part
+        lt = main[wid][tris]
+        cut = np.zeros(len(tris), bool)
+        for e in range(3):
+            a, b = lt[:, e], lt[:, (e + 1) % 3]
+            dif = np.flatnonzero(a != b)
+            far = np.array([(apart(x, y) >= 2 and x not in trunk and y not in trunk) or (x, y) in split
+                            or ((x in jaws or y in jaws) and apart(x, y) >= 2)
+                            for x, y in zip(a[dif], b[dif])], bool)
+            cut[dif[far]] = True
+        return cut
+    cut = cuts(Wd)
     if cut.any(): log(f'cut {int(cut.sum())} triangles where parts touch')
 
     # smooth the weights over the surface (not across a cut): the change from one part to the next is spread over a
@@ -222,10 +269,21 @@ def bind(RIG, P, kind, tris, height, mid, log=print):
     A2 = coo_matrix((np.ones(len(E2)), (E2[:, 0], E2[:, 1])), shape=(nw, nw)).tocsr()
     A2 = ((A2 + A2.T) > 0).astype(np.float64)
     deg = np.asarray(A2.sum(1)).ravel()
-    for _ in range(int(getattr(RIG, 'SMOOTH', __import__('os').environ.get('BIND_SMOOTH', 8)))):
+    sm = free & (deg > 0)
+    keep_ = MASK.copy(); keep_[np.arange(nw), lab] = 1.0          # (a point's own part always counts)
+    for _ in range(int(getattr(RIG, 'SMOOTH', 8))):
         avg = (A2 @ Wd) / np.maximum(deg, 1)[:, None]
-        Wd[free & (deg > 0)] = 0.5 * Wd[free & (deg > 0)] + 0.5 * avg[free & (deg > 0)]
+        Wd[sm] = 0.5 * Wd[sm] + 0.5 * avg[sm]
+        Wd[sm] *= keep_[sm]                                      # the gates and the mask hold through the smoothing
+        Wd[sm] /= np.maximum(Wd[sm].sum(1, keepdims=True), 1e-9)
 
+    cut |= cuts(Wd)                                   # and again on the smoothed weights
+    if cut.any(): log(f'cut {int(cut.sum())} triangles where parts touch (after smoothing)')
+    if __import__('os').environ.get('BIND_AT'):         # debugging: what was decided at one place
+        at = np.array([float(v) for v in __import__('os').environ['BIND_AT'].split(',')])
+        i = int(np.argmin(np.linalg.norm(Pw - at, axis=1)))
+        log(f'at {Pw[i].round(3)}: part {names[lab[i]]}, fixed {bool(fixed[i])}, sees {[names[b] for b in range(nb) if seen[i, b]]}, '
+            f'gated {[(names[b], round(float(Dg[i, b]), 2)) for b in np.argsort(Dg[i])[:4]]}')
     top = np.argsort(-Wd, 1)[:, :4]
     Wt = np.take_along_axis(Wd, top, 1); Wt /= Wt.sum(1, keepdims=True)
     counts = np.bincount(lab, minlength=nb)
