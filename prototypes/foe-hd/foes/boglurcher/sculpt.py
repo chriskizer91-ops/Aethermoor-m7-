@@ -60,7 +60,8 @@ def build(K):
         return np.maximum(d, -z)
 
     log('mound')
-    Vb, Fb = S.mc(mound_sdf, VOX, K.lo, K.hi)
+    BAND = 0.04 if LV >= 2 else None                                              # the narrow band on fine levels
+    Vb, Fb = S.mc(mound_sdf, VOX, K.lo, K.hi, band=BAND)
     z = Vb[:, 2]
     n1 = fbm(Vb, 6.0)[:, None]
     proud = np.clip((np.hypot(Vb[:, 0], Vb[:, 1] / sy(Vb[:, 1])) - prof(z) * 0.93) / 0.05, 0, 1)[:, None]   # what stands out of the heap
@@ -91,7 +92,7 @@ def build(K):
         patch = 0.3 - fbm(P, 6.0, 2) + 0.1 * sstep(0.5, 0.3, P[:, 2])               # clumps, mud showing between them
         return np.maximum(np.maximum(shell, moss_edge(P) - P[:, 2]), patch * 0.05)
     log('moss')
-    lo_m = np.array([K.lo[0], K.lo[1], 0.12]); Vm, Fm = S.mc(moss_sdf, VOX, lo_m, K.hi)
+    lo_m = np.array([K.lo[0], K.lo[1], 0.12]); Vm, Fm = S.mc(moss_sdf, VOX, lo_m, K.hi, band=BAND)
     m = fbm(Vm, 10.0)[:, None]
     hang = np.clip((0.5 - Vm[:, 2]) / 0.2, 0, 1)[:, None]                          # the strands' ends yellow-green
     colm = mix(mix(MOSSD, MOSS, np.clip(m * 1.6 - 0.2, 0, 1)), MOSS2, np.clip(hang * 0.8 + (m - 0.6), 0, 1))

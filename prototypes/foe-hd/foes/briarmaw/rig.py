@@ -28,14 +28,14 @@ def weigh(D, P, idx):
     D = _weigh(D, P, idx)
     x, z = P[:, 0], P[:, 2]
     for n in idx:
-        if n[:2] in ('fl', 'fr', 'bl', 'br'):
+        if n[:2] in ('fl', 'fr', 'bl', 'br') and not n.endswith(('_blade', '_haunch')):     # (the helpers sit on the body)
             bn = BONES[idx[n]]                          # and no farther across than its REACH from its own line
             a2, b2 = np.array(bn[2][:2]), np.array(bn[3][:2]); ab = b2 - a2
             t = np.clip(((P[:, :2] - a2) @ ab) / max(float(ab @ ab), 1e-9), 0, 1)
             far = np.linalg.norm(P[:, :2] - (a2 + t[:, None] * ab), axis=1) > REACH[n[3:]]
             far |= z > max(bn[2][2], bn[3][2]) + 0.08     # nor above its own top (a paw is not the fur over it)
-            D[:, idx[n]] += np.where((z > 0.7) | (np.abs(x) < 0.24) | far, 1000.0, 0.0)
-    D[:, idx['tail']] += np.where(np.abs(x) > 0.2, 1000.0, 0.0)     # the tail is the tail, not his rump
+            D[:, idx[n]] += np.where((z > 0.7) | (np.abs(x) < 0.24) | far, 400.0, 0.0)     # (400: steers the labels only; 1000 would be a hard gate)
+    D[:, idx['tail']] += np.where(np.abs(x) > 0.2, 400.0, 0.0)     # the tail is the tail, not his rump
     return D
 SMOOTH = 16
 SPLIT = [('head', 'jaw')]
