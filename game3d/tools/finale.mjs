@@ -126,7 +126,7 @@ await E((d) => window.__g3.world.faceTo(d), heartAt.face);
 await E(() => window.__g3.world.pressA());
 await page.waitForSelector('.dlg-choice', { timeout: 60000 }).catch(() => {});
 for (let i = 0; i < 20 && !(await page.$('.dlg-choice')); i++) { await page.click('.dlg-next').catch(() => {}); await page.waitForTimeout(250); }
-const shown = await E(() => [...document.querySelectorAll('.dlg-choice')].map((c) => ({ text: c.innerText.split('\n')[0], off: c.disabled, why: c.innerText.split('\n').slice(1).join(' / ') })));
+const shown = await E(() => [...document.querySelectorAll('.dlg-choice')].map((c) => ({ text: (c.querySelector('.dlg-choice-t') || c).textContent.trim(), off: c.disabled, why: [...c.querySelectorAll('.dlg-why-r')].map((r) => r.textContent.trim()).join(' / ') })));
 log('the heart offers:', JSON.stringify(shown));
 await shot('heart');
 const anew = shown.find((c) => /Kindle Anew/.test(c.text));
