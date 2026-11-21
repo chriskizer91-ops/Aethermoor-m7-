@@ -18,7 +18,7 @@ import { FOE_ART, renderFoe, foeLooks } from '../../game/src/art/foes.js';
 import { poseHero, poseFoe, strikeStyle, RANGED, foeMover } from './moves.js';
 import { Fx } from './effects.js';
 import { aura } from './auras.js';
-import { momentFor } from './champions.js';
+import { momentFor, setMomentCam } from './champions.js';
 
 const V3 = (x = 0, y = 0, z = 0) => new THREE.Vector3(x, y, z);
 const UP = V3(0, 1, 0);
@@ -110,6 +110,7 @@ export const arena = {
   },
   // a moment's surroundings: the foe, the effects, the heroes it is aimed at (all of them for a move at everyone)
   momentCtx(F) {
+    setMomentCam(this.cam);
     const all = [...this.heroes.values()].filter((h) => !h.down && !h.held);
     const t = F.act?.target && this.heroes.get(F.act.target);
     return { ar: this, F, fx: this.fx, all, heroes: t ? [t] : all, shake: (n) => this.shake(n) };

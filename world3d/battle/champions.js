@@ -9,8 +9,13 @@
 import { GENERATED } from './champion-moves.js';
 
 const head = (c) => c.F.pos.clone().setY(c.F.pos.y + c.F.size.h * 0.95);
-const chest = (h) => h.pos.clone().setY(h.pos.y + 1.1);
-const feet = (h) => h.pos.clone().setY(h.pos.y + 0.02);
+// a hero's chest and feet, brought a little towards the camera: the fight's camera stands behind the party, so a blow
+// drawn at the middle of a hero would be hidden by the hero's own back (the arena sets the camera with setMomentCam)
+let CAM = null;
+export function setMomentCam(cam) { CAM = cam; }
+const nearer = (h, p, by) => { if (!CAM) return p; const d = CAM.position.clone().sub(h.pos).setY(0); if (d.lengthSq() < 1e-6) return p; return p.addScaledVector(d.normalize(), by); };
+const chest = (h) => nearer(h, h.pos.clone().setY(h.pos.y + 1.1), 0.5);
+const feet = (h) => nearer(h, h.pos.clone().setY(h.pos.y + 0.02), 0.4);
 
 export const MOMENTS = {
   // ---- Briarmaw, Act One's Champion (his den) ----
@@ -267,7 +272,7 @@ function TALLY(k) {
   };
 }
 const mid = (c) => c.F.pos.clone().setY(c.F.pos.y + c.F.size.h * 0.6);
-const head1 = (h) => h.pos.clone().setY(h.pos.y + 2.05);
+const head1 = (h) => nearer(h, h.pos.clone().setY(h.pos.y + 2.05), 0.3);
 // the front of a beast's face, turned towards hero h (a tongue, a breath, a bite)
 const mouth = (c, h) => { const d = h.pos.clone().sub(c.F.pos).setY(0).normalize(); return c.F.pos.clone().addScaledVector(d, c.F.size.d * 0.45).setY(c.F.pos.y + c.F.size.h * 0.5); };
 function rand(r) { return { x: (Math.random() - 0.5) * 2 * r, y: (Math.random() - 0.5) * r, z: (Math.random() - 0.5) * 2 * r, isVector3: true }; }
