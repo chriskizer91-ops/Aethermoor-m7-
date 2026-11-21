@@ -18,8 +18,8 @@ export function pose(B, move, u, t, step = 0) {
   if (move === 'idle') return;
   if (move === 'walk') {
     const s = Math.sin(step);
-    b.l_thigh.rotation.x = -0.45 * s; b.r_thigh.rotation.x = 0.45 * s;
-    b.hips.rotation.z = 0.1 * s; b.head.rotation.z += -0.12 * s; B.body.position.y = 0.012 * Math.abs(Math.cos(step));
+    b.l_thigh.rotation.x = -0.12 * s; b.r_thigh.rotation.x = 0.12 * s;     // a waddle: its body reaches nearly to the ground, so
+    b.hips.rotation.z = 0.14 * s;     // the legs swing a little under it and the whole of it rocks b.head.rotation.z += -0.12 * s; B.body.position.y = 0.012 * Math.abs(Math.cos(step));
     b.r_arm.rotation.x = 0.3 * s; b.l_arm.rotation.x = -0.3 * s;
     return;
   }
@@ -27,25 +27,24 @@ export function pose(B, move, u, t, step = 0) {
     // it squats, then shakes its cap hard (the spores fly), arms out
     const sq = seg(u, 0, 0.25), shake = seg(u, 0.25, 0.35) * (1 - seg(u, 0.75, 0.9)), back = 1 - seg(u, 0.8, 1);
     B.body.position.y = -0.03 * sq * back; b.body.rotation.x = 0.18 * sq * back;     // it ducks into the bump (no squash: bones never scale)
-    b.head.rotation.z += 0.25 * Math.sin(u * 60) * shake; b.head.rotation.x += -0.2 * shake;
+    b.head.rotation.z += 0.12 * Math.sin(u * 60) * shake; b.head.rotation.x += -0.1 * shake; b.hips.rotation.z = 0.08 * Math.sin(u * 60) * shake;     // the whole of it shakes
     b.r_arm.rotation.z = -0.1 - 0.9 * shake; b.l_arm.rotation.z = 0.1 + 0.9 * shake;
     return;
   }
   if (move === 'bump') {
     const crouch = seg(u, 0, 0.3) * (1 - seg(u, 0.3, 0.4)), go = bump((u - 0.3) / 0.5);
-    b.l_thigh.rotation.x = b.r_thigh.rotation.x = -0.4 * crouch;
-    B.body.position.y = -0.03 * crouch + 0.06 * go; B.body.position.z = 0.2 * go; b.head.rotation.x = 0.5 * go;
+        B.body.position.y = -0.03 * crouch + 0.06 * go; B.body.position.z = 0.2 * go; b.hips.rotation.x = 0.3 * go; b.head.rotation.x = 0.15 * go;     // it leans in whole; no neck to nod with
     return;
   }
   if (move === 'hurt') {
     const a = bump(u * 1.6) * (1 - seg(u, 0.6, 1));
-    b.body.rotation.x = -0.25 * a; b.head.rotation.x = -0.35 * a; B.body.position.z = -0.06 * a;
+    b.hips.rotation.x = -0.3 * a; b.head.rotation.x = -0.15 * a; B.body.position.z = -0.06 * a;
     b.r_arm.rotation.z = -0.6 * a; b.l_arm.rotation.z = 0.6 * a;
     return;
   }
   if (move === 'ko') {
     const give = seg(u, 0, 0.35), over = seg(u, 0.3, 0.85);
-    B.body.position.y = -0.05 * give; B.body.rotation.x = -1.45 * over; b.head.rotation.x = 0.3 * over;
+    B.body.position.y = -0.05 * give; B.body.rotation.x = -1.45 * over; b.head.rotation.x = 0.15 * over;
     b.r_arm.rotation.z = -1.0 * over; b.l_arm.rotation.z = 1.0 * over;
   }
 }

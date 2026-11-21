@@ -8,6 +8,7 @@
 #      nearest bone after the template's weigh() gating (side, height, front and back) that the point can SEE: the
 #      straight line from the point to the bone runs inside the body (as Blender's bone heat does). From a belly point
 #      the line to a paw crosses the air between the legs, so the belly can't be paw.
+#      A separate piece (a leaf, a strap) that part() names for the most part is all that part.
 #   2. Each rigid piece (kinds 2 thorn, 5 tusk, 6 claw, 7 eye, 8 rigid) is one part: rigid(kind, P, idx), or the part
 #      where its root meets the body. It takes no blending at all.
 #   3. The parts are cleaned on the mesh: lone points take their neighbours' part; a point behind its bone's joint
@@ -118,11 +119,23 @@ def bind(RIG, P, kind, tris, height, mid, log=print):
     Dg[~seen] += 100.0                               # a bone it can't see only if it sees none
     lab = np.argmin(Dg, 1)
     if hasattr(RIG, 'part'):
-        own = np.asarray(RIG.part(Pw, Kw, idx)); lab = np.where(own >= 0, own, lab)
+        import inspect
+        if len(inspect.signature(RIG.part).parameters) >= 4:     # part(P, kind, idx, piece): which separate piece each point is in
+            own = np.asarray(RIG.part(Pw, Kw, idx, connected_components(A, directed=False)[1]))
+        else:
+            own = np.asarray(RIG.part(Pw, Kw, idx))
+        lab = np.where(own >= 0, own, lab)
     fixed = np.zeros(nw, bool) if not hasattr(RIG, 'part') else own >= 0
 
     # 2. rigid pieces: one part each
     ncomp, comp = connected_components(A, directed=False)
+    # a separate piece (a leaf, a strap) that part() mostly names is all that part
+    if fixed.any():
+        for c in np.unique(comp[fixed]):
+            m = comp == c
+            if fixed[m].mean() < 0.5: continue
+            bc = np.bincount(lab[m & fixed], minlength=nb)
+            if bc.max() >= 0.8 * bc.sum(): lab[m] = bc.argmax(); fixed[m] = True
     rigid = np.isin(Kw, RIGID_KINDS)
     for c in np.unique(comp[rigid]):
         m = comp == c
@@ -187,16 +200,19 @@ def bind(RIG, P, kind, tris, height, mid, log=print):
         s = (X - H[b]) @ Dn[b]; d = np.linalg.norm(X - H[b], axis=1)
         return sstep(-w[b], w[b], s), 1 - sstep(R[b], 1.5 * R[b], d)
 
+    # a bone whose part is only separate pieces (leaf arms, a held thing) shares no joint band with the skin
+    skin = np.array([(free & (lab == b)).any() for b in range(nb)])
     for b in range(nb):
         m = lab == b
         if not m.any(): continue
         ii = np.flatnonzero(m); X = Pw[ii]
         own = np.ones(len(ii)); blend = free[ii]
-        if par[b] >= 0:
+        if par[b] >= 0 and skin[par[b]]:
             f, near = share(b, X)
             mp = np.where(blend, (1 - f) * near, 0.0)
             Wd[ii, par[b]] += mp; own -= mp
         for c in kids[b]:
+            if not skin[c]: continue
             f, near = share(c, X)
             g = np.where(blend, f * near, 0.0)
             Wd[ii, c] += own * g; own *= 1 - g
