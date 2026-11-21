@@ -8,7 +8,7 @@ Where the 3D game stands. Written by the hub only. Last updated November 21, sma
 |---|---|---|---|---|---|
 | 1 | the hub | `session_01DgbUKb6orvjjc1cMgBGPJK` | `claude/brave-davinci-790efm` | running | (the board) |
 | 2 | The Fight | `session_01DgbUKYR9qmKyBdACUWGViw` | `job/fight` | step 5 under way and its first part brought in: each Champion's named moves as their own 3D moments (champions.js: Briarmaw's eight, the Rotwarden's eleven; thorns, roots, vines, a pulse; check-moves.mjs) | https://claude.ai/artifact/Q9T8quXCTVgiVUZoMuUaP4 |
-| 3 | Models | `session_01DgbUKcWh5MEvjHnxzp4HHo` | `job/models` | every item sculpted (34 kinds), the townsfolk and the 39 people foes too, faces and hands, anyone in full detail in the Gear Room (96 people); next: the wraiths (eleven robed foes, moved from session 6) | https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL |
+| 3 | Models | `session_01DgbUKcWh5MEvjHnxzp4HHo` | `job/models` | the eleven wraiths, first pass: shaped to Chris's sheets with their props, rigid (they can't stretch), wraithLook for the Fight, the Abbot's and the Lantern Mother's named moves; next: layered tatters, lace and embroidery, two thinned to budget | https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL |
 | 4 | Places | `session_01DgbUKZVFBfm1dVautXEw5f` | `job/places` | next, first (Chris, November 21): the place map, a small map of where you are in a place, tap for the whole place (`world3d/m7/minimap.js`); then step 4: the places come alive | https://claude.ai/artifact/GBxRVSqwMwYUTy1xLNjATA |
 | 5 | Together | `session_01DgbUKbyjzZFe1BXHHxzHBn` | `job/together` | all four region pages up (Act One, the Sunscorch, the Ironspire, the Gloomfen); "Act One, full pictures" at a new link; next: that page with the heroes whole (pictures as files), then Act Three, then chests, signs and Hearthfire stands in 3D | https://claude.ai/artifact/RaeSK5hezqb3qH7jmuM5aj |
 | 6 | One Foe | `session_01DgbUKZCNBFY7zwSzwAXR8y` | `job/foe-hd` | Briarmaw, the briarling and the glowcap pass the stretch check (re-weighted by part, a cut mouth, no new bake); next: the boglurcher, the willows, the sparks, rockling, Mother Anvil (the wraiths moved to Models) | https://claude.ai/artifact/AyUxs7hCGjdzZDNG1jfRnJ |
@@ -42,6 +42,7 @@ Where the 3D game stands. Written by the hub only. Last updated November 21, sma
 | The walkers in full detail: the Rotwarden and the sapwight | `prototypes/foe-hd/pages/walkers/` | https://claude.ai/artifact/YBLUHaLG3bNdfcjBdeq3aj |
 | The walkers' sculpts, for a laptop | `prototypes/foe-hd/foes/` | https://claude.ai/artifact/JCdvpAPKT781gZiU49jTh2 |
 | Briarmaw's full sculpt (982,634 triangles) beside his light version, for a laptop | `prototypes/foe-hd/` | https://claude.ai/artifact/AVSmLbEu3jz1NVnohgqT9P |
+| The wraiths: all eleven turning beside Chris's sheets, every move, their sculpts, a crowd of twelve | `prototypes/wraiths/` | https://claude.ai/artifact/KiYfGSBcUQ6gU4WqVKGojD |
 | The Bestiary: all 93 foes; the 54 beasts painted (cut from Chris's sheets) or in 3D (Act One's 12 sculpted), with a switch | `prototypes/bestiary/` | https://claude.ai/artifact/CA6CcAKVHSxGPB5TAZF5sY |
 | The story on the atlas: M7's places on the map of Aethermoor | `docs/lore/` | https://claude.ai/artifact/XTicYjY9EcZ4V54cjSzJcZ |
 | Chris's 136 pictures | `art-in/3d/` | `art-requests/RECEIVED.md` |
