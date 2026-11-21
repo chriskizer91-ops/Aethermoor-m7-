@@ -231,6 +231,21 @@ same buttons: https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL
 - Next: the townsfolk's and people foes' own pieces (scarves, masks, aprons, sashes, wraps, hats, satchels, the foes'
   looks), which already share every master above.
 
+**Every item sculpted: the masters' audit** (November 21). The Gear Room's debug build
+(`node build.mjs --debug`) logs every piece each of the 458 items adds and whether it wears a master; the coverage
+script adds up the bare area by the line of code that made it.
+- Before: 77% of the items' surface wore a master. Now: **92%**. Nine more kinds made (32 in all): hair lock (and the
+  hair's cap), the shoulder under a sleeve, haft (wood grain, splits, knots, knocks; also staves and bows' limbs),
+  braid (cloth and leather trims, cords, the cape's tie), rim (metal rims, trims, guards, ridges, the shields' rims,
+  metal hafts), strap (boot straps, pouches and their flaps, sashes), blade (the edge's bevel line, grinding along the
+  blade, nicks in the edges, hammering by the hilt), forged (axe, spear, mace and hammer heads, flanges, sockets,
+  pommels, butts: hammer dents and grinding arcs, laid on flat) and the glove's cuff and the hood's tip.
+- What is still bare, and why: the boot soles (a box under the foot, never seen), the fine wire wound round grips, the
+  rivets, gem settings and the amulet chains' links (too small for a master to show). The rest is a few percent of
+  small staff-head and helm details.
+- The atlas: 4 x 8 cells of 256 px, 1024 x 2048, 464 KB, in `masters/pack.js`. One cell free. Still no new
+  materials or draws (Wren 48 pieces, 218 / 100 / 24). Item audit: 458 items, 0 flags.
+
 ## Next
 
 - Chris chose full detail for the beasts (November 20): sessions 6 to 8 build them (`docs/project/jobs/foes.md`;

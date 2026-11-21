@@ -17,7 +17,7 @@ import { generateItem, relicItem } from '../../game/src/rules/loot.js';
 import { RELICS } from '../../game/src/data/relics.js';
 import { createRng } from '../../game/src/core/rng.js';
 import { buildHero, setPose, glowColor, SWING_ON, SCULPT } from './model.js';
-import { MACRO_ON, MASTER_ON } from './kit.js';
+import { MACRO_ON, MASTER_ON, ADD_LOG } from './kit.js';
 import { loadHeights, sculptify, unsculpt } from './masters/sculpt-view.js';
 import { ready as foeReady, makeShared, makeFoe } from '../foe-hd/kit/js/loader.js';
 import * as QUAD from '../foe-hd/kit/js/moves/quad.js';
@@ -467,6 +467,8 @@ $('b-sculptview').onclick = async () => {
   if (S.sculptView) { if (S.detail !== 'high') { S.detail = 'high'; applyDetail(); } if (!SCULPT.on) $('b-sculpt').click(); rebuild(); }
   else { unsculpt(); rebuild(); }
 };
+window.__addLog = ADD_LOG;
+window.__build = (e) => { const keepQ = Q.d; Q.d = 2; try { return buildHero(e.hero, gearFor(e), {}); } finally { Q.d = keepQ; } };
 window.__flags = { SCULPT, MACRO_ON, MASTER_ON };
 window.__gear = { renderer, S, rebuild, setHero, rollFor, nextRelic, lookAt: w => lookAt(w), get hero() { return hero; }, camera, controls };
 applyDetail();
