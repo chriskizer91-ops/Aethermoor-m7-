@@ -430,7 +430,11 @@ out.save(sys.argv[2],quality=80,method=6)`, webp, roofFile, JSON.stringify(roofJ
     water: water.map((p) => ({ poly: p })), decks, buildings: keptB, walls: segs, towers, torches, lamps, props, flowers, extraTrees, lawns, groundPatches,
     fence: GLOOM || undefined, things, stairs, hearthfires,
     doors: doors.concat(keptB.flatMap((b) => (b.doors || []).map((dr) => [Math.round(dr.x), b.fp[3] + 6]))).filter((p, i, a) => a.findIndex((q) => Math.abs(q[0] - p[0]) < 30 && Math.abs(q[1] - p[1]) < 30) === i),
-    dress: DRESS[id] ? DRESS[id].map((e) => {
+    dress: DRESS[id] ? DRESS[id].filter((e) => {
+      // a thing on a roof tile would stand inside the 3D house: left out, unless it takes that little building's place
+      const o = typeof e[e.length - 1] === 'object' ? e[e.length - 1] : {}, line = e[0] === 'fence' || e[0] === 'pickets';
+      return line || e[0] === 'stall' || o.replace || at(Math.floor(e[1]), Math.floor(e[2])) !== 'H';
+    }).map((e) => {
       const [k, ...rest] = e, o = typeof rest[rest.length - 1] === 'object' ? rest.pop() : {}, line = k === 'fence' || k === 'pickets';
       const FACE = { S: 0, E: Math.PI / 2, N: Math.PI, W: -Math.PI / 2 }, f = line ? 0 : rest[2];
       const out = { k, at: [Math.round(rest[0] * TX), Math.round(rest[1] * TY)] };
