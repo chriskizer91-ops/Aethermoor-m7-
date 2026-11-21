@@ -22,16 +22,16 @@ ARMS = {
 CROWN_Z = 1.62
 
 def trunk_r(z):
-    return np.interp(z, [0.0, 0.12, 0.3, 0.6, 0.9, 1.15, 1.35, 1.5, 1.62],
-                        [0.30, 0.22, 0.18, 0.16, 0.15, 0.155, 0.165, 0.12, 0.05])
+    return np.interp(z, [0.0, 0.12, 0.3, 0.5, 0.75, 1.0, 1.15, 1.35, 1.5, 1.62],
+                        [0.36, 0.28, 0.22, 0.185, 0.16, 0.15, 0.155, 0.165, 0.12, 0.05])
 
 def build(K):
     S, G, LV, VOX, SIDES, SEG, log = K.sdf, K.geom, K.LV, K.VOX, K.SIDES, K.SEG, K.log
     smin, smax, ell, cap, fbm, mix, sstep, vnoise = S.smin, S.smax, S.ell, S.cap, S.fbm, S.mix, S.sstep, S.vnoise
     M = K.Mesh()
     BARK = np.array([0.30, 0.22, 0.14]); BARK2 = np.array([0.42, 0.34, 0.22]); BARKD = np.array([0.12, 0.09, 0.06])
-    MOSSC = np.array([0.30, 0.34, 0.12]); LEAF = np.array([0.50, 0.66, 0.16]); LEAF2 = np.array([0.72, 0.80, 0.24])
-    LEAFD = np.array([0.20, 0.36, 0.08]); STRAND = np.array([0.30, 0.30, 0.12]); GLOW = np.array([0.80, 1.0, 0.30])
+    MOSSC = np.array([0.30, 0.34, 0.12]); LEAF = np.array([0.34, 0.50, 0.11]); LEAF2 = np.array([0.62, 0.70, 0.18])
+    LEAFD = np.array([0.12, 0.24, 0.05]); STRAND = np.array([0.30, 0.30, 0.12]); GLOW = np.array([0.80, 1.0, 0.30])
     BELL = np.array([0.35, 0.55, 1.0])
     rr = np.random.default_rng(91)
     BAND = 0.04 if LV >= 2 else None
@@ -40,7 +40,7 @@ def build(K):
     roots = []
     for i in range(7):
         a = i / 7 * 2 * math.pi + 0.25 + rr.uniform(-0.15, 0.15)
-        reach = 0.42 + 0.08 * rr.random()
+        reach = 0.46 + 0.1 * rr.random()
         roots.append((a, reach))
     # the crown's boughs: thick branches out of the top of the head, arching over
     boughs = []
@@ -217,7 +217,7 @@ def build(K):
                 Fl = np.array([f for q in range(leaf_seg) for f in ((q, q + 1, m + q + 1), (q, m + q + 1, m + q))])
                 Vl = np.concatenate([top_ + face * 0.0007, top_ - face * 0.0007])
                 g = fr.random()
-                cl = mix(mix(LEAFD, LEAF, 0.4 + 0.6 * g), LEAF2, 0.35 * g * g)
+                cl = mix(mix(LEAFD, LEAF, 0.2 + 0.8 * g), LEAF2, 0.45 * g ** 3)
                 add(Vl, np.concatenate([Fl, Fl[:, ::-1] + 2 * m]), np.tile(np.clip(cl, 0, 1), (len(Vl), 1)))
         if fr.random() < 0.25:                                                   # a drop of the weeping at the tip
             V, F = G.ellipsoid(path[-1] + [0, 0, -0.012], (0.005, 0.005, 0.008), 5, 7); add(V, F, np.tile(GLOW * 0.85, (len(V), 1)))
