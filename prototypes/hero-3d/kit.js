@@ -6,6 +6,7 @@ import { MAT } from '../../game/src/art/forge.js';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { PACK, FACES } from './textures/pack.js';
 import { RELIEF } from './textures/relief.js';
+import { ATLAS, KINDS as MASTER_KINDS, CELLS as MCELLS, INSET as MINSET } from './masters/pack.js';
 export { mergeGeometries, FACES };
 
 // the detail level: 1 (Light, for phones) or 2 (High): every curve gets this many times the segments, every surface
@@ -210,7 +211,7 @@ const TILE = { metal: 0.34, mail: 0.11, leather: 0.2, hide: 0.22, cloth: 0.16, w
 const BUMP = { metal: 0.6, mail: 1.3, leather: 1.2, hide: 1.6, cloth: 1.0, wood: 1.4, stone: 1.6, bone: 0.8, horn: 1.2, skin: 0.25, hair: 1.2 };
 // how strong the broad relief is per kind of picture (SCULPT.on in model.js; read here through MACRO_ON)
 export const MACRO_ON = { on: true };
-const MACRO = { metal: 0.6, mail: 0.2, leather: 0.8, hide: 0.8, cloth: 0.7, wood: 0.7, stone: 0.7, bone: 0.5, horn: 0.6, skin: 0.25, hair: 0.7, beast: 0.6 };
+const MACRO = { metal: 0.6, mail: 0.2, leather: 0.5, hide: 0.6, cloth: 0.7, wood: 0.7, stone: 0.7, bone: 0.5, horn: 0.6, skin: 0.25, hair: 0.7, beast: 0.6 };
 export function grainFor(key, kind, o = {}) {
   if (!TEXTURES.on) return null;
   if (o.tex !== undefined) return PACK[o.tex] ? o.tex : null;
@@ -249,10 +250,10 @@ function grainTexture(name) {
   t.colorSpace = THREE.SRGBColorSpace; t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = 8;
   return (GRAIN_TEX[name] = t);
 }
-const TRI_VERT = ['varying vec3 vTriP;\nvarying vec3 vTriN;\nvoid main() {', 'vTriP = position; vTriN = normal;\n#include <begin_vertex>'];
+const TRI_VERT = ['varying vec3 vTriP;\nvarying vec3 vTriN;\nvarying vec2 vMUv;\nvoid main() {', 'vTriP = position; vTriN = normal; vMUv = uv;\n#include <begin_vertex>'];
 const TRI_FRAG_HEAD = `#define TRI_RK 14.0
-uniform sampler2D triMap; uniform float triScale; uniform float triGain; uniform float triBump; uniform float triRough; uniform float triMacro; uniform sampler2D triRMap; uniform float triRScale;
-varying vec3 vTriP; varying vec3 vTriN; float triH = 0.5; float triR = 0.0; float triFade = 1.0;
+uniform sampler2D triMap; uniform float triScale; uniform float triGain; uniform float triBump; uniform float triRough; uniform float triMacro; uniform sampler2D triRMap; uniform float triRScale; uniform sampler2D triMaster; uniform float triMSlope[16]; uniform float triMK;
+varying vec3 vTriP; varying vec3 vTriN; varying vec2 vMUv; float triH = 0.5; float triR = 0.0; float triFade = 1.0;
 vec3 triSample() {
   vec3 w = pow(abs(normalize(vTriN)), vec3(4.0)); w /= (w.x + w.y + w.z + 1e-5);
   vec3 p = vTriP * triScale;
@@ -273,19 +274,50 @@ vec3 triPerturb(vec3 sp, vec3 n, vec2 dH, float fd) {
   return normalize(abs(det) * n - sign(det) * (dH.x * r1 + dH.y * r2));
 }
 void main() {`;
+// the sculpted masters (masters/sculpt.py): a piece fitted with fitMaster carries uvs past 2 into the shared atlas; there
+// its master's slopes bend the normal (scaled by the piece's real size on screen, so a small boot and a big one both get
+// the master's true depth) and its occlusion darkens the creases
+const MASTER_NORMAL = `if (vMUv.x > 1.5 && triMK > 0.0) {
+  vec2 mu = vMUv - vec2(2.0, 0.0); vec3 ms = texture2D(triMaster, mu).rgb;
+  int ci = int(floor(mu.x * ${MCELLS}.0)) + ${MCELLS} * int(floor(mu.y * ${MCELLS}.0));
+  vec2 g = (ms.rg * 2.0 - 1.0) * triMSlope[ci] / ${(1 / MCELLS * (1 - 2 * MINSET)).toFixed(6)};
+  vec3 sp = -vViewPosition, dpx = dFdx(sp), dpy = dFdy(sp); vec2 dux = dFdx(mu), duy = dFdy(mu);
+  float det = dux.x * duy.y - dux.y * duy.x;
+  if (abs(det) > 1e-14) {
+    vec3 Pu = (dpx * duy.y - dpy * dux.y) / det, Pv = (dpy * dux.x - dpx * duy.x) / det;
+    vec3 gh = g.x / max(dot(Pu, Pu), 1e-10) * Pu + g.y / max(dot(Pv, Pv), 1e-10) * Pv;
+    gh -= dot(gh, normal) * normal; float l = length(gh); if (l > 1.5) gh *= 1.5 / l;
+    normal = normalize(normal - gh * faceDirection * triMK);
+  }
+}`;
+export const MASTER_ON = { on: true };
+let MASTER_TEX = null;
+const masterTexture = () => { if (MASTER_TEX) return MASTER_TEX; const t = new THREE.TextureLoader().load(ATLAS); t.flipY = false; t.anisotropy = 8; return (MASTER_TEX = t); };
+const MSLOPE = (() => { const a = new Array(16).fill(0); for (const k of Object.values(MASTER_KINDS)) a[k.cell] = k.slope; return a; })();
+// fitMaster(geometry, kind, { v0, v1 }): fit a piece built by loft/tube/lathe (u round, v along) to its kind's master;
+// v0..v1: the part of the master this piece is (a cape in two halves). Does nothing when the masters are off.
+export function fitMaster(geo, kind, { v0 = 0, v1 = 1 } = {}) {
+  const K = MASTER_KINDS[kind]; if (!K || !MASTER_ON.on || !TEXTURES.on) return geo;
+  const uv = geo.attributes.uv; if (!uv) return geo;
+  const cs = 1 / MCELLS, cx = (K.cell % MCELLS) * cs, cy = Math.floor(K.cell / MCELLS) * cs, ins = MINSET * cs, w = cs - 2 * ins;
+  for (let i = 0; i < uv.count; i++) { const u = Math.min(1, Math.max(0, uv.getX(i))), v = Math.min(1, Math.max(0, v0 + uv.getY(i) * (v1 - v0))); uv.setXY(i, 2 + cx + ins + u * w, cy + ins + v * w); }
+  uv.needsUpdate = true; geo.userData.master = kind;
+  return geo;
+}
 function triplanar(m, name, kind, opt = {}) {
   const fam = name.split('-')[0], tile = opt.tile || TILE[kind === 'mail' || kind === 'scale' ? 'mail' : fam] || 0.25;
   const U = { triMap: { value: grainTexture(name) }, triScale: { value: 1 / tile }, triGain: { value: 0.9 / PACK[name].mean },
     triBump: { value: (opt.bump ?? BUMP[kind === 'mail' || kind === 'scale' ? 'mail' : fam] ?? 1) * 0.0012 * (Q.d > 1 ? 1 : 0.8) }, triRough: { value: opt.rough ?? (kind === 'metal' ? 0.6 : 0.25) }, triMacro: { value: MACRO_ON.on ? (opt.macro ?? (MACRO[kind === 'mail' || kind === 'scale' ? 'mail' : fam] ?? 0.4)) : 0 } };
+  U.triMaster = { value: masterTexture() }; U.triMSlope = { value: MSLOPE }; U.triMK = { value: MASTER_ON.on ? 1 : 0 };
   { const rk = RELIEF_OF[kind === 'mail' || kind === 'scale' ? 'mail' : fam] || 'leather'; U.triRMap = { value: reliefTexture(rk) }; U.triRScale = { value: 1 / (RTILE[rk] || 0.3) }; }
   m.userData.grain = name; m.userData.tri = U;
   m.onBeforeCompile = sh => {
     Object.assign(sh.uniforms, U);
     sh.vertexShader = sh.vertexShader.replace('void main() {', TRI_VERT[0]).replace('#include <begin_vertex>', TRI_VERT[1]);
     sh.fragmentShader = sh.fragmentShader.replace('void main() {', TRI_FRAG_HEAD)
-      .replace('#include <map_fragment>', '#include <map_fragment>\n{ vec3 tt = triSample(); triH = tt.r; if (triMacro > 0.0) { vec2 rl = triRelief(); triR = rl.r * triMacro * TRI_RK; diffuseColor.rgb *= mix(1.0, rl.g * rl.g, min(1.0, triMacro * 1.2)); } diffuseColor.rgb *= tt * triGain; }')
+      .replace('#include <map_fragment>', '#include <map_fragment>\n{ vec3 tt = triSample(); triH = tt.r; if (triMacro > 0.0) { vec2 rl = triRelief(); triR = rl.r * triMacro * TRI_RK; diffuseColor.rgb *= mix(1.0, rl.g * rl.g, min(1.0, triMacro * 1.2)); } diffuseColor.rgb *= tt * triGain; if (vMUv.x > 1.5 && triMK > 0.0) diffuseColor.rgb *= mix(1.0, texture2D(triMaster, vMUv - vec2(2.0, 0.0)).b, 0.85); }')
       .replace('#include <roughnessmap_fragment>', '#include <roughnessmap_fragment>\nroughnessFactor = clamp(roughnessFactor * mix(1.0, 1.5 - triH, triRough), 0.04, 1.0);')
-      .replace('#include <normal_fragment_maps>', '#include <normal_fragment_maps>\nnormal = triPerturb(-vViewPosition, normal, vec2(dFdx(triH + triR), dFdy(triH + triR)) * triBump * triFade, faceDirection);');
+      .replace('#include <normal_fragment_maps>', '#include <normal_fragment_maps>\nnormal = triPerturb(-vViewPosition, normal, vec2(dFdx(triH + triR), dFdy(triH + triR)) * triBump * triFade, faceDirection);\n' + MASTER_NORMAL);
   };
   m.customProgramCacheKey = () => 'aeth-tri';
   m.normalMap = null;
@@ -306,7 +338,7 @@ const baseKey = key => (MAT[key] ? key : key && MAT[String(key).split(/[\^~]/)[0
 // mat(key, { as, rep, side }): as forces a surface (mail, scale); rep scales its picture
 export function mat(key, o = {}) {
   key = baseKey(key);
-  const kind = o.as || KIND(key), grain = grainFor(key, kind, o), id = `${key}|${kind}|${o.rep || 1}|${o.side ? 2 : 1}|${Q.d}|${grain}|${o.tint || ''}|${MACRO_ON.on}`;
+  const kind = o.as || KIND(key), grain = grainFor(key, kind, o), id = `${key}|${kind}|${o.rep || 1}|${o.side ? 2 : 1}|${Q.d}|${grain}|${o.tint || ''}|${MACRO_ON.on}|${MASTER_ON.on}`;
   if (cache.has(id)) return cache.get(id);
   const M = MAT[key], p = M.pal, rep = o.rep || 1;
   const nm = (t, r) => { const c = t.clone(); c.repeat.set(r * rep, r * rep); c.needsUpdate = true; return c; };
