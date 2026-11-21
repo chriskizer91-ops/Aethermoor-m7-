@@ -6,6 +6,8 @@ const { ease, bump, seg, crouch, roots } = tools;
 // the Rotwarden: his left arm is one great root (bones root1..root4), his right a plated arm with a bark fist
 const rotwarden = {
   key: 'rotwarden', name: 'The Rotwarden', tier: 'Champion', act: 'Act One, the Heartroot', height: 2.5, weight: 1.4,
+  stiff: 0.45, knees: 0.6,          // plate armour: his trunk barely twists, his knees fold only so far
+  limits: { hips: 0.6, spine: 0.4, chest: 0.7, l_shin: 0.36, r_shin: 0.36, l_thigh: 0.55, r_thigh: 0.55, root2: 0.7, root3: 0.8, l_foot: 0.7, r_foot: 0.7 },
   text: "A First-Age warden of the root, bark grown through its plate, wearing a smith's mask that is not its face.",
   lunge: 'rootlash',
   moves: {
@@ -28,7 +30,7 @@ const rotwarden = {
       const b = W.bones, up = seg(u, 0, 0.35) * (1 - seg(u, 0.4, 0.5)), down = seg(u, 0.4, 0.5) * (1 - seg(u, 0.8, 1));
       b.root1.rotation.x += -2.1 * up - 0.85 * down; b.root1.rotation.z += 0.25 * up - 0.15 * down;
       b.root2.rotation.x += -0.5 * up + 0.2 * down; b.root3.rotation.x += -0.3 * up + 0.35 * down; b.root4.rotation.x += 0.3 * down;
-      b.chest.rotation.x = 0.5 * (-0.2 * up + 0.3 * down); b.spine.rotation.x = 0.5 * (-0.1 * up + 0.15 * down);
+      b.chest.rotation.x = 0.35 * (-0.2 * up + 0.3 * down); b.spine.rotation.x = 0.35 * (-0.1 * up + 0.15 * down);
       b.neck.rotation.x = -0.2 * up + 0.15 * down;
       b.r_upper.rotation.z -= 0.35 * (up + down); b.r_upper.rotation.x = -0.2 * up;
       crouch(W, 0.6 * down);
@@ -68,6 +70,8 @@ const rotwarden = {
 // the sapwight: gaunt, hunched, long arms; it shambles, reaches, grips, drinks
 const sapwight = {
   key: 'sapwight', name: 'Sapwight', tier: 'Veteran', act: 'Act One, the Heartroot', height: 2.0, weight: 0.8,
+  stiff: 0.8, knees: 0.7,           // wound in bark: it bends, but stiffly
+  limits: { neck: 0.24, head: 0.4, l_fore: 0.52, r_fore: 0.52, l_shin: 0.55, r_shin: 0.55, spine: 0.8 },
   text: 'A ghoul of bark and black sap. It used to be someone the Heartroot drank.',
   lunge: 'sap-leech',
   idle(W, t) {
@@ -108,7 +112,7 @@ const sapwight = {
       b.spine.rotation.x = 0.25 * k; b.chest.rotation.x = 0.25 * k; b.neck.rotation.x = 0.3 * k;
       for (const [n, s] of [['r', -1], ['l', 1]]) {
         b[n + '_upper'].rotation.x = -0.9 * k; b[n + '_upper'].rotation.z = s * -0.35 * k;
-        b[n + '_fore'].rotation.x = -1.7 * k; b[n + '_fore'].rotation.y = s * 0.3 * k;
+        b[n + '_fore'].rotation.x = -1.15 * k; b[n + '_fore'].rotation.y = s * 0.2 * k;
       }
       W.body.position.x = Math.sin(u * 70) * 0.006 * k;
     } },

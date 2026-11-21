@@ -164,7 +164,7 @@ for s in (1, -1):
     P_.add(f'cuisse{s}', lambda P, s=s: cap(P, THI[s] + [0, 0.01, -0.06], KNEE[s] + [0, 0, 0.08], 0.158, 0.135), 'plate')
     def kc(P, K=K):
         d = ell(P, K + [0, 0.07, 0.0], (0.135, 0.085, 0.12))
-        d = smin(d, cap(P, K + [0, 0.10, -0.02], K + [0, 0.115, -0.13], 0.06, 0.012, scale=(1.6, 1, 1)), 0.03)
+        d = smin(d, cap(P, K + [0, 0.10, -0.02], K + [0, 0.112, -0.08], 0.055, 0.014, scale=(1.6, 1, 1)), 0.03)   # its point stops short of the shin, so the knee can bend
         return d
     def kc_rim(P, K=K):
         d = ell(P, K + [0, 0.065, 0.0], (0.148, 0.09, 0.132))
