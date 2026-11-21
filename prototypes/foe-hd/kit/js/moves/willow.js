@@ -8,10 +8,10 @@ const seg = (u, a, b) => ease((u - a) / (b - a));
 const NOOP = { rotation: { x: 0, y: 0, z: 0, set() {} }, position: { set() {}, copy() {} }, scale: { set() {} } };
 
 export const MOVES = [['idle', 'Sway'], ['walk', 'Walk'], ['lash', 'Lash'], ['bough', 'Bough-Fall'], ['weep', 'Weep'],
-  ['hurt', 'Hit'], ['ko', 'Fall']];
-export const DUR = { lash: 1.2, bough: 1.8, weep: 2.2, hurt: 0.9, ko: 2.6 };
+  ['volley', 'Weeping Volley'], ['hurt', 'Hit'], ['ko', 'Fall']];
+export const DUR = { lash: 1.2, bough: 1.8, weep: 2.2, volley: 2.0, hurt: 0.9, ko: 2.6 };
 export const LUNGE = 'lash';
-export const ALIAS = { strike: 'lash', bite: 'lash', swipe: 'lash', cast: 'weep', roar: 'bough', volley: 'bough' };
+export const ALIAS = { strike: 'lash', bite: 'lash', swipe: 'lash', cast: 'weep', roar: 'bough' };
 
 function reset(B) {
   for (const b of Object.values(B.bones)) { b.rotation.set(0, 0, 0); b.position.copy(b.userData.p0); b.scale.set(1, 1, 1); }
@@ -65,6 +65,16 @@ export function pose(B, move, u, t, step = 0) {
     b.root.rotation.x = 0.08 * k; b.head.rotation.x = 0.1 * k; b.crown.rotation.x = 0.08 * k;
     b.crown.rotation.z += 0.02 * Math.sin(u * 40) * k;
     b.r_upper.rotation.x = -0.2 * k; b.l_upper.rotation.x = -0.3 * k; b.l_fore.rotation.x = -0.4 * k;   // hands to its face
+    return;
+  }
+  if (move === 'volley') {
+    // he lifts the bow in his left arm and draws with his right, holds, and lets fly over the whole line
+    const lift = seg(u, 0, 0.3) * (1 - seg(u, 0.85, 1)), draw = seg(u, 0.25, 0.55) * (1 - seg(u, 0.62, 0.68)), loose = bump((u - 0.62) / 0.25);
+    b.l_upper.rotation.x = -0.45 * lift; b.l_upper.rotation.z = -0.15 * lift;
+    b.r_upper.rotation.x = -1.1 * lift + 0.3 * loose; b.r_upper.rotation.z = 0.45 * draw;     // the draw is from the shoulder
+    b.r_fore.rotation.x = -0.4 * draw;
+    b.root.rotation.x = -0.05 * lift + 0.04 * loose; b.root.rotation.y = 0.08 * draw;
+    b.crown.rotation.x = 0.06 * loose;
     return;
   }
   if (move === 'hurt') {

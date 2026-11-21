@@ -52,7 +52,7 @@
     "trianglesOver": 0
    },
    "crease": {
-    "worst": 1.054,
+    "worst": 1.055,
     "limit": 3,
     "part": "chest > head",
     "where": [
@@ -160,6 +160,37 @@
    "framesOver": "0/120",
    "bones": []
   },
+  "volley": {
+   "ok": true,
+   "big": {
+    "worst": 1.159,
+    "limit": 1.3,
+    "part": "r_fore",
+    "where": [
+     0.336,
+     0.138,
+     0.894
+    ],
+    "restEdge": 0.0191,
+    "u": 0.588,
+    "trianglesOver": 0
+   },
+   "crease": {
+    "worst": 2.453,
+    "limit": 3,
+    "part": "r_upper",
+    "where": [
+     0.272,
+     0.112,
+     0.934
+    ],
+    "restEdge": 0.0012,
+    "u": 0.605,
+    "trianglesOver": 0
+   },
+   "framesOver": "0/120",
+   "bones": []
+  },
   "hurt": {
    "ok": true,
    "big": {
@@ -207,7 +238,7 @@
     "trianglesOver": 0
    },
    "crease": {
-    "worst": 1.054,
+    "worst": 1.055,
     "limit": 3,
     "part": "chest > head",
     "where": [

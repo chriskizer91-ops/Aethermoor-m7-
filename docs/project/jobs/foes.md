@@ -31,7 +31,8 @@ can share the screen with. The 39 people foes stay built by the heroes' builder 
 | Session | Lane | Its foes (Act One first, then in the order they're met) |
 |---|---|---|
 | 6, One Foe | **the kit**, then the strange ones | finish Briarmaw (pass 3); turn the recipe into a shared kit (below); then briarling, glowcap, boglurcher, the willows (willow-wight, Grandfather Willow), the sparks (marsh-light, forge-spark), rockling, Mother Anvil (the wraiths moved to Models, November 21) |
-| 7, Beasts | four legs, scorpions, serpents, frogs, wings | thornhound, rotstag, Old Snag, the Mirelord, rotgrub, the Gloamwing; then rime-wolf, sand-skink, mire-leech, blackwater-gar, lamp-moth, glass-scorpion, the Glass Matriarch, Old Jaws, the Sand Wyrm, the Thunder-Roc, Kharzul, the Blackwater Leviathan |
+| 7, Beasts | four legs, frogs, wings | thornhound, rotstag, Old Snag, the Mirelord, rotgrub, the Gloamwing; then rime-wolf, lamp-moth, the Thunder-Roc (the desert's and the deep's beasts moved to Places, November 21) |
+| 4, Places | the desert and the deep (from November 21) | the Sunscorch's: sand-skink, glass-scorpion, the Glass Matriarch, the Sand Wyrm, Kharzul; the Gloomfen's: mire-leech, blackwater-gar, Old Jaws, the Blackwater Leviathan. The kit as every lane uses it (sculpt to Chris's sheet, kept as an asset; light model by tier; the stretch check; the kit's standard form; named moves for the Fight's Champions' table) |
 | 8, Walkers | two legs | the Rotwarden, sapwight; then Old Horn, peak-troll, cinder-thrall, the Journeyman, iron-sentinel, forgeborn, bellows, forge-warden, thrall-overseer, unmade, the Sentinel-Captain, the Ashen Warden, the Unsmith |
 | 3, Models | the wraiths (from November 21) | the robed ones, in Act order: drowned, bell-ringer, drowned-choir, drowned-cantor, drowned-abbess, choir-wraith, rime-wraith, the Rime-Abbot, the Lantern Mother, mirage-wisp, wisp-queen. Built with the people builder and the sculpted masters (robe, hood, mantle, hands), shaped to Chris's sheets, each with its whole sculpt kept to look at; ghostly cloth, mist, weeds, lanterns, bells, books and staves as their sheets show. Same rules as every lane: no stretching, a look the Fight can take (`setBeastLook`, chained with the kit's `foeLook`), its own named moves for the Fight's Champions' table |
 
@@ -85,4 +86,4 @@ waist, belt and straps dragged out into a web after the spread arms). Rules for 
   Helper bones at knees, elbows and throats (to keep a joint's volume) are a later pass, in the kit, for every lane.
 - **Only a foe that passes goes into the game** (hub, November 21). The Fight's and Together's pages show a foe in full
   detail only once its stretch check passes on every move (`stretch.json` in its folder says so); until then it keeps
-  its stand-in look there. Passing now: Briarmaw, the briarling, the glowcap, the boglurcher, the Rotwarden, the sapwight (the wraiths are rigid and can't stretch).
+  its stand-in look there. Passing now: Briarmaw, the briarling, the glowcap, the boglurcher, the willow-wight, Grandfather Willow, the Rotwarden, the sapwight (the wraiths are rigid and can't stretch).
