@@ -208,6 +208,20 @@ people are `people[].id` (the game's NPC ids).
   crates and barrels), Fawnrest (three low walls, spray on its little waterfall). The Great Hall and the three galleries
   are bare floors and carpets; the Hearth Below's four are stand-ins drawn from tiles.
 - Phone draws before -> after (`m7/probe.mjs --phone`): Thornhollow 49 -> 52, the Keep 37 -> 39, Fawnrest 44 -> 44.
+- **The regions** (lists in `m7/dress/*.json`, read off the paintings and checked on them with `m7/mark.py`):
+  the Gloomfen 127 things (Bogmire 35: barrels at every house, four striped stalls on the plaza, crates, jars, six
+  boats; Willowmurk 20; the Tidal Flats 16; the Long Boardwalk 12; Misthollow 11 with its fountain as a well), the
+  Sunscorch 19 (the Glass Flats' five awning stalls and two tents, Dusthaven's four tents, the Sun Road's two stalls,
+  all on the map's little roofs, which they replace), the Ironspire 36 (loose boulders and rubble; its anvils, crates,
+  barrels, sledges and ice are already its tiles' things). Act Three: the galleries are bare and the Hearth Below's
+  four are stand-ins, so nothing. A thing on a roof tile is left out unless it replaces that building.
+- Phone draws before -> after: Bogmire 40 -> 44, Willowmurk 60 -> 61, the Tidal Flats 40 -> 38, Misthollow 49 -> 49,
+  Dusthaven 30 -> 29, the Sun Road 36 -> 34 (the little houses a stall or tent replaces were draws too), the Glass Flats
+  26 -> 32 overall but its place alone 17 -> 17.
+- **For Together**: each chest is its own group with a lid hinged at the back, `M7_CHESTS[chestId] = { group, lid,
+  isOpen, open(on, now) }` and `M7_SETCHEST(chestId, on, now)` (now = true: at once). A Hearthfire's pillar has no
+  lantern (`lamps[i].noLantern`; game3d/props.js burns the fire on it). Engine `world.js` (additive, marked): the
+  pillar's lantern skipped for those, and `K.mats`, `K.scene` handed to a place's extras.
 
 ## Next
 
