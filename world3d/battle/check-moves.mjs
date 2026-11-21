@@ -15,9 +15,11 @@ p.on('pageerror', (e) => errs.push(e.message));
 await p.addInitScript(() => {
   window.__moves = []; window.__wait = null;
   globalThis.__btHooks = { log() {}, peak(ev) {
+    // the blow of a move just seen landing (its first damage or status): a second still, as its effects show
+    if (window.__landing && (ev.t === 'damage' || ev.t === 'status')) { const n = window.__landing; window.__landing = null; window.__land = n; return new Promise((r) => { window.__wait = r; }); }
     if (ev.t !== 'move' || !ev.name || window.__moves.includes(ev.name)) return null;
     const u = window.__fight?.battle?.units?.[ev.actor]; if (u && u.side !== 'foe') return null;
-    window.__moves.push(ev.name); return new Promise((r) => { window.__wait = r; });
+    window.__moves.push(ev.name); window.__landing = ev.name; return new Promise((r) => { window.__wait = r; });
   } };
 });
 await p.goto('file://' + path.resolve(page) + '?' + q, { timeout: 180000 });
@@ -28,7 +30,9 @@ for (;;) {
   if (s !== 'move') break;
   // the move began a little before its event peaked: give its effects a moment, then a still
   await p.waitForTimeout(900);
-  const name = await p.evaluate(() => window.__moves[window.__moves.length - 1]);
+  const land = await p.evaluate(() => { const n = window.__land; window.__land = null; return n; });
+  const name = land ? land + '-lands' : await p.evaluate(() => window.__moves[window.__moves.length - 1]);
+  if (land) await p.waitForTimeout(-400 + 700);
   await p.screenshot({ path: path.join(out, `${String(++shot).padStart(2, '0')}-${name.replace(/[^\w]+/g, '-')}.png`) });
   await p.evaluate(() => { const r = window.__wait; window.__wait = null; r && r(); });
 }
