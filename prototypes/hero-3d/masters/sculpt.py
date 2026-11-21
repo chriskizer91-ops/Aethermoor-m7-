@@ -24,7 +24,7 @@ from PIL import Image
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 N = 1024
-COLS, ROWS = 4, 6             # the atlas: 4 across, 6 down
+COLS, ROWS = 4, 8             # the atlas: 4 across, 8 down
 CELL = 256                   # each kind's bake
 HCELL = 512                  # each kind's height, for the sculpt view
 INSET = 2                    # pixels kept clear round each cell (the code maps the piece inside them)
@@ -56,6 +56,14 @@ KINDS = {
     'pauldron': (20, 0.60, 0.12, None),  # a shoulder lame (part of a sphere): v 0 the edge, 1 the top
     'shield':   (21, 0.60, 0.60, None),  # a shield's face, flat: u across, v up (0..1 over the shield's width and height)
     'grip':     (22, 0.07, 0.10, None),  # a weapon's grip: v 0 the pommel end, 1 the guard
+    'lock':     (23, 0.05, 0.15, None),  # a lock of hair (and the hair's cap): strands run along v
+    'shoulder': (24, 0.35, 0.15, None),  # the ball of the shoulder under a sleeve (a sphere: v 0 below, 1 on top)
+    'haft':     (25, 0.06, 0.60, None),  # a wooden haft, a staff, a bow's limb: v along it
+    'braid':    (26, 0.05, 0.60, None),  # a cloth or leather trim, a cord: u round the cord, v along it
+    'rim':      (27, 0.05, 0.60, None),  # a metal rim, trim, guard or ridge: u round it, v along it
+    'strap':    (28, 0.05, 0.30, None),  # a flat strap (u 0 and .5 its faces, .25 and .75 its edges), a pouch
+    'blade':    (29, 0.08, 0.50, None),  # a blade: u 0 and .5 its edges, .25 and .75 the middle of each face; v to the tip
+    'forged':   (30, 0.15, 0.15, None),  # a forged head (axe, spear, mace, hammer, pommel), laid on flat over it
 }
 rng = np.random.default_rng(21)
 V_, U_ = np.mgrid[0:N, 0:N] / N          # V_ down the rows (v), U_ across (u)
@@ -326,6 +334,51 @@ def sculpt(kind):
         ph = V_ * turns + U_ * 1.0                                                                  # leather wound round it
         h = -np.exp(-(((ph % 1) - 0.5) * 2 / 0.12) ** 2) * 0.0012 + np.cos(((ph % 1) - 0.5) * np.pi) * 0.0004
         h += P.noise(0.004, 0.004, 221) * 0.0002
+    elif kind == 'lock':
+        h = P.noise(0.0015, 0.06, 231) * 0.0006 + P.noise(0.005, 0.1, 232) * 0.0009                 # strands, and clumps of them
+        h += -np.abs(P.noise(0.008, 0.2, 233)) * 0.0007                                             # partings between the clumps
+    elif kind == 'shoulder':
+        h = P.folds(0.03, 0.06, 241) * 0.0015 + P.welt(0.25, 0.32, 0.0012) + P.stitch_v(0.33) * 0.0012
+        h += P.noise(0.004, 0.004, 242) * 0.0002
+    elif kind == 'haft':
+        h = P.noise(0.004, 0.15, 251) * 0.0005 + P.creases(0.006, 0.1, 252, 3.0) * 0.0004           # grain, and its splits
+        kn = np.zeros((N, N)); r = np.random.default_rng(253)
+        for _ in range(5):                                                                          # knots
+            cu, cv = r.uniform(0, 1), r.uniform(0.05, 0.95); du = wrapd(U_, cu) * C; dv = (V_ - cv) * L; d = np.sqrt(du * du + dv * dv * 0.3)
+            kn += np.exp(-(d / 0.004) ** 2) * 0.8 - np.exp(-(d / 0.007) ** 2) * 0.3 + np.cos(d / 0.0018 * 2 * np.pi) * np.exp(-(d / 0.01) ** 2) * 0.2
+        h += kn * 0.0006 + P.dents(30, 0.001, 0.003, 0.0004, 0, 1, 254)                             # and knocks
+    elif kind == 'braid':
+        p_ = 0.008
+        a1 = np.cos(2 * np.pi * (U_ * 2 + P.y / p_)); a2 = np.cos(2 * np.pi * (U_ * 2 - P.y / p_ + 0.5))
+        h = np.maximum(a1, a2) * 0.0005 + P.noise(0.002, 0.002, 261) * 0.0001                        # strands plaited over and under
+    elif kind == 'rim':
+        h = P.dents(60, 0.002, 0.006, 0.0005, 0, 1, 271) + P.noise(0.003, 0.1, 272) * 0.00015
+        sc = np.zeros((N, N)); r = np.random.default_rng(273)
+        for _ in range(30):
+            u0, v0, ln = r.uniform(0, 1), r.uniform(0, 1), r.uniform(0.01, 0.05)
+            for t in np.linspace(0, ln, 100):
+                i = int(((v0 + t / L) % 1) * N); j = int(((u0 + r.normal(0, 0.002)) % 1) * N); sc[i % N, j] -= 1
+        h += P.blur(sc, 0.0004) * 0.0002
+    elif kind == 'strap':
+        face = np.cos(U_ * 4 * np.pi) ** 2
+        edge = np.minimum(wrapd(U_, 0.25), wrapd(U_, 0.75))
+        st = (np.sin(P.y / 0.004 * 2 * np.pi) > 0.2) * np.exp(-((edge - 0.08) / 0.012) ** 2)
+        h = st * 0.0004 - np.exp(-((edge - 0.08) / 0.006) ** 2) * 0.00015 + P.creases(0.01, 0.01, 281, 2.5) * 0.0003 * face
+        h += P.noise(0.002, 0.002, 282) * 0.0001
+    elif kind == 'blade':
+        e = np.minimum(wrapd(U_, 0.0), wrapd(U_, 0.5))
+        h = -np.exp(-((e - 0.07) / 0.008) ** 2) * 0.00035                                           # the edge's bevel line
+        h += P.noise(0.0012, 0.15, 291) * 0.00012 * (e > 0.07)                                       # grinding along the blade
+        nk = np.zeros((N, N)); r = np.random.default_rng(292)
+        for _ in range(14):                                                                          # nicks in the edges
+            cu, cv = r.choice([0.0, 0.5]), r.uniform(0.15, 0.9); du = wrapd(U_, cu) * C; dv = (V_ - cv) * L
+            nk -= np.exp(-(du * du + dv * dv) / 0.0025 ** 2)
+        h += nk * 0.0006 + P.dents(25, 0.003, 0.008, 0.00015, 0, 0.35, 293)                          # and hammering near the hilt
+    elif kind == 'forged':
+        h = P.dents(70, 0.004, 0.012, 0.0009, 0, 1, 301) + P.noise(0.03, 0.03, 302) * 0.0003
+        yy, xx = V_ - 0.5, U_ - 0.5; rr = np.hypot(xx, yy)
+        h += np.sin(rr / 0.004 * 2 * np.pi + P.noise(0.02, 0.02, 303) * 2) * 0.00006                 # grinding arcs
+        h += P.dents(30, 0.0015, 0.004, 0.0005, 0, 1, 304)
     return P, h
 
 
