@@ -115,19 +115,37 @@ for n in smat.node_tree.nodes:
     if n.type == 'MATH' and n.operation == 'MULTIPLY': n.inputs[1].default_value = 1.0
 
 RUNS = [(lo_coat, hi_coat, *REACH['coat']), (lo_parts, hi_parts, *REACH['parts'])]
+# Each run is baked into a picture of its own and the two are put together by an exact mask of the parts' UV islands:
+# baking both into one picture lets each run's padding paint over the other's islands (specks of glow or black).
+from PIL import Image as PImage, ImageDraw
+def uv_mask(ob, res):
+    me_ = ob.data; me_.calc_loop_triangles()
+    uvl = np.empty(len(me_.loops) * 2, np.float32); me_.uv_layers.active.data.foreach_get('uv', uvl); uvl = uvl.reshape(-1, 2)
+    lt = np.empty(len(me_.loop_triangles) * 3, np.int32); me_.loop_triangles.foreach_get('loops', lt); lt = lt.reshape(-1, 3)
+    m = PImage.new('L', (res, res), 0); dr = ImageDraw.Draw(m)
+    for tri in uvl[lt]:
+        dr.polygon([(float(u * res), float((1 - v) * res)) for u, v in tri], fill=255)
+    return np.asarray(m) > 127                      # top row first, as PNGs are
+MASK = {}
 def bake(name, btype, samples=1, colorspace='sRGB', res=RES, **kw):
-    img = bpy.data.images.new(name, res, res, alpha=False)
-    img.colorspace_settings.name = colorspace
-    tex.image = img
     sc.cycles.samples = samples
+    out = []
     for i, (l, hh, cage, reach) in enumerate(RUNS):
+        img = bpy.data.images.new(f'{name}_{i}', res, res, alpha=False)
+        img.colorspace_settings.name = colorspace
+        tex.image = img
         for o in sc.objects: o.select_set(o in (l, hh))
         bpy.context.view_layer.objects.active = l
         bpy.ops.object.bake(type=btype, use_selected_to_active=True, cage_extrusion=cage, max_ray_distance=reach,
-                            margin=6, use_clear=(i == 0), **kw)
-    px = np.empty(res * res * 4, np.float32); img.pixels.foreach_get(px); px = px.reshape(-1, 4)
-    log(name, 'mean', px[:, :3].mean(0).round(3), 'max', px[:, :3].max(0).round(3))
-    img.filepath_raw = os.path.join(OUT, f'{name}.png'); img.file_format = 'PNG'; img.save()
+                            margin=6, use_clear=True, **kw)
+        px = np.empty(res * res * 4, np.float32); img.pixels.foreach_get(px)
+        out.append(np.flipud(px.reshape(res, res, 4)[:, :, :3]))          # Blender's rows run bottom-up
+    if res not in MASK: MASK[res] = uv_mask(lo_parts, res)
+    comb = np.where(MASK[res][:, :, None], out[1], out[0])
+    if colorspace == 'sRGB' and btype in ('DIFFUSE', 'EMIT'):
+        pass                                          # Blender hands these back already as sRGB values for a byte image
+    PImage.fromarray(np.clip(comb * 255 + 0.5, 0, 255).astype(np.uint8)).save(os.path.join(OUT, f'{name}.png'))
+    log(name, 'mean', comb.mean((0, 1)).round(3), 'max', comb.max((0, 1)).round(3))
 
 bake('normal', 'NORMAL', 1, 'Non-Color', normal_space='TANGENT')
 bake('color', 'DIFFUSE', 1, pass_filter={'COLOR'})

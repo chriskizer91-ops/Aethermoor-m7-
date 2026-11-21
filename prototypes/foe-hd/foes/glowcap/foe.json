@@ -1,0 +1,86 @@
+{
+  "key": "glowcap",
+  "name": "Glowcap",
+  "plan": "mushroom",
+  "rank": "rabble",
+  "height": 0.8,
+  "sheet": "art-in/3d/sheets/sheet-glowcap.webp",
+  "crops": [
+    [
+      60,
+      600
+    ],
+    [
+      610,
+      1160
+    ],
+    [
+      1160,
+      1740
+    ]
+  ],
+  "bounds": [
+    [
+      -0.33,
+      -0.34,
+      -0.01
+    ],
+    [
+      0.33,
+      0.34,
+      0.83
+    ]
+  ],
+  "voxel": {
+    "0": 0.009,
+    "1": 0.0065,
+    "2": 0.004,
+    "3": 0.0024
+  },
+  "view": {
+    "center": [
+      0,
+      0,
+      0.4
+    ],
+    "width": 1.05,
+    "head": [
+      0,
+      0.12,
+      0.45
+    ],
+    "headWidth": 0.5
+  },
+  "light": {
+    "level": 0,
+    "coat": 12000,
+    "kinds": {
+      "7": 3500
+    }
+  },
+  "sculpt": {
+    "level": 3
+  },
+  "bake": {
+    "res": 1024,
+    "phone": 512,
+    "ao": 48,
+    "reach": {
+      "coat": [
+        0.02,
+        0.06
+      ],
+      "parts": [
+        0.008,
+        0.02
+      ]
+    }
+  },
+  "rig": "rig.py",
+  "blurb": "The glowcap is a walking mushroom: a domed cap crusted with warts, gills underneath that glow green, a small round face, a leafy collar, a plump fibrous body studded with knobs, leaf-tuft arms and stubby boots.",
+  "next": "the spore puff when it attacks.",
+  "pages": {
+    "sculpt": "https://claude.ai/artifact/H5yc3TLZDp3Aho9R1nzaCg",
+    "three": "https://claude.ai/artifact/AyUxs7hCGjdzZDNG1jfRnJ"
+  }
+}
