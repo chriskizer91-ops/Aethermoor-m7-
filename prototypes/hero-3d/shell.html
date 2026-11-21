@@ -70,6 +70,9 @@ canvas.px{image-rendering:pixelated;image-rendering:crisp-edges}
   .acts button{min-width:44px}
   .top button{padding:0 9px}
 }
+  .lab2{align-self:center;flex:0 0 auto;font-size:13px;opacity:.8}
+  #who{flex:1;min-width:0}
+  #gearPanel.who{opacity:.4;pointer-events:none}
 </style>
 <div class="app">
   <div class="stage">
@@ -84,6 +87,7 @@ canvas.px{image-rendering:pixelated;image-rendering:crisp-edges}
     <div id="pxrow" class="pxrow" hidden><label for="px">Pixel size</label><input id="px" type="range" min="1" max="16" step="1" value="5"><span id="pxval">5</span></div>
   </div>
   <div class="panel">
+    <div class="row"><label class="lab2" for="who">Anyone in full detail</label><select id="who" aria-label="Who to show"></select></div>
     <div class="row"><button id="b-audit">Item audit: every item, checked</button></div>
     <div id="auditPanel" hidden>
       <div class="row"><button id="b-audit-back">Back to the outfit</button></div>

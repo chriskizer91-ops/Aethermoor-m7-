@@ -17,7 +17,7 @@ function reset(B) {
 export function pose(B, move, u, t, step = 0) {
   reset(B);
   const b = new Proxy(B.bones, { get: (o, k) => o[k] || NOOP }), br = Math.sin(t * 2.6);
-  b.body.scale.set(1 + 0.02 * br, 1 - 0.02 * br, 1 + 0.02 * br);
+  b.hips.rotation.x = 0.02 * br;     // breathing: a slow rock (bones turn, never scale)
   b.sprout.rotation.z = 0.12 * Math.sin(t * 1.7); b.sprout.rotation.x = 0.06 * Math.sin(t * 1.3);
   if (move === 'idle') { B.body.position.y = 0.006 * Math.abs(br); return; }
   if (move === 'walk') {
@@ -33,22 +33,22 @@ export function pose(B, move, u, t, step = 0) {
     const crouch = seg(u, 0, 0.25) * (1 - seg(u, 0.25, 0.35)), air = bump((u - 0.3) / 0.45), land = bump((u - 0.75) / 0.25);
     for (const s of ['l', 'r']) { b[s + '_thigh'].rotation.x = -0.6 * (crouch + land * 0.6); b[s + '_shin'].rotation.x = 1.1 * (crouch + land * 0.6); b[s + '_foot'].rotation.x = -0.5 * (crouch + land * 0.6); }
     B.body.position.y = -0.05 * (crouch + land * 0.5) + 0.12 * air;
-    b.body.scale.set(1 + 0.12 * crouch - 0.06 * air, 1 - 0.14 * crouch + 0.1 * air, 1 + 0.12 * crouch);
-    if (move === 'bite') { B.body.position.z = 0.22 * air; b.body.rotation.x = 0.5 * air; }
-    b.sprout.rotation.x += -0.5 * air + 0.4 * land;
+    b.hips.rotation.x = 0.2 * crouch - 0.1 * air;     // it tips into the crouch (no squash: bones never scale)
+    if (move === 'bite') { B.body.position.z = 0.22 * air; b.hips.rotation.x = 0.5 * air; }     // the whole of it pitches, legs and all
+    b.sprout.rotation.x += -0.3 * air + 0.25 * land;
     return;
   }
   if (move === 'hurt') {
     const a = bump(u * 1.6) * (1 - seg(u, 0.6, 1));
-    b.body.rotation.x = -0.35 * a; B.body.position.z = -0.06 * a; b.body.scale.set(1 - 0.08 * a, 1 + 0.06 * a, 1 - 0.08 * a);
+    b.hips.rotation.x = -0.35 * a; B.body.position.z = -0.06 * a;
     b.sprout.rotation.x = 0.6 * a;
     return;
   }
   if (move === 'ko') {
     // the legs give, and over it rolls
     const give = seg(u, 0, 0.4), roll = seg(u, 0.3, 0.8);
-    for (const s of ['l', 'r']) { b[s + '_thigh'].rotation.x = -0.8 * give; b[s + '_shin'].rotation.x = 1.4 * give; }
+    for (const s of ['l', 'r']) { b[s + '_thigh'].rotation.x = -0.55 * give; b[s + '_shin'].rotation.x = 0.95 * give; }     // knees bend no further than the root tubes can
     B.body.position.y = -0.1 * give; B.body.rotation.z = 1.5 * roll; B.body.position.x = -0.15 * roll;
-    b.sprout.rotation.z = 0.6 * roll;
+    b.sprout.rotation.z = 0.35 * roll;
   }
 }

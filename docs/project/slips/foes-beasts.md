@@ -29,10 +29,52 @@ session 6 made Briarmaw.
   hips dragging the thigh, the head pulling the chest, the ears pulling the neck). Fixed by: where each bone may
   reach (a leg's lower bones stay below their joint, the tail's below its own, the head's in front of the neck, the
   neck off the shoulders), the weights smoothed over the surface 8 times, and a smaller neck bend in the howl and
-  foreleg reach in the lunge. Now: **worst 3.4x**, and at most 39 edges in any pose both over 1.3x and longer by more
-  than 1% of his height (9 mm). What's left is mostly the mouth (the light model's lips are joined, so opening the jaw
-  stretches the corners) and the throat and ear roots in the hit and howl. Still to do: a cut mouth in the light model
-  and finer neck weights, to get under 1.3x everywhere.
+  foreleg reach in the lunge; then the ear roots tied to the head (not the neck), and the jaw opening less.
+  **Now: worst 2.6x** (was 16.8x). No webbing in any pose (side views of every move checked by eye).
+  - What's still over 1.3x, and the limit I hold it to: small edges in the creases of bending joints (knee, elbow,
+    hip, the throat in the howl, the mouth corners in the bite, the ear roots in the hit), at most 2.7x on edges
+    under 1 cm, and at most 40 edges in any pose that are both over 1.3x and longer by more than 1% of his height.
+    Plain bone-weighted skin always stretches a little on the outside of a bent joint; getting every edge under
+    1.3x would need extra helper bones at the knee, elbow and throat (next pass, and a cut mouth with overhanging
+    lips in the light model).
+
+- **The kit's stretch check and binding (November 21):** the thornhound is now weighted with session 6's
+  `kit/rigs/bind.py` (`foes/thornhound/rebind.py`, my reach masks passed in as its `weigh()`, wide joint bands, the
+  leaves rigid), his tail hung clear of the haunches, the garland started behind the neck, breathing a small turn, and
+  every move's big bends made gentler. The kit's `stretch.mjs` (48 frames a move) still fails every move: worst 2.7x
+  (lunge, the shoulder), walk 2.3x, bite 2.1x, howl 2.0x, hit 1.7x, fall 2.3x, idle 1.5x (two triangles at an ear
+  root). The stretched patches are small (knee, shoulder, throat, tail root; the pictures are in
+  `foes/thornhound/build/stretch/`), and no move shows a web by eye. To get under 1.3x the rig needs more joints where
+  big masses turn (a shoulder blade, a thigh-to-haunch helper, two neck bones); that's the next pass, before more
+  bending is taken out of his moves.
+
+- **Against the lanes' rule** (hub, November 21: edges longer than 1% of the height under 1.3x, crease edges under
+  3x, no scaled bones, no webbing): no edge past 2.4x, no scaled or slid bones, no webbing by eye; but in the worst
+  pose 129 edges longer than 9 mm still pass 1.3x (my `stretch.mjs` now prints this verdict). The hub has passed
+  him; helper joints from the kit should clear the rest.
+
+- **Where the big edges still stretch** (rule: edges longer than 1% of the height under 1.3x). On a 0.9 m foe almost
+  every light-model edge is longer than 9 mm, so the rule is nearly 1.3x everywhere for him. The worst big edges:
+  the top of the shoulder in the walk (spine and upper foreleg, 1.9x), the rump where the thigh meets the tail root
+  (1.8x), the throat in the howl (neck and chest, 2.0x), the neck and chest in the fall (1.6x). I have not stiffened
+  him further, as asked.
+- **For session 6: helper joints for the kit** (proposal). Plain skinning can't spread a big turn where heavy masses
+  meet, whatever the weights. Suggested for every four-legged plan, each following its parent part of the way:
+  1. a **shoulder blade** per foreleg (chest > blade > upper), which turns about half the upper leg's swing, so the
+     top of the shoulder slides instead of stretching;
+  2. a **haunch** helper per hind leg (hips > haunch > upper), likewise half the thigh's swing, weighted to the big
+     muscle round the hip;
+  3. **two neck bones** in place of one (chest > neck1 > neck2 > head), each taking half the neck's bend, so the throat
+     stretches over twice the length;
+  4. a **tail root** helper (hips > tailroot > tail1) taking a quarter of the tail's sway.
+  The moves need nothing new: a helper reads its child's turn in pose() (the kit's loader could do it after every
+  pose, e.g. `HELPERS = { fl_blade: ['fl_upper', 0.5], ... }`).
+
+- **The kit's stretch check with the one rule** (hub 7cc2a1d, run from the kit on the hub's branch): breathing passes;
+  walk, bite, lunge, howl, hit and fall fail on big edges (the top of the shoulder in the walk and lunge, 2.3x; the
+  throat in the howl and fall; the ear roots in the bite and hit, 1.6-1.7x). The weigh() gate is now +1000 (a hard
+  never), as session 6 advised; it barely moves the result, because the bands and smoothing carry the neck back onto
+  the ear roots. Waiting on the kit's helper joints and a gate that holds through the bands.
 
 ## Next
 

@@ -5,7 +5,7 @@
 // Sizes: k metres per card px, at the size the hand holds it. Up the weapon is +Y; its flats face Z.
 import * as THREE from 'three';
 import { MAT } from '../../game/src/art/forge.js';
-import { V, lerp, smooth, clamp01, loft, ellipse, tube, curve, lathe, wedge, plate, blade, mat, glowColor, isEmit, KIND, Q, sph, tor, cone, ico, etchMaterial, stitchGeo, add, gem, rngOf } from './kit.js';
+import { V, lerp, smooth, clamp01, loft, ellipse, tube, curve, lathe, wedge, plate, blade, mat, glowColor, isEmit, KIND, Q, sph, tor, cone, ico, etchMaterial, stitchGeo, add, gem, rngOf, fitMaster, withMaster } from './kit.js';
 
 const TAU = Math.PI * 2;
 const has = k => !!(k && MAT[k]);
@@ -16,11 +16,11 @@ function wrapGrip(inner, a, b, R, key, k) {
   if (!key) return;
   // bands of leather laid edge over edge, each a little tilted, so they read as one strip wound round
   const w = R * 1.25, n = Math.max(3, Math.round((b - a) / w)), step = (b - a) / n, m = mat(key, KIND(key) === 'leather' ? { tex: 'leather-wrap' } : {});
-  add(tube([V(0, a * k, 0), V(0, b * k, 0)], R * 1.02 * k, { n: 12 }), m, inner);
+  add(fitMaster(tube([V(0, a * k, 0), V(0, b * k, 0)], R * 1.02 * k, { n: 12 }), 'grip'), m, inner);
   for (let i = 0; i < n; i++) {
     const y0 = a + i * step;
     const bandG = new THREE.Group(); bandG.position.y = (y0 + step / 2) * k; bandG.rotation.z = 0.16; bandG.rotation.y = i * 0.7; inner.add(bandG);
-    add(lathe([[R * 1.0 * k, -step * 0.55 * k], [R * 1.13 * k, -step * 0.38 * k], [R * 1.16 * k, step * 0.3 * k], [R * 1.04 * k, step * 0.55 * k]], { n: 14 }), m, bandG);
+    add(fitMaster(lathe([[R * 1.0 * k, -step * 0.55 * k], [R * 1.13 * k, -step * 0.38 * k], [R * 1.16 * k, step * 0.3 * k], [R * 1.04 * k, step * 0.55 * k]], { n: 14 }), 'grip'), m, bandG);
   }
   for (const y of [a, b]) add(tube(ellipse(V(0, y * k, 0), V(1, 0, 0), V(0, 0, 1), R * 1.16 * k, R * 1.16 * k, 14), R * 0.14 * k, { closed: true, n: 5 }), mat('leatherDark'), inner);
 }
@@ -37,7 +37,7 @@ const chamfer = (c, ax, bx, hx, hz, ch) => [[hx, hz - ch], [hx - ch, hz], [-hx +
 // a haft, gently tapered (and wobbling for a crooked staff)
 function haft(inner, len, R, key, k, wob = 0) {
   const pts = []; for (let i = 0; i <= 10; i++) pts.push(V(Math.sin(i * 1.7) * wob * k, i / 10 * len * k, Math.cos(i * 2.3) * wob * 0.6 * k));
-  add(tube(curve(pts, 20), t => R * k * (1.06 - t * 0.12), { n: 12 }), mat(key), inner);
+  add(fitMaster(tube(curve(pts, 20), t => R * k * (1.06 - t * 0.12), { n: 12 }), KIND(key) === 'metal' ? 'rim' : 'haft'), mat(key), inner);
   return pts;
 }
 const emit = (fx, o, key, power = 1) => { if (key && isEmit(key)) fx.glows.push({ obj: o, color: glowColor(key), power }); return o; };
@@ -68,10 +68,10 @@ function sword({ inner, k, fx, W, p }, tip) {
   if (p.pommelShape === 'coin') add(lathe([[0, -pr * 0.5 * k], [pr * 1.1 * k, -pr * 0.42 * k], [pr * 1.18 * k, 0], [pr * 1.1 * k, pr * 0.42 * k], [0, pr * 0.5 * k]], { n: 24, sz: 0.45 }), pm, inner, 0, -pr * 1.0 * k, 0).rotation.x = 0;
   else if (p.pommelShape === 'knot') { add(ico(pr * 0.95 * k, 1), pm, inner, 0, -pr * 0.9 * k, 0).scale.set(1, 1.2, 0.9); for (let i = 0; i < 5; i++) { const a = i / 5 * TAU; add(sph(pr * 0.35 * k, 8, 6), pm, inner, Math.cos(a) * pr * 0.8 * k, -pr * (0.9 + Math.sin(i * 2.1) * 0.4) * k, Math.sin(a) * pr * 0.7 * k); } }
   else if (p.pommelShape === 'hook' || p.pommel === 'claw') { const pts = []; for (let i = 0; i <= 12; i++) { const a = i / 12 * Math.PI * 1.3; pts.push(V(Math.sin(a) * pr * 1.3 * k - pr * 0.0 * k, -Math.cos(a) * pr * 1.0 * k - pr * 1.1 * k + pr * k, 0)); } add(tube(pts, t => [gr * 0.9 * k * (1 - t * 0.75), gr * 0.7 * k * (1 - t * 0.75)], { n: 8 }), mat(p.pommel === 'claw' ? 'claw' : p.guardMat || 'bronze'), inner, 0, -pr * 0.6 * k, 0); }
-  else add(lathe([[0, -pr * 1.9 * k], [pr * 0.55 * k, -pr * 1.85 * k], [pr * k, -pr * 1.3 * k], [pr * 1.05 * k, -pr * 0.8 * k], [pr * 0.7 * k, -pr * 0.25 * k], [gr * 0.8 * k, 0]], { n: 18, sz: 0.6 }), pm, inner);
+  else add(fitMaster(lathe([[0, -pr * 1.9 * k], [pr * 0.55 * k, -pr * 1.85 * k], [pr * k, -pr * 1.3 * k], [pr * 1.05 * k, -pr * 0.8 * k], [pr * 0.7 * k, -pr * 0.25 * k], [gr * 0.8 * k, 0]], { n: 18, sz: 0.6 }), 'forged'), pm, inner);
   if (p.pommelGem) gem(p.pommelGem, pr * 0.45 * k, inner, 0, -pr * 1.05 * k, pr * (p.pommelShape === 'coin' ? 0.3 : 0.62) * k, has(p.pommel) ? p.pommel : 'gold');
   // grip: leather or cloth under a wound wire (a bramble grip is a twist of thorny vine)
-  add(tube([V(0, 0, 0), V(0, grip * 0.5 * k, 0), V(0, grip * k, 0)], t => gr * k * (1 + Math.sin(t * Math.PI) * 0.12), { n: 12 }), mat(p.grip || 'leather'), inner);
+  add(fitMaster(tube([V(0, 0, 0), V(0, grip * 0.5 * k, 0), V(0, grip * k, 0)], t => gr * k * (1 + Math.sin(t * Math.PI) * 0.12), { n: 12 }), 'grip'), mat(p.grip || 'leather'), inner);
   if (p.grip === 'bramble') for (let i = 0; i < 6; i++) add(cone(0.35 * k, 1.4 * k, 4), mat('thorn'), inner, Math.cos(i * 2.3) * gr * 1.1 * k, (i + 0.5) / 6 * grip * k, Math.sin(i * 2.3) * gr * 1.1 * k).rotation.z = Math.cos(i * 2.3) * -1.4;
   else if (p.binding) wrapGrip(inner, 0.5, grip - 0.5, gr, p.binding, k);
   else wireGrip(inner, grip, gr, p.guardMat === 'gold' || p.guardMat === 'bronze' ? p.guardMat : 'silver', k);
@@ -84,7 +84,7 @@ function sword({ inner, k, fx, W, p }, tip) {
   else {
     const flame = guard === 'flame', sq = guard === 'quillon', hook = guard === 'hook';
     const pts = []; for (let i = 0; i <= 24; i++) { const t = lerp(-1, 1, i / 24); pts.push(V(t * gw * k, gy + (flame ? Math.abs(t) ** 2 * gw * 0.5 * k + Math.sin(t * 9) * 0.6 * k : sq ? t * Math.abs(t) * gw * 0.35 * k : hook ? (t > 0 ? t * t * gw * 0.5 * k : -t * t * gw * 0.55 * k) : Math.abs(t) ** 2.2 * gw * 0.22 * k), 0)); }
-    add(tube(pts, t => { const e = Math.abs(t * 2 - 1); return [gT * 0.45 * k * (1.25 - e * 0.55), gT * 0.6 * k * (1.2 - e * 0.5)]; }, { n: 8, up: V(0, 0, 1) }), gm, inner);
+    add(fitMaster(tube(pts, t => { const e = Math.abs(t * 2 - 1); return [gT * 0.45 * k * (1.25 - e * 0.55), gT * 0.6 * k * (1.2 - e * 0.5)]; }, { n: 8, up: V(0, 0, 1) }), 'rim'), gm, inner);
     for (const s of [0, 24]) add(sph(gT * 0.5 * k, 10, 8), gm, inner, pts[s].x, pts[s].y, 0);
     add(sph(gT * 0.7 * k, 14, 10), gm, inner, 0, gy, 0).scale.set(1.3, 0.8, 0.75);
   }
@@ -99,7 +99,7 @@ function sword({ inner, k, fx, W, p }, tip) {
   else if (shape === 'scimitar') { wf = u => (u < 0.82 ? hw * (0.9 + u * 0.45) : hw * 1.27 * Math.sqrt(Math.max(0, 1 - ((u - 0.82) / 0.18) ** 1.6))); tf = u => (0.5 + bw * 0.04) * k * (1 - u * 0.4); off = u => -cv * u * u * 1.3; }
   else { wf = u => (u < tS ? hw * (1 - (1 - tp) * u / tS) : hw * tp * Math.sqrt(Math.max(0, 1 - ((u - tS) / (1 - tS)) ** 2.2))); tf = u => (0.55 + bw * 0.05) * k * (1 - u * 0.45); off = u => -cv * u * u * 2.5; }
   const bk = has(p.blade) ? p.blade : 'steel', bm = mat(bk, W.relic && /steel|silver|iron|heat/.test(bk) && !/black|void/.test(bk) ? { tex: 'metal-engraved-steel' } : {});
-  add(blade(L, wf, tf, { fuller: shape === 'fang' || shape === 'tooth' ? 0 : r === 'dagger' ? 0.15 : 0.4, off, rings: curved ? 26 : 22 }), bm, inner, 0, b0, 0);
+  add(fitMaster(blade(L, wf, tf, { fuller: shape === 'fang' || shape === 'tooth' ? 0 : r === 'dagger' ? 0.15 : 0.4, off, rings: curved ? 26 : 22 }), 'blade'), bm, inner, 0, b0, 0);
   add(lathe([[hw * 0.7, -0.6 * k], [hw * 0.9, 0], [hw * 0.7, 0.8 * k]], { n: 12, sz: 0.35 }), gm, inner, 0, b0, 0);
   const th = tf(0.2);
   // the fuller's glow, a vein down a fang, a tally of notches, an edge of fire
@@ -137,7 +137,7 @@ function hafted({ inner, k, fx, W, p }, tip) {
   wrapGrip(inner, p.wrapA ?? 0, p.wrapB ?? p.wrapEnd ?? 16, R, p.wrap, k);
   (p.bands || []).forEach(y => band(inner, y, R, p.bandMat || 'iron', k));
   const foot = p.foot || p.butt || p.pommelMat || p.pommel;
-  if (foot && has(foot)) add(lathe([[0, -2.5 * k], [R * 1.2 * k, -2 * k], [R * 1.4 * k, 0], [R * 1.1 * k, 2 * k]], { n: 14 }), mat(foot), inner);
+  if (foot && has(foot)) add(fitMaster(lathe([[0, -2.5 * k], [R * 1.2 * k, -2 * k], [R * 1.4 * k, 0], [R * 1.1 * k, 2 * k]], { n: 14 }), 'forged'), mat(foot), inner);
   if (p.vine) { const pts = []; for (let i = 0; i <= 60; i++) { const t = i / 60, a = t * TAU * 4.5; pts.push(V(Math.cos(a) * R * 1.25 * k, lerp(3, hT - 4, t) * k, Math.sin(a) * R * 1.25 * k)); } add(tube(pts, 0.45 * k, { n: 5 }), mat(p.vine), inner); for (let i = 3; i < 60; i += 5) { const q = pts[i]; add(cone(0.4 * k, 1.6 * k, 4), mat(p.thorn || 'thorn'), inner, q.x * 1.1, q.y, q.z * 1.1).rotation.z = -Math.sign(q.x) * 1.2; } }
   if (r === 'axe') axeHead(inner, k, fx, p, R, hT, tip);
   else if (r === 'hammer') hammerHead(inner, k, fx, p, R, hT, tip);
@@ -150,7 +150,7 @@ function hafted({ inner, k, fx, W, p }, tip) {
 function socket(inner, k, R, hT, key, h = 8) {
   // a chamfered socket with langets down the haft and a rivet through each side
   const rings = [chamfer(V(0, (hT - h / 2) * k, 0), V(1, 0, 0), V(0, 0, 1), R * 1.5 * k, R * 1.5 * k, R * 0.4 * k), chamfer(V(0, (hT + h / 2) * k, 0), V(1, 0, 0), V(0, 0, 1), R * 1.5 * k, R * 1.5 * k, R * 0.4 * k)];
-  add(loft(rings, { capA: true, capB: true, flat: true }), mat(key), inner);
+  add(fitMaster(loft(rings, { capA: true, capB: true, flat: true }), 'forged', { planar: true }), mat(key), inner);
   for (const s of [-1, 1]) { add(new THREE.BoxGeometry(R * 0.9 * k, 9 * k, 0.5 * k), mat(key), inner, 0, (hT - h / 2 - 4.5) * k, s * R * 1.05 * k); add(sph(0.6 * k, 8, 6), mat('iron'), inner, 0, (hT - h / 2 - 2) * k, s * R * 1.35 * k); }
 }
 
@@ -172,7 +172,7 @@ function axeHead(inner, k, fx, p, R, hT, tip) {
   const lo = (p.bladeLo || 12) * 0.82, hi = (p.bladeHi || 8) * 0.82, bw = (p.bladeW || 16) * 0.8, bu = (p.bulge || 3) * 0.8;
   // the head: a bearded blade that thins to its edge, a brighter bevel along the edge
   const outl = [[R * 0.8, -3.5], [bw * 0.35, -lo * 0.35], [bw * 0.62, -lo * 0.95], [bw * 0.86, -lo * 1.05], [bw + bu * 0.3, -lo * 0.6], [bw + bu, 0], [bw + bu * 0.3, hi * 0.7], [bw * 0.86, hi * 1.02], [bw * 0.5, hi * 0.62], [R * 0.8, 3.5]].map(([x, y]) => [x * k, y * k]);
-  add(wedge(outl, 3.2 * k, x => lerp(1, 0.14, smooth((x / k - bw * 0.3) / (bw * 0.72))), { bevel: 0.3 * k }), bm, inner, 0, hT * k, 0);
+  add(fitMaster(wedge(outl, 3.2 * k, x => lerp(1, 0.14, smooth((x / k - bw * 0.3) / (bw * 0.72))), { bevel: 0.3 * k }), 'forged', { planar: true }), bm, inner, 0, hT * k, 0);
   const edgePts = curve([V(bw * 0.86 * k, (hT - lo * 1.05) * k, 0), V((bw + bu * 0.35) * k, (hT - lo * 0.6) * k, 0), V((bw + bu) * k, hT * k, 0), V((bw + bu * 0.35) * k, (hT + hi * 0.7) * k, 0), V(bw * 0.86 * k, (hT + hi * 1.02) * k, 0)], 18);
   add(tube(edgePts, [0.5 * k, 0.12 * k], { n: 6, up: V(0, 0, 1) }), mat('silver'), inner);
   if (p.edge) emit(fx, add(tube(edgePts, 0.3 * k, { n: 5 }), mat(p.edge), inner), p.edge, 0.9);
@@ -191,9 +191,9 @@ function hammerHead(inner, k, fx, p, R, hT, tip) {
   const ch = hh * 0.22, rings = [];
   const xs = p.peen ? [-hw * 0.95, -hw * 0.6, 0, hw * 0.75, hw * 0.92, hw] : [-hw, -hw * 0.92, -hw * 0.75, 0, hw * 0.75, hw * 0.92, hw];
   for (const x of xs) { const swell = Math.abs(x) > hw * 0.8 ? 1.06 : 1, pe = p.peen && x < 0 ? lerp(1, 0.35, -x / hw) : 1; rings.push(chamfer(V(x * k, hT * k, 0), V(0, 1, 0), V(0, 0, 1), hh * 0.5 * k * swell, hh * 0.45 * k * swell * pe, ch * k * pe)); }
-  add(loft(rings, { capA: true, capB: true, flat: true }), hm, inner);
+  add(fitMaster(loft(rings, { capA: true, capB: true, flat: true }), 'forged', { planar: true }), hm, inner);
   const faceKey = has(p.trim) ? p.trim : hk;
-  for (const s of p.peen ? [1] : [-1, 1]) add(loft([chamfer(V(s * hw * k, hT * k, 0), V(0, 1, 0), V(0, 0, 1), hh * 0.53 * k, hh * 0.48 * k, ch * k), chamfer(V(s * (hw + 1.2) * k, hT * k, 0), V(0, 1, 0), V(0, 0, 1), hh * 0.46 * k, hh * 0.41 * k, ch * 0.9 * k)], { capA: true, capB: true, flat: true }), mat(faceKey), inner);
+  for (const s of p.peen ? [1] : [-1, 1]) add(fitMaster(loft([chamfer(V(s * hw * k, hT * k, 0), V(0, 1, 0), V(0, 0, 1), hh * 0.53 * k, hh * 0.48 * k, ch * k), chamfer(V(s * (hw + 1.2) * k, hT * k, 0), V(0, 1, 0), V(0, 0, 1), hh * 0.46 * k, hh * 0.41 * k, ch * 0.9 * k)], { capA: true, capB: true, flat: true }), 'forged', { planar: true }), mat(faceKey), inner);
   // straps or trim bands round the head, rivets at their corners
   const bandsKey = has(p.straps) ? p.straps : has(p.trim) ? p.trim : null;
   if (bandsKey) for (const x of [-hw * 0.42, hw * 0.42]) { add(loft([chamfer(V((x - 0.8) * k, hT * k, 0), V(0, 1, 0), V(0, 0, 1), hh * 0.52 * k, hh * 0.47 * k, ch * k), chamfer(V((x + 0.8) * k, hT * k, 0), V(0, 1, 0), V(0, 0, 1), hh * 0.52 * k, hh * 0.47 * k, ch * k)], { capA: true, capB: true, flat: true }), mat(bandsKey), inner); for (const [y, z] of [[1, 1], [1, -1], [-1, 1], [-1, -1]]) add(sph(0.55 * k, 6, 4), mat(bandsKey), inner, x * k, (hT + y * hh * 0.36) * k, z * hh * 0.49 * k); }
@@ -223,8 +223,8 @@ function maceHead(inner, k, fx, p, R, hT, tip) {
     return;
   }
   // a knob with ridges, or flanges with chamfered edges; a spike on top
-  add(lathe([[0, (hT + hw * 0.85) * k], [hw * 0.45 * k, (hT + hw * 0.75) * k], [hw * 0.72 * k, hT * k], [hw * 0.45 * k, (hT - hw * 0.75) * k], [R * 1.3 * k, (hT - hw) * k]], { n: 20 }), hm, inner);
-  if (p.style === 'flanged') for (let i = 0; i < 7; i++) { const f = add(wedge([[0, -hw * 0.95 * k], [hw * 0.75 * k, -hw * 0.6 * k], [hw * 1.08 * k, -hw * 0.1 * k], [hw * 1.08 * k, hw * 0.25 * k], [hw * 0.6 * k, hw * 0.8 * k], [0, hw * 0.95 * k]], 1.1 * k, x => lerp(1, 0.3, x / (hw * k)), { bevel: 0.2 * k }), hm, inner, 0, hT * k, 0); f.rotation.y = i / 7 * TAU; }
+  add(fitMaster(lathe([[0, (hT + hw * 0.85) * k], [hw * 0.45 * k, (hT + hw * 0.75) * k], [hw * 0.72 * k, hT * k], [hw * 0.45 * k, (hT - hw * 0.75) * k], [R * 1.3 * k, (hT - hw) * k]], { n: 20 }), 'forged'), hm, inner);
+  if (p.style === 'flanged') for (let i = 0; i < 7; i++) { const f = add(fitMaster(wedge([[0, -hw * 0.95 * k], [hw * 0.75 * k, -hw * 0.6 * k], [hw * 1.08 * k, -hw * 0.1 * k], [hw * 1.08 * k, hw * 0.25 * k], [hw * 0.6 * k, hw * 0.8 * k], [0, hw * 0.95 * k]], 1.1 * k, x => lerp(1, 0.3, x / (hw * k)), { bevel: 0.2 * k }), 'forged', { planar: true }), hm, inner, 0, hT * k, 0); f.rotation.y = i / 7 * TAU; }
   else for (let i = 0; i < 12; i++) { const a = i / 12 * TAU, b = i % 2 ? 0.4 : -0.4; const dir = V(Math.cos(a) * Math.cos(b), Math.sin(b), Math.sin(a) * Math.cos(b)); const st = add(cone(1.1 * k, 3.4 * k, 6), hm, inner, dir.x * hw * 0.66 * k, hT * k + dir.y * hw * 0.66 * k, dir.z * hw * 0.66 * k); st.quaternion.setFromUnitVectors(V(0, 1, 0), dir); }
   ring(V(0, (hT - hw * 0.8) * k, 0), V(1, 0, 0), V(0, 0, 1), hw * 0.42 * k, hw * 0.42 * k, 0.6 * k, has(p.trim) ? p.trim : hk, inner, 18);
   ring(V(0, (hT + hw * 0.62) * k, 0), V(1, 0, 0), V(0, 0, 1), hw * 0.5 * k, hw * 0.5 * k, 0.5 * k, has(p.trim) ? p.trim : hk, inner, 18);
@@ -237,7 +237,7 @@ function spearHead(inner, k, fx, p, R, hT, tip) {
   const hl = (p.headL || 17) * 1.1, hw = (p.headW || 5), hm = mat(has(p.head) ? p.head : 'steel');
   // a leaf blade that thins to its edges, a raised midrib, a lathed socket
   const leaf = []; for (let i = 0; i <= 16; i++) { const t = i / 16, w = Math.sin(Math.pow(t, 0.7) * Math.PI) * hw * (1 - t * 0.35); leaf.push([w * k, t * hl * k]); } for (let i = 15; i > 0; i--) leaf.push([-leaf[i][0], leaf[i][1]]);
-  add(wedge(leaf, 1.6 * k, x => lerp(1, 0.12, Math.abs(x) / (hw * k)), { bevel: 0.15 * k }), hm, inner, 0, hT * k, 0);
+  add(fitMaster(wedge(leaf, 1.6 * k, x => lerp(1, 0.12, Math.abs(x) / (hw * k)), { bevel: 0.15 * k }), 'forged', { planar: true }), hm, inner, 0, hT * k, 0);
   add(tube([V(0, hT * k, 0), V(0, (hT + hl * 0.92) * k, 0)], t => [0.55 * k * (1 - t * 0.8), 0.95 * k * (1 - t * 0.8)], { n: 6, up: V(1, 0, 0) }), hm, inner);
   add(lathe([[R * 1.1 * k, (hT - 9) * k], [R * 1.55 * k, (hT - 7) * k], [R * 1.25 * k, (hT - 3) * k], [R * 1.3 * k, (hT - 1.5) * k], [0.6 * k, (hT + 1) * k]], { n: 14 }), mat(p.socket || p.head || 'iron'), inner);
   ring(V(0, (hT - 7) * k, 0), V(1, 0, 0), V(0, 0, 1), R * 1.6 * k, R * 1.6 * k, 0.35 * k, p.socket || 'iron', inner, 16);
@@ -310,7 +310,7 @@ function bow({ inner, k, fx, W, p }, tip, g) {
   const limbKey = has(p.limb) ? p.limb : 'wood';
   // recurved limbs: thick at the grip, thin at the tips, which curl forward
   const pts = []; for (let i = 0; i <= 28; i++) { const t = lerp(-1, 1, i / 28), y = t * len * 0.5 * k, z = (1 - t * t) * bu * k - Math.pow(Math.abs(t), 6) * bu * 1.1 * k; pts.push(V(0, y, z)); }
-  const limb = add(tube(pts, t => { const e = Math.abs(t * 2 - 1); return [lr * k * (1.35 - e * 0.8), lr * k * (0.9 - e * 0.52)]; }, { n: 10, up: V(1, 0, 0) }), mat(limbKey), inner);
+  const limb = add(fitMaster(tube(pts, t => { const e = Math.abs(t * 2 - 1); return [lr * k * (1.35 - e * 0.8), lr * k * (0.9 - e * 0.52)]; }, { n: 10, up: V(1, 0, 0) }), 'haft'), mat(limbKey), inner);
   if (KIND(limbKey) === 'glass' || limbKey === 'glass') emit(fx, limb, p.spark || 'storm', 0.5);
   const e0 = pts[0], e1 = pts[28];
   const sKey = has(p.stringMat) ? p.stringMat : null;
@@ -375,10 +375,10 @@ export function buildOffhand(O, art, fx, u) {
     const front = plate(outline, (x, y) => 2.5 * k + bulge(x, y));
     const faceKey = O.face || p.face || 'wood';
     const faceMat = p.style === 'scale' ? mat(has(faceKey) ? faceKey : 'bronze', { as: 'scale', rep: 2 }) : heraldry(faceKey, O.paint, O.paint2, p.style);
-    add(front, faceMat, sh);
-    add(plate(outline, (x, y) => -0.5 * k + bulge(x, y)), mat('leatherDark', { side: true }), sh);
+    add(fitMaster(front, 'shield'), withMaster(faceMat), sh);
+    add(fitMaster(plate(outline, (x, y) => -0.5 * k + bulge(x, y)), 'shield'), mat('leatherDark', { side: true }), sh);
     const rim = front.userData.rim.map(([x, y]) => V(x, y, bulge(x, y) + 1.2 * k));
-    add(tube(rim, (p.style === 'wicker' ? 2 : 1.3) * k, { closed: true, n: 8 }), mat(has(O.rim) ? O.rim : has(p.rim) ? p.rim : 'iron'), sh);
+    add(fitMaster(tube(rim, (p.style === 'wicker' ? 2 : 1.3) * k, { closed: true, n: 8 }), 'rim'), mat(has(O.rim) ? O.rim : has(p.rim) ? p.rim : 'iron'), sh);
     const rivetKey = has(p.rivets) ? p.rivets : has(O.rim) ? O.rim : 'iron';
     for (let i = 0; i < rim.length; i += Math.max(2, Math.round(rim.length / 18))) add(sph(0.7 * k, 6, 4), mat(rivetKey), sh, rim[i].x * 0.9, rim[i].y * 0.9, rim[i].z + 1.6 * k);
     // the relic shields' own marks

@@ -35,6 +35,8 @@ blender -b -P kit/blender/preview.py -- foes/<key> 3 front,side,back,three,head
 node build.mjs --foe=<key>               # dist/<key>.html: three ways (code-built, standee, full detail) + crowd test
 node build.mjs --foe=<key> --page=sculpt # dist/<key>-sculpt.html: the sculpt beside its light model (laptop)
 node kit/tools/check.mjs dist/<key>.html build/shots     # headless: no errors, screenshots, frame rate
+node kit/tools/stretch.mjs foes/<key>    # THE STRETCH CHECK: every move, every frame; run before handing a foe in
+python3.12 kit/tools/rebind.py foes/<key> # weight it again after changing rig.py (no bake), then the stretch check
 ```
 
 Made files: `foes/<key>/build/` (not in git: the levels, renders, the bake) and `foes/<key>/assets/` (in git: the
@@ -92,8 +94,48 @@ about 25 MB).
 - `serpent.py` (seg0..segN rooted at the head end, head, jaw), `frog.py` (hips, chest, head, jaw, arms, long back
   legs), `winged.py` (body, neck, head, jaw?, tail?, r_/l_ wing1-3, legs); moves in `kit/js/moves/<plan>.js` (first
   passes; the lanes improve them).
-- A rig file gives `BONES`, and may give `weigh(D, P, idx)` (adjust distances) and `rigid(kind, P, idx)` (a bone name
-  for a rigid piece, e.g. tusks to the jaw, a weapon to a hand).
+- A rig file gives `BONES`, and may give `weigh(D, P, idx)` (adjust distances), `rigid(kind, P, idx)` (a bone name
+  for a rigid piece, e.g. tusks to the jaw, a weapon to a hand), `part(P, kind, idx[, piece])` (a bone index per point
+  where you know better, -1 elsewhere; with a fourth argument it also gets which separate piece each point is in, so a
+  leaf or a strap can be judged whole; a piece that part() mostly names is all that part), `TRUNK` (the bones down the
+  middle), `BANDS = {bone: w or (w, R)}` (a joint's blend: half-width and reach), `SMOOTH` (smoothing passes, default
+  8) and `SPLIT = [('head', 'jaw')]` (cut two parts apart with no blend: a mouth that opens; the page then draws the
+  model's inside too, so the open mouth shows the inside of the head).
+- In `weigh`, gate a bone off with a large number (`+ 1000`): a bone a point can't see already costs 100.
+
+### No stretching (Chris, November 21)
+
+Chris saw the Rotwarden's belt and straps drag out into a web when he spread his arms. The rules are in
+`docs/project/jobs/foes.md` ("No stretching"); the kit keeps them like this:
+
+- **Weights by part** (`kit/rigs/bind.py`, used by the bake and by `rebind.py`). Each point of the light model belongs
+  to one part (one bone) and takes weight only from that bone and, in a narrow band round one of its own joints, the
+  bone across that joint. A point's part is the nearest bone after the template's gating that it can *see* (the line
+  from the point to the bone stays inside the body, as Blender's bone heat does), cleaned on the mesh: a point behind
+  its bone's joint, or far from its bone, goes to the parent. Where two limbs merely touch in the sculpt (two boots, a
+  leaf-arm on a leg) the light mesh is cut between them. Then the weights are smoothed along the skin a few passes, so
+  each change of part is spread over a few centimetres and no single edge takes it.
+- **Bones turn; they never grow or slide.** The moves in `kit/js/moves/` rotate bones only (breathing is a small turn
+  of the chest or body; a squash is a tip). The root and the whole body may move.
+- **The stretch check**: `node kit/tools/stretch.mjs foes/<key>` poses every move at 48 frames, skins the light model as
+  three.js does, and applies the one rule for every lane (hub, November 21): a **big** edge (longer than 1% of the
+  foe's height at rest) must stay under 1.3 times its rest length; a small **crease** edge may reach 3 times; no bone
+  scaled or slid. Big and crease edges are reported apart (foe.json `"stretch": {"crease": 3, "big": 0.01}` only if
+  the hub agrees). It names the worst move, frame, place (sculpt coordinates) and the two parts the worst edge joins ("chest >
+  r_upper" means weight bleeding between those parts), writes `foes/<key>/stretch.json`, and draws the worst frame of
+  each move in `foes/<key>/build/stretch/<move>.png` (front and side; stretched triangles yellow to red, past the
+  limit magenta): look at them by eye. A soft part may have its own limit in foe.json, `"stretch": {"limit": 1.3,
+  "parts": {"jaw": 1.5}}`; say why in your slip. It finds the moves itself (the kit's plan, the walkers' `foes.js`,
+  the beasts' `moves-<name>.js`), or take `--moves=path.js#name`. `--focus=x,y,z,r` draws the pictures close up round a
+  place (sculpt coordinates, metres); `--parts` also draws `parts.png`, each point coloured by the bone that moves it
+  most (look at it first: a leg that claims the flank, a face that follows the jaw); `--frames=120` for a final check.
+  `BIND_AT=x,y,z python3.12 kit/tools/rebind.py foes/<key>` prints what the binding decided at one place (its part, the
+  bones it sees, the nearest after gating).
+- **What made the three pass** (November 21): a part for each separate piece (the briarling's coat is all ball and its
+  leg tubes go with the legs; the glowcap's leaf-arms are whole leaves on the arm bones and its cap all head); legs that
+  claim only what is near their own line and below the belly (Briarmaw); a mouth cut along the lips; and moves that turn
+  the whole body (the root) for drama instead of bending a neck or a leg that is buried in the body. Where a limb is
+  inside the body in the sculpt, it can only move a little; move it from the joint that shows.
 
 ### The page side (`kit/js/`)
 

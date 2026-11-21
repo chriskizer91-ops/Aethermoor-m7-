@@ -50,7 +50,7 @@ LEGS = {
 for k in LEGS: LEGS[k] = [p(*j) for j in LEGS[k]]
 EYES = [p(s * 30, 1247, 226) for s in (1, -1)]
 NOSE = p(0, 1328, 266)
-TAIL = [p(0, 498, 372), p(0, 470, 430), p(0, 455, 495), p(0, 456, 555), p(0, 466, 612)]
+TAIL = [p(0, 492, 370), p(0, 458, 428), p(0, 442, 495), p(0, 444, 555), p(0, 456, 612)]   # hung clear of the haunches
 
 def head_sdf(P):
     h = ell(P, p(0, 1208, 220), r(46, 54, 48))                                      # skull
@@ -70,7 +70,6 @@ def head_sdf(P):
         e = flat_cap(P, a, b, 38 * S, 2 * S, thin, 0.36)
         cup = flat_cap(P, a + thin.astype(np.float32) * 0.011 + np.array([0, 0, 0.014], np.float32), b + thin.astype(np.float32) * 0.006 - np.array([0, 0, 0.02], np.float32), 24 * S, 1 * S, thin, 0.18)
         h = smin(h, smax(e, -cup, 0.004), 0.012)
-    mouth = cap(P, p(0, 1250, 276), p(0, 1318, 288), 1.3 * S, 1.3 * S, scale=(4.2, 1, 1))
     return h
 
 def body_sdf(P):
@@ -244,7 +243,7 @@ VINE = np.array([0.30, 0.24, 0.12]); DKV = np.array([0.20, 0.15, 0.08])
 LEAF = np.array([0.19, 0.25, 0.10]); LEAF2 = np.array([0.27, 0.32, 0.13]); LEAFD = np.array([0.12, 0.17, 0.07])
 GOLD = np.array([0.80, 0.55, 0.16]); PALE = np.array([0.95, 0.76, 0.36]); THB = np.array([0.24, 0.14, 0.06])
 OCHRE = np.array([0.50, 0.31, 0.09]); THTIP = np.array([0.74, 0.54, 0.24])
-spine_px = np.array([[1128, 238], [1100, 258], [1060, 285], [980, 300], [880, 305], [780, 308], [680, 318], [590, 335],
+spine_px = np.array([[1085, 285], [1070, 290], [1060, 285], [980, 300], [880, 305], [780, 308], [680, 318], [590, 335],
                      [530, 360], [490, 385], [470, 420]], float)
 L_ = np.r_[0, np.cumsum(np.linalg.norm(np.diff(spine_px, axis=0), axis=1))]
 ns = 160

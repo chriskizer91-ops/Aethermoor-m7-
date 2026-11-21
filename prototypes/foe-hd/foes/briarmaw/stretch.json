@@ -1,0 +1,230 @@
+{
+ "key": "briarmaw",
+ "limit": 1.3,
+ "parts": {},
+ "frames": 48,
+ "triangles": 50090,
+ "moves": {
+  "idle": {
+   "ok": true,
+   "big": {
+    "worst": 1.125,
+    "limit": 1.3,
+    "part": "hips > tail",
+    "where": [
+     -0.486,
+     -0.964,
+     0.925
+    ],
+    "restEdge": 0.0181,
+    "u": 0,
+    "trianglesOver": 0
+   },
+   "crease": {
+    "worst": 1.19,
+    "limit": 3,
+    "part": "hips",
+    "where": [
+     -0.293,
+     -1.026,
+     0.502
+    ],
+    "restEdge": 0.0168,
+    "u": 0,
+    "trianglesOver": 0
+   },
+   "framesOver": "0/48",
+   "bones": []
+  },
+  "walk": {
+   "ok": true,
+   "big": {
+    "worst": 1.29,
+    "limit": 1.3,
+    "part": "bl_lower > bl_paw",
+    "where": [
+     0.483,
+     -0.463,
+     0.178
+    ],
+    "restEdge": 0.0279,
+    "u": 0,
+    "trianglesOver": 0
+   },
+   "crease": {
+    "worst": 1.254,
+    "limit": 3,
+    "part": "fl_lower > fl_paw",
+    "where": [
+     0.455,
+     0.363,
+     -0.009
+    ],
+    "restEdge": 0.0138,
+    "u": 0,
+    "trianglesOver": 0
+   },
+   "framesOver": "0/48",
+   "bones": []
+  },
+  "roar": {
+   "ok": true,
+   "big": {
+    "worst": 1.123,
+    "limit": 1.3,
+    "part": "hips > tail",
+    "where": [
+     -0.486,
+     -0.964,
+     0.925
+    ],
+    "restEdge": 0.0181,
+    "u": 0,
+    "trianglesOver": 0
+   },
+   "crease": {
+    "worst": 1.172,
+    "limit": 3,
+    "part": "hips",
+    "where": [
+     -0.293,
+     -1.026,
+     0.502
+    ],
+    "restEdge": 0.0168,
+    "u": 0,
+    "trianglesOver": 0
+   },
+   "framesOver": "0/48",
+   "bones": []
+  },
+  "swipe": {
+   "ok": true,
+   "big": {
+    "worst": 1.243,
+    "limit": 1.3,
+    "part": "fr_lower > fr_paw",
+    "where": [
+     -0.647,
+     0.399,
+     -0.014
+    ],
+    "restEdge": 0.0215,
+    "u": 0.319,
+    "trianglesOver": 0
+   },
+   "crease": {
+    "worst": 1.196,
+    "limit": 3,
+    "part": "fr_lower",
+    "where": [
+     -0.539,
+     0.37,
+     -0.01
+    ],
+    "restEdge": 0.0132,
+    "u": 0.319,
+    "trianglesOver": 0
+   },
+   "framesOver": "0/48",
+   "bones": []
+  },
+  "bite": {
+   "ok": true,
+   "big": {
+    "worst": 1.295,
+    "limit": 1.3,
+    "part": "fl_upper > spine",
+    "where": [
+     0.376,
+     0.125,
+     0.383
+    ],
+    "restEdge": 0.0248,
+    "u": 0.404,
+    "trianglesOver": 0
+   },
+   "crease": {
+    "worst": 1.226,
+    "limit": 3,
+    "part": "fr_lower",
+    "where": [
+     -0.419,
+     0.142,
+     0.34
+    ],
+    "restEdge": 0.012,
+    "u": 0.404,
+    "trianglesOver": 0
+   },
+   "framesOver": "0/48",
+   "bones": []
+  },
+  "hurt": {
+   "ok": true,
+   "big": {
+    "worst": 1.123,
+    "limit": 1.3,
+    "part": "hips > tail",
+    "where": [
+     -0.486,
+     -0.964,
+     0.925
+    ],
+    "restEdge": 0.0181,
+    "u": 0,
+    "trianglesOver": 0
+   },
+   "crease": {
+    "worst": 1.172,
+    "limit": 3,
+    "part": "hips",
+    "where": [
+     -0.293,
+     -1.026,
+     0.502
+    ],
+    "restEdge": 0.0168,
+    "u": 0,
+    "trianglesOver": 0
+   },
+   "framesOver": "0/48",
+   "bones": []
+  },
+  "ko": {
+   "ok": true,
+   "big": {
+    "worst": 1.229,
+    "limit": 1.3,
+    "part": "chest",
+    "where": [
+     0.317,
+     0.674,
+     0.545
+    ],
+    "restEdge": 0.0248,
+    "u": 0.511,
+    "trianglesOver": 0
+   },
+   "crease": {
+    "worst": 1.201,
+    "limit": 3,
+    "part": "hips",
+    "where": [
+     -0.312,
+     -1,
+     0.481
+    ],
+    "restEdge": 0.0116,
+    "u": 1,
+    "trianglesOver": 0
+   },
+   "framesOver": "0/48",
+   "bones": []
+  }
+ },
+ "ok": true,
+ "worstMove": "bite",
+ "bigEdge": 0.017,
+ "crease": 3
+}
