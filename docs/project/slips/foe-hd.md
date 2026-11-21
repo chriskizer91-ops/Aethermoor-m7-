@@ -97,6 +97,11 @@ shown side by side with the code-built model and a cut-out of Chris's sheet.
 
 ## Next
 
+0. Later kit pass (after the boglurcher is under way): helper joints in the rig templates for every lane, starting from
+   session 7's proposal (docs/project/slips/foes-beasts.md: a shoulder blade per foreleg, a haunch per hind leg, two
+   neck bones, a tail-root helper, driven by the loader from a HELPERS table so moves don't change). Also session 7's
+   report that bind.py lets some neck weight onto the thornhound's ear root despite its weigh(): weigh gates need
+   +1000 (an unseen bone costs 100), and a gate should also stop the bands and smoothing.
 1. My lane, each passing the stretch check before it's handed in: (briarling, glowcap done) boglurcher, the willows, the sparks, rockling, Mother Anvil, the wraiths.
 2. Briarmaw's moves smoothed (weights round the shoulders and hips, a fuller walk), a hit flash.
 2. The face closer still to the sheet; the coat's brown zones placed as the sheet paints them.

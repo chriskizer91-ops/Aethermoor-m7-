@@ -31,6 +31,7 @@ const FOCUS = opt('focus') ? opt('focus').split(',').map(Number) : null;
 const PARTS = args.includes('--parts');
 const cfg = fs.existsSync(path.join(dir, 'foe.json')) ? JSON.parse(fs.readFileSync(path.join(dir, 'foe.json'))) : {};
 const LIMIT = cfg.stretch?.limit ?? 1.3, PART_LIMIT = cfg.stretch?.parts ?? {};
+const CREASE = cfg.stretch?.crease ?? 3.0, BIG_FRAC = cfg.stretch?.big ?? 0.01;
 
 // --- the light model and its moves
 await ready();
@@ -103,28 +104,32 @@ function skin() {
 const len = (Q, a, b) => Math.hypot(Q[a * 3] - Q[b * 3], Q[a * 3 + 1] - Q[b * 3 + 1], Q[a * 3 + 2] - Q[b * 3 + 2]);
 const E0 = new Float32Array(T * 3);
 const tiny = 1e-4 * F.height;                             // edges shorter than this are left out (they're noise)
+const BIG = BIG_FRAC * F.height;                          // a big edge, at rest; shorter ones are crease edges
 for (let t = 0; t < T; t++) for (let e = 0; e < 3; e++) E0[t * 3 + e] = len(P0, IDX[t * 3 + e], IDX[t * 3 + (e + 1) % 3]);
 const limitOf = (a, b) => Math.max(PART_LIMIT[names[main[a]]] ?? LIMIT, PART_LIMIT[names[main[b]]] ?? LIMIT);
-const ratio = new Float32Array(T), over = new Float32Array(T);  // each triangle's worst edge growth, and over its limit
+const over = new Float32Array(T);       // each triangle's worst edge growth over its limit (1 = at the limit)
 function measure() {
-  let worst = { r: 0, over: 0 }, bad = 0;
+  // the worst big edge and the worst crease edge, each against its own limit; each triangle's worst (ratio / limit)
+  const W = { big: { r: 0, over: 0, bad: 0 }, crease: { r: 0, over: 0, bad: 0 } };
   for (let t = 0; t < T; t++) {
-    let rt = 0, ot = 0, we = 0;
+    let ot = 0;
+    const seen = { big: false, crease: false };
     for (let e = 0; e < 3; e++) {
       const l0 = E0[t * 3 + e]; if (l0 < tiny) continue;
-      const a = IDX[t * 3 + e], b = IDX[t * 3 + (e + 1) % 3], r = len(Pp, a, b) / l0, o = r / limitOf(a, b);
-      if (r > rt) rt = r; if (o > ot) { ot = o; we = e; }
+      const a = IDX[t * 3 + e], b = IDX[t * 3 + (e + 1) % 3], r = len(Pp, a, b) / l0;
+      const cls = l0 >= BIG ? 'big' : 'crease', lim = cls === 'big' ? limitOf(a, b) : CREASE, o = r / lim;
+      if (o > ot) ot = o;
+      if (o > 1 && !seen[cls]) { W[cls].bad++; seen[cls] = true; }
+      if (o > W[cls].over) {
+        const pa = names[main[a]], pb = names[main[b]];
+        // where (sculpt coordinates: x his right, y forward, z up), to find it in rig.py
+        const at = [-(P0[a * 3] + P0[b * 3]) / 2, (P0[a * 3 + 2] + P0[b * 3 + 2]) / 2, (P0[a * 3 + 1] + P0[b * 3 + 1]) / 2].map((x) => +x.toFixed(3));
+        W[cls] = { ...W[cls], r, over: o, part: pa === pb ? pa : [pa, pb].sort().join(' > '), limit: lim, where: at, rest: +l0.toFixed(4) };
+      }
     }
-    ratio[t] = rt; over[t] = ot;
-    if (ot > 1) bad++;
-    if (ot > worst.over) {
-      const a = IDX[t * 3 + we], b = IDX[t * 3 + (we + 1) % 3], pa = names[main[a]], pb = names[main[b]];
-      // where (sculpt coordinates: x his right, y forward, z up), to find it in rig.py
-      const at = [-(P0[a * 3] + P0[b * 3]) / 2, (P0[a * 3 + 2] + P0[b * 3 + 2]) / 2, (P0[a * 3 + 1] + P0[b * 3 + 1]) / 2].map((x) => +x.toFixed(3));
-      worst = { r: rt, over: ot, tri: t, part: pa === pb ? pa : [pa, pb].sort().join(' > '), limit: limitOf(a, b), where: at, rest: +E0[t * 3 + we].toFixed(4) };
-    }
+    over[t] = ot;
   }
-  return { ...worst, bad };
+  return { ...W, over: Math.max(W.big.over, W.crease.over) };
 }
 // the bone rules: no bone grows, none slides along its length (roots may move)
 function boneRules() {
@@ -143,52 +148,54 @@ const outDir = path.join(dir, 'build/stretch');
 if (PICS) fs.mkdirSync(outDir, { recursive: true });
 for (const mv of list) {
   const dur = (moves.DUR || {})[mv] || 1, loop = mv === 'idle' || mv === 'walk';
-  let W = { over: 0 }, rules = new Set(), badFrames = 0;
+  const W = { big: { over: 0 }, crease: { over: 0 } }; let worstOver = 0, worstP = null, worstO = null, rules = new Set(), badFrames = 0;
   for (let f = 0; f < FRAMES; f++) {
     const u = loop ? 0 : f / (FRAMES - 1), t = loop ? (f / FRAMES) * 4 : 1.3 + u * dur, step = mv === 'walk' ? (f / FRAMES) * Math.PI * 4 : 0;
     reset(); moves.pose(F, mv, u, t, step);
     for (const r of boneRules()) rules.add(r);
     skin(); const m = measure();
     if (m.over > 1) badFrames++;
-    if (m.over > W.over) W = { ...m, u: +u.toFixed(3), t: +t.toFixed(2), step: +step.toFixed(2), P: Pp.slice(), ratio: ratio.slice() };
+    for (const c of ['big', 'crease']) if (m[c].over > W[c].over || W[c].r === undefined) W[c] = { ...m[c], u: +u.toFixed(3) };
+    if (m.over > worstOver || !worstP) { worstOver = m.over; worstP = Pp.slice(); worstO = over.slice(); }
   }
-  const ok = W.over <= 1 && rules.size === 0;
+  const ok = W.big.over <= 1 && W.crease.over <= 1 && rules.size === 0;
   report.ok &&= ok;
-  report.moves[mv] = { ok, worst: +W.r.toFixed(3), part: W.part, limit: W.limit, at: { u: W.u, t: W.t, step: W.step },
-    where: W.where, restEdge: W.rest, trianglesOver: W.bad, framesOver: `${badFrames}/${FRAMES}`, bones: [...rules] };
-  if (PICS) writePng(path.join(outDir, `${mv}.png`), picture(W.P, W.ratio, W.limit ?? LIMIT, `${key} ${mv}`));
+  const sum = (w) => ({ worst: +(w.r || 0).toFixed(3), limit: w.limit, part: w.part, where: w.where, restEdge: w.rest, u: w.u, trianglesOver: w.bad });
+  report.moves[mv] = { ok, big: sum(W.big), crease: sum(W.crease), framesOver: `${badFrames}/${FRAMES}`, bones: [...rules] };
+  if (PICS) writePng(path.join(outDir, `${mv}.png`), picture(worstP, worstO, `${key} ${mv}`));
 }
 if (PARTS) {
   reset(); skin();
   const pal = names.map((_, i) => [80 + (i * 97) % 170, 80 + (i * 57 + 40) % 170, 80 + (i * 141 + 90) % 170]);
   const tri = new Float32Array(T).fill(1), col = new Array(T);
   for (let t = 0; t < T; t++) col[t] = pal[main[IDX[t * 3]]];
-  writePng(path.join(outDir, 'parts.png'), picture(Pp, tri, LIMIT, 'parts', col));
+  writePng(path.join(outDir, 'parts.png'), picture(Pp, tri, 'parts', col));
   console.log('  parts: ' + names.map((nm, i) => `${nm} rgb(${pal[i].join(',')})`).join(', '));
 }
 let worstMove = null;
-for (const [k, v] of Object.entries(report.moves)) if (!worstMove || v.worst > report.moves[worstMove].worst) worstMove = k;
-report.worstMove = worstMove;
+const score = (v) => Math.max(v.big.worst / (v.big.limit || LIMIT), v.crease.worst / CREASE);
+for (const [k, v] of Object.entries(report.moves)) if (!worstMove || score(v) > score(report.moves[worstMove])) worstMove = k;
+report.worstMove = worstMove; report.bigEdge = +BIG.toFixed(4); report.crease = CREASE;
 fs.writeFileSync(path.join(dir, 'stretch.json'), JSON.stringify(report, null, 1) + '\n');
 
-console.log(`${key}: ${report.ok ? 'PASS' : 'FAIL'} (edges may grow to ${LIMIT}x${Object.keys(PART_LIMIT).length ? ', ' + JSON.stringify(PART_LIMIT) : ''})`);
+console.log(`${key}: ${report.ok ? 'PASS' : 'FAIL'} (big edges, over ${(BIG * 1000).toFixed(0)} mm, under ${LIMIT}x${Object.keys(PART_LIMIT).length ? ' ' + JSON.stringify(PART_LIMIT) : ''}; crease edges under ${CREASE}x)`);
+const line = (w) => `${w.worst.toFixed(2)}x${w.part ? ` in ${w.part} at ${JSON.stringify(w.where)} u=${w.u}` : ''}${w.trianglesOver ? ` (${w.trianglesOver} over)` : ''}`;
 for (const [k, v] of Object.entries(report.moves))
-  console.log(`  ${v.ok ? 'ok  ' : 'FAIL'} ${k.padEnd(16)} worst ${v.worst.toFixed(2)}x at u=${v.at.u} in ${v.part ?? '-'} at ${JSON.stringify(v.where)}` +
-    `  (${v.trianglesOver} triangles over, ${v.framesOver} frames)${v.bones.length ? '  bones: ' + v.bones.join(', ') : ''}`);
+  console.log(`  ${v.ok ? 'ok  ' : 'FAIL'} ${k.padEnd(16)} big ${line(v.big)} · crease ${line(v.crease)}${v.bones.length ? '  bones: ' + v.bones.join(', ') : ''}`);
 console.log(`  worst move: ${worstMove}${PICS ? `; pictures in ${path.relative(process.cwd(), outDir)}/` : ''}`);
 process.exitCode = report.ok ? 0 : 1;
 
 // --- the worst frame, front and side, drawn in software (flat shaded, stretch in colour)
-function picture(P, R, lim, label, cols = null) {
+function picture(P, R, label, cols = null) {     // R: each triangle's growth over its limit
   const S = 360, Wd = S * 2, img = new Uint8Array(Wd * S * 3).fill(28), zb = new Float32Array(Wd * S).fill(-1e9);
   let lo = [1e9, 1e9, 1e9], hi = [-1e9, -1e9, -1e9];
   for (let i = 0; i < n; i++) for (let a = 0; a < 3; a++) { lo[a] = Math.min(lo[a], P0[i * 3 + a], P[i * 3 + a]); hi[a] = Math.max(hi[a], P0[i * 3 + a], P[i * 3 + a]); }
   let span = Math.max(hi[0] - lo[0], hi[1] - lo[1], hi[2] - lo[2]) * 1.08, cy = (lo[1] + hi[1]) / 2, cx = 0, cz = 0;
   if (FOCUS) { span = FOCUS[3] * 2; cx = -FOCUS[0]; cy = FOCUS[2]; cz = FOCUS[1]; }     // sculpt -> three.js
-  const colour = (r) => {
-    if (r > lim) return [230, 40, 220];
-    if (r < 1.1) return [190, 186, 178];
-    const k = (r - 1.1) / (lim - 1.1); return [235, 220 - 180 * k, 60 - 40 * k];
+  const colour = (o) => {                       // grey well under the limit, yellow to red nearing it, magenta past it
+    if (o > 1) return [230, 40, 220];
+    if (o < 0.85) return [190, 186, 178];
+    const k = (o - 0.85) / 0.15; return [235, 220 - 180 * k, 60 - 40 * k];
   };
   // three.js frame: x left of the foe, y up, z forward (the foe faces +z). Front view looks down -z; side view down -x.
   for (const [ox, view] of [[0, 'front'], [S, 'side']]) {
