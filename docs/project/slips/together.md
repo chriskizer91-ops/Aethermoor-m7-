@@ -40,6 +40,21 @@ Last updated November 20.
   Settings; paste it here). Checked (`game3d/tools/sunscorch.mjs`, 6 of 6, no page errors): the gate opens onto the Sun
   Road, the road's toll fight won, Sandspire, a rest at its Hearthfire, saved.
 
+- **Act One, full pictures** (beside the safe one, the hub's test of pictures as files): https://claude.ai/artifact/9rGvzRh4eocZrz4RYPQLz6
+  (`node game3d/build.mjs --full --files --herotex=384 --out=game3d-act1-full`; publish with
+  `world3d/dist/game3d-act1-full.files.json` as the files map). Every place texture and painting at full size (69
+  pictures, 14 MB, beside the page), the sculpted masters whole, the 3D Atlas in, Briarmaw, the Rotwarden and the
+  sapwight in full detail; the page itself 13.2 MB (the heroes' own textures at 384 px, which `--files` doesn't move).
+  Loads with no errors when served over http (opened from disk, a browser refuses the pictures).
+- **The Ironspire** (Act Two's second region): https://claude.ai/artifact/6jSwPVzbwwZWmmD6VsQ1sU (14.9 MB; `--act=ironspire`).
+  Begins after the Wilds and the Sunscorch (four Brands, the Council sat twice, level 10) at the Keep's east postern.
+  Checked (`game3d/tools/region.mjs ironspire`, 5 of 5): the postern to the Old Bridge, on to Drystone Lea, saved.
+
+- **The Gloomfen** (Act Two's third region): https://claude.ai/artifact/N2iCRiMardtJNbntUoXYsA (15.1 MB; `--act=gloomfen`).
+  Begins after the Wilds, the Sunscorch and the Ironspire (six Brands, the Council sat three times, level 15) at the
+  top of Mossfall's fen stair. Checked (`game3d/tools/region.mjs gloomfen`, 6 of 6, no page errors): down the stair to
+  Murkway, the leech ford and the reed-cutters' chain fought and won, on to Willowmurk, a rest at its fire, saved.
+
 ## Next
 
 - Briarmaw, the spoils and the new creatures as the Fight and Models deliver them (the foes' figures come through

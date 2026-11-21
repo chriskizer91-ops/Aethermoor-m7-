@@ -23,6 +23,31 @@ session 6 made Briarmaw.
 - Checks: the page loads headless with no errors at laptop and phone sizes, no sideways scroll; 20 frames a second in
   software drawing (much slower than a phone's graphics chip), with the pack too.
 
+- **No stretching (Chris, November 21):** a stretch check of my own, `pages/beasts/stretch.mjs <foe>`, poses every
+  move at seven moments, skins the light model and compares each edge with its rest length. The thornhound was bad:
+  up to **16.8x**, 670 edges over 1.3x in one pose (the two front legs pulling the chest between them like a web, the
+  hips dragging the thigh, the head pulling the chest, the ears pulling the neck). Fixed by: where each bone may
+  reach (a leg's lower bones stay below their joint, the tail's below its own, the head's in front of the neck, the
+  neck off the shoulders), the weights smoothed over the surface 8 times, and a smaller neck bend in the howl and
+  foreleg reach in the lunge; then the ear roots tied to the head (not the neck), and the jaw opening less.
+  **Now: worst 2.6x** (was 16.8x). No webbing in any pose (side views of every move checked by eye).
+  - What's still over 1.3x, and the limit I hold it to: small edges in the creases of bending joints (knee, elbow,
+    hip, the throat in the howl, the mouth corners in the bite, the ear roots in the hit), at most 2.7x on edges
+    under 1 cm, and at most 40 edges in any pose that are both over 1.3x and longer by more than 1% of his height.
+    Plain bone-weighted skin always stretches a little on the outside of a bent joint; getting every edge under
+    1.3x would need extra helper bones at the knee, elbow and throat (next pass, and a cut mouth with overhanging
+    lips in the light model).
+
+- **The kit's stretch check and binding (November 21):** the thornhound is now weighted with session 6's
+  `kit/rigs/bind.py` (`foes/thornhound/rebind.py`, my reach masks passed in as its `weigh()`, wide joint bands, the
+  leaves rigid), his tail hung clear of the haunches, the garland started behind the neck, breathing a small turn, and
+  every move's big bends made gentler. The kit's `stretch.mjs` (48 frames a move) still fails every move: worst 2.7x
+  (lunge, the shoulder), walk 2.3x, bite 2.1x, howl 2.0x, hit 1.7x, fall 2.3x, idle 1.5x (two triangles at an ear
+  root). The stretched patches are small (knee, shoulder, throat, tail root; the pictures are in
+  `foes/thornhound/build/stretch/`), and no move shows a web by eye. To get under 1.3x the rig needs more joints where
+  big masses turn (a shoulder blade, a thigh-to-haunch helper, two neck bones); that's the next pass, before more
+  bending is taken out of his moves.
+
 ## Next
 
 0. Move onto session 6's shared kit (commit f384b7d / 8f3b6e2 on job/foe-hd) once the hub brings it into its branch; my

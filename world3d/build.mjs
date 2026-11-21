@@ -75,12 +75,29 @@ const entryCss = res.outputFiles.filter((f) => f.path.endsWith('.css')).map((f) 
 const HEROTEX = +(arg('herotex') || 0);
 if (HEROTEX) {
   const tmp = path.join(here, '.cache', 'herotex'); mkdirSync(tmp, { recursive: true });
-  const found = [...new Set(heroes.match(/data:image\/webp;base64,[A-Za-z0-9+/=]+/g) || [])];
+  // the sculpted masters' atlas and the relief tiles (Models, November 21) stay at full size: their small cells are the
+  // sculpted detail, and they are light (about 0.6 MB together)
+  const keep = new Set(['masters/pack.js', 'textures/relief.js'].flatMap((f) => { try { return readFileSync(path.join(here, '..', 'prototypes', 'hero-3d', f), 'utf8').match(/data:image\/webp;base64,[A-Za-z0-9+/=]+/g) || []; } catch (e) { return []; } }));
+  const found = [...new Set(heroes.match(/data:image\/webp;base64,[A-Za-z0-9+/=]+/g) || [])].filter((u) => !keep.has(u));
   found.forEach((u, i) => writeFileSync(path.join(tmp, i + '.webp'), Buffer.from(u.split(',')[1], 'base64')));
   execFileSync('python3', ['-I', '-c', `import sys,os\nfrom PIL import Image\nd=sys.argv[1]\nfor f in os.listdir(d):\n  if not f.endswith('.webp') or f.startswith('s'): continue\n  im=Image.open(os.path.join(d,f));im.load();w,h=im.size;k=min(1,${HEROTEX}/max(w,h))\n  if k<1: im=im.resize((round(w*k),round(h*k)),Image.LANCZOS)\n  im.save(os.path.join(d,'s'+f),quality=80,method=6)`, tmp]);
   let before = heroes.length;
   found.forEach((u, i) => { heroes = heroes.split(u).join('data:image/webp;base64,' + readFileSync(path.join(tmp, 's' + i + '.webp')).toString('base64')); });
-  console.log(`heroes' textures at ${HEROTEX} px: ${found.length} pictures, ${((before - heroes.length) / 1048576).toFixed(1)} MB lighter`);
+  console.log(`heroes' textures at ${HEROTEX} px: ${found.length} pictures (${keep.size} sculpt pictures kept whole), ${((before - heroes.length) / 1048576).toFixed(1)} MB lighter`);
+}
+// --files (hub, November 21): the pictures inside the heroes' bundle too (the heroes' textures and faces, the sculpted
+// masters, the full-detail foes' pictures) go beside the page as files f/h<n>.<ext>, so a heavy page can keep them
+// whole. Each is a picture address like any other, so the code that loads them is unchanged; tiny ones stay inline.
+if (FILES) {
+  const dir = path.join(here, '.cache', 'bundle-files', (OUT || PAGE_ID) + (TEX ? '-' + TEX : '')); mkdirSync(dir, { recursive: true });
+  const found = [...new Set(heroes.match(/data:image\/(?:webp|png|jpeg);base64,[A-Za-z0-9+/=]+/g) || [])].filter((u) => u.length > 16384);
+  const before = heroes.length;
+  found.forEach((u, i) => {
+    const ext = u.slice(11, u.indexOf(';')).replace('jpeg', 'jpg'), pub = `f/h${i}.${ext}`, src = path.join(dir, `h${i}.${ext}`);
+    writeFileSync(src, Buffer.from(u.split(',')[1], 'base64')); fileList.push([pub, src]);
+    heroes = heroes.split(u).join(pub);
+  });
+  console.log(`the heroes' bundle: ${found.length} pictures beside the page as files (${((before - heroes.length) / 1048576).toFixed(1)} MB)`);
 }
 let html = readFileSync(PAGE, 'utf8');
 if (NAME) html = html.replace(/Act One/g, () => NAME.replace(/&/g, '&amp;'));

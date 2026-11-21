@@ -181,6 +181,93 @@ https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL
   and bake a normal and occlusion map per kind, fitted to the code-built piece.
 - `SCULPT.on` (model.js) and `MACRO_ON.on` (kit.js) turn it off; the **Sculpted** button does both.
 
+**Sculpted masters per piece kind, baked: Wren's starter kit** (November 21). Gear Room, **Beside Briarmaw**, **The
+sculpt** (the full-detail sculpt itself) and **Sculpted** on or off: https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL
+- How it keeps every item switchable: each *kind* of piece has one sculpted master, made in the piece's own surface
+  coordinates (round it and along it, the way the code builds every piece of that kind). The master fits any boot, any
+  trouser leg, any kettle hat, whatever its size, colour or material. `masters/sculpt.py` makes them; `fitMaster(geo,
+  kind)` (kit.js) fits a piece to its master.
+- The eleven masters so far (Wren's starter kit): torso (drape, side seams, hemmed neck and waist), skirt (folds
+  opening to the hem, a stitched hem, gathers under the belt), sleeve and forearm (elbow wrinkles, the seam under the
+  arm, a stitched cuff), trousers (knee, seat and ankle wrinkles, seams), boot (a turned top, ankle creases, a seam up
+  the back), foot (a stitched toe cap, the flex, the welt), belt (stitched edges, the holes by the buckle), tabard
+  (drape, an embroidered border, a hem), cape (long folds, gathered at the shoulders, hems) and kettle hat (hammered
+  dents, scratches, the band and the rolled lip).
+- **The sculpt (the asset you can look at):** "The sculpt" in the Gear Room cuts Wren's real pieces into fine
+  triangles and raises them by their masters: **908,000 triangles** for the whole hero (Chris: 500k to 1M), made in
+  about 0.35 s. The masters themselves are kept as 16-bit height pictures (`masters/src/*.png`, 1024 px each).
+- **The bake (what the game uses):** each master's slopes (a normal map) and occlusion (dark in the creases), 256 px a
+  kind, in one shared 1024 px picture (`masters/atlas.webp`, **218 KB**, about 290 KB inside a page). It sits on the
+  pieces' existing materials, so there are **no new materials and no new draws**: Wren 48 pieces and 218 draws at High,
+  40 and 100 at Light, 2 and 24 at Lite, as before. Triangles in the game: unchanged by the masters (Wren High 144k).
+  Five cells are free for the next kinds (helm, hood, gloves, robe, mantle).
+- What it adds to a page: the atlas 290 KB plus the relief tiles 316 KB (the earlier step), about 0.6 MB. The sculpt
+  view's heights (`masters/heights.js`, 210 KB) are only in the Gear Room. **For the hub:** `--herotex=256` shrinks
+  every hero picture, the atlas too (its cells would drop to 64 px, so the detail softens). If the Act One page needs
+  `--herotex`, a flag that leaves `masters/atlas` at full size would keep it (or the `--files` way).
+- Stays: every item switchable, the faces and expressions, the swing, the storybook shape. Lite (2 draws) doesn't carry
+  the masters; Light and High do. The stretching check: nothing stretches (every piece rigid on one node; Lite weights
+  one node per vertex).
+- Briarmaw beside her, honestly: closer now. The cloth folds, seams, creases and dents read at a glance, but his
+  sculpt is still deeper and busier, and he has his own painted colour map. Next: masters for the remaining kinds
+  (helm, hood, coif, gloves, robe, mantle, plate, the shield's face and the weapons' grips), then the people foes and
+  townsfolk, who share them all.
+
+**More masters: helm, hood and coif, mantle, gloves, robe, plate, the shield's face, grips** (November 21). Gear Room,
+same buttons: https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL
+- Twelve more kinds, 23 in all: helm (a comb over the crown, a riveted band, breaths beside the mouth, a rolled edge),
+  hood and coif (seams over the crown and down the back, a turned hem round the face, bunched at the neck), mantle (also
+  a hood's drape and a pelt: gathered at the neck, a stitched hem), glove (knuckle wrinkles, seams, the wrist) and finger
+  (knuckle creases; bare hands too), robe sleeve (deep folds, an embroidered cuff), plate (broad dents, scratches,
+  rivets along both edges), lame (rivets, a rolled edge), vambrace (also greaves: rolled ends, rivets, the hinge line),
+  pauldron (a rolled edge, a ring of rivets), the shield's face (six boards, two battens of nails, knocks toward the rim)
+  and the grip (leather wound round it).
+- The atlas is now 4 x 6 cells of 256 px, 1024 x 1536, **366 KB** (about 490 KB in a page), still one picture in
+  `masters/pack.js`. One cell is free.
+- A piece now carries its master's place in its own attribute (`mUv`), so pieces with a painted picture of their own
+  keep it: the shields' painted faces wear the boards and nails over their paint (`withMaster(material)` in kit.js).
+- Still no new materials or draws (Wren 48 pieces, 218 / 100 / 24 draws at High / Light / Lite). Item audit 458 items,
+  0 flags. The sculpt view: 915,000 triangles. Bestiary builds (11.7 MB).
+- Next: the townsfolk's and people foes' own pieces (scarves, masks, aprons, sashes, wraps, hats, satchels, the foes'
+  looks), which already share every master above.
+
+**Every item sculpted: the masters' audit** (November 21). The Gear Room's debug build
+(`node build.mjs --debug`) logs every piece each of the 458 items adds and whether it wears a master; the coverage
+script adds up the bare area by the line of code that made it.
+- Before: 77% of the items' surface wore a master. Now: **92%**. Nine more kinds made (32 in all): hair lock (and the
+  hair's cap), the shoulder under a sleeve, haft (wood grain, splits, knots, knocks; also staves and bows' limbs),
+  braid (cloth and leather trims, cords, the cape's tie), rim (metal rims, trims, guards, ridges, the shields' rims,
+  metal hafts), strap (boot straps, pouches and their flaps, sashes), blade (the edge's bevel line, grinding along the
+  blade, nicks in the edges, hammering by the hilt), forged (axe, spear, mace and hammer heads, flanges, sockets,
+  pommels, butts: hammer dents and grinding arcs, laid on flat) and the glove's cuff and the hood's tip.
+- What is still bare, and why: the boot soles (a box under the foot, never seen), the fine wire wound round grips, the
+  rivets, gem settings and the amulet chains' links (too small for a master to show). The rest is a few percent of
+  small staff-head and helm details.
+- The atlas: 4 x 8 cells of 256 px, 1024 x 2048, 464 KB, in `masters/pack.js`. One cell free. Still no new
+  materials or draws (Wren 48 pieces, 218 / 100 / 24). Item audit: 458 items, 0 flags.
+
+**The townsfolk and people foes wear the masters** (November 21). They are built by the heroes' builder, so they
+share every kind. The same coverage check over the 39 people foes and the townsfolk: **92%** of their surface wears a
+master. More than half of the rest is boot soles (never seen); the scarves, aprons and head wraps (and the wraps' and
+turbans' bands) are now fitted too (braid, tabard). Side by side with Wren (cutpurse, ash-wight, Hollow Brundar,
+Fenwick, Durra): the same folds, seams, dents and grain at the same scale. The Gear Room can now build any of them
+(`window.__people`); a picker for Chris comes with step 4.
+
+**Faces and hands, and anyone in full detail** (November 21). Gear Room: https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL
+- Faces: the head's sculpted shape (nose, brow, sockets, cheekbones, lips, chin) was already placed by each painted
+  face's own features. Now the skull also wears a head master: fine skin and pores, finer away from the face. It is
+  laid under Chris's painted face, after the face's living shader (blinks, mouth, expressions), so the approved faces
+  look the same and keep moving. `withMaster` now keeps a material's own shader and runs after it.
+- Hands: bare hands now have their own master (knuckles, tendons on the back, the wrist's creases; before they wore the
+  glove's seams); gloved hands keep the glove's. Fingers and thumbs keep the finger master (knuckle creases).
+- **Anyone in full detail:** a picker in the Gear Room ("Anyone in full detail") lists the four heroes, all
+  the townsfolk and all the people foes (96). Choosing one builds them in their own outfit, with their own game
+  sprite in the corner, at High, Light or Lite; **The sculpt** then shows their whole sculpt (a people foe: about
+  930,000 triangles). The heroes' tabs or the picker bring the heroes back with their gear.
+- Atlas: 4 x 9 cells, 1024 x 2304, 512 KB (34 kinds, two cells free), in `masters/pack.js`. Same pieces and draws
+  (Wren 48; 218 / 100 / 24). Item audit 458 items, 0 flags. Bestiary builds (11.9 MB). Gear Room 9.2 MB (the people
+  foes' and townsfolk's looks and sprites are in it now).
+
 ## Next
 
 - Chris chose full detail for the beasts (November 20): sessions 6 to 8 build them (`docs/project/jobs/foes.md`;
@@ -223,4 +310,7 @@ https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL
 - `world3d`: `node build.mjs --page=m7-places --places=keep,thornhollow --tex=768` builds (9.6 MB).
 - Sculpted heroes: the item audit again (458 items, 0 flags, after keeping grooved hair out from under hats); Bestiary
   builds (11.2 MB); the Gear Room on a 390 px phone has no horizontal scroll.
-- Not checked: frame rate on a real phone.
+- Sculpted masters: item audit again 458 items, 0 flags; the sculpt view builds 908k triangles headless with no
+  errors; draws and pieces counted at High, Light and Lite (unchanged); Bestiary builds (11.5 MB); 390 px phone, no
+  horizontal scroll.
+- Not checked: frame rate on a real phone (the sculpt view's million triangles is for a laptop).

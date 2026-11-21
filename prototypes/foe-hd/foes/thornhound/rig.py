@@ -8,6 +8,7 @@ def p(xo, px, py): return (xo * S, (px - MID) * S, (GROUND - py) * S)
 # triangles in the light version, per kind of part (he is rabble: about 20,000 in all)
 TARGET = {0: 13200, 2: 1500, 3: 700, 4: 3000, 5: 40, 6: 500, 7: 200, 8: 1100}
 CAGE, RAY, AO_DIST = 0.02, 0.06, 0.18
+SMOOTH = 8           # weights smoothed over the surface (no stretching, Chris November 21)
 RIGID = [2, 4, 5, 6, 7, 8]          # thorns, leaves, fangs, claws, eyes and flowers move as one piece each
 UV_SCALE = {0: 1.0, 2: 0.6, 3: 0.4, 4: 0.3, 5: 0.5, 6: 0.4, 7: 0.8, 8: 0.25}   # picture space: the coat first
 
@@ -26,10 +27,10 @@ BONES = [  # name, parent, head, tail
     ('jaw', 'head', p(0, 1212, 282), p(0, 1312, 292)),
     ('ear_l', 'head', p(36, 1165, 198), p(52, 1157, 80)),
     ('ear_r', 'head', p(-36, 1165, 198), p(-52, 1157, 80)),
-    ('tail1', 'hips', p(0, 505, 368), p(0, 470, 430)),
-    ('tail2', 'tail1', p(0, 470, 430), p(0, 455, 495)),
-    ('tail3', 'tail2', p(0, 455, 495), p(0, 456, 555)),
-    ('tail4', 'tail3', p(0, 456, 555), p(0, 466, 625)),
+    ('tail1', 'hips', p(0, 500, 366), p(0, 458, 428)),
+    ('tail2', 'tail1', p(0, 458, 428), p(0, 442, 495)),
+    ('tail3', 'tail2', p(0, 442, 495), p(0, 444, 555)),
+    ('tail4', 'tail3', p(0, 444, 555), p(0, 456, 625)),
 ]
 for k, J in LEGS.items():
     J = [p(*j) for j in J]
@@ -55,10 +56,12 @@ def weights_at(P):
         if n[:2] in ('fl', 'fr', 'bl', 'br'):
             front = n[0] == 'f'
             top = 470 if front else 470           # above this (sheet px) it's body, not leg
-            D[:, i] *= np.where(sy_ < top - 60, 3.0, np.where(sy_ < top, 1.6, 1.0))
+            if not n.endswith('_upper'): D[:, i] *= np.where(sy_ < top - 60, 3.0, np.where(sy_ < top, 1.6, 1.0))
             side = np.sign(b[2][0])
             D[:, i] += np.where(np.sign(x) != side, 1.0, 0.0)
             D[:, i] += np.where((sx_ > 850) != front, 1.0, 0.0)
+            # the chest and belly between the legs stay with the body: a leg only takes what's on its own side
+            D[:, i] += np.where((np.abs(x) < 25 * S) & (sy_ < 600), 0.05, 0.0)
         if n == 'jaw': D[:, i] += 10
         if n.startswith('ear'):
             side = np.sign(b[2][0])
@@ -66,15 +69,45 @@ def weights_at(P):
             D[:, i] = np.where(ear, D[:, i] * 0.3, D[:, i] + 1.0)
         if n.startswith('tail'):
             D[:, i] = np.where(sx_ < 515, D[:, i] * 0.7, D[:, i] * 3.0)
+        if n == 'neck':      # the neck stops at the shoulders: nothing below the throat or behind the withers
+            D[:, i] += np.where((sy_ > 400) | (sx_ < 1040), 0.5, 0.0)
+        if n == 'chest':
+            D[:, i] += np.where(sy_ > 560, 0.3, 0.0)
         if n == 'head':
             D[:, i] *= np.where(sx_ > 1185, 0.6, 1.0)
     # the jaw: below the mouth line, at the front of the face
     jaw = (sx_ > 1225) & (sy_ > 278 + (sx_ - 1252) * 0.18) & (sy_ < 330) & (np.abs(x) < 34 * S)
     D[jaw, IDX['jaw']] = 0.0
-    W = 1.0 / np.maximum(D, 0.004) ** 4
+    W = 1.0 / np.maximum(D, 0.004) ** 4 * mask(P) + 1e-12
     top = np.argsort(-W, 1)[:, :4]
     Wt = np.take_along_axis(W, top, 1); Wt /= Wt.sum(1, keepdims=True)
     return top.astype(np.uint16), Wt.astype(np.float32)
+
+def ramp(x, a, b): return np.clip((x - a) / (b - a), 0, 1)
+
+def mask(P):
+    """where each bone may reach (0..1, with soft edges): a leg's lower bones stay below their own joint, the tail's
+    later bones behind the rump, the head's bones in front of the neck, the neck off the shoulders"""
+    P = np.asarray(P, np.float32)
+    x, z = P[:, 0], P[:, 2]
+    sx_, sy_ = P[:, 1] / S + MID, GROUND - z / S
+    M = np.ones((len(P), len(BONES)), np.float32)
+    for i, (n, par, hd, tl) in enumerate(BONES):
+        if n[:2] in ('fl', 'fr', 'bl', 'br') and not n.endswith('_upper'):
+            M[:, i] = ramp(hd[2] + 0.03 - z, 0, 0.03)               # nothing above its joint
+        if n.endswith('_upper'):
+            M[:, i] = ramp(0.60 - z, 0, 0.05)                         # the upper leg ends below the back
+        if n in ('tail2', 'tail3', 'tail4'):
+            M[:, i] = ramp(-0.50 - P[:, 1], 0, 0.03) * ramp(hd[2] + 0.04 - z, 0, 0.03)   # the hanging tail, below its joint
+        if n in ('ear_l', 'ear_r'):
+            M[:, i] = ramp(z, 0.72, 0.77) * ramp(np.sign(hd[0]) * x, 0.01, 0.025)
+            continue
+        if n in ('head', 'jaw', 'ear_l', 'ear_r'):
+            M[:, i] = np.maximum(ramp(sx_, 1110, 1150), ramp(z, 0.70, 0.73))   # the head, and all round the ear roots
+
+        if n == 'neck':
+            M[:, i] = ramp(sx_, 1020, 1060) * ramp(430 - sy_, 0, 30) * ramp(0.73 - z, 0, 0.04)   # not up into the ears
+    return M
 
 def rigid_root(P, kind):
     """where a rigid part hangs from: its point nearest the body (or a bone by name)"""
@@ -85,3 +118,25 @@ def rigid_root(P, kind):
         return f'{best}_paw'
     ctr = np.array([0, np.clip(P[:, 1].mean(), -0.4, 0.4), 0.45])
     return P[np.argmin(np.linalg.norm(P - ctr, axis=1))]
+
+# ---- for the kit's bind (kit/rigs/bind.py): the reach masks and side/front rules as gating on the distances
+def weigh(D, P, idx):
+    P = np.asarray(P, np.float32); x = P[:, 0]; sx_ = P[:, 1] / S + MID
+    M = mask(P)
+    for i, b in enumerate(BONES):
+        n = b[0]
+        if n[:2] in ('fl', 'fr', 'bl', 'br'):
+            D[:, i] += np.where(np.sign(x) != np.sign(b[2][0]), 1.0, 0.0)
+            D[:, i] += np.where((sx_ > 850) != (n[0] == 'f'), 1.0, 0.0)
+    return D + (1 - M) * 2.0
+
+def rigid(kind, P, idx):
+    r = rigid_root(P, kind)
+    if isinstance(r, str): return r
+    return None
+
+# joint bands for the kit's bind: wide, soft blends where big masses turn (thigh into haunch, shoulder into chest,
+# neck into chest), so the turn is spread over many centimetres of skin
+BANDS = {'bl_upper': (0.07, 0.16), 'br_upper': (0.07, 0.16), 'fl_upper': (0.06, 0.14), 'fr_upper': (0.06, 0.14),
+         'neck': (0.06, 0.14), 'head': (0.04, 0.10), 'tail1': (0.04, 0.10), 'spine': (0.08, 0.2), 'chest': (0.08, 0.2),
+         'tail2': (0.04, 0.08), 'bl_lower': (0.05, 0.10), 'br_lower': (0.05, 0.10), 'fl_lower': (0.04, 0.08), 'fr_lower': (0.04, 0.08)}
