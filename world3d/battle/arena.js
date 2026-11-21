@@ -54,7 +54,9 @@ export const arena = {
     const loop = (now) => {
       if (!this.on) return;
       this.raf = requestAnimationFrame(loop);
-      const dt = Math.min(0.12, (now - last.t) / 1000); last.t = now; this.t += dt;
+      const dt = Math.min(0.12, (now - last.t) / 1000); last.t = now;
+      if (this.manual) return; // the stills' slow mode: the clock moves only by stepBy()
+      this.t += dt;
       this.frame(dt);
     };
     this.raf = requestAnimationFrame(loop);
@@ -384,7 +386,7 @@ export const arena = {
     const it = unit && (unit.intent?.played ? unit.intent2 || unit.intent : unit.intent) || {};
     const self = !it.target || it.target === id || !h;
     // a Champion's or Relic-Bearer's named move has its own moment (champions.js): its body move, effects, a camera
-    const M = momentFor(unit?.family || F.key, it.move);
+    const M = momentFor(unit?.family || F.key, it.move, unit?.variant || null);
     F.act = { kind: 'attack', t: 0, target: h ? h.id : null, bit: false, bitT: null, self, moment: M,
       kmove: (M && F.fig.beast?.pose && ownMove(F, M.move)) || kitMove(F, it.move || it.name || '', self) };
     if (M) { try { M.start?.(this.momentCtx(F)); } catch (e) { console.warn(e); } if (M.camera) this.momentCam(F, M.camera); }
@@ -410,6 +412,11 @@ export const arena = {
     for (const f of this.foes.values()) if (f.act || f.hurt || (f.ko && !f.removed) || f.gone || f.walk) return true;
     return false;
   },
+
+  // the stills' slow mode (headless checks): hold the clock, then step it by hand, frame by frame, drawing each
+  stepBy(sec, fps = 30) { const n = Math.max(1, Math.round(sec * fps)); for (let i = 0; i < n; i++) { this.t += 1 / fps; this.frame(1 / fps); } },
+  // the foe in the middle of a named move (for the stills: its landing played by hand)
+  movingFoe() { for (const F of this.foes.values()) if (F.act?.moment) return F; return null; },
 
   // ---- every frame --------------------------------------------------------------------------------------------
   frame(dt) {

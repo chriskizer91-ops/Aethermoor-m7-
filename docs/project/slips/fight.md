@@ -133,6 +133,65 @@
   `bark-hide`, `graft`, `blacken`, `grasping-roots`, `ichor-tide`, `heartroot-bloom`, `ichor-rain`, `devour`,
   `unmaking`, `grief` (each falls back to a common move until it exists).
 
+- **Every Champion, Relic-Bearer, Hollow Council member and the Unsmith: 298 moves in the table** (all three acts).
+  `battle/make-moments.mjs` reads each move's words and effects in M7 and writes `battle/champion-moves.js`: its body
+  move (the foe's own move by M7's id where its lane made one, else the common move the words suggest), its effects
+  from a set of recipes (thorns, rain, roots, quake, vines, ward, summon, heal, fire, frost, storm, blight, tide,
+  light, hex, song, slash, maw, dig, dive) and its camera (close for a charge or a summoning, wide for a blow at
+  everyone). They play on whatever model stands in today; each full-detail model picks up its moves the day it lands.
+  Hand-made moments (Briarmaw's, the Rotwarden's) win over the made ones.
+- **For the foe lanes (sessions 6, 7, 8): the own-move names the table asks for**, M7's move ids (each falls back to
+  a common move until the foe has it):
+  - Haskett (`bandit/poacher`): `hack`, `shield-bash`, `dirty-trick`, `heavy-swing`, `second-wind`, `longshot`
+  - Hollis Fairweight (`tallyman/signalmaster`): `cut`, `tally-mark`, `smoke-pot`, `cheats-cut`, `seal-flash`, `signal-flare`
+  - Dun the Counter (`tallyman/counter`): `cut`, `tally-mark`, `smoke-pot`, `cheats-cut`, `seal-flash`, `oath-cut`
+  - Foreman Brask (`tallyman/foreman`): `cut`, `tally-mark`, `smoke-pot`, `cheats-cut`, `seal-flash`, `pick`, `dig-faster`, `noon-flare`
+  - The Cutter-Chief (`tallyman/ice-cutter`): `cut`, `tally-mark`, `smoke-pot`, `cheats-cut`, `seal-flash`, `ice-pick`, `split-the-ice`
+  - The Salvage-Master (`tallyman/salvage-master`): `cut`, `tally-mark`, `smoke-pot`, `cheats-cut`, `seal-flash`, `salvage-hook`, `diving-bell`
+  - The Bargemaster (`tallyman/bargemaster`): `cut`, `tally-mark`, `smoke-pot`, `cheats-cut`, `seal-flash`, `boat-hook`, `make-fast`, `haul-away`
+  - The Rot-Stag (`rotstag`): `gore`, `trample`, `rot-bellow`, `antler-charge`, `rotwood-crown`
+  - Old Snag (`oldsnag`): `tusk`, `trample`, `bristle`, `wallow`, `splitting-charge`
+  - Briarmaw (`briarmaw`): `maul`, `thorn-volley`, `call-the-briars`, `fang-rake`, `bramble-wall`, `rootquake`, `devour`, `thornstorm`
+  - Mags Kestrel (`smuggler/queen`): `cut`, `caltrops`, `bolt`, `sleight`
+  - Vell Saltglass (`smuggler/sharpshooter`): `cut`, `caltrops`, `bolt`, `pin-down`, `singing-shot`
+  - Oda the Thornmother (`feral-druid/thornmother`): `thorn-lash`, `barkskin`, `call-the-briars`, `rising-sap`
+  - Sgt Corra Thistle (`hollowed-ranger/sergeant`): `rot-arrow`, `knife`, `remember`, `hold-the-line`
+  - The Gloamwing (`gloamwing`): `wing-buffet`, `dreamdust`, `cocoon`, `bell-hum`
+  - Gorrow the Mire-King (`mirelord`): `belly-flop`, `drag-under`, `wallow`, `undertow`
+  - The Rotwarden (`rotwarden`): `rootlash`, `bark-hide`, `graft`, `blacken`, `grasping-roots`, `ichor-tide`, `heartroot-bloom`, `ichor-rain`, `devour`, `unmaking`, `grief`
+  - Tamsin (`tamsin`): `riposte`, `cheap-shot`, `showboat`, `parry`, `not-like-this`
+  - Tamsin hearthbrand (`tamsin/hearthbrand`): `riposte`, `cheap-shot`, `showboat`, `parry`, `not-like-this`, `kindled-cut`
+  - Tamsin stillwater-lance (`tamsin/stillwater-lance`): `riposte`, `cheap-shot`, `showboat`, `parry`, `not-like-this`, `still-point`
+  - Tamsin cairnmaul (`tamsin/cairnmaul`): `riposte`, `cheap-shot`, `showboat`, `parry`, `not-like-this`, `cairn-swing`
+  - Rasa the Dune-Rider (`dune-raider/rider`): `scimitar-cut`, `sand-in-the-eyes`, `dune-charge`, `war-cry`, `dune-step`
+  - Gnash the Raider-King (`dune-raider/raider-king`): `scimitar-cut`, `sand-in-the-eyes`, `dune-charge`, `war-cry`, `kings-blow`, `dunefall`
+  - The Glass Matriarch (`glass-scorpion/matriarch`): `pincer`, `glass-sting`, `carapace`, `moult`, `shell-rain`
+  - The Wisp-Queen (`mirage-wisp/queen`): `cold-touch`, `blink`, `beguile`, `drink-the-well`, `hall-of-mirrors`
+  - The Ash-Captain (`ash-wight/captain`): `ash-blade`, `cinder-grasp`, `ember-breath`, `fall-in`, `keyless-turn`
+  - The Sand Wyrm (`sand-wyrm`): `maw`, `thrash`, `sand-dive`, `swallow`, `scale-grind`
+  - Kharzul the Glass Scorpion (`kharzul`): `tail-lash`, `glass-sting`, `glasscutter`, `burrow`, `erupt`, `carapace-brace`, `glass-rain`, `molten-tail`
+  - The Ashen Warden (`ashen-warden`): `ash-blade`, `ember-sweep`, `ward-of-ash`, `call-the-watch`, `command-of-cinders`, `scorch-the-vault`, `watch-unbroken`
+  - Rhune the Pass-Warden (`brigand/warden`): `hack`, `crossbow`, `desert`, `toll-chain`, `gale-step`
+  - The Sentinel-Captain (`iron-sentinel/captain`): `iron-fist`, `gate-slam`, `lock-shields`, `ironwall`, `shield-rush`
+  - Harrow's Journeyman (`forgeborn/journeyman`): `molten-fist`, `slag-spit`, `stoke`, `smiths-hammer`, `temper-kin`, `rune-fire`, `white-heat`
+  - Old Horn (`peak-troll/old-horn`): `club`, `pummel`, `hurl-boulder`, `regrow`, `horn-toss`, `mantle-of-trolls`
+  - The Drowned Abbess (`rime-wraith/abbess`): `drowned-grasp`, `dirge`, `pull-under`, `last-rites`, `censer-swing`
+  - The Thunder-Roc (`thunder-roc`): `talons`, `wing-gale`, `carry-off`, `storm-mantle`
+  - Mother Anvil (`mother-anvil`): `hammerfall`, `sparks`, `temper`, `steam-burst`, `anvil-strike`, `bellows`, `heart-flare`, `worldforge-blow`
+  - The Rime-Abbot (`rime-abbot`): `crozier-strike`, `toll`, `rime-ward`, `drown`, `call-the-choir`, `hushing`, `heartbeat`, `rime-nova`
+  - Old Jaws (`blackwater-gar/old-jaws`): `bite`, `leap`, `dive`, `death-roll`, `the-tooth`
+  - Mother Grue (`bog-hag/grue`): `ladle`, `hex`, `rot`, `stir-the-pot`, `evil-eye`
+  - Grandfather Willow (`willow-wight/grandfather`): `lash`, `bough-fall`, `weep`, `weeping-volley`
+  - The Drowned Cantor (`drowned/cantor`): `cold-hands`, `drag-down`, `toll`, `black-water`, `the-hymn`, `beat-time`, `downbeat`
+  - Hodge (`hodge`): `toll-is-due`, `old-mans-cane`, `bridge-troll`, `clipped-coin`
+  - The Lantern Mother (`lantern-mother`): `lamp-pole`, `lure`, `lantern-flare`, `hush-now`, `lead-them-down`, `moths`, `mourning`, `snuff`, `lantern-nova`, `drown-the-light`
+  - The Blackwater Leviathan (`blackwater-leviathan`): `coil`, `tail-slap`, `sound`, `breach`, `swallow`, `undertow`, `harpoon-rage`, `pearl-light`, `flood`
+  - Hollow Miravel (`hollow-miravel`): `rowan-staff`, `unheeded-advice`, `grey-bark`, `hollow-bloom`, `thornwall`, `every-fallen-tree`, `hollow-harvest`
+  - Hollow Qasim (`hollow-qasim`): `scimitar`, `sand-in-the-eyes`, `what-you-owe`, `hollow-draught`, `drought`, `mirage`, `drink-them-dry`
+  - Hollow Brundar (`hollow-brundar`): `thanes-axe`, `debts-paid`, `sentinels-stance`, `iron-grip`, `seal-the-deeps`, `ironfall`
+  - Hollow Gretch (`hollow-gretch`): `gavel`, `mayors-word`, `counted-twice`, `too-tight`, `call-in-a-favour`, `fear`, `every-favour-owed`
+  - The Unsmith (`unsmith`): `hammer-blow`, `ring-the-anvil`, `unmake`, `forge-apron`, `nothing-left`, `worldfire`, `hearts-pull`, `heart-flare`
+
 ## For Together: starting a fight from outside
 
 `world3d/battle/run.js` exports one function. It pauses the walk, swings the camera round, plays M7's battle screen

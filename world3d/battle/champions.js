@@ -6,6 +6,8 @@
 //   land    what shows when it lands (the blow on a hero, or the middle of a move on itself)
 //   camera  'close' (in on the foe, as the Legend Strike is on a hero) or 'wide' (back and up, to see the whole field)
 // A move missing here plays the kit's pick for M7's words (arena.js kitMove) with no extra effect.
+import { GENERATED } from './champion-moves.js';
+
 const head = (c) => c.F.pos.clone().setY(c.F.pos.y + c.F.size.h * 0.85);
 const chest = (h) => h.pos.clone().setY(h.pos.y + 1.1);
 const feet = (h) => h.pos.clone().setY(h.pos.y + 0.02);
@@ -103,4 +105,44 @@ export const MOMENTS = {
   },
 };
 function rand(r) { return { x: (Math.random() - 0.5) * 2 * r, y: (Math.random() - 0.5) * r, z: (Math.random() - 0.5) * 2 * r, isVector3: true }; }
-export function momentFor(family, move) { return MOMENTS[`${family}:${move}`] || null; }
+
+// ---- every other Champion's and Relic-Bearer's move: made from M7's words (champion-moves.js, make-moments.mjs), its
+// effects played by these recipes. A recipe's colour comes from what the move is (fire, frost, blight...) ----
+const TINT = { fire: '#ff8a3a', frost: '#a8e0ff', storm: '#e8f0ff', blight: '#7a9a30', tide: '#4aa0c0', light: '#ffe8a0', hex: '#b878ff' };
+const tint = (fx) => TINT[fx.find((f) => TINT[f])] || '#e8d8b0';
+export const RECIPES = {
+  thorns: { start: (c, col) => { const from = head(c); c.heroes.forEach((h, i) => { for (let k = 0; k < 3; k++) c.fx.thorn(from.clone().add(rand(0.4)), chest(h).add(rand(0.25)), col, 0.34, 0.3 + i * 0.06 + k * 0.08); }); } },
+  rain: { start: (c, col) => { for (const h of c.heroes) for (let k = 0; k < 5; k++) { const to = chest(h).add(rand(0.5)); c.fx.thorn(to.clone().add(rand(1.2)).setY(to.y + 4 + Math.random() * 2), to, col, 0.4, 0.25 + Math.random() * 0.6); } } },
+  roots: { land: (c) => { for (const h of c.heroes) c.fx.roots(feet(h), '#4a3018', 6, 1.7); } },
+  quake: { start: (c) => { c.shake(2); c.fx.ring(c.F.pos.clone(), '#a07a48', 6, 1.0); }, land: (c) => c.shake(2) },
+  vines: { land: (c) => c.fx.vines(c.F.pos.clone(), c.F.size.h * 1.05, Math.max(0.5, c.F.size.w * 0.7), '#3f7a2a', 1.3) },
+  ward: { land: (c, col) => { c.fx.ring(c.F.pos.clone(), col === '#e8d8b0' ? '#a8c8ff' : col, Math.max(1.4, c.F.size.d), 0.9, c.F.size.h * 0.5); c.fx.pulse(c.F.pos.clone().setY(c.F.pos.y + c.F.size.h * 0.5), '#c8d8ff', c.F.size.h, 0.8); } },
+  summon: { start: (c, col) => { c.fx.pulse(head(c), col === '#e8d8b0' ? '#b4d65a' : col, 2, 1); c.fx.ring(c.F.pos.clone(), '#b4d65a', 2.6, 0.9); } },
+  heal: { land: (c) => { c.fx.pulse(head(c), '#8ad872', 1.6, 1.1); c.fx.sparks(head(c), '#c8ff90', 20, { spread: 0.7, up: 1.4 }); } },
+  fire: { land: (c) => { for (const h of c.heroes) c.fx.sparks(chest(h), '#ff8a3a', 22, { spread: 1, up: 1.3 }); } },
+  frost: { land: (c) => { for (const h of c.heroes) { c.fx.ring(feet(h), '#a8e0ff', 1.1, 0.9); c.fx.sparks(chest(h), '#e0f4ff', 16, { spread: 0.6, up: 0.4 }); } } },
+  storm: { land: (c) => { for (const h of c.heroes) c.fx.pillar(feet(h), '#d8e8ff', 5); c.shake(1); } },
+  blight: { land: (c) => { for (const h of c.heroes) c.fx.sparks(chest(h), '#5a7a20', 18, { spread: 0.8, up: -0.4 }); } },
+  tide: { start: (c) => c.fx.ring(c.F.pos.clone(), '#4aa0c0', 5, 1.2), land: (c) => { for (const h of c.heroes) c.fx.sparks(feet(h).setY(h.pos.y + 0.4), '#8ad0e8', 20, { spread: 1, up: 1.2 }); } },
+  light: { start: (c) => c.fx.pulse(head(c), '#ffe8a0', 2.2, 0.9), land: (c) => { for (const h of c.heroes) c.fx.sparks(chest(h), '#fff4c0', 16); } },
+  hex: { start: (c) => c.fx.pulse(head(c), '#b878ff', 1.4, 0.9), land: (c) => { for (const h of c.heroes) c.fx.ring(feet(h), '#b878ff', 1.0, 1.1, 0.06); } },
+  song: { start: (c, col) => { for (let k = 0; k < 3; k++) setTimeout(() => c.fx.ring(c.F.pos.clone(), col === '#e8d8b0' ? '#d8c8ff' : col, 7, 1.2, c.F.size.h * 0.6), k * 260); } },
+  slash: { land: (c, col) => { for (const h of c.heroes) { c.fx.slash(chest(h), c.ar.cam, col === '#e8d8b0' ? '#ffffff' : col, true); c.fx.sparks(chest(h), col, 12); } } },
+  maw: { start: (c) => c.fx.pulse(head(c), '#3a2a2a', 1.6, 1.0), land: (c) => { c.shake(2); for (const h of c.heroes) c.fx.sparks(chest(h), '#5a1a10', 24, { spread: 1.1 }); } },
+  dig: { start: (c) => { c.fx.ring(c.F.pos.clone(), '#a07a48', 2.5, 0.8); c.fx.sparks(c.F.pos.clone().setY(c.F.pos.y + 0.2), '#c9a878', 24, { spread: 1.2, up: 0.8 }); } },
+  dive: { start: (c) => { c.fx.ring(c.F.pos.clone(), '#8ad0e8', 3, 1.0); c.fx.sparks(c.F.pos.clone().setY(c.F.pos.y + 0.3), '#d8f0ff', 26, { spread: 1, up: 1.4 }); } },
+};
+function fromWords(G) {
+  const col = tint(G.fx), parts = G.fx.map((f) => RECIPES[f]).filter(Boolean);
+  return { move: G.move, camera: G.camera, made: true,
+    start: (c) => { for (const r of parts) r.start?.(c, col); },
+    land: (c) => { for (const r of parts) r.land?.(c, col); } };
+}
+const made = new Map();
+// the moment for a foe's move: a hand-made one first, then one made from M7's words (a variant's own, then its family's)
+export function momentFor(family, move, variant = null) {
+  const keys = [variant && `${family}/${variant}:${move}`, `${family}:${move}`].filter(Boolean);
+  for (const k of keys) if (MOMENTS[k]) return MOMENTS[k];
+  for (const k of keys) if (GENERATED[k]) { if (!made.has(k)) made.set(k, fromWords(GENERATED[k])); return made.get(k); }
+  return null;
+}
