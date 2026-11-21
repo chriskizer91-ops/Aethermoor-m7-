@@ -75,7 +75,10 @@ waist, belt and straps dragged out into a web after the spread arms). Rules for 
   automatic weights by part, so nearness at rest can't bleed weight across.
 - **Bones turn; they don't grow.** Moves rotate bones. No bone is scaled or moved along its length (the root and the
   whole body may move).
-- **The stretch check** (session 6 adds it to the kit; every lane runs it): pose each move at many frames, compare every
-  triangle's edges with the rest pose, and fail any move where edges grow past 1.3 times (cloth and soft parts may set
-  their own limit, said in the slip). Run it on every foe already made (Briarmaw, the briarling, the thornhound, the
-  glowcap, the Rotwarden, the sapwight) and on each new one before it is handed in. Look at the worst frame by eye too.
+- **The stretch check** (in the kit: `kit/tools/stretch.mjs`; every lane runs it): pose each move at many frames and
+  compare every edge with the rest pose. One rule for every lane (hub, November 21): **an edge longer than 1% of the
+  foe's height must stay under 1.3 times** its rest length (that is the webbing Chris saw); **small edges in the creases
+  of bending joints** (knee, elbow, hip, throat, mouth corners, ear roots) may reach 3 times, since plain skinning always
+  stretches the outside of a bent joint a little; and no bone may be scaled or slid. Run it on every foe already made
+  and on each new one before it is handed in, and look at the worst frame by eye: nothing may visibly web or pull.
+  Helper bones at knees, elbows and throats (to keep a joint's volume) are a later pass, in the kit, for every lane.
