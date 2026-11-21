@@ -55,3 +55,4 @@ def mask(P, idx):
             m = piece == c; M[m] = 0.0
             for n in ARM[s]: M[m, idx[n]] = 1.0
     return M
+BANDS['l_fore'] = (0.05, 0.12)     # his bow arm bends sharply: keep its elbow's band off the upper arm

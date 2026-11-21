@@ -90,7 +90,7 @@ C = dict(
     ROOTS=9, ROOT_REACH=(0.72, 0.14), ROOT_R=(0.17, 0.12, 0.04),
     BOUGHS=10, BOUGH_OUT=(0.45, 0.15), BOUGH_R=(0.11, 0.07, 0.035),
     HOLLOW=((0.0, 0.33, 1.13), (0.11, 0.18, 0.26)),
-    DOME_C=(0.0, 0.0, 2.2), DOME_R=(0.95, 0.85, 0.58), NFR=112, SPACE=0.05, LEAF_L=0.11, LEAF_W=0.019,
+    DOME_C=(0.0, 0.0, 2.2), DOME_R=(0.95, 0.85, 0.58), NFR=96, SPACE=0.05, LEAF_L=0.11, LEAF_W=0.019,
     Z_END=(0.35, 0.95), FRONT_SHORT=0.35, RIBBON_W=(0.06, 0.016),
     MOSS_Z=2.4, MOSS_AMT=0.9, MOSS_T=0.4, extra=extra,
 )
