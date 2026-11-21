@@ -60,6 +60,8 @@ async function walkTo(x, y, { adjacent = false, map = null, fight = true, each =
       log('no path to', x, y, 'from', s.x, s.y, g ? '- fighting the guard ' + g.id : '- no guard to fight');
       if (!g) { await page.waitForTimeout(500); continue; }
       await useThing(g.id, { fight });
+      await settle({ fight });
+      log('  the fight with', g.id, 'ended:', await E(() => window.__g3.lastResult));
       if (each) await each();
       continue;
     }

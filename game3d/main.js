@@ -50,8 +50,8 @@ const STARTS = [
     level: 8, ...ACT1, pos: { map: 'keep', x: 22, y: 22, face: 's' } },
   { page: 'old-bridge', label: 'Begin at the Ironspire', sub: 'The Wilds and the Sunscorch done (four Brands, the Council sat twice), the party at level 10, at the Keep\'s east postern',
     level: 10, flags: [...ACT1.flags, 'sunscorch-complete', 'council-2-done'], beaten: [...ACT1.beaten, 'kharzul-heart', 'ashen-warden'], brands: [...ACT1.brands, 'brand-of-glass', 'brand-of-ash'], pos: { map: 'keep', x: 28, y: 11, face: 'e' } },
-  { page: 'murkway', label: 'Begin at the Gloomfen', sub: 'The Wilds, the Sunscorch and the Ironspire done (six Brands, the Council sat three times), the party at level 13, at the top of Mossfall\'s fen stair',
-    level: 13, flags: [...ACT1.flags, 'sunscorch-complete', 'council-2-done', 'ironspire-complete', 'council-3-done'], beaten: [...ACT1.beaten, 'kharzul-heart', 'ashen-warden', 'mother-anvil', 'rime-abbot'], brands: [...ACT1.brands, 'brand-of-glass', 'brand-of-ash', 'brand-of-iron', 'brand-of-frost'], pos: { map: 'mossfall', x: 20, y: 20, face: 's' } },
+  { page: 'murkway', label: 'Begin at the Gloomfen', sub: 'The Wilds, the Sunscorch and the Ironspire done (six Brands, the Council sat three times), the party at level 15, at the top of Mossfall\'s fen stair',
+    level: 15, flags: [...ACT1.flags, 'sunscorch-complete', 'council-2-done', 'ironspire-complete', 'council-3-done'], beaten: [...ACT1.beaten, 'kharzul-heart', 'ashen-warden', 'mother-anvil', 'rime-abbot'], brands: [...ACT1.brands, 'brand-of-glass', 'brand-of-ash', 'brand-of-iron', 'brand-of-frost'], pos: { map: 'mossfall', x: 20, y: 20, face: 's' } },
 ];
 const DEFAULTS = { sound: true, music: true, battleSpeed: Number(Q.get('speed')) || 1, reducedMotion: false, touchControls: 'auto', alwaysRun: false, mapZoom: 'normal' };
 // M7's screens that lie over the 3D (the walk waits under them)
