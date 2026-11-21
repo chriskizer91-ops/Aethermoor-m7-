@@ -1,0 +1,80 @@
+{
+  "key": "grandfather-willow",
+  "name": "Grandfather Willow",
+  "plan": "willow",
+  "rank": "relic-bearer",
+  "height": 2.8,
+  "sheet": "art-in/3d/sheets/sheet-grandfather-willow.webp",
+  "crops": [
+    [
+      51,
+      626
+    ],
+    [
+      675,
+      1101
+    ],
+    [
+      1161,
+      1730
+    ]
+  ],
+  "bounds": [
+    [
+      -1.12,
+      -1.0,
+      -0.01
+    ],
+    [
+      1.12,
+      1.0,
+      2.92
+    ]
+  ],
+  "voxel": {
+    "0": 0.024,
+    "1": 0.015,
+    "2": 0.0085,
+    "3": 0.0048
+  },
+  "view": {
+    "center": [
+      0,
+      0,
+      1.4
+    ],
+    "width": 3.7,
+    "head": [
+      0,
+      0.25,
+      2.1
+    ],
+    "headWidth": 1.0
+  },
+  "light": {
+    "level": 0,
+    "coat": 12000
+  },
+  "sculpt": {
+    "level": 3
+  },
+  "bake": {
+    "res": 2048,
+    "phone": 1024,
+    "ao": 48,
+    "reach": {
+      "coat": [
+        0.035,
+        0.1
+      ],
+      "parts": [
+        0.008,
+        0.02
+      ]
+    }
+  },
+  "rig": "rig.py",
+  "blurb": "Grandfather Willow is the eldest of the walking willows: a vast mossy trunk on spreading roots, a hollow in it like a door, a bearded old face under a crown of fronds two metres across, hung with glowing drops, and in his arm the Weeping Bow, strung with his own hair, its string glowing green.",
+  "next": "his moves smoothed.",
+  "pages": {}
+}
