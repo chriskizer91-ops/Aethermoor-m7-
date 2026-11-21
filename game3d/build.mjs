@@ -14,9 +14,9 @@ export const ACT_ONE = ['keep', 'keep-hall', 'hearth-road', 'thornhollow', 'thor
 // a page per act or region (each under 16 MB): --act=act1 (default) or --act=sunscorch (Act Two's first region, with the
 // Keep and its Great Hall to start from)
 export const ACTS = {
-  act1: { places: ACT_ONE, out: 'game3d-act1', name: null, foesHd: null, paint: '0.4', herotex: '192', tex: '360' },   // smaller pictures: room for the full-detail foes
+  act1: { places: ACT_ONE, out: 'game3d-act1', name: null, foesHd: 'briarmaw,briarling,glowcap', paint: '0.4', herotex: '192', tex: '360' },   // the single file carries three full-detail foes; --full carries every one that passes   // smaller pictures: room for the full-detail foes
   ironspire: { title: 'Hearth & Heirloom: the Ironspire', places: ['keep', 'keep-hall', 'old-bridge', 'drystone-lea', 'plankford', 'shrinewood', 'silverfall', 'last-camp', 'rockslide-pass', 'peaks-veil', 'highfold', 'iron-stair', 'ironhold', 'ironhold-deeps', 'harrows-forge', 'stormwatch', 'frost-road', 'frostmere', 'frostmere-below'], out: 'game3d-ironspire', name: 'Act Two, the Ironspire', foesHd: 'none', paint: '0.4' },
-  gloomfen: { title: 'Hearth & Heirloom: the Gloomfen', places: ['keep', 'keep-hall', 'mossfall', 'murkway', 'willowmurk', 'rotbridge', 'bogmire', 'lanternfen', 'mothers-hollow', 'long-boardwalk', 'misthollow', 'drowned-belfry', 'blackwater-reach', 'tidal-flats', 'causeway'], out: 'game3d-gloomfen', name: 'Act Two, the Gloomfen', foesHd: 'none' },
+  gloomfen: { title: 'Hearth & Heirloom: the Gloomfen', places: ['keep', 'keep-hall', 'mossfall', 'murkway', 'willowmurk', 'rotbridge', 'bogmire', 'lanternfen', 'mothers-hollow', 'long-boardwalk', 'misthollow', 'drowned-belfry', 'blackwater-reach', 'tidal-flats', 'causeway'], out: 'game3d-gloomfen', name: 'Act Two, the Gloomfen', foesHd: 'none', paint: '0.4' },
   act3: { title: 'Hearth & Heirloom: Act Three', places: ['keep', 'keep-hall', 'keep-gallery', 'keep-gallery-2', 'keep-gallery-3', 'hollow-hall', 'ash-stair', 'chained-deep', 'worldforge'], out: 'game3d-act3', name: 'Act Three, the Hollow Council', foesHd: 'none' },
   sunscorch: { title: 'Hearth & Heirloom: the Sunscorch', places: ['keep', 'keep-hall', 'sun-road', 'sandspire', 'dust-trail', 'dusthaven', 'deep-shaft-1', 'deep-shaft-2', 'glass-flats', 'miragewell', 'scorchgate', 'scorchgate-vaults'], out: 'game3d-sunscorch', name: 'Act Two, the Sunscorch', foesHd: 'none' },
 };
@@ -24,7 +24,7 @@ const pass = process.argv.slice(2);
 const has = (k) => pass.some((a) => a.startsWith('--' + k + '='));
 const FULL = pass.includes('--full');
 const ACT = ACTS[(pass.find((a) => a.startsWith('--act=')) || '--act=act1').split('=')[1]] || ACTS.act1;
-if (ACT.foesHd && !process.env.GAME3D_FOES_HD) process.env.GAME3D_FOES_HD = ACT.foesHd;
+if (ACT.foesHd && !process.env.GAME3D_FOES_HD && !(pass.includes('--full') && ACT.foesHd !== 'none')) process.env.GAME3D_FOES_HD = ACT.foesHd;
 const args = [
   'build.mjs', '--html=../game3d/page.html', '--entry=../game3d/main.js', '--plugin=../game3d/swap.mjs',
   '--places=' + (has('places') ? pass.find((a) => a.startsWith('--places=')).split('=')[1] : ACT.places.join(',')),

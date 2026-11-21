@@ -57,6 +57,16 @@ async function walkTo(x, y, { adjacent = false, map = null, fight = true, each =
     if (map && s.map !== map) return s;
     if ((s.x === x && s.y === y) || (adjacent && Math.abs(s.x - x) + Math.abs(s.y - y) === 1)) return s;
     const p = await E(([x, y, adjacent]) => window.__g3.world.path(x, y, adjacent), [x, y, adjacent]);
+    // a way out (a stair, a door) isn't on M7's paths: walk beside it, then step on, as a player does
+    if (!p || !p.length) {
+      const q = await E(([x, y]) => window.__g3.world.path(x, y, true), [x, y]);
+      if (q && q.length) {
+        await walkTo(q[q.length - 1][0], q[q.length - 1][1], { map: s.map, fight, each });
+        await E(([x, y]) => window.__g3.world.nudge(x, y), [x, y]);
+        await page.waitForTimeout(1500);
+        continue;
+      }
+    }
     if (!p || !p.length) {
       // a road gate stands shut until its guard is beaten (M4.5's roads): walk up to the nearest guard we can reach, fight
       const g = await E(() => window.__g3.world.nearestGuard());
