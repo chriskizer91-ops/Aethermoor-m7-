@@ -39,17 +39,17 @@
   "walk": {
    "ok": false,
    "big": {
-    "worst": 1.788,
+    "worst": 1.702,
     "limit": 1.3,
-    "part": "bl_lower",
+    "part": "fl_blade > spine",
     "where": [
-     0.055,
-     -0.32,
-     0.288
+     0.046,
+     0.126,
+     0.328
     ],
-    "restEdge": 0.0133,
+    "restEdge": 0.0113,
     "u": 0,
-    "trianglesOver": 132
+    "trianglesOver": 98
    },
    "crease": {
     "worst": 3.233,
@@ -101,17 +101,17 @@
   "lunge": {
    "ok": false,
    "big": {
-    "worst": 2.021,
+    "worst": 2.151,
     "limit": 1.3,
-    "part": "bl_lower",
+    "part": "br_haunch > br_upper",
     "where": [
-     0.055,
-     -0.32,
-     0.288
+     -0.065,
+     -0.426,
+     0.306
     ],
-    "restEdge": 0.0133,
+    "restEdge": 0.0096,
     "u": 0.702,
-    "trianglesOver": 416
+    "trianglesOver": 409
    },
    "crease": {
     "worst": 2.727,
@@ -204,7 +204,7 @@
     ],
     "restEdge": 0.0154,
     "u": 1,
-    "trianglesOver": 59
+    "trianglesOver": 58
    },
    "crease": {
     "worst": 2.04,
@@ -224,7 +224,7 @@
   }
  },
  "ok": false,
- "worstMove": "howl",
+ "worstMove": "lunge",
  "bigEdge": 0.009,
  "crease": 3
 }
