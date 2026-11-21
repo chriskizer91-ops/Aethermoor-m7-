@@ -114,6 +114,57 @@ export class Fx {
     this.sparks(at.clone().setY(at.y + 1), color, 30, { spread: 1.8, up: 1.4 });
   }
 
+  // a thorn (a dark barbed spike) flying from `from` to `to`, a little arc, spinning
+  thorn(from, to, color = '#3f5a26', dur = 0.32, delay = 0) {
+    const grp = new THREE.Group();
+    const spike = new THREE.Mesh(new THREE.ConeGeometry(0.035, 0.32, 5), new THREE.MeshStandardMaterial({ color: col(color), roughness: 0.7 }));
+    spike.rotation.x = Math.PI / 2; grp.add(spike);
+    const tip = new THREE.Mesh(new THREE.ConeGeometry(0.015, 0.08, 4), glowMat('#d8f0a0', 0.9)); tip.rotation.x = Math.PI / 2; tip.position.z = 0.18; grp.add(tip);
+    const d = to.clone().sub(from), lift = Math.min(1.2, d.length() * 0.18), q = new THREE.Vector3();
+    const at = (u, out) => out.copy(from).addScaledVector(d, u).setY(from.y + d.y * u + Math.sin(u * Math.PI) * lift);
+    grp.visible = false;
+    this.add(grp, dur + delay, (u2) => {
+      const u = Math.max(0, (u2 * (dur + delay) - delay) / dur); grp.visible = u > 0;
+      at(Math.min(1, u), grp.position); at(Math.min(1, u + 0.03), q); if (q.distanceToSquared(grp.position) > 1e-8) grp.lookAt(q); spike.rotation.z = u * 20;
+    });
+  }
+
+  // roots bursting up out of the ground round `at`, curling, holding a moment and sinking back
+  roots(at, color = '#5a3a1e', n = 6, dur = 1.6) {
+    const grp = new THREE.Group(); grp.position.copy(at);
+    const m = new THREE.MeshStandardMaterial({ color: col(color), roughness: 0.9 });
+    const parts = [];
+    for (let i = 0; i < n; i++) {
+      const a = i / n * TAU + Math.random() * 0.4, r = 0.35 + Math.random() * 0.15;
+      const pts = []; for (let k = 0; k <= 6; k++) { const t = k / 6; pts.push(new THREE.Vector3(Math.cos(a) * r * (1 - t * 0.6), t * (0.9 + Math.random() * 0.3), Math.sin(a) * r * (1 - t * 0.6)).add(new THREE.Vector3(Math.cos(a + 1.6) * t * t * 0.25, 0, Math.sin(a + 1.6) * t * t * 0.25))); }
+      const geo = new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 12, 0.035, 5, false);
+      const mesh = new THREE.Mesh(geo, m); grp.add(mesh); parts.push(mesh);
+    }
+    this.add(grp, dur, (u) => { const up = Math.min(1, u / 0.18), down = u > 0.75 ? (u - 0.75) / 0.25 : 0; grp.scale.set(1, Math.max(0.01, up * (1 - down)), 1); });
+    this.sparks(at.clone().setY(at.y + 0.1), '#8a6a44', 12, { spread: 0.8, up: 0.6 });
+  }
+
+  // bramble knitting over a body: green vines winding up round it, then a glow
+  vines(at, h = 1.2, r = 0.7, color = '#3f7a2a', dur = 1.3) {
+    const grp = new THREE.Group(); grp.position.copy(at);
+    const m = new THREE.MeshStandardMaterial({ color: col(color), roughness: 0.8, emissive: col('#1a3a10'), emissiveIntensity: 0.4 });
+    for (let k = 0; k < 3; k++) {
+      const pts = []; for (let i = 0; i <= 30; i++) { const t = i / 30, a = t * TAU * 1.6 + k * TAU / 3; pts.push(new THREE.Vector3(Math.cos(a) * r, t * h, Math.sin(a) * r)); }
+      const geo = new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 60, 0.03, 5, false);
+      grp.add(new THREE.Mesh(geo, m));
+    }
+    this.add(grp, dur, (u) => { const k = Math.min(1, u / 0.6); grp.children.forEach((c) => c.geometry.setDrawRange(0, Math.floor(c.geometry.index.count * k / 3) * 3)); grp.rotation.y = u * 0.8; m.opacity = 1; if (u > 0.8) grp.scale.setScalar(1 + (u - 0.8) * 0.5); });
+    this.ring(at, '#8ad872', r * 1.6, dur * 0.8, 0.05);
+  }
+
+  // a pulse of light at `at` (the thorn-crown blazing): a bright sprite swelling and a light flaring
+  pulse(at, color = '#8ad872', size = 1.4, dur = 0.8) {
+    const grp = new THREE.Group(); grp.position.copy(at);
+    const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: dot(), color: col(color), blending: THREE.AdditiveBlending, transparent: true, depthWrite: false, toneMapped: false })); grp.add(sp);
+    const light = new THREE.PointLight(col(color), 3, 6, 2); grp.add(light);
+    this.add(grp, dur, (u) => { const b = Math.sin(Math.min(1, u * 1.4) * Math.PI); sp.scale.setScalar(size * (0.4 + b)); sp.material.opacity = b; light.intensity = 3 * b; });
+  }
+
   // the relic flying loose off `from`, tumbling, landing at `to` on the ground and lying there glinting. icon: a canvas
   relic(from, to, icon, size = 0.55) {
     const tex = new THREE.CanvasTexture(icon); tex.colorSpace = THREE.SRGBColorSpace; tex.magFilter = THREE.NearestFilter;
