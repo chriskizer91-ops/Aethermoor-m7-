@@ -1,7 +1,8 @@
 // game3d/foes-hd.mjs: the full-detail foes for the game (Together, November 20), as one module the page imports
 // ('game3d:foes-hd' -> { FOES_HD: [assets, ...] }), made at build time from session 6's foe kit: every foe with a
 // finished kit folder (prototypes/foe-hd/foes/<key>/foe.json and assets/color-<phone>.webp), at its phone size.
-// Which foes: GAME3D_FOES_HD=briarmaw,rotwarden (default: every finished one; 'none' for none).
+// Which foes: GAME3D_FOES_HD=briarmaw,rotwarden (default: every finished one; 'none' for none). Also session 8's walkers
+// (WALKERS: the Rotwarden, the sapwight), their phone versions.
 import path from 'node:path';
 import { readFileSync, existsSync, readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -16,7 +17,13 @@ export function finished() {
     return ['light.json', 'light.bin', `color-${res}.webp`, `normal-${res}.webp`, 'ao-1024.webp'].every((f) => existsSync(path.join(d, 'assets', f)));
   });
 }
+// session 8's walkers (the Rotwarden, the sapwight): their phone versions only (prototypes/foe-hd/foes/<key>/assets/phone)
+export function walkers() {
+  if (!existsSync(ROOT)) return [];
+  return readdirSync(ROOT).filter((k) => ['light.json', 'light.bin', 'color.webp', 'normal.webp', 'orm.webp'].every((f) => existsSync(path.join(ROOT, k, 'assets', 'phone', f))));
+}
 const want = process.env.GAME3D_FOES_HD;
+const WALK = want === 'none' ? [] : want ? want.split(',').filter((k) => walkers().includes(k)) : walkers();
 const KEYS = want === 'none' ? [] : want ? want.split(',').filter((k) => finished().includes(k)) : finished();
 function source() {
   const lines = [], names = [];
@@ -29,6 +36,13 @@ function source() {
     names.push(`F${i}`);
   });
   lines.push(`export const FOES_HD = [${names.join(', ')}];`);
+  // the walkers, as registerWalkers (prototypes/foe-hd/pages/walkers/register.js) takes them: the phone version as the asset
+  const wl = WALK.map((key, i) => {
+    const d = path.join(ROOT, key, 'assets', 'phone'), a = (f) => JSON.stringify(path.join(d, f)), glow = existsSync(path.join(d, 'emit.webp'));
+    lines.push(`import wm${i} from ${a('light.json')}; import wb${i} from ${a('light.bin')}; import wc${i} from ${a('color.webp')}; import wn${i} from ${a('normal.webp')}; import wo${i} from ${a('orm.webp')};${glow ? ` import we${i} from ${a('emit.webp')};` : ` const we${i} = null;`}`);
+    return `${JSON.stringify(key)}: { meta: wm${i}, bin: wb${i}, color: wc${i}, normal: wn${i}, orm: wo${i}, emit: we${i}, res: wm${i}.res || 1024, phone: null }`;
+  });
+  lines.push(`export const WALKERS = { ${wl.join(', ')} };`);
   return lines.join('\n');
 }
 export default {

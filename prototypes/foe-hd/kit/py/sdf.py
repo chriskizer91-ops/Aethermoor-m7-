@@ -61,13 +61,30 @@ def drop(f, xy, z0=2.0):
     for _ in range(60):
         d_ = f(P_); P_[:, 2] -= np.maximum(d_, 0.002) * 0.9
     return P_
-def mc(f, h, lo, hi):
-    """marching cubes over the box lo..hi at voxel size h, a slab of x at a time (fits the finest passes in memory);
-    returns vertices and outward-wound triangles"""
+def mc(f, h, lo, hi, band=None, coarse=4):
+    """marching cubes over the box lo..hi at voxel size h; returns vertices and outward-wound triangles.
+    band (metres): evaluate f exactly only within band of the surface, found on a grid `coarse` times coarser, about
+    ten times faster on the fine passes (session 7's narrow band). Without band: every voxel, a slab of x at a time."""
+    lo = np.asarray(lo, np.float32); hi = np.asarray(hi, np.float32)
     xs = [np.arange(lo[i], hi[i] + h, h, dtype=np.float32) for i in range(3)]
-    vol = np.empty((len(xs[0]), len(xs[1]), len(xs[2])), np.float32)
-    Y, Zz = np.meshgrid(xs[1], xs[2], indexing='ij'); Y = Y.ravel(); Zz = Zz.ravel()
-    for i, x in enumerate(xs[0]):
-        vol[i] = f(np.stack([np.full_like(Y, x), Y, Zz], 1)).reshape(len(xs[1]), len(xs[2]))
+    shp = tuple(len(x) for x in xs)
+    if band is None:
+        vol = np.empty(shp, np.float32)
+        Y, Zz = np.meshgrid(xs[1], xs[2], indexing='ij'); Y = Y.ravel(); Zz = Zz.ravel()
+        for i, x in enumerate(xs[0]):
+            vol[i] = f(np.stack([np.full_like(Y, x), Y, Zz], 1)).reshape(shp[1], shp[2])
+    else:
+        H = h * coarse
+        cx = [np.arange(lo[i], hi[i] + H * 2, H, dtype=np.float32) for i in range(3)]
+        X, Y, Z = np.meshgrid(*cx, indexing='ij'); CP = np.stack([X.ravel(), Y.ravel(), Z.ravel()], 1); del X, Y, Z
+        cv = np.empty(len(CP), np.float32)
+        for i in range(0, len(CP), 1_000_000): cv[i:i + 1_000_000] = f(CP[i:i + 1_000_000])
+        cv = cv.reshape(tuple(len(x) for x in cx))
+        ix = [np.minimum(np.round((xs[a] - lo[a]) / H).astype(np.int64), cv.shape[a] - 1) for a in range(3)]
+        vol = cv[np.ix_(*ix)].astype(np.float32)
+        idx = np.nonzero((np.abs(vol) < band + H * 0.9).ravel())[0]
+        for i in range(0, len(idx), 1_000_000):
+            j = idx[i:i + 1_000_000]; a, b_, c_ = np.unravel_index(j, shp)
+            vol.ravel()[j] = f(np.stack([xs[0][a], xs[1][b_], xs[2][c_]], 1))
     v, fc, _, _ = marching_cubes(vol, 0.0, spacing=(h, h, h))
-    return (v + np.asarray(lo, np.float32)).astype(np.float32), fc.astype(np.int32)
+    return (v + lo).astype(np.float32), fc.astype(np.int32)

@@ -27,5 +27,6 @@ V, F, C, Kd = M.arrays()
 counts = {int(k): int(np.sum(Kd[F[:, 0]] == k)) for k in np.unique(Kd)}
 log(f'{cfg["key"]} level {LV}: {len(F)} triangles, {len(V)} vertices, by kind {counts}')
 os.makedirs(os.path.join(foe, 'build'), exist_ok=True)
-np.savez_compressed(os.path.join(foe, 'build', f'high-{LV}.npz'), V=V, F=F, C=C.astype(np.float32), K=Kd)
+extra = {'R': M.mats()} if M.mats() is not None else {}
+np.savez_compressed(os.path.join(foe, 'build', f'high-{LV}.npz'), V=V, F=F, C=C.astype(np.float32), K=Kd, **extra)
 log('saved')

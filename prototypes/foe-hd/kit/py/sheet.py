@@ -51,3 +51,30 @@ for i, v in enumerate(('front', 'side', 'back')):
     out.append(c)
 Image.fromarray(np.concatenate(out, 1)).save(os.path.join(foe, 'build', f'outline-{LV}.png'))
 print('wrote', os.path.join(foe, 'build', f'compare-{LV}.png'), 'and', f'outline-{LV}.png')
+
+# 3. outline at the sheet's own scale (session 7's idea): the render scaled by metres, not stretched to fit, so a body
+#    too long or too short shows. The sheet's scale: its figure's height in pixels over foe.json height. Feet aligned,
+#    centred across. -> build/outline-abs-LEVEL.png (and how much they overlap, 1 is perfect)
+view = cfg.get('view', {}); width_m = view.get('width', cfg.get('height', 1.7) * 1.8)
+out = []
+for i, v in enumerate(('front', 'side', 'back')):
+    sm = mask_sheet(sheet[:, crops[i][0]:crops[i][1]]); ys, xs = np.nonzero(sm)
+    sm = sm[ys.min():ys.max() + 1, xs.min():xs.max() + 1]
+    ppm = sm.shape[0] / cfg.get('height', 1.7)                       # sheet pixels a metre
+    r = np.asarray(rend[v]).astype(int); rm = mask_rend(r)
+    rppm = r.shape[1] / width_m                                      # render pixels a metre
+    ys, xs = np.nonzero(rm); rm = rm[ys.min():ys.max() + 1, xs.min():xs.max() + 1]
+    k = ppm / rppm
+    rm = np.asarray(Image.fromarray((rm * 255).astype(np.uint8)).resize((max(1, int(rm.shape[1] * k)), max(1, int(rm.shape[0] * k))))) > 127
+    Hh = max(sm.shape[0], rm.shape[0]) + 40; w = max(sm.shape[1], rm.shape[1]) + 40
+    c = np.full((Hh, w, 3), 255, np.uint8); A = np.zeros((Hh, w), bool); B = np.zeros((Hh, w), bool)
+    A[Hh - 20 - sm.shape[0]:Hh - 20, (w - sm.shape[1]) // 2:(w - sm.shape[1]) // 2 + sm.shape[1]] = sm
+    B[Hh - 20 - rm.shape[0]:Hh - 20, (w - rm.shape[1]) // 2:(w - rm.shape[1]) // 2 + rm.shape[1]] = rm
+    c[A & ~B] = (255, 200, 200); c[B & ~A] = (190, 228, 250); c[A & B] = (205, 200, 215)
+    for m, col in ((A, (220, 40, 40)), (B, (0, 110, 190))):
+        c[np.asarray(Image.fromarray((m * 255).astype(np.uint8)).filter(ImageFilter.FIND_EDGES)) > 60] = col
+    print(v, 'overlap at the sheet\'s scale', round(float((A & B).sum() / max(1, (A | B).sum())), 3))
+    out.append(c)
+Hm = max(c.shape[0] for c in out)
+Image.fromarray(np.concatenate([np.pad(c, ((Hm - c.shape[0], 0), (0, 8), (0, 0)), constant_values=255) for c in out], 1)).save(
+    os.path.join(foe, 'build', f'outline-abs-{LV}.png'))
