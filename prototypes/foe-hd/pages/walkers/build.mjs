@@ -56,7 +56,11 @@ const res = await build({ entryPoints: [path.join(here, sculptPage ? 'sculpt.js'
   minify: true, legalComments: 'none', plugins: [plugin], loader: { '.bin': 'binary', '.webp': 'dataurl', '.png': 'dataurl' },
   nodePaths: [path.join(root, 'node_modules')] });
 const js = res.outputFiles[0].text.replace(/<\/script/gi, '<\\/script');
-const body = (await readFile(path.join(here, sculptPage ? 'sculpt-shell.html' : 'shell.html'), 'utf8')).replace('/*SCRIPT*/', () => js);
+let body = (await readFile(path.join(here, sculptPage ? 'sculpt-shell.html' : 'shell.html'), 'utf8')).replace('/*SCRIPT*/', () => js);
+// --links="label|url;label|url": the lane's other pages, listed at the foot
+const links = args.links ? String(args.links).split(';').map((x) => x.split('|')) : [];
+const linkHtml = links.length ? `<div class="notes"><p><b>The other walkers' pages:</b> ${links.map(([l, u]) => `<a href="${u}" target="_blank" rel="noopener">${l}</a>`).join(' · ')}</p></div>` : '';
+body = body.replace('<!--LINKS-->', () => linkHtml);
 await mkdir(path.join(here, 'dist'), { recursive: true });
 const full = '<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n</head>\n<body>\n' + body + '</body>\n</html>\n';
 await writeFile(path.join(here, `dist/${out}.html`), full);

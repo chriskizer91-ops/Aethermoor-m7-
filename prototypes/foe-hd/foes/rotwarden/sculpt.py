@@ -47,7 +47,7 @@ P_ = Parts()
 HIP = np.array([0, 0.0, 1.0]); NECK0 = np.array([0, 0.03, 1.78]); NECK1 = np.array([0, 0.13, 1.92])
 HEAD = np.array([0, 0.17, 2.02])
 SH = {1: np.array([0.40, 0.0, 1.67]), -1: np.array([-0.40, 0.0, 1.67])}
-R_ELB = np.array([0.47, 0.0, 1.31]); R_WRI = np.array([0.48, 0.05, 1.02]); R_FIST = np.array([0.48, 0.07, 0.89])
+R_ELB = np.array([0.53, 0.0, 1.31]); R_WRI = np.array([0.56, 0.05, 1.02]); R_FIST = np.array([0.56, 0.07, 0.89])   # hanging clear of his side
 KNEE = {s: np.array([s * 0.215, 0.04, 0.63]) for s in (1, -1)}
 ANK = {s: np.array([s * 0.235, 0.0, 0.17]) for s in (1, -1)}
 THI = {s: np.array([s * 0.18, 0.0, 0.97]) for s in (1, -1)}
@@ -61,15 +61,24 @@ def bark_body(P):
     d = smin(d, ell(P, (0, 0.02, 1.28), (0.26, 0.17, 0.17)), 0.08)            # belly
     d = smin(d, ell(P, (0, 0.0, 1.03), (0.28, 0.18, 0.17)), 0.08)             # pelvis
     d = smin(d, cap(P, NECK0, NECK1, 0.10, 0.085), 0.05)                      # neck
-    d = smin(d, ell(P, HEAD, (0.12, 0.14, 0.13)), 0.05)                       # head (inside the helm)
     for s in (1, -1):
-        d = smin(d, cap(P, THI[s], KNEE[s], 0.15, 0.12), 0.07)
-        d = smin(d, cap(P, KNEE[s], ANK[s], 0.12, 0.10), 0.04)
         d = smin(d, sph(P, SH[s], 0.13), 0.08)
-    d = smin(d, cap(P, SH[1], R_ELB, 0.10, 0.09), 0.05)
-    d = smin(d, cap(P, R_ELB, R_WRI, 0.09, 0.08), 0.03)
+    return d
+# his arm and his legs are pieces of their own (Chris, November 21: "when they move their arms they stretch themselves"):
+# each is meshed apart from his body with its top tucked under the pauldron or the hip hoops, so no skin joins them
+def bark_arm(P):
+    d = cap(P, SH[1] + [0.0, 0, -0.04], R_ELB, 0.10, 0.09)
+    return smin(d, cap(P, R_ELB, R_WRI, 0.09, 0.08), 0.03)
+def bark_legs(P):
+    d = None
+    for s in (1, -1):
+        e = smin(cap(P, THI[s] + [0, 0, 0.05], KNEE[s], 0.15, 0.12), cap(P, KNEE[s], ANK[s], 0.12, 0.10), 0.04)
+        d = e if d is None else np.minimum(d, e)
     return d
 P_.add('body', bark_body, 'bark')
+P_.add('arm-bark', bark_arm, 'bark')
+P_.add('leg-bark', bark_legs, 'bark')
+P_.add('head-bark', lambda P: ell(P, HEAD, (0.12, 0.14, 0.13)), 'bark')     # his head inside the helm: a piece of its own
 
 # the right fist (a bark gauntlet): knuckles, fingers curled, the thumb across
 def fist(P):
@@ -241,10 +250,12 @@ for a in np.linspace(-1.1, 1.1, 7):
     RIV.append(np.array([0.33 * math.sin(a), 0.02 + 0.245 * math.cos(a), 1.255]))
 RIV += [R_ELB + [0.09, 0.05, -0.08], R_WRI + [0.08, 0.04, 0.08]]
 RIV = np.array(RIV, np.float32)
-P_.add('rivets', lambda P: np.min(np.stack([sph(P, c, 0.014) for c in RIV], 1), 1), 'gold')
+ARM_RIV = (RIV[:, 0] > 0.45) & (RIV[:, 2] < 1.45); LEG_RIV = RIV[:, 2] < 0.85
+for nm, sel in (('rivets', ~ARM_RIV & ~LEG_RIV), ('arm-rivets', ARM_RIV), ('leg-rivets', LEG_RIV)):
+    P_.add(nm, lambda P, R_=RIV[sel]: np.min(np.stack([sph(P, c, 0.014) for c in R_], 1), 1), 'gold')
 
 # ---- 6. the root arm (his left): a solid core, the strands come later as tubes ----------------------------------------
-P_.add('root-core', lambda P: chain_cap(P, ROOT, [r * 0.6 for r in ROOT_R]), 'bark', k=0.0)
+ROOT_CORE = lambda P: chain_cap(P, ROOT, [r * 0.6 for r in ROOT_R])      # meshed on its own below (kind 10): a piece of its own, not welded to his shoulder
 # bracket fungi along its outer edge
 FUN = [(ROOT[2] + np.array([-0.15, 0.03, -0.02]), 0.07), (ROOT[3] + np.array([-0.14, 0.02, 0.05]), 0.06),
        (ROOT[3] + np.array([-0.13, 0.04, -0.07]), 0.055), (ROOT[4] + np.array([-0.11, 0.03, 0.03]), 0.05),
@@ -255,7 +266,7 @@ def fungi(P):
         e = slab(ell(P, c, (r, r * 0.95, r * 0.28)), P, c[2] - r, c[2] + r * 0.2)
         d = e if d is None else np.minimum(d, e)
     return d
-P_.add('fungi', fungi, 'fungus')
+# the fungi go with the root arm (meshed with it, below)
 
 # ---- 7. moss: cushions on the shoulders, the root and the back, built from lumps -----------------------------------
 rng = np.random.default_rng(17)
@@ -269,7 +280,6 @@ def moss_w(P):
     w = np.exp(-(((x + 0.40) / 0.17) ** 2 + ((y + 0.0) / 0.25) ** 2 + ((z - 1.82) / 0.12) ** 2))          # left shoulder, big
     w += 0.8 * np.exp(-(((x - 0.40) / 0.14) ** 2 + ((y + 0.03) / 0.2) ** 2 + ((z - 1.80) / 0.09) ** 2))   # right shoulder
     w += 0.7 * np.exp(-(((x + 0.15) / 0.2) ** 2 + ((y + 0.20) / 0.1) ** 2 + ((z - 1.70) / 0.15) ** 2))   # upper back
-    w += 0.6 * np.exp(-(((x + 0.42) / 0.12) ** 2 + ((y - 0.08) / 0.15) ** 2 + ((z - 1.3) / 0.25) ** 2))  # down the root
     w += 0.4 * np.exp(-(((x - 0.1) / 0.1) ** 2 + ((y - 0.25) / 0.1) ** 2 + ((z - 1.72) / 0.05) ** 2))    # a tuft on the chest
     return w * (0.55 + 0.9 * fbm(P, 6.0))
 mw = moss_w(Ps) * sstep(-0.1, 0.4, N0[:, 2])
@@ -296,15 +306,14 @@ log('moss lumps', len(MP))
 
 # ---- 8. surface detail by pass --------------------------------------------------------------------------------------
 LOOKS = [it[2] for it in P_.items]
-def detail(P, d):
+def detail(P, d, parts=None):
+    parts = parts or P_
     if LV < 2: return d
-    lab = None
     out = d.copy()
     near = np.abs(d) < 0.02
     if not near.any(): return out
     Pn = P[near]
-    lab = P_.label(Pn)
-    look = np.array(LOOKS)[lab]
+    look = np.array([it[2] for it in parts.items])[parts.label(Pn)]
     dd = np.zeros(len(Pn), F32)
     bark = look == 'bark'
     if bark.any():
@@ -327,12 +336,28 @@ def detail(P, d):
 def full_sdf(P):
     return detail(P, P_.sdf(P))
 
-# ---- 9. the body mesh -----------------------------------------------------------------------------------------------
+# ---- 9. the body mesh, the arm and the legs: three pieces, meshed apart -------------------------------------------------
+HEAD_PARTS = {'head-bark', 'helm', 'helm-band', 'helm-ridge', 'helm-bolt1', 'helm-bolt-1', 'helm-boss1', 'helm-boss-1', 'void', 'helm-rivets'}
+ARM_PARTS = {'arm-bark', 'fist', 'rerebrace', 'elbow', 'vambrace', 'vambrace-rim', 'arm-rivets'}
+LEG_PARTS = {'leg-bark', 'leg-rivets'} | {f'{p}{s}{r}' for p in ('cuisse', 'knee', 'greave', 'boot', 'sole', 'cuff') for s in (1, -1) for r in ('', '-rim')}
+def group(names):
+    g = Parts()
+    for it in P_.items:
+        if it[0] in names: g.items.append(it)
+    return g
+PIECES = [('body', group({it[0] for it in P_.items} - ARM_PARTS - LEG_PARTS - HEAD_PARTS), 0, (-0.95, -0.42, 0.55), (0.75, 0.50, 2.3)),
+          ('head', group(HEAD_PARTS), 14, (-0.26, -0.12, 1.78), (0.26, 0.45, 2.26)),
+          ('arm', group(ARM_PARTS), 12, (0.20, -0.25, 0.70), (0.78, 0.35, 1.80)),
+          ('legs', group(LEG_PARTS), 13, (-0.50, -0.30, -0.02), (0.50, 0.50, 1.15))]
 M = Mesh()
-log('body, voxel', VOX)
-Vb, Fb = mc(full_sdf, VOX, (-0.95, -0.42, -0.02), (0.75, 0.50, 2.3))
-log('body tris', len(Fb))
-lab = P_.label(Vb); look = np.array(LOOKS)[lab]
+VS, FS, LK, KS, off = [], [], [], [], 0
+for nm, parts, kd, lo_, hi_ in PIECES:
+    log(nm, 'voxel', VOX)
+    Vg, Fg = mc(lambda P, p=parts: detail(P, p.sdf(P), p), VOX, lo_, hi_)
+    VS.append(Vg); FS.append(Fg + off); off += len(Vg)
+    LK.append(np.array([it[2] for it in parts.items])[parts.label(Vg)]); KS.append(np.full(len(Vg), kd, np.uint8))
+    log(nm, 'tris', len(Fg))
+Vb = np.concatenate(VS); Fb = np.concatenate(FS); look = np.concatenate(LK); KB = np.concatenate(KS)
 col = np.zeros((len(Vb), 3)); mat = np.zeros((len(Vb), 2))
 n1 = fbm(Vb, 5.0); n2 = fbm(Vb + 5, 14.0); n3 = fbm(Vb + 9, 2.2)
 def put(m, c, mt): col[m] = c[m] if np.ndim(c) == 2 else c; mat[m] = mt
@@ -352,13 +377,23 @@ m = look == 'moss'; put(m, mix(MOSS_D, MOSS, np.clip(n2 * 1.8 - 0.3, 0, 1)[:, No
 m = look == 'leather'; put(m, mix(SOLE, LEATHER, np.clip(n1 * 1.6, 0, 1)[:, None]), MAT['leather'])
 m = look == 'sole'; put(m, SOLE, MAT['leather'])
 m = look == 'void'; put(m, VOID, MAT['void'])
-m = look == 'fungus'
-put(m, mix(FUNGUS * 0.55, FUNGUS, np.clip((Vb[:, 2] - 0) * 0, 0, 1)[:, None] + np.clip(n2, 0, 1)[:, None] * 0.6), MAT['fungus'])
 # shade the crevices: points just inside another part's reach get darker (cheap cavity)
 cav = np.clip(1 - (P_.sdf(Vb + grad(P_.sdf, Vb) * 0.012) / 0.012), 0, 1)
 col = col * (1 - 0.35 * cav[:, None])
 M.add(Vb, Fb, np.clip(col, 0, 1), 0, mat)
+M.K[-1][:] = KB                                           # kinds: 0 body, 12 his right arm, 13 his legs, 14 his helmed head
 M.M[-1] = A(mat)
+
+# ---- 9b. the root arm's core and its fungi: their own mesh (kind 10), hanging from a joint at his shoulder -------------
+rp = Parts(); rp.add('core', ROOT_CORE, 'bark'); rp.add('fungi', fungi, 'fungus')
+rlo = np.min(np.array(ROOT), 0) - 0.25; rhi = np.max(np.array(ROOT), 0) + 0.25
+Vr, Fr = mc(rp.sdf, VOX, rlo, rhi)
+rl = np.array(['bark', 'fungus'])[rp.label(Vr)]
+rc = np.where((rl == 'fungus')[:, None], mix(FUNGUS * 0.55, FUNGUS, np.clip(fbm(Vr + 5, 14.0), 0, 1)[:, None] * 0.6 + 0.4),
+              mix(BARK_D, BARK, np.clip(ridged(Vr * [1, 1, 0.28], 24.0, 2) * 1.5 - 0.3, 0, 1)[:, None]))
+rm = np.where((rl == 'fungus')[:, None], np.array(MAT['fungus']), np.array(MAT['bark']))
+M.add(Vr, Fr, np.clip(rc, 0, 1), 10, rm)
+log('root core', len(Fr))
 
 # ---- 10. roots: twisted strands round the root arm, wound through the joints, over chest and back ---------------------
 surf_sdf = P_.sdf

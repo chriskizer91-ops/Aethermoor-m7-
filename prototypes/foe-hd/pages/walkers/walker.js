@@ -143,7 +143,7 @@ function pose(W, move, u, t, step) {
   reset(W);
   const b = W.bones, br = Math.sin(t * 1.6), big = W.foe.weight ?? 1;
   // under everything: breathing, the head looking about, roots stirring
-  b.chest.scale.set(1 + 0.012 * br, 1 + 0.01 * br, 1 + 0.015 * br);
+  b.chest.rotation.x = 0.015 * br; b.neck.rotation.x = -0.01 * br;      // breathing: a small rise of the chest (no bone is ever scaled)
   b.head.rotation.y = 0.15 * Math.sin(t * 0.45); b.head.rotation.x = 0.03 * br;
   roots(W, (r, i) => { r.rotation.z = 0.04 * Math.sin(t * 0.9 - i * 0.7); r.rotation.x = 0.03 * Math.sin(t * 0.7 - i * 0.9); });
   if (b.r_upper) { b.r_upper.rotation.z = -0.06 - 0.02 * br; b.r_fore.rotation.x = -0.12; }
@@ -174,10 +174,11 @@ function pose(W, move, u, t, step) {
   if (move === 'ko') {
     // the knees give, he sinks onto them, then topples forward; the head drops last
     const knees = seg(u, 0, 0.35), fall = seg(u, 0.38, 0.85), drop = seg(u, 0.7, 1);
-    for (const n of ['r', 'l']) { b[n + '_thigh'].rotation.x = -1.35 * knees; b[n + '_shin'].rotation.x = 1.9 * knees; b[n + '_foot'].rotation.x = -0.5 * knees; }
-    W.body.position.y = -0.48 * knees * (W.foe.height / 2.5) - 0.05 * fall;
-    W.body.position.z = 0.18 * knees + 0.55 * fall * (W.foe.height / 2.5);
-    b.hips.rotation.x = 0.2 * knees + 1.15 * fall;
+    // (the knees bend no more than the plates and bark round them allow; the fall is mostly from the hips)
+    for (const n of ['r', 'l']) { b[n + '_thigh'].rotation.x = -0.75 * knees; b[n + '_shin'].rotation.x = 1.05 * knees; b[n + '_foot'].rotation.x = -0.3 * knees; }
+    W.body.position.y = -0.22 * knees * (W.foe.height / 2.5) - 0.05 * fall;
+    W.body.position.z = 0.1 * knees + 0.55 * fall * (W.foe.height / 2.5);
+    W.body.rotation.x = 1.25 * fall; b.hips.rotation.x = 0.15 * knees;
     b.neck.rotation.x = 0.4 * drop; b.head.rotation.z = 0.3 * drop;
     if (b.r_upper) { b.r_upper.rotation.x = -0.9 * fall; b.r_upper.rotation.z -= 0.3 * fall; }
     if (b.l_upper) { b.l_upper.rotation.x = -0.9 * fall; b.l_upper.rotation.z += 0.3 * fall; }

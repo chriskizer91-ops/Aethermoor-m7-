@@ -54,7 +54,9 @@ export const arena = {
     const loop = (now) => {
       if (!this.on) return;
       this.raf = requestAnimationFrame(loop);
-      const dt = Math.min(0.12, (now - last.t) / 1000); last.t = now; this.t += dt;
+      const dt = Math.min(0.12, (now - last.t) / 1000); last.t = now;
+      if (this.manual) return; // the stills' slow mode: the clock moves only by stepBy()
+      this.t += dt;
       this.frame(dt);
     };
     this.raf = requestAnimationFrame(loop);
@@ -129,6 +131,9 @@ export const arena = {
       pos = this.want.pos.clone().addScaledVector(this.dir, -3.5); pos.y += 3.2;
       if (!clear(pos, look)) pos = this.want.pos.clone().setY(this.want.pos.y + 2.5);
     }
+    // close in: the foe stands in the stage's open upper part, not behind the turn strip across the screen's middle
+    // (aimed a little under it: about 8 degrees, so it sits some 190 px above the middle of a phone's 844)
+    if (kind === 'close') { look = at.clone(); look.y -= pos.distanceTo(at) * 0.146; }
     const q = new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().lookAt(pos, look, UP));
     this.close = { t: 0, dur, pos, q, fov: kind === 'close' ? 36 : this.want.fov + 6 };
     if (kind === 'close') this.stage?.host.classList.add('f3-close');
@@ -384,10 +389,12 @@ export const arena = {
     const it = unit && (unit.intent?.played ? unit.intent2 || unit.intent : unit.intent) || {};
     const self = !it.target || it.target === id || !h;
     // a Champion's or Relic-Bearer's named move has its own moment (champions.js): its body move, effects, a camera
-    const M = momentFor(unit?.family || F.key, it.move);
+    const M = momentFor(unit?.family || F.key, it.move, unit?.variant || null);
     F.act = { kind: 'attack', t: 0, target: h ? h.id : null, bit: false, bitT: null, self, moment: M,
       kmove: (M && F.fig.beast?.pose && ownMove(F, M.move)) || kitMove(F, it.move || it.name || '', self) };
     if (M) { try { M.start?.(this.momentCtx(F)); } catch (e) { console.warn(e); } if (M.camera) this.momentCam(F, M.camera); }
+    // headless stills only (check-moves --slow): told as a big move begins, so the clock can be held from its first frame
+    if (M && this.onMoment) try { this.onMoment(F, unit, it); } catch (e) { console.warn(e); }
   },
   foeHurt(id, big) { const F = this.foes.get(id); if (F && !F.ko) { F.hurt = { t: 0, dur: F.fig.beast?.pose ? Math.min(0.9, kitDur(F, 'hurt')) : big ? 0.5 : 0.36 }; F.fig.beast?.hit?.(); } },
   foeKo(id) { const F = this.foes.get(id); if (!F) return; F.ko = { t: 0, dur: 0.6 }; F.act = null; },
@@ -410,6 +417,11 @@ export const arena = {
     for (const f of this.foes.values()) if (f.act || f.hurt || (f.ko && !f.removed) || f.gone || f.walk) return true;
     return false;
   },
+
+  // the stills' slow mode (headless checks): hold the clock, then step it by hand, frame by frame, drawing each
+  stepBy(sec, fps = 30) { const n = Math.max(1, Math.round(sec * fps)); for (let i = 0; i < n; i++) { this.t += 1 / fps; this.frame(1 / fps); } },
+  // the foe in the middle of a named move (for the stills: its landing played by hand)
+  movingFoe() { for (const F of this.foes.values()) if (F.act?.moment) return F; return null; },
 
   // ---- every frame --------------------------------------------------------------------------------------------
   frame(dt) {

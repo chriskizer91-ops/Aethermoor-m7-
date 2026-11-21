@@ -41,6 +41,32 @@ light model that can share the screen with the party, rigged, moving through its
   roots wound round the arm, and nothing inside the outline of his body. The loose tendrils that dangled from his hand
   and by his knee are gone. Republished (gallery version 2, sculpt page updated).
 
+## Fixed again (Chris, November 21: "when they move their arms they stretch themselves")
+
+My first fix (above) wasn't enough: session 6's stretch check measured the Rotwarden still stretching up to 70 times in
+Grasping Roots and 42 times in Blacken the Sap, and the sapwight 176 times in Walk. What changed (gallery version 4,
+same link):
+
+- **The arm, the legs, the head and the root arm are pieces of their own.** In the sculpt they were one surface with
+  the body wherever they touched (the arm against the ribs, the root against the shoulder, the thighs against each
+  other), so moving one dragged the body's skin after it. Now each is meshed apart, its top tucked under the pauldron,
+  the hip hoops or the helm's rim, and turns at its joint as a whole. The sapwight's arms and legs the same.
+- **Weights by part** (session 6's `bind.py`, used by the walkers' bake): each point belongs to one part, blends only
+  in a band at its own joint; triangles joining pieces that merely touch are cut; each piece keeps only its own bones.
+- **Bones only turn**: breathing was a scale of the chest; now a small rise.
+- **The moves bend armour less**: the Rotwarden bends at the hips and knees more than at his breastplate.
+
+Where it stands (worst edge growth in any frame of each move; the rule is 1.3 times):
+
+- The Rotwarden: Breathe passes (1.15); the rest 1.6 to 2.3 times, at joints (the knees in Fall, the waist under the
+  breastplate, the elbow in Bark Hide). Down from 70.
+- The sapwight: 1.5 to 3 times, at its neck where the head turns, and its forearms. Down from 176.
+- By eye on the page: no webs; the waist, belt and straps stay put in Blacken the Sap.
+- Still to do: every move under 1.3 (wider blends at those joints, or the moves a little smaller there).
+- **Old Horn** (Act Two, built today) has the same pieces but still stretches up to 17 times where his cape meets his
+  shoulders; he goes on a page only when that's fixed.
+- The laptop sculpt page still shows the earlier sculpts; to be refreshed.
+
 ## Phone versions (done)
 
 - Each walker now also has a phone version, baked from the same sculpt with fewer triangles and smaller pictures
