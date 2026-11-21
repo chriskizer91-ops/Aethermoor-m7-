@@ -51,8 +51,8 @@ html,body{margin:0;height:100%;background:#0a0b18;overflow:hidden;overscroll-beh
 #party button.on{background:rgba(150,90,30,.9);border-color:#ffd27a;color:#fff6e0}
 #numbers{bottom:calc(64px + env(safe-area-inset-bottom,0px))}
 @media (max-width:720px){#party{gap:4px}#party button{padding:0 7px;font-size:12.5px;flex:1 1 auto}#numbers{font-size:12px}}
-#where{position:absolute;left:calc(12px + env(safe-area-inset-left,0px));top:calc(12px + env(safe-area-inset-top,0px));z-index:5;appearance:none;min-height:46px;padding:0 16px;border-radius:23px;border:1px solid rgba(255,214,150,.55);background:rgba(28,20,16,.78);color:#ffe6a8;font:600 15px Georgia,serif;cursor:pointer}
-#places{position:absolute;left:calc(12px + env(safe-area-inset-left,0px));top:calc(66px + env(safe-area-inset-top,0px));z-index:6;display:none;flex-direction:column;gap:6px;padding:8px;border-radius:16px;background:rgba(14,12,34,.9);border:1px solid rgba(214,222,255,.3);max-height:70vh;overflow:auto}
+#where{position:absolute;left:calc(12px + env(safe-area-inset-left,0px));top:calc(clamp(124px,22vmin,150px) + 22px + env(safe-area-inset-top,0px));z-index:5;appearance:none;min-height:46px;padding:0 16px;border-radius:23px;border:1px solid rgba(255,214,150,.55);background:rgba(28,20,16,.78);color:#ffe6a8;font:600 15px Georgia,serif;cursor:pointer}
+#places{position:absolute;left:calc(12px + env(safe-area-inset-left,0px));top:calc(clamp(124px,22vmin,150px) + 76px + env(safe-area-inset-top,0px));z-index:6;display:none;flex-direction:column;gap:6px;padding:8px;border-radius:16px;background:rgba(14,12,34,.9);border:1px solid rgba(214,222,255,.3);max-height:70vh;overflow:auto}
 #places.on{display:flex}
 #places button{appearance:none;min-height:44px;border:1px solid rgba(214,222,255,.25);border-radius:12px;background:rgba(40,36,80,.5);color:#f0ecff;font:15px Georgia,serif;padding:8px 14px;text-align:left;min-width:200px;cursor:pointer}
 #places button.on{background:rgba(150,90,30,.9);border-color:#ffd27a}
@@ -60,7 +60,7 @@ html,body{margin:0;height:100%;background:#0a0b18;overflow:hidden;overscroll-beh
 /* the light switch (Places): bottom left, over the numbers (clear of the place's name at the top) */
 #light{position:absolute;bottom:calc(112px + env(safe-area-inset-bottom,0px));left:calc(12px + env(safe-area-inset-left,0px));z-index:4;appearance:none;min-height:44px;padding:0 14px;border-radius:22px;border:1px solid rgba(214,222,255,.45);background:rgba(14,14,36,.62);color:#eee8ff;font:14px system-ui,sans-serif;cursor:pointer}
 #light:focus-visible,#guide:focus-visible{outline:2px solid #ffd27a;outline-offset:2px}
-@media (max-width:720px){#toast{top:calc(70px + env(safe-area-inset-top,0px))}}
+@media (max-width:720px){#toast{top:calc(clamp(124px,22vmin,150px) + 24px + env(safe-area-inset-top,0px));left:auto;right:12px;transform:none;max-width:calc(100% - 200px)}}
 </style>
 <div id="world"><canvas id="cv"></canvas><div id="ring"><div id="dot"></div></div>
   <button id="nums" aria-label="Show or hide the numbers"><svg viewBox="0 0 24 24" fill="none" stroke="#eee8ff" stroke-width="1.8" stroke-linecap="round"><path d="M5 19V11M12 19V5M19 19v-5"/></svg></button>
@@ -82,4 +82,5 @@ html,body{margin:0;height:100%;background:#0a0b18;overflow:hidden;overscroll-beh
 <script src="../places/m7-kit.js"></script>
 <script src="../../party.js"></script>
 <script src="../../m7/life.js"></script>
+<script src="../../m7/minimap.js"></script>
 <script src="../../m7places.js"></script>
