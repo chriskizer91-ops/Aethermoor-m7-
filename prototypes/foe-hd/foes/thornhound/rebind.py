@@ -32,6 +32,9 @@ for k_, a_ in out.items():
                   'type': 'uint32' if a_.dtype == np.uint32 else 'float32'}
     blob.append(b_); o += len(b_)
 meta['layout'] = layout
+from common import helpers_for
+meta['helpers'] = helpers_for(RIG.BONES, getattr(RIG, 'HELPERS', None))
+meta['bones'] = [{'name': n, 'parent': par, 'head': [round(float(v), 4) for v in (-hd[0], hd[2], hd[1])], 'tail': [round(float(v), 4) for v in (-tl[0], tl[2], tl[1])]} for n, par, hd, tl in RIG.BONES]
 open(os.path.join(B, 'low.bin'), 'wb').write(b''.join(blob)); json.dump(meta, open(os.path.join(B, 'low.json'), 'w'))
 print('[rebind] cut', int((~keep).sum()), 'triangles')
 subprocess.run(['node', os.path.join(HERE, '../../pages/beasts/kit/pack.mjs'), B, '', os.path.join(HERE, 'assets')], check=True)
