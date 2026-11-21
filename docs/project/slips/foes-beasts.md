@@ -48,6 +48,11 @@ session 6 made Briarmaw.
   big masses turn (a shoulder blade, a thigh-to-haunch helper, two neck bones); that's the next pass, before more
   bending is taken out of his moves.
 
+- **Against the lanes' rule** (hub, November 21: edges longer than 1% of the height under 1.3x, crease edges under
+  3x, no scaled bones, no webbing): no edge past 2.4x, no scaled or slid bones, no webbing by eye; but in the worst
+  pose 129 edges longer than 9 mm still pass 1.3x (my `stretch.mjs` now prints this verdict). The hub has passed
+  him; helper joints from the kit should clear the rest.
+
 ## Next
 
 0. Move onto session 6's shared kit (commit f384b7d / 8f3b6e2 on job/foe-hd) once the hub brings it into its branch; my
