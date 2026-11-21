@@ -229,12 +229,16 @@
     if (PHONE_TREES.has(d.id)) return PHONE_TREES.get(d.id);
     const [w, h] = d.tiles, at = new Set(), key = (i, j) => i + ',' + j;
     for (const t of all) at.add(key(Math.floor(t[0] / TX), Math.floor(t[1] / TY)));
-    const R = mul32(w * 7 + h * 911), out = all.filter((t) => {
+    // the woods past the edge take the kind of tree the place itself mostly grows (one fewer set of materials per batch)
+    const cnt = {}; for (const t of all) { const i = Math.floor(t[0] / TX), j = Math.floor(t[1] / TY); if (i >= 0 && j >= 0 && i < w && j < h) cnt[t[3]] = (cnt[t[3]] || 0) + 1; }
+    const main = +(Object.entries(cnt).sort((a, b) => b[1] - a[1])[0] || [0])[0];
+    const R = mul32(w * 7 + h * 911), out0 = all.filter((t) => {
       const i = Math.floor(t[0] / TX), j = Math.floor(t[1] / TY), outside = i < 0 || j < 0 || i >= w || j >= h;
       if (outside) return R() < 0.45;
       const deep = at.has(key(i + 1, j)) && at.has(key(i - 1, j)) && at.has(key(i, j + 1)) && at.has(key(i, j - 1));
       return !deep || R() < 0.4;
     });
+    const out = out0.map((t) => { const i = Math.floor(t[0] / TX), j = Math.floor(t[1] / TY); return (i < 0 || j < 0 || i >= w || j >= h) && t[3] !== main ? [t[0], t[1], t[2], main, t[4]] : t; });
     PHONE_TREES.set(d.id, out); return out;
   }
 

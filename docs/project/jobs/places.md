@@ -38,6 +38,37 @@ dusk) look for M7's places, chosen per place, would suit them; the engine's ligh
 - **Chris's batch 4 paintings**, when they come, go into `art-in/` (never into `game/`); the converter reads them from
   there in place of the stand-ins.
 
+**First, before step 4: the place map (Chris, November 21).** "A mini map for a more detailed map than the Atlas
+continent map, a mini map that gives you orientation for where you are in a location." A new file of yours,
+`world3d/m7/minimap.js`, used by your pages and by the game (Together wires its live marks):
+- **The small map** in a corner (suggested: top left; the game's menu is top right), about 124 to 150 px, rounded,
+  showing the place around the party: drawn from the place's own M7 painting (the map's art from above), the party's
+  mark with an arrow for the way the leader faces and a faint cone for where the camera looks, and an N for north.
+  North stays up (suggested; a rotating map can be a setting). Tap it for the big map.
+- **The big map**: the whole place, its name, and the marks: the ways out (each named for where it leads, from M7's
+  exits), doors and stairs, people (named), chests (closed or opened), the Hearthfire, shops, and the story's next goal
+  when the game passes one. A Back button (at least 44 px). Fits a 360 px wide phone either way up.
+- **Every M7 place** gets one, rooms and floors too (the Great Hall, Mosswatch's floors, the Heartroot), since each M7
+  map is its own place. Hidden during fights, talk and the Atlas.
+- **Cheap**: 2D canvas over the 3D, the painting drawn once per place, updated on a timer (Coven's
+  `engine/land/minimap.js` does it this way, about 7 times a second, never in the frame loop). No 3D draws added.
+- **Its door for the game**: `M7_MINIMAP.create({ root, W, place })` and `set({ people, chests, goal, ... })` for
+  live marks, `open(true|false)`, `hide(true|false)`; write the shape in your slip for Together.
+- Show it on your five pages, republish them, and tell the hub when Act One is ready to rebuild.
+
+**Step 4 (from November 21): the places come alive.** Every place moves a little, as an HD-2D diorama does, without
+costing a phone more than a few draws:
+- **Fire and light:** hearths, torches, braziers and lanterns flicker (flame cards, a glow that breathes, a little
+  light on the walls near them, faked in the shaders as the places already do); chimneys smoke; forges spark.
+- **Water:** rivers flow the way the map runs, falls throw spray, pools ripple, the bog water of the Gloomfen steams.
+- **Wind:** trees, grass, banners and hanging cloth sway; leaves drift down in the woods; dust blows on the Sunscorch's
+  roads; snow falls in the Ironspire; mist lies low over the fen.
+- **Small life:** birds and butterflies by day in the wild places; moths round lanterns; fish rings in still water.
+- **One draw per kind** where you can (instanced particles, sway in the vertex shader), and each place's phone draws
+  and frame time measured before and after, in your slip. Anything that costs too much on a phone is laptop-only.
+- Start with Act One (the Keep, Thornhollow, the Thornway, Mossfall, the Heartroot), then the regions. Republish your
+  four region pages; tell the hub when Act One is ready to rebuild.
+
 ## What others rely on (keep it working)
 
 - `W3D_PLACES['m7-<id>']` with its `anchors`, `exits` (`to`, `anchor`), `people`, `start`; the walk boxes in

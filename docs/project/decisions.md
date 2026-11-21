@@ -4,6 +4,11 @@ Written by the hub. His newer word beats anything older, here or anywhere in the
 
 ## November 21
 
+- **A place map** (Chris): "a mini map for a more detailed map than the Atlas continent map, a mini map that gives you
+  orientation for where you are in a location." Places makes it (`world3d/m7/minimap.js`: a small map in a corner
+  drawn from the place's own painting, the party's mark and facing, the whole place's map when tapped, with the ways
+  out, people, chests and the Hearthfire); Together feeds it the game's live marks. Suggested and open: top-left
+  corner, north kept up (a rotating map as a setting).
 - **No model may stretch when it moves.** Chris, on his phone, of the Rotwarden's "Blacken the Sap" (walkers page):
   "when they move their arms they stretch themselves" (to every session doing 3D models). His picture:
   `from-chris/2026-11-21-rotwarden-stretch.webp`: as the arms spread, his waist, belt and the straps across his middle

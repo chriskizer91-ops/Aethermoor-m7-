@@ -17,7 +17,7 @@ import { generateItem, relicItem } from '../../game/src/rules/loot.js';
 import { RELICS } from '../../game/src/data/relics.js';
 import { createRng } from '../../game/src/core/rng.js';
 import { buildHero, setPose, glowColor, SWING_ON, SCULPT } from './model.js';
-import { MACRO_ON, MASTER_ON } from './kit.js';
+import { MACRO_ON, MASTER_ON, ADD_LOG } from './kit.js';
 import { loadHeights, sculptify, unsculpt } from './masters/sculpt-view.js';
 import { ready as foeReady, makeShared, makeFoe } from '../foe-hd/kit/js/loader.js';
 import * as QUAD from '../foe-hd/kit/js/moves/quad.js';
@@ -29,6 +29,9 @@ import bmAo from '../foe-hd/foes/briarmaw/assets/ao-1024.webp';
 import bmEmit from '../foe-hd/foes/briarmaw/assets/emit-256.webp';
 import { Q, TEXTURES } from './kit.js';
 import { auditList, gearFor, checkBuilt, HERO_NAMES } from './audit.js';
+import { FOE_ART, foeLooks, renderFoe } from '../../game/src/art/foes.js';
+import { buildPerson, PEOPLE, personLook } from './people.js';
+import { npcSheet } from '../../game/src/art/map-sprites.js';
 
 const HEROES = [{ id: 'warden', name: 'Wren' }, { id: 'pip', name: 'Pip' }, { id: 'bryn', name: 'Bryn' }, { id: 'alondra', name: 'Alondra' }];
 const SLOT_NAME = { weapon: 'Weapon', offhand: 'Off hand', head: 'Head', body: 'Body', hands: 'Hands', feet: 'Feet', amulet: 'Amulet', ring: 'Ring' };
@@ -127,7 +130,7 @@ function rebuild() {
   if (hero) { scene.remove(hero.group); hero.group.traverse(o => { o.geometry?.dispose?.(); }); }
   Q.d = QD[S.detail];
   const t0 = performance.now();
-  hero = buildHero(S.hero, S.gear, { build: S.build, lite: S.detail === 'lite' }); hero.face(S.face || 'neutral');
+  hero = whoBuild() || buildHero(S.hero, S.gear, { build: S.build, lite: S.detail === 'lite' }); hero.face?.(S.face || 'neutral');
   S.lastBuild = Math.round(performance.now() - t0);
   hero.group.position.x = S.party ? SLOT_X[S.hero] : 0;
   runeCircle.position.x = hero.group.position.x;
@@ -170,7 +173,7 @@ function nextRelic(slot) {
   const i = ((S.relicAt[slot] ?? -1) + 1) % list.length; S.relicAt[slot] = i;
   return relicItem(list[i].id, rng, { from: list[i].holder });
 }
-function setHero(id) { S.hero = id; S.gear = S.gears[id] || (S.gears[id] = starterKit(id)); rebuild(); }
+function setHero(id) { S.who = null; const ws = document.getElementById('who'); if (ws && ws.options.length) ws.value = 'hero:' + id; $('gearPanel').classList.remove('who'); S.hero = id; S.gear = S.gears[id] || (S.gears[id] = starterKit(id)); rebuild(); }
 // the party: all four on the stage at once, each in their own gear; the panel dresses the chosen one
 const SLOT_X = { warden: -0.38, pip: -1.14, bryn: 0.38, alondra: 1.14 };
 const others = {};
@@ -233,14 +236,14 @@ function drawPanel() {
   $('b-temper').textContent = it?.temper >= 10 ? 'Temper: +10 (most)' : `Temper +1 at Hilda's`;
   $('b-relic').disabled = !relicsFor(S.slot).length;
   $('b-off').disabled = !it;
-  for (const c of document.querySelectorAll('.hero')) c.setAttribute('aria-pressed', c.dataset.id === S.hero);
+  for (const c of document.querySelectorAll('.hero')) c.setAttribute('aria-pressed', !S.who && c.dataset.id === S.hero);
   drawSprite(0);
 }
 // the game's own battle sprite, in the same gear
 const spriteBox = $('sprite');
 let spriteCanvas = null, spriteT = 0;
 function drawSprite(t) {
-  const img = renderHero(S.hero, S.gear, { pose: 'idle', t });
+  const img = S.who ? whoSprite(t) : renderHero(S.hero, S.gear, { pose: 'idle', t });
   if (!spriteCanvas) { spriteCanvas = document.createElement('canvas'); spriteCanvas.className = 'px'; spriteBox.append(spriteCanvas); }
   spriteCanvas.width = img.width; spriteCanvas.height = img.height;
   spriteCanvas.getContext('2d').putImageData(img, 0, 0);
@@ -467,8 +470,36 @@ $('b-sculptview').onclick = async () => {
   if (S.sculptView) { if (S.detail !== 'high') { S.detail = 'high'; applyDetail(); } if (!SCULPT.on) $('b-sculpt').click(); rebuild(); }
   else { unsculpt(); rebuild(); }
 };
+window.__addLog = ADD_LOG;
+window.__build = (e) => { const keepQ = Q.d; Q.d = 2; try { return buildHero(e.hero, gearFor(e), {}); } finally { Q.d = keepQ; } };
+// everyone else built by the same builder: the people foes (art/foes.js) and the townsfolk (people.js)
+const FOE_PEOPLE = Object.keys(FOE_ART).filter(k => FOE_ART[k].kind === 'humanoid');
+/* ------------------------------------------------------------------ everyone (November 21) */
+// Who: any hero, townsperson or people foe, in full detail (their own outfits from the game's looks, wearing the same
+// sculpted masters); "The sculpt" then shows the whole sculpt of whoever is chosen
+function whoBuild() {
+  if (!S.who) return null;
+  const [t, k] = S.who.split(':'), lite = S.detail === 'lite';
+  if (t === 'npc') return buildPerson(k, { lite });
+  const { H, gear } = foeLooks(k, {}); return buildHero('warden', {}, { H, looks: gear, lite });
+}
+const NPC_SPRITE = {};
+function whoSprite(t) {
+  const [k0, k] = S.who.split(':');
+  if (k0 === 'foe') return renderFoe(k, { tier: FOE_ART[k].defaultTier, t });
+  if (!NPC_SPRITE[k]) { const sh = npcSheet(personLook(k).art), c = document.createElement('canvas'); c.width = sh.img.width; c.height = sh.img.height; c.getContext('2d').putImageData(sh.img, 0, 0); NPC_SPRITE[k] = c.getContext('2d').getImageData(0, 0, 16, 24); }
+  return NPC_SPRITE[k];
+}
+const whoSel = $('who');
+{ const add = (label, items) => { const g = document.createElement('optgroup'); g.label = label; for (const [v, n] of items) g.append(new Option(n, v)); whoSel.append(g); };
+  add('Heroes', HEROES.map(h => ['hero:' + h.id, h.name]));
+  add(`The townsfolk (${PEOPLE.length})`, PEOPLE.map(id => { let n = id; try { n = personLook(id).name || id; } catch (e) {} return ['npc:' + id, n]; }).sort((a, b) => a[1].localeCompare(b[1])));
+  add(`People foes (${FOE_PEOPLE.length})`, FOE_PEOPLE.map(k => ['foe:' + k, FOE_ART[k].name || k]).sort((a, b) => a[1].localeCompare(b[1])));
+  whoSel.onchange = () => { const v = whoSel.value; if (v.startsWith('hero:')) return setHero(v.slice(5)); if (S.party) setParty(false); S.who = v; $('gearPanel').classList.add('who'); rebuild(); };
+}
+window.__people = { foes: FOE_PEOPLE, npcs: PEOPLE, foe: k => { const { H, gear } = foeLooks(k, {}); return buildHero('warden', {}, { H, looks: gear }); }, npc: id => buildPerson(id) };
 window.__flags = { SCULPT, MACRO_ON, MASTER_ON };
-window.__gear = { renderer, S, rebuild, setHero, rollFor, nextRelic, lookAt: w => lookAt(w), get hero() { return hero; }, camera, controls };
+window.__gear = { renderer, scene, S, rebuild, setHero, rollFor, nextRelic, lookAt: w => lookAt(w), get hero() { return hero; }, camera, controls };
 applyDetail();
 setHero('warden');
 resize();

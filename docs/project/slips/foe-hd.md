@@ -5,6 +5,21 @@ shown side by side with the code-built model and a cut-out of Chris's sheet.
 
 ## Done
 
+- **Briarmaw, the briarling and the glowcap pass the stretch check** (every move under 1.3x, checked at 120 frames;
+  November 21). Re-weighted by part, no new bake needed (the sculpts didn't change).
+  - Briarling: its leafy coat is all ball (the legs are root tubes pushed into it), the leg tubes' hidden tops go with
+    the legs, the sprout bends just above the ball; it pitches as a whole; knees and sprout swing a little less.
+  - Glowcap: each leaf-arm is a whole leaf on its arm bone, the cap is all head; it waddles (its body reaches nearly to
+    the ground, so the legs swing only a little under it) and leans whole instead of nodding a neck it hasn't got.
+  - Briarmaw: his legs claim only what is below the middle of his flank and near their own line (seen from above);
+    his mouth is cut along the lips (the jaw opens without dragging his cheeks, and the page draws the inside of his
+    head behind it); his upper legs are inside his barrel, so he moves from the knee and the paw, and rears, turns,
+    dips and reels with his whole body. His moves are smaller than before, heavier.
+  - The kit learned on the way (all in `kit/rigs/bind.py`): welding by distance, parts for separate pieces
+    (`part(P, kind, idx, piece)`), `SPLIT` for a mouth, bands only from a bone the point can see and is near, bones made
+    only of pieces share no band with the skin, cuts only limb against limb; and in the check, `--parts`, `--focus`,
+    `BIND_AT`.
+
 - **No stretching (Chris, November 21), in the kit:**
   - **The stretch check**, `node kit/tools/stretch.mjs foes/<key>`: every move at 48 frames, skinned as three.js does,
     fails past 1.3x on any edge or on a scaled or slid bone; names the worst move, frame, place and the two parts the
@@ -82,8 +97,12 @@ shown side by side with the code-built model and a cut-out of Chris's sheet.
 
 ## Next
 
-1. Bring Briarmaw, the briarling and the glowcap under 1.3 in every move (above), then my lane: (briarling, glowcap
-   done) boglurcher, the willows, the sparks, rockling, Mother Anvil, the wraiths.
+0. Later kit pass (after the boglurcher is under way): helper joints in the rig templates for every lane, starting from
+   session 7's proposal (docs/project/slips/foes-beasts.md: a shoulder blade per foreleg, a haunch per hind leg, two
+   neck bones, a tail-root helper, driven by the loader from a HELPERS table so moves don't change). Also session 7's
+   report that bind.py lets some neck weight onto the thornhound's ear root despite its weigh(): weigh gates need
+   +1000 (an unseen bone costs 100), and a gate should also stop the bands and smoothing.
+1. My lane, each passing the stretch check before it's handed in: (briarling, glowcap done) boglurcher, the willows, the sparks, rockling, Mother Anvil, the wraiths.
 2. Briarmaw's moves smoothed (weights round the shoulders and hips, a fuller walk), a hit flash.
 2. The face closer still to the sheet; the coat's brown zones placed as the sheet paints them.
 3. Done: pass 3, the sculpt's own page, the heavier brow and golden fangs, the rump and tail as the sheet shows.

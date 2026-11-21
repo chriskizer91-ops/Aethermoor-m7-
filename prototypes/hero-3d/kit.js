@@ -302,9 +302,14 @@ const MSLOPE = (() => { const a = new Array(NCELL).fill(0); for (const k of Obje
 // fitMaster(geometry, kind, { v0, v1, u0, u1 }): fit a piece built by loft/tube/lathe (u round, v along: its uv) to its
 // kind's master; v0..v1, u0..u1: the part of the master this piece is (a cape in two halves, a helm's face plate that
 // goes only part of the way round). Does nothing when the masters are off.
-export function fitMaster(geo, kind, { v0 = 0, v1 = 1, u0 = 0, u1 = 1 } = {}) {
+// planar: laid on flat across the piece's x and y (a forged head, whose own uvs are in raw units)
+export function fitMaster(geo, kind, { v0 = 0, v1 = 1, u0 = 0, u1 = 1, planar = false } = {}) {
   const K = MASTER_KINDS[kind]; if (!K || !MASTER_ON.on || !TEXTURES.on) return geo;
-  const uv = geo.attributes.uv; if (!uv) return geo;
+  let uv = geo.attributes.uv;
+  if (planar) { geo.computeBoundingBox(); const b = geo.boundingBox, P = geo.attributes.position, w = Math.max(1e-9, b.max.x - b.min.x), hh = Math.max(1e-9, b.max.y - b.min.y), s = Math.max(w, hh), a = new Float32Array(P.count * 2);
+    for (let i = 0; i < P.count; i++) { a[i * 2] = 0.5 + (P.getX(i) - (b.min.x + b.max.x) / 2) / s; a[i * 2 + 1] = 0.5 + (P.getY(i) - (b.min.y + b.max.y) / 2) / s; }
+    uv = new THREE.BufferAttribute(a, 2); }
+  if (!uv) return geo;
   const cx = (K.cell % MCOLS) * MCW, cy = Math.floor(K.cell / MCOLS) * MCH, w = MCW - 2 * MIU, h = MCH - 2 * MIV, out = new Float32Array(uv.count * 2);
   for (let i = 0; i < uv.count; i++) { const u = Math.min(1, Math.max(0, u0 + uv.getX(i) * (u1 - u0))), v = Math.min(1, Math.max(0, v0 + uv.getY(i) * (v1 - v0))); out[i * 2] = 2 + cx + MIU + u * w; out[i * 2 + 1] = cy + MIV + v * h; }
   geo.setAttribute('mUv', new THREE.BufferAttribute(out, 2)); geo.userData.master = kind;
@@ -312,17 +317,20 @@ export function fitMaster(geo, kind, { v0 = 0, v1 = 1, u0 = 0, u1 = 1 } = {}) {
 }
 const masterUniforms = U => Object.assign(U, { triMaster: { value: masterTexture() }, triMSlope: { value: MSLOPE }, triMK: { value: MASTER_ON.on ? 1 : 0 } });
 // withMaster(material): a material without a grain picture (a shield's painted face) that still wears the masters
+// (it keeps a shader the material already has, the faces' living-face shader: that runs first)
 export function withMaster(m) {
   if (!MASTER_ON.on || !TEXTURES.on || m.userData.tri) return m;
   const U = masterUniforms({}); m.userData.tri = U;
-  m.onBeforeCompile = sh => {
+  const prev = m.onBeforeCompile, prevKey = m.customProgramCacheKey?.bind(m);
+  m.onBeforeCompile = (sh, r) => {
+    if (prev) prev.call(m, sh, r);
     Object.assign(sh.uniforms, U);
     sh.vertexShader = sh.vertexShader.replace('void main() {', 'attribute vec2 mUv;\nvarying vec2 vMUv;\nvoid main() {').replace('#include <begin_vertex>', 'vMUv = mUv;\n#include <begin_vertex>');
     sh.fragmentShader = sh.fragmentShader.replace('void main() {', `uniform sampler2D triMaster; uniform float triMSlope[${NCELL}]; uniform float triMK; varying vec2 vMUv;\nvoid main() {`)
       .replace('#include <map_fragment>', '#include <map_fragment>\n' + MASTER_AO)
       .replace('#include <normal_fragment_maps>', '#include <normal_fragment_maps>\n' + MASTER_NORMAL);
   };
-  m.customProgramCacheKey = () => 'aeth-master';
+  m.customProgramCacheKey = () => 'aeth-master|' + (prevKey ? prevKey() : '');
   return m;
 }
 function triplanar(m, name, kind, opt = {}) {
@@ -457,7 +465,9 @@ export function stitchGeo(pts, step, r) {
 }
 
 /* ------------------------------------------------------------------ placing parts */
-export function add(geo, m, parent, x = 0, y = 0, z = 0) { const o = new THREE.Mesh(geo, m); o.position.set(x, y, z); o.castShadow = true; o.receiveShadow = true; parent.add(o); return o; }
+// the masters' audit (Gear Room debug build): every piece added, with where in the code it was made
+export const ADD_LOG = { on: false, list: [] };
+export function add(geo, m, parent, x = 0, y = 0, z = 0) { if (ADD_LOG.on) ADD_LOG.list.push({ geo, m, stack: new Error().stack }); const o = new THREE.Mesh(geo, m); o.position.set(x, y, z); o.castShadow = true; o.receiveShadow = true; parent.add(o); return o; }
 export function gem(key, r, parent, x, y, z, setting = 'gold', facing = V(0, 0, 1)) {
   if (!key) return null;
   const g = new THREE.Group(); g.position.set(x, y, z); parent.add(g);
