@@ -321,6 +321,35 @@ function swing(rig, t) {
   }
 }
 
+
+/* ------------------------------------------------------------------ sculpted detail (November 20) */
+// The code-built figures sculpted, so they stand beside the full-detail foes: the head shaped (a nose, a brow, eye
+// sockets, cheekbones, lips and a chin, placed from where each face's own eyes and mouth are, so it fits the picture),
+// cloth in deeper folds, hair in grooved locks, metal and leather with a second, larger scale of relief (dents, creases),
+// rolled rims. SCULPT.on = false gives the figures as they were, to compare.
+export const SCULPT = { on: true };
+// the head's relief for a face: unit-sphere x, y on its front -> how far the surface comes out (in head radii)
+function faceRelief(marks, k = 1) {
+  const toXY = ([cu, row]) => { const th = row / 512 * Math.PI, ph = cu / 1024 * TAU; return [-Math.cos(ph) * Math.sin(th), Math.cos(th)]; };
+  const eye = marks.eyes ? toXY(marks.eyes[1]) : [0.33, -0.05], mouth = toXY(marks.mouth);
+  const ey = eye[1], ex = Math.abs(eye[0]), my = mouth[1], nt = ey + (my - ey) * 0.62, g = (a, b) => Math.exp(-(a * a + b * b)), sq = v => v * v;
+  return (x, y) => {
+    const ax = Math.abs(x);
+    let d = 0;
+    // the nose: from the bridge between the eyes to its tip, wider toward the tip, then back in under it
+    const t = clamp01((ey + 0.02 - y) / (ey + 0.02 - nt)), under = y < nt ? Math.exp(-sq((nt - y) / 0.045)) : 1;
+    d += (0.018 + 0.1 * t * t) * under * Math.exp(-sq(x / (0.06 + 0.06 * t)));
+    // the brow, the sockets under it, the cheekbones
+    d += 0.035 * Math.exp(-sq((y - (ey + 0.17)) / 0.065)) * (1 - smooth((ax - 0.55) / 0.18)) * (1 - 0.35 * Math.exp(-sq(x / 0.08)));
+    d -= 0.032 * g((ax - ex) / 0.15, (y - ey) / 0.09);
+    d += 0.032 * g((ax - ex - 0.06) / 0.13, (y - (ey - 0.19)) / 0.1);
+    // the lips, the line between them, the chin
+    d += 0.028 * g(x / 0.17, (y - my) / 0.055) - 0.012 * g(x / 0.15, (y - my) / 0.014);
+    d += 0.036 * g(x / 0.2, (y - (my - 0.18)) / 0.08);
+    return d * k;
+  };
+}
+
 /* ------------------------------------------------------------------ small helpers */
 const strHash = str => { let h = 2166136261; for (const ch of String(str)) h = Math.imul(h ^ ch.charCodeAt(0), 16777619); return h >>> 0; };
 
@@ -377,7 +406,7 @@ export function buildHero(heroKey, gear, o = {}) {
     const steps = 10, y0 = S.waistY, rings = [];
     for (let i = 0; i <= steps; i++) {
       const t = i / steps, y = lerp(y0, hemY, t), yt = Math.max(y, S.keys[0][0]);
-      const [w, d] = torsoAt(S, yt), fl = robe ? t * t * 0.17 * u + t * 0.03 * u : t * (kind === 'mail' ? 0.03 : 0.02) * u, fold = robe ? t * 0.05 : t * 0.02;
+      const [w, d] = torsoAt(S, yt), fl = robe ? t * t * 0.17 * u + t * 0.03 * u : t * (kind === 'mail' ? 0.03 : 0.02) * u, fold = (robe ? t * 0.05 : t * 0.02) * (SCULPT.on && kind !== 'mail' ? 1.9 : 1);
       rings.push(ellipse(V(0, y, 0), V(1, 0, 0), V(0, 0, 1), w + 0.012 * u + fl, w * d + 0.012 * u + fl * 0.85, 32, a => squarish(a) * (1 + fold * Math.cos(a * 9))));
     }
     add(loft(rings), hemMat, skirt);
@@ -467,7 +496,9 @@ export function buildHero(heroKey, gear, o = {}) {
   { const P0 = (MAT[H.skin] || MAT.skin).pal, sk = faceName ? FACES[faceName].skin : P0[3].map((v, i) => v + (P0[4][i] - v) * 0.35);
     rig.faceCtl = faceRig(faceM, faceMarksOf(faceName, S.chibi), new THREE.Color().setRGB(sk[0] / 255, sk[1] / 255, sk[2] / 255, THREE.SRGBColorSpace), !!H.shade || (blind && !faceName)); }
   const skull = sph(r, 64, 40);
-  { const p = skull.attributes.position; for (let i = 0; i < p.count; i++) { let x = p.getX(i), y = p.getY(i), z = p.getZ(i); const low = clamp01(-y / r); const k = 1 - low * low * 0.3 * (z > 0 ? 1 : 0.6); x *= k * 0.94; z *= (z > 0 ? 1 - low * 0.05 : 1.04); if (z > 0) z += low * low * r * 0.08 * (1 - Math.abs(x) / r); y *= 1.06; p.setXYZ(i, x, y, z); } skull.computeVertexNormals(); }
+  const relief = SCULPT.on ? faceRelief(faceMarksOf(faceName, S.chibi), S.chibi ? 0.6 : 1) : null;
+  { const p = skull.attributes.position; for (let i = 0; i < p.count; i++) { let x = p.getX(i), y = p.getY(i), z = p.getZ(i);
+    if (relief) { const ux = x / r, uy = y / r, uz = z / r; if (uz > 0) { const d = relief(ux, uy) * uz; x += ux * d * r * 0.3; y += uy * d * r * 0.3; z += d * r; } } const low = clamp01(-y / r); const k = 1 - low * low * 0.3 * (z > 0 ? 1 : 0.6); x *= k * 0.94; z *= (z > 0 ? 1 - low * 0.05 : 1.04); if (z > 0) z += low * low * r * 0.08 * (1 - Math.abs(x) / r); y *= 1.06; p.setXYZ(i, x, y, z); } skull.computeVertexNormals(); }
   add(skull, faceM, head);
   for (const s of [-1, 1]) {
     if (H.ears === 'long') { const e = add(tube(curve([V(s * r * 0.86, -r * 0.05, -r * 0.1), V(s * r * 1.2, r * 0.18, -r * 0.25), V(s * r * 1.45, r * 0.42, -r * 0.42)]), t => [lerp(r * 0.16, 0.001, t), lerp(r * 0.06, 0.001, t)], { n: 8 }), skinM, head); }
@@ -492,10 +523,10 @@ export function buildHero(heroKey, gear, o = {}) {
   }
   if (H.cloak && !robe) {
     const cape = new THREE.Group(); cape.position.set(0, S.shY - 0.02 * u, 0); root.add(cape); rig.cape = cape;
-    const rows = 12, cols = 14, rings = [], [w0, d0] = torsoAt(S, S.shY - 0.04 * u), drop = S.shY - 0.18 * u;
+    const rows = 12, cols = SCULPT.on ? (Q.d > 1 ? 40 : 24) : 14, rings = [], [w0, d0] = torsoAt(S, S.shY - 0.04 * u), drop = S.shY - 0.18 * u;
     for (let i = 0; i <= rows; i++) {
       const t = i / rows, y = -drop * t, row = [];
-      for (let j = 0; j <= cols; j++) { const a = lerp(-1, 1, j / cols), wide = lerp(w0 + 0.02 * u, w0 + 0.12 * u, t); const x = a * wide, behind = -(Math.sqrt(Math.max(0, 1 - a * a * 0.85)) * (w0 * d0 + 0.04 * u)) - t * 0.08 * u; row.push(V(x, y, behind + Math.sin(a * 7 + 1) * 0.012 * u * t)); }
+      for (let j = 0; j <= cols; j++) { const a = lerp(-1, 1, j / cols), wide = lerp(w0 + 0.02 * u, w0 + 0.12 * u, t), deep = SCULPT.on ? (Math.sin(a * 9 + 0.7) * 0.022 + Math.sin(a * 17 + t * 3) * 0.008) * u * t * t : 0; const x = a * wide, behind = -(Math.sqrt(Math.max(0, 1 - a * a * 0.85)) * (w0 * d0 + 0.04 * u)) - t * 0.08 * u; row.push(V(x, y, behind + Math.sin(a * 7 + 1) * 0.012 * u * t + deep)); }
       rings.push(row);
     }
     // two halves, hinged, so the hem swings further than the shoulders
@@ -857,7 +888,8 @@ function buildHair(head, H, r, covers, look, seed) {
   const hm = mat(H.hairMat, { side: true }), rnd = rngOf(seed);
   const onSkull = (lat, lon, k = 1.04) => V(Math.sin(lon) * Math.cos(lat) * r * k * 0.95, Math.sin(lat) * r * k * 1.06, Math.cos(lon) * Math.cos(lat) * r * k);
   const thin = Q.d > 1 ? 1.32 : 1;
-  const lock = (pts, w0, d0, up, n = 12) => add(tube(curve(pts, n), t => [lerp(w0, r * 0.02, t * t) / thin, lerp(d0, r * 0.012, t)], { n: 8, up }), hm, head);
+  const groove = SCULPT.on && !covers ? (a => 1 + 0.16 * Math.cos(a * 4)) : null; // strands in clumps: a lock grooved along its length (not under headgear: the grooves would come through it)
+  const lock = (pts, w0, d0, up, n = 12) => add(tube(curve(pts, n), t => [lerp(w0, r * 0.02, t * t) / thin, lerp(d0, r * 0.012, t)], { n: groove ? 12 : 8, up, shape: groove }), hm, head);
   const hood = look === 'hood' || look === 'coif', helm = look === 'helm', kettle = look === 'kettle';
   const long = style === 'long', tail = style === 'pony' || style === 'braid';
   if (!covers) {
