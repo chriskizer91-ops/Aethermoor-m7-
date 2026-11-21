@@ -38,6 +38,19 @@ dusk) look for M7's places, chosen per place, would suit them; the engine's ligh
 - **Chris's batch 4 paintings**, when they come, go into `art-in/` (never into `game/`); the converter reads them from
   there in place of the stand-ins.
 
+**Step 4 (from November 21): the places come alive.** Every place moves a little, as an HD-2D diorama does, without
+costing a phone more than a few draws:
+- **Fire and light:** hearths, torches, braziers and lanterns flicker (flame cards, a glow that breathes, a little
+  light on the walls near them, faked in the shaders as the places already do); chimneys smoke; forges spark.
+- **Water:** rivers flow the way the map runs, falls throw spray, pools ripple, the bog water of the Gloomfen steams.
+- **Wind:** trees, grass, banners and hanging cloth sway; leaves drift down in the woods; dust blows on the Sunscorch's
+  roads; snow falls in the Ironspire; mist lies low over the fen.
+- **Small life:** birds and butterflies by day in the wild places; moths round lanterns; fish rings in still water.
+- **One draw per kind** where you can (instanced particles, sway in the vertex shader), and each place's phone draws
+  and frame time measured before and after, in your slip. Anything that costs too much on a phone is laptop-only.
+- Start with Act One (the Keep, Thornhollow, the Thornway, Mossfall, the Heartroot), then the regions. Republish your
+  four region pages; tell the hub when Act One is ready to rebuild.
+
 ## What others rely on (keep it working)
 
 - `W3D_PLACES['m7-<id>']` with its `anchors`, `exits` (`to`, `anchor`), `people`, `start`; the walk boxes in
