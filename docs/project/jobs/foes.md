@@ -62,3 +62,20 @@ The body plans are the Bestiary's (`prototypes/bestiary/beasts.js` `BEASTS`); Ch
   --enable-unsafe-swiftshader`), and stays under 16 MB (the page can hold the latest foes and link to an earlier page).
 - Slips: `docs/project/slips/foe-hd.md` (6), `slips/foes-beasts.md` (7), `slips/foes-walkers.md` (8). Message the hub
   with the link and the commit as each foe lands.
+
+## No stretching (Chris, November 21)
+
+Chris saw the Rotwarden stretch as he moved his arms (`docs/project/from-chris/2026-11-21-rotwarden-stretch.webp`:
+waist, belt and straps dragged out into a web after the spread arms). Rules for every rigged model, foe or hero:
+
+- **Weights by part.** A point takes weight only from the bones of the part it belongs to. Arm bones move arm
+  points only; hips, belt, straps, sashes and anything worn on the trunk follow the hips, spine and chest, never an arm,
+  even where the arm hangs against them at rest. Blend only in a narrow band at each joint (shoulder, elbow, hip).
+- **Bind away from the body.** Weight with the arms and legs held clear of the trunk (an A pose), or mask the
+  automatic weights by part, so nearness at rest can't bleed weight across.
+- **Bones turn; they don't grow.** Moves rotate bones. No bone is scaled or moved along its length (the root and the
+  whole body may move).
+- **The stretch check** (session 6 adds it to the kit; every lane runs it): pose each move at many frames, compare every
+  triangle's edges with the rest pose, and fail any move where edges grow past 1.3 times (cloth and soft parts may set
+  their own limit, said in the slip). Run it on every foe already made (Briarmaw, the briarling, the thornhound, the
+  glowcap, the Rotwarden, the sapwight) and on each new one before it is handed in. Look at the worst frame by eye too.
