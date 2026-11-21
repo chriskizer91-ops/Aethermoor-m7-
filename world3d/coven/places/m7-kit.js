@@ -610,6 +610,14 @@
           for (const hh of [0.1, 0.62, 1.14, 1.66]) { B.box('wood', x, g + hh, z, W, 0.05, Dp, ry, [0.86, 0.78, 0.68], NS); if (hh < 1.6) for (let i = 0; i < 3; i++) { const [ox, oz] = L((i - 1) * W * 0.3 + (R() - 0.5) * 0.15, 0); if (R() < 0.5) B.cyl('dClay', ox, g + hh + 0.05, oz, 0.1, 0.08, 0.26, 8, null, null, false); else B.box(ck, ox, g + hh + 0.05, oz, 0.26, 0.22, 0.26, ry, [1, 1, 1], Object.assign({ fit: ck === 'crate' }, NS)); } }
           shade = 20; break;
         }
+        case 'boat': {   // a rowing boat moored on the water (its keel at the water's level), two benches, oars in it
+          const wl = -0.42, Lb = 3.2 * sz, Wb = 1.1 * sz, sg = new THREE.CylinderGeometry(1, 1, 1, 12, 1, true, 0, Math.PI);
+          sg.rotateZ(Math.PI / 2); sg.rotateY(Math.PI / 2);   // a half tube, open at the top, along the boat's length
+          B.geom('wood', sg, new THREE.Matrix4().compose(new THREE.Vector3(x, wl + 0.32 * sz, z), new THREE.Quaternion().setFromEuler(new THREE.Euler(0, ry, 0)), new THREE.Vector3(Wb / 2, 0.42 * sz, Lb / 2)), [0.78, 0.62, 0.5], [3, 1]); sg.dispose();
+          for (const e of [-1, 1]) { const [ex, ez] = L(0, e * Lb / 2); const cg = new THREE.ConeGeometry(Wb / 2, 0.5 * sz, 8, 1, true, 0, Math.PI); cg.rotateX(e * Math.PI / 2); B.geom('wood', cg, new THREE.Matrix4().compose(new THREE.Vector3(ex, wl + 0.32 * sz, ez), new THREE.Quaternion().setFromEuler(new THREE.Euler(0, ry + (e > 0 ? Math.PI : 0), 0)), new THREE.Vector3(1, 0.84, 1)), [0.74, 0.58, 0.46], 1); cg.dispose(); }
+          for (const b2 of [-0.5, 0.5]) { const [bx, bz] = L(0, b2 * Lb * 0.5); B.box('wood', bx, wl + 0.18, bz, Wb * 0.9, 0.06, 0.25, ry, [0.86, 0.76, 0.64], NS); }
+          shade = 0; break;
+        }
         case 'lowwall': {   // a low, mossy stone wall (a ruin's), a stone or two fallen from it
           B.box('stone', x, g - 0.1, z, 3.8 * sz, 1.05, 1.0, ry, [0.86, 0.9, 0.82]);
           B.box('stone', x, g + 0.95, z, 3.9 * sz, 0.14, 1.1, ry, [0.7, 0.8, 0.66], NS);

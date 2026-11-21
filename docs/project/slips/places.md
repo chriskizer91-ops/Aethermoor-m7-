@@ -189,6 +189,26 @@ map.isOpen, map.hidden, map.redraw(), map.destroy()
 Chest ids are the `id` in a place's `things` (`[x, y, 'chest', face, id]`), Hearthfire ids are `hearthfires[].id`,
 people are `people[].id` (the game's NPC ids).
 
+### Step 5 (November 21): the set dressing in 3D
+
+- **The kit** (`m7-kit.js` `dress`): barrel, barrels, crate, crates, sacks, cart, stall, well, fence, pickets, gate,
+  bench, signpost, statue, brazier (burning, with a light), lamppost, hay, haystack, logs, woodpile, rock, bush, table,
+  shelf, trough, jars, anvil, cauldron, tent, lowwall, boat. Built in code like the buildings, all into the place's own
+  builder, so each material is one draw however many things use it. Beams and planks share the place's wood, awnings
+  the engine's striped cloth; new pictures only for barrels, crates, sacks/tents (canvas), hay (thatch), produce and
+  clay (Coven's made-web pack, Chris's). The painting is darkened under each thing as its shadow.
+- **Where**: `m7/dressing.mjs` (Act One, by hand) and `m7/dress/<region>.json` (the regions), read off each painting on
+  its tile grid (`m7/grid.py` draws it, `m7/rows.mjs` prints the tiles, `m7/mark.py` draws a list back on to check).
+  `convert.mjs` writes them as place data `dress: [{ k, at, face, s, to, solid }]`.
+- **Walking unchanged**: a thing on a walkable tile never blocks (`solid: false`), so walking stays exactly M7's tiles.
+  A stall, or a thing marked `replace`, takes the place of the map's little building under it (Thornhollow's two
+  stalls and Fawnrest's three low walls were tiny roofed houses).
+- **Act One**: its paintings are drawn tile by tile, so nearly every rock, bush, wall and ruin is a tile and was 3D
+  already. Loose things: Thornhollow (two market stalls, forge barrels, stones), the Keep (courtyard well, smithy anvil,
+  crates and barrels), Fawnrest (three low walls, spray on its little waterfall). The Great Hall and the three galleries
+  are bare floors and carpets; the Hearth Below's four are stand-ins drawn from tiles.
+- Phone draws before -> after (`m7/probe.mjs --phone`): Thornhollow 49 -> 52, the Keep 37 -> 39, Fawnrest 44 -> 44.
+
 ## Next
 
 - Waiting for the hub.
