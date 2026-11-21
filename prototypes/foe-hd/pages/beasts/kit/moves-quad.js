@@ -62,7 +62,7 @@ export const quad = {
       rx(b, 'jaw', 0.5 * go * (1 - snap) * back);
       rx(b, 'hips', 0.05 * go * back); B.position.z = 0.22 * H * go * back;
       rx(b, 'fl_upper', -0.25 * go * back); rx(b, 'fr_upper', -0.25 * go * back);
-      rz(b, 'ear_l', -0.4 * go * back); rz(b, 'ear_r', 0.4 * go * back);    // ears back
+      rz(b, 'ear_l', -0.18 * go * back); rz(b, 'ear_r', 0.18 * go * back);    // ears back
       tail(b, 0, -0.15 * go * back);
       return;
     }
@@ -77,7 +77,7 @@ export const quad = {
       // in the air: forelegs reach forward, hind legs kick back
       for (const k of ['fl', 'fr']) { rx(b, k + '_upper', -0.45 * leap); rx(b, k + '_lower', 0.35 * leap); rx(b, k + '_foot', -0.2 * leap); }
       for (const k of ['bl', 'br']) { rx(b, k + '_upper', 0.45 * leap); rx(b, k + '_lower', -0.2 * leap); rx(b, k + '_foot', 0.45 * leap); }
-      rz(b, 'ear_l', -0.5 * low); rz(b, 'ear_r', 0.5 * low);
+      rz(b, 'ear_l', -0.2 * low); rz(b, 'ear_r', 0.2 * low);
       tail(b, 0.05 * Math.sin(t * 20) * low, -0.2 * low + 0.3 * leap);
       return;
     }
@@ -98,7 +98,7 @@ export const quad = {
       B.position.z = -0.16 * H * a; rx(b, 'spine', -0.08 * a); rx(b, 'chest', -0.12 * a); rx(b, 'neck', -0.2 * a); rx(b, 'head', -0.14 * a);
       rz(b, 'head', 0.14 * a); rx(b, 'jaw', 0.25 * a);
       rz(b, 'hips', 0.08 * Math.sin(u * 40) * a);
-      rz(b, 'ear_l', -0.3 * a); rz(b, 'ear_r', 0.3 * a); tail(b, 0, -0.25 * a);
+      rz(b, 'ear_l', -0.15 * a); rz(b, 'ear_r', 0.15 * a); tail(b, 0, -0.25 * a);
       return;
     }
     if (move === 'ko') {
