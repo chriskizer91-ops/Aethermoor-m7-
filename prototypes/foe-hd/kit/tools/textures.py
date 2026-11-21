@@ -19,3 +19,8 @@ for res in sorted({b.get('res', 2048), b.get('phone', 1024)}, reverse=True):
     save(nrm.resize((res, res), Image.LANCZOS), f'normal-{res}.webp', 90)
 save(ao.resize((1024, 1024), Image.LANCZOS).convert('RGB'), 'ao-1024.webp', 85)
 save(emit.resize((256, 256), Image.LANCZOS), 'emit-256.webp', 85)
+# ORM (glTF's order): R the shading in the folds, G roughness, B metalness, when the sculpt gave them (session 8)
+if os.path.exists(os.path.join(bake, 'mat.png')):
+    m = Image.open(os.path.join(bake, 'mat.png')).convert('RGB').resize((1024, 1024), Image.LANCZOS)
+    r_, g_, _ = m.split()
+    save(Image.merge('RGB', (ao.resize((1024, 1024), Image.LANCZOS), r_, g_)), 'orm-1024.webp', 88)

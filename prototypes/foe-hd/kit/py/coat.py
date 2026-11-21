@@ -18,6 +18,8 @@
 # shape: 'tuft'  leaf-feather tufts (fur, leaves, feathers; Briarmaw)
 #        'scale' rounded scales with a keel (lizards, fish, serpents, the Wyrm), growth lines at level 3
 #        'plate' broad flat plates with bevelled edges (bark, armour plates, shell), cracked at level 2+
+#        'lock'  fur as big flowing locks (session 7's thornhound): flame-shaped, a rounded crest, soft sides melting into
+#                the locks under them, grooves down each lock and the tip split into points at level 2+
 import numpy as np
 from scipy.spatial import cKDTree
 from sdf import mc, project, sstep, tri, vnoise
@@ -25,9 +27,11 @@ from geom import sample_surface
 
 class Coat:
     def __init__(self, body_sdf, lo, hi, LV, VOX, tuft_len, flow, bare, style, seed=11, samples=220000,
-                 spacing=0.36, strands=(3, 5), shape='tuft', place_ew=0.01, log=print):
+                 spacing=0.36, strands=(3, 5), shape='tuft', place_ew=0.01, grooves=(4, 7), sway=0.18, tip_soft=1.3,
+                 groove_depth=0.16, round_=0.5, log=print):
         self.body_sdf, self.LV, self.VOX, self.shape = body_sdf, LV, VOX, shape
         self.place_ew = place_ew        # the edge softness of the placing surface: the same at every level
+        self.sway, self.tip_soft, self.groove_depth, self.round_ = sway, tip_soft, groove_depth, round_
         rng = np.random.default_rng(seed)
         Vc, Fc = mc(body_sdf, 0.02, lo, hi)
         P = sample_surface(Vc, Fc, samples, rng)
@@ -47,6 +51,7 @@ class Coat:
         self.TP, self.TN, self.TT, self.TB, self.TL, self.TS = TP, TN, TT, TB, TL, TS
         self.TW, self.TH, self.TC = st['W'], st['H'], st['C']
         self.tree = cKDTree(TP); self.HMAX = float(self.TH.max())
+        self.NG = np.round(grooves[0] + (grooves[1] - grooves[0]) * np.clip(TL / TL.max(), 0, 1) + rng.random(nT) * 2).astype(np.float32)
         log('tufts', nT, 'longest', round(float(TL.max()), 3))
 
     def coat(self, P, want_id=False, lv=None, ew=None):
@@ -60,6 +65,7 @@ class Coat:
         w = np.einsum('nkj,nkj->nk', D, TB[idx]) / (TW[idx] * 0.5)
         nrm = np.einsum('nkj,nkj->nk', D, TN[idx])
         ss = np.clip((s + 0.2) / 1.2, 0, 1)
+        if self.shape == 'lock': return self._lock(P, s, w, nrm, dist, idx, LV, want_id, ew)
         if self.shape != 'tuft': return self._shaped(P, D, s, w, nrm, ss, dist, idx, LV, want_id, ew)
         width = np.sin(np.pi * ss ** 0.62) ** 0.7
         wl = np.abs(w) * TW[idx] * 0.5; sl = s * TL[idx]
@@ -84,6 +90,28 @@ class Coat:
         h = np.where(np.isfinite(dist), h, 0)
         j = np.argmax(h, 1); r = np.arange(len(P))
         if want_id: return h[r, j], idx[r, j], ss[r, j], q[r, j]
+        return h[r, j]
+
+    def _lock(self, P, sv, w, nrm, dist, idx, LV, want_id, ew=None):
+        TL, TH = self.TL, self.TH
+        ok = np.isfinite(dist)
+        ss = np.clip((sv + 0.15) / 1.15, 0, 1)
+        w = w - self.sway * np.sin(idx * 1.7) * ss ** 2                       # the tip sways a little
+        width = np.sin(np.pi * np.clip(ss, 0, 1) ** 0.5) ** 0.6 * (1 - ss ** 2) ** 0.6 + 0.02
+        e = np.abs(w) / width
+        ew = ew or max(self.VOX * self.tip_soft, 0.0015)
+        gq = w * width * self.NG[idx] * 0.5 + 0.5 + 0.13 * idx
+        tipend = 1 - 0.22 * tri(gq) ** 1.5 if LV >= 2 else 1
+        inside_s = np.clip((tipend - sv) * TL[idx] / ew, 0, 1) * np.clip((sv + 0.15) / 0.25, 0, 1)
+        soft = np.clip(1 - e, 0, 1)
+        h = TH[idx] * (0.25 + 0.75 * ss ** 1.1) * soft ** 0.4 * np.clip(1 - e * e, 0, 1) ** self.round_ * inside_s
+        if LV >= 2:
+            h = h * (1 - self.groove_depth * tri(gq) ** 2.5 * sstep(0.08, 0.35, ss) * (1 - sstep(0.85, 1.0, ss)))
+        if LV >= 3:
+            h = h * (1 - 0.06 * tri(w * width * self.NG[idx] * 1.5 + 0.21 * idx) ** 2 * sstep(0.15, 0.5, ss))
+        h = np.where(np.abs(nrm) < 0.25 * TL[idx] / 0.3 + 0.03, h, 0); h = np.where(ok, h, 0)
+        j = np.argmax(h, 1); r = np.arange(len(P))
+        if want_id: return h[r, j], idx[r, j], ss[r, j], (w * width * self.NG[idx] * 0.5)[r, j]
         return h[r, j]
 
     def _shaped(self, P, D, s, w, nrm, ss, dist, idx, LV, want_id, ew=None):
@@ -137,6 +165,6 @@ class Coat:
         has = top > 0.002
         col = np.asarray(bare_colour, np.float64).copy()
         shade = 0.50 + 0.65 * ts ** 0.9
-        if self.LV >= 2 and self.shape == 'tuft': shade = shade * (1 - 0.25 * tri(tq + 0.5) ** 3)
+        if self.LV >= 2 and self.shape in ('tuft', 'lock'): shade = shade * (1 - 0.25 * tri(tq + 0.5) ** 3)
         col[has] = self.TC[tid[has]] * shade[has, None] + (np.clip((ts[has] - 0.6) * 2.5, 0, 1) * 0.12)[:, None] * np.array([1, 1, 0.2])
         return col, top, has

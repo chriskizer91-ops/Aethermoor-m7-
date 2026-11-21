@@ -28,9 +28,11 @@ for (const [i, key] of keys.entries()) {
     }
   }
   lines.push(`import m${i} from ${a('light.json')}; import b${i} from ${a('light.bin')}; import ao${i} from ${a('ao-1024.webp')}; import e${i} from ${a('emit-256.webp')};`);
+  const hasOrm = existsSync(path.join(dir, 'assets', 'orm-1024.webp'));
+  lines.push(hasOrm ? `import o${i} from ${a('orm-1024.webp')};` : `const o${i} = null;`);
   const sculpt = page === 'sculpt' && i === 0 ? `import s${i} from ${a(`${key}-sculpt.glb`)};` : `const s${i} = null;`;
   lines.push(sculpt);
-  lines.push(`const F${i} = { key: ${JSON.stringify(key)}, name: ${JSON.stringify(cfg.name || key)}, lightMeta: m${i}, lightBin: b${i}, tex: { ${tex.join(', ')} }, ao: ao${i}, emit: e${i},
+  lines.push(`const F${i} = { key: ${JSON.stringify(key)}, name: ${JSON.stringify(cfg.name || key)}, lightMeta: m${i}, lightBin: b${i}, tex: { ${tex.join(', ')} }, ao: ao${i}, emit: e${i}, orm: o${i}, glow: ${cfg.glow ? Number(cfg.glow) : 'undefined'}, glowIntensity: ${cfg.glowIntensity ?? 'undefined'},
   sculptGlb: s${i}, sculptUrl: ${JSON.stringify(cfg.pages?.sculpt || null)}, blurb: ${JSON.stringify(cfg.blurb || '')}, next: ${JSON.stringify(cfg.next || '')} };`);
   names.push(`F${i}`);
 }
