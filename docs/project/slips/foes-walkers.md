@@ -56,15 +56,18 @@ same link):
 - **Bones only turn**: breathing was a scale of the chest; now a small rise.
 - **The moves bend armour less**: the Rotwarden bends at the hips and knees more than at his breastplate.
 
-Where it stands (worst edge growth in any frame of each move; the rule is 1.3 times):
+Where it stands now (gallery version 5): **both pass the stretch check** (`kit/tools/stretch.mjs`, the one rule: edges
+longer than 1% of the height under 1.3 times, crease edges under 3 times, no bone scaled or slid), every move, the full
+and the phone versions alike. The Rotwarden's worst big edge is 1.29 times (Blacken the Sap), the sapwight's 1.28
+(Bark Hide). By eye at the worst frames: no webs.
 
-- The Rotwarden: Breathe passes (1.15); the rest 1.6 to 2.3 times, at joints (the knees in Fall, the waist under the
-  breastplate, the elbow in Bark Hide). Down from 70.
-- The sapwight: 1.5 to 3 times, at its neck where the head turns, and its forearms. Down from 176.
-- By eye on the page: no webs; the waist, belt and straps stay put in Blacken the Sap.
-- Still to do: every move under 1.3 (wider blends at those joints, or the moves a little smaller there).
-- **Old Horn** (Act Two, built today) has the same pieces but still stretches up to 17 times where his cape meets his
-  shoulders; he goes on a page only when that's fixed.
+What got them there beyond the pieces and the binding: each walker has joint limits (`limits` in `pages/walkers/foes.js`:
+how far each joint really bends, applied after any move), so the Rotwarden's plate trunk barely twists and his knees
+fold only so far; his knee plates' points were shortened so they don't straddle the knee; his root arm has more
+triangles; the sapwight's neck and elbows bend less.
+
+- **Old Horn** (Act Two, built today) has the same pieces but still stretches where his cape meets his shoulders; he
+  goes on a page only when he passes.
 - The laptop sculpt page still shows the earlier sculpts; to be refreshed.
 
 ## Phone versions (done)

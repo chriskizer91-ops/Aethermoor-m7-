@@ -35,5 +35,5 @@ _ALL = [b[0] for b in BONES]
 _ARMS = [n for n in _ALL if n[2:] in ('upper', 'fore', 'hand')]; _LEGS = [n for n in _ALL if n[2:] in ('thigh', 'shin', 'foot')]
 PIECES = {12: _ARMS, 13: _LEGS, 0: [n for n in _ALL if n not in _ARMS + _LEGS], 2: ['head'], 9: ['head'], 7: ['head']}
 BANDS = {'r_upper': (0.001, 0.001), 'l_upper': (0.001, 0.001), 'r_thigh': (0.001, 0.001), 'l_thigh': (0.001, 0.001),
-         'r_shin': (0.08, 0.2), 'l_shin': (0.08, 0.2), 'r_fore': (0.07, 0.18), 'l_fore': (0.07, 0.18),
-         'neck': (0.06, 0.16), 'head': (0.06, 0.16)}
+         'r_shin': (0.12, 0.26), 'l_shin': (0.12, 0.26), 'r_fore': (0.10, 0.22), 'l_fore': (0.10, 0.22),
+         'neck': (0.10, 0.25), 'head': (0.10, 0.25)}

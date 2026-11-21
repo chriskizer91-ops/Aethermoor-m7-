@@ -94,9 +94,11 @@ TRUNK = ('hips', 'spine', 'chest', 'neck')
 BANDS = {'root1': (0.001, 0.001), 'r_upper': (0.001, 0.001), 'l_thigh': (0.001, 0.001), 'r_thigh': (0.001, 0.001)}
 # the head turns on a short neck of bark between helm and gorget: spread the turn over the whole neck; the elbow over the
 # plates round it; the neck's blend kept off the top of his breastplate
-BANDS.update({'head': (0.001, 0.001), 'neck': (0.001, 0.001), 'r_fore': (0.10, 0.24), 'l_shin': (0.10, 0.26), 'r_shin': (0.10, 0.26),
+BANDS.update({'head': (0.001, 0.001), 'neck': (0.001, 0.001), 'r_fore': (0.10, 0.24), 'l_shin': (0.14, 0.32), 'r_shin': (0.14, 0.32),
+              'root2': (0.06, 0.12), 'root3': (0.06, 0.12), 'root4': (0.05, 0.10),
               'spine': (0.14, 0.45), 'chest': (0.14, 0.45)})        # his trunk bends a little all along, not at one line     # the head is a piece of its own
 LEGS = ['l_thigh', 'l_shin', 'l_foot', 'r_thigh', 'r_shin', 'r_foot']
+SMOOTH = 6                                   # spread each change of part over fewer passes (it crept up the root arm)
 LOOSE = ROOTS                                # the root arm's fungi stand far out from its bones
 _ALL = [b[0] for b in BONES]
 PIECES = {10: ROOTS, 12: ARM, 11: ARM, 13: LEGS, 14: ['head'],

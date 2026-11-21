@@ -134,12 +134,20 @@ function legs(W, step, amp = 1) {
   }
 }
 function crouch(W, k) {
+  k *= W.foe.knees ?? 1;                       // how far this foe's knees fold (plate and bark limit it)
   // bend the knees, keep the feet planted (roughly): hips drop, thighs forward, shins back
   for (const n of ['r', 'l']) { W.bones[n + '_thigh'].rotation.x = -0.45 * k; W.bones[n + '_shin'].rotation.x = 0.8 * k; W.bones[n + '_foot'].rotation.x = -0.35 * k; }
   W.body.position.y = -0.11 * k;
   W.bones.hips.rotation.x = 0.12 * k;
 }
+// each foe's joint limits (foe.limits = { bone: factor }): how far that joint really bends, applied after any move, so
+// plate and bark never fold further than they can without stretching (the stretch check, docs/project/jobs/foes.md)
 function pose(W, move, u, t, step) {
+  poseRaw(W, move, u, t, step);
+  const L = W.foe.limits;
+  if (L) for (const [n, k] of Object.entries(L)) { const b = W.bones[n]; if (b) { b.rotation.x *= k; b.rotation.y *= k; b.rotation.z *= k; } }
+}
+function poseRaw(W, move, u, t, step) {
   reset(W);
   const b = W.bones, br = Math.sin(t * 1.6), big = W.foe.weight ?? 1;
   // under everything: breathing, the head looking about, roots stirring
@@ -155,7 +163,8 @@ function pose(W, move, u, t, step) {
   if (move === 'walk') {
     legs(W, step);
     W.body.position.y = 0.03 * Math.abs(Math.cos(step)) * big;
-    b.hips.rotation.y = 0.08 * Math.sin(step); b.chest.rotation.y = -0.1 * Math.sin(step);
+    const st = W.foe.stiff ?? 1;                // how much this foe's trunk twists and bends (an armoured one less)
+    b.hips.rotation.y = 0.08 * st * Math.sin(step); b.chest.rotation.y = -0.1 * st * Math.sin(step);
     b.hips.rotation.z = 0.03 * Math.sin(step);
     if (b.r_upper) b.r_upper.rotation.x = 0.3 * Math.sin(step);
     if (b.l_upper) b.l_upper.rotation.x = -0.3 * Math.sin(step);
@@ -164,7 +173,8 @@ function pose(W, move, u, t, step) {
   }
   if (move === 'hurt') {
     const a = bump(u * 1.6) * (1 - seg(u, 0.6, 1)), shake = Math.sin(u * 45) * a;
-    W.body.position.z = -0.16 * a; b.spine.rotation.x = -0.15 * a; b.chest.rotation.x = -0.12 * a;
+    const st = W.foe.stiff ?? 1;
+    W.body.position.z = -0.16 * a; b.spine.rotation.x = -0.15 * st * a; b.chest.rotation.x = -0.12 * st * a;
     b.neck.rotation.x = -0.25 * a; b.head.rotation.z = 0.18 * a; b.hips.rotation.z = 0.04 * shake;
     if (b.r_upper) { b.r_upper.rotation.x = -0.4 * a; b.r_upper.rotation.z -= 0.3 * a; }
     if (b.l_upper) { b.l_upper.rotation.x = -0.4 * a; b.l_upper.rotation.z += 0.3 * a; }
@@ -175,7 +185,8 @@ function pose(W, move, u, t, step) {
     // the knees give, he sinks onto them, then topples forward; the head drops last
     const knees = seg(u, 0, 0.35), fall = seg(u, 0.38, 0.85), drop = seg(u, 0.7, 1);
     // (the knees bend no more than the plates and bark round them allow; the fall is mostly from the hips)
-    for (const n of ['r', 'l']) { b[n + '_thigh'].rotation.x = -0.75 * knees; b[n + '_shin'].rotation.x = 1.05 * knees; b[n + '_foot'].rotation.x = -0.3 * knees; }
+    const kn = W.foe.knees ?? 1;
+    for (const n of ['r', 'l']) { b[n + '_thigh'].rotation.x = -0.75 * kn * knees; b[n + '_shin'].rotation.x = 1.05 * kn * knees; b[n + '_foot'].rotation.x = -0.3 * kn * knees; }
     W.body.position.y = -0.22 * knees * (W.foe.height / 2.5) - 0.05 * fall;
     W.body.position.z = 0.1 * knees + 0.55 * fall * (W.foe.height / 2.5);
     W.body.rotation.x = 1.25 * fall; b.hips.rotation.x = 0.15 * knees;
