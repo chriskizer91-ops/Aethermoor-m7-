@@ -83,6 +83,11 @@ Where the 3D game stands. Written by the hub only. Last updated November 20, nea
   https://claude.ai/artifact/HD9GL1Ao4ymzRRodVY2ozm. Once Chris sees it work on his phone, the game and the heavy pages
   can stop shrinking textures.
 
+- **No stretching (Chris, November 21; every model session):** the Rotwarden's arms drag his waist and belt into a web
+  when they spread (`from-chris/2026-11-21-rotwarden-stretch.webp`). Session 8 fixes his weights; session 6 puts a
+  stretch check and weights-by-part into the kit; sessions 7 and Models check theirs; the Fight leaves squash and
+  stretch off the full-detail foes. Rules: `jobs/foes.md`, "No stretching".
+
 ## Next for the hub
 
 - Bring each job's work in as it's ready; tell the jobs on this board when to merge the hub's branch.
