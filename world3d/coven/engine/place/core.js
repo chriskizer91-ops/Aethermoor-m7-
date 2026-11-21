@@ -199,12 +199,21 @@
   const CHUNK_V = `
     varying vec3 vW; varying vec3 vN; varying vec2 vUv; varying vec3 vCol;
     uniform vec2 uRep;
+    #ifdef WIND
+      uniform float uTime, uWind;   // (Aethermoor, Places) trees and boughs sway in the wind, more the higher they are
+    #endif
     void main() {
       vec4 p = vec4(position, 1.0); vec3 n = normal;
       #ifdef USE_INSTANCING
         p = instanceMatrix * p; n = mat3(instanceMatrix) * n;
       #endif
-      vec4 w = modelMatrix * p; vW = w.xyz; vN = normalize(mat3(modelMatrix) * n);
+      vec4 w = modelMatrix * p;
+      #ifdef WIND
+        float hk = clamp(w.y - 0.5, 0.0, 9.0) * uWind, ph = uTime * 1.25 + w.x * 0.31 + w.z * 0.23;
+        w.x += (sin(ph) * 0.7 + sin(ph * 2.7 + 1.3) * 0.3) * hk;
+        w.z += sin(ph * 0.83 + 2.1) * 0.45 * hk;
+      #endif
+      vW = w.xyz; vN = normalize(mat3(modelMatrix) * n);
       vUv = uv * uRep;
       #ifdef SWAPUV
         vUv = uv.yx * uRep;   // the picture turned a quarter (a post's grain runs up it)
@@ -282,7 +291,8 @@
     if (o.cutw) defs.CUTW = '';
     if (o.water) defs.WATER = '';
     if (o.nofog) defs.NOFOG = '';
-    if (o.paint) defs.PAINTMAP = '';   // (Aethermoor, Places) the place's painting laid over the faces that look up (roofs)
+    if (o.paint) defs.PAINTMAP = '';
+    if (o.wind) defs.WIND = '';   // (Aethermoor, Places) sway (CHUNK_V)   // (Aethermoor, Places) the place's painting laid over the faces that look up (roofs)
     // the reskin job (November 17): vary: no two stretches of a surface quite the same tone, so a repeated picture doesn't
     // read as a pattern; and on the laptop (W3D.quality 'high'), grain: fine grain close up, where a picture would go soft;
     // bump: relief from the picture's own light and dark (mortar lines sink, stones and beams stand out) under the moon
@@ -299,6 +309,7 @@
       uLit: { value: o.lit == null ? 1 : o.lit }, uGlowUse: { value: o.glow == null ? 1 : o.glow }, uSpec: { value: o.spec || 0 }, uShadeK: { value: o.shade == null ? 1 : o.shade },
       uAlpha: { value: o.alphaTest || 0.5 },
       uVary: { value: o.vary || 0 }, uGrain: { value: o.grain || 0 }, uBump: { value: o.bump || 0 }, uRepG: { value: 1 / (o.rep || 1) },
+      uWind: { value: o.wind || 0 },
       tPaintM: { value: o.paint || null }, uPK: { value: o.paintK || new THREE.Vector4() }, uPaintMix: { value: o.paintMix == null ? 0.85 : o.paintMix },
     });
     const frag = CHUNK_F_HEAD + `

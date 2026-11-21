@@ -202,7 +202,7 @@
       ground: Object.assign({ cob: 'shared_cobbles_town', grass: 'shared_grass_meadow', dirt: 'shared_dirt_track', pave: 'wick_bridge_paving', rep: [2.6, 3.6, 3.6, 2.4], paint: 'm7_paint', paintGain: 0.62 }, LOOK ? Object.assign({ rock: LOOK.rock[0], rockTint: LOOK.rock[1], rockRep: 4 }, LOOK.ground) : {}),
       surfaces: { stone: KEEP ? 'keep_wall_hearthstone' : 'shared_stone_wall_rough', dry: 'shared_drystone', timber: 'wick_wall_timber_plaster', planks: 'shared_boardwalk_planks', roof: 'shared_roof_shingle',
         wood: 'shared_boardwalk_planks', deck: 'shared_boardwalk_planks', pave: 'wick_bridge_paving', soil: 'shared_dirt_track', rock: 'thorn_rock_mossy', leaves: 'wick_leaf_canopy', bark: 'shared_bark_oak', ...(LOOK ? LOOK.surfaces : {}) },
-      textures, extraMats, waterMerge: true, paintOn: { keys: ['deck', 'rock'], paint: 'm7_paint', mix: 0.75 },
+      textures, extraMats, waterMerge: true, wind: d.interior ? 0 : 0.014, paintOn: { keys: ['deck', 'rock'], paint: 'm7_paint', mix: 0.75 },
       // the M7 places are by day in the 2D game: their leaves a little lighter than the borrowed night woods
       tints: Object.assign({ leaves: 0xf0fff4, bough: 0xc4d6c4, boughFir: 0xb0c4bc, bush: 0xf0fff0 }, KEEP ? { stone: 0x9c9ca8 } : {}, LOOK ? LOOK.tints : {}),
       ground_h: ground, walk_h: ground,
@@ -245,6 +245,16 @@
   // ---- crenels, towers and torches ----
   function extra(K, d) {
     const { B, X, Z, gh } = K, NS = { solid: false };
+    // (Places, step 4: the places come alive) where the flames, the chimney tops and the embers are, in world metres, for
+    // m7/life.js: every lantern the kit hangs, every lamp and Hearthfire, every chimney, every glowing ember
+    const FX = d.__fx = { flames: [], smoke: [], sparks: [] }, lan = K.lantern;
+    K.lantern = (x, y, z, n, s, h) => { FX.flames.push([x, y + 0.05, z, s || 1]); return lan(x, y, z, n, s, h); };
+    for (const l of d.lamps || []) {
+      const x = X(l.at[0]), z = Z(l.at[1]), g = gh(l.at[0], l.at[1]);
+      if (l.kind === 'wood') FX.flames.push([x + 0.48, g + (l.h || 2.6) - 0.5, z, 0.9]);
+      else if (l.kind === 'pillar') FX.flames.push([x, g + (l.h || 1.45) + 0.3, z, 1.1]);
+      else FX.flames.push([x, g + (l.h || 3.0) + 0.1, z, 1.1]);
+    }
     for (const wl of d.walls) {
       if (wl.low || wl.ruin) continue;
       if (wl.indoor) {   // a moulding along an indoor wall's top
@@ -454,7 +464,9 @@
       const x = X(px), z = Z(py), g = gh(px, py);
       if (kind === 'frost' || kind === 'amber') { for (let i = 0; i < 3; i++) cone(kind === 'frost' ? 'crystalG' : 'glowA', x + (R() - 0.5) * 1.2, g - 0.1, z + (R() - 0.5) * 1.2, 0.1 + R() * 0.08, 0.4 + R() * 0.4, (R() - 0.5) * 0.6, (R() - 0.5) * 0.6, 4); K.lights.push([px, py, 70, 0.8, kind === 'frost' ? 'moonwell' : 'forge']); }
       else if (kind === 'rune') { B.box('glowR', x, g, z, 0.5, 0.12, 0.5, R(), null, NS); K.lights.push([px, py, 60, 0.7, 'moonwell']); }
-      else if (kind === 'ember') { for (let i = 0; i < 4; i++) blob('glowE', x + (R() - 0.5) * 1.2, g + 0.02, z + (R() - 0.5) * 1.2, 0.12 + R() * 0.1); K.lights.push([px, py, 70, 0.8, 'forge']); }
+      else if (kind === 'ember' || kind === 'lava') { if (d.__fx) d.__fx.sparks.push([x, g + 0.1, z]); }
+      if (kind === 'lava') { K.lights.push([px, py, 110, 1.1, 'forge']); continue; }
+      if (kind === 'ember') { for (let i = 0; i < 4; i++) blob('glowE', x + (R() - 0.5) * 1.2, g + 0.02, z + (R() - 0.5) * 1.2, 0.12 + R() * 0.1); K.lights.push([px, py, 70, 0.8, 'forge']); }
       else if (kind === 'glint') { for (let i = 0; i < 2; i++) cone('glassL', x + (R() - 0.5) * 1.2, g - 0.1, z + (R() - 0.5) * 1.2, 0.12, 0.35, 1.2, 0, 4); }
       else if (kind === 'wisp') K.lights.push([px, py, 60, 0.6, 'moonwell']);
       else if (kind === 'lava') K.lights.push([px, py, 110, 1.1, 'forge']);
@@ -474,6 +486,7 @@
       const g = gh((x0 + x1) / 2, y1 - 4), top = g + wh + b.roof.rise * 0.92 + 0.9;
       B.box('stone', X(px), g + wh, Z(py), 0.62, top - g - wh, 0.62, 0, [0.82, 0.8, 0.84]);
       B.box('stone', X(px), top, Z(py), 0.74, 0.14, 0.74, 0, [0.7, 0.68, 0.72], { solid: false });
+      if (d.__fx) d.__fx.smoke.push([X(px), top + 0.2, Z(py)]);
     }
   }
 
