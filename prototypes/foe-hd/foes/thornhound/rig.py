@@ -27,10 +27,10 @@ BONES = [  # name, parent, head, tail
     ('jaw', 'head', p(0, 1212, 282), p(0, 1312, 292)),
     ('ear_l', 'head', p(36, 1165, 198), p(52, 1157, 80)),
     ('ear_r', 'head', p(-36, 1165, 198), p(-52, 1157, 80)),
-    ('tail1', 'hips', p(0, 505, 368), p(0, 470, 430)),
-    ('tail2', 'tail1', p(0, 470, 430), p(0, 455, 495)),
-    ('tail3', 'tail2', p(0, 455, 495), p(0, 456, 555)),
-    ('tail4', 'tail3', p(0, 456, 555), p(0, 466, 625)),
+    ('tail1', 'hips', p(0, 500, 366), p(0, 458, 428)),
+    ('tail2', 'tail1', p(0, 458, 428), p(0, 442, 495)),
+    ('tail3', 'tail2', p(0, 442, 495), p(0, 444, 555)),
+    ('tail4', 'tail3', p(0, 444, 555), p(0, 456, 625)),
 ]
 for k, J in LEGS.items():
     J = [p(*j) for j in J]
@@ -118,3 +118,25 @@ def rigid_root(P, kind):
         return f'{best}_paw'
     ctr = np.array([0, np.clip(P[:, 1].mean(), -0.4, 0.4), 0.45])
     return P[np.argmin(np.linalg.norm(P - ctr, axis=1))]
+
+# ---- for the kit's bind (kit/rigs/bind.py): the reach masks and side/front rules as gating on the distances
+def weigh(D, P, idx):
+    P = np.asarray(P, np.float32); x = P[:, 0]; sx_ = P[:, 1] / S + MID
+    M = mask(P)
+    for i, b in enumerate(BONES):
+        n = b[0]
+        if n[:2] in ('fl', 'fr', 'bl', 'br'):
+            D[:, i] += np.where(np.sign(x) != np.sign(b[2][0]), 1.0, 0.0)
+            D[:, i] += np.where((sx_ > 850) != (n[0] == 'f'), 1.0, 0.0)
+    return D + (1 - M) * 2.0
+
+def rigid(kind, P, idx):
+    r = rigid_root(P, kind)
+    if isinstance(r, str): return r
+    return None
+
+# joint bands for the kit's bind: wide, soft blends where big masses turn (thigh into haunch, shoulder into chest,
+# neck into chest), so the turn is spread over many centimetres of skin
+BANDS = {'bl_upper': (0.07, 0.16), 'br_upper': (0.07, 0.16), 'fl_upper': (0.06, 0.14), 'fr_upper': (0.06, 0.14),
+         'neck': (0.06, 0.14), 'head': (0.04, 0.10), 'tail1': (0.04, 0.10), 'spine': (0.08, 0.2), 'chest': (0.08, 0.2),
+         'tail2': (0.04, 0.08), 'bl_lower': (0.05, 0.10), 'br_lower': (0.05, 0.10), 'fl_lower': (0.04, 0.08), 'fr_lower': (0.04, 0.08)}
