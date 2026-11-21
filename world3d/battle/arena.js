@@ -465,7 +465,7 @@ export const arena = {
       const k = 1 - Math.exp(-dt * (C.t < 0.25 ? 18 : 6));
       this.cam.position.lerp(C.pos, k); this.cam.quaternion.slerp(C.q, k);
       this.cam.fov += (C.fov - this.cam.fov) * k; this.cam.updateProjectionMatrix();
-      if (C.t >= C.dur) { this.close = null; this.stage?.host.classList.remove('f3-close'); }
+      if (C.t >= C.dur) this.close = null;
     } else if (this.want) {
       const k = 1 - Math.exp(-dt * 6);
       this.cam.position.lerp(this.want.pos, k); this.cam.quaternion.slerp(this.want.q, k);
@@ -478,6 +478,9 @@ export const arena = {
     if (nf) foeCenter.multiplyScalar(1 / nf); else foeCenter.copy(this.center).addScaledVector(this.dir, GAP);
     const heroCenter = V3(); for (const h of this.heroes.values()) heroCenter.add(h.home); heroCenter.multiplyScalar(1 / Math.max(1, this.heroes.size));
     for (const h of this.heroes.values()) { stepHero(this, h, d, t, foeCenter); if (h.A.root.visible) placeBlob(this.blobs[bi++], h.pos, 0.9); }
+    // the foes' plates and intents step aside while a Champion's named move plays (in place or with its own camera) or
+    // a close-up or wide camera is on, and come back after (hub, November 21)
+    { const clear = !!this.close || [...this.foes.values()].some((F) => F.act?.moment); if (clear !== this._clear) { this._clear = clear; this.stage?.host.classList.toggle('f3-close', clear); } }
     for (const F of this.foes.values()) { stepFoe(this, F, d, t, heroCenter); if (F.root.visible && !F.sunk) placeBlob(this.blobs[bi++], F.pos, Math.max(0.6, F.size.w * 1.3)); }
     for (; bi < this.blobs.length; bi++) this.blobs[bi].visible = false;
     for (const h of this.heroes.values()) h.aura?.step(d, this.t);
