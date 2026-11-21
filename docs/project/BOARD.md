@@ -1,19 +1,19 @@
 # The board
 
-Where the 3D game stands. Written by the hub only. Last updated November 20, near midnight.
+Where the 3D game stands. Written by the hub only. Last updated November 21, early morning.
 
 ## The sessions
 
 | # | Job | Session | Branch | State | Latest link |
 |---|---|---|---|---|---|
 | 1 | the hub | `session_01DgbUKb6orvjjc1cMgBGPJK` | `claude/brave-davinci-790efm` | running | (the board) |
-| 2 | The Fight | `session_01DgbUKYR9qmKyBdACUWGViw` | `job/fight` | step 4 done: full-detail foes fight with their own moves timed to M7's dice, both swallows proven (?land=1), six full-detail foes and the party at 61 draws on a phone; next, step 5: each Champion's named moves as their own 3D moments | https://claude.ai/artifact/Q9T8quXCTVgiVUZoMuUaP4 |
+| 2 | The Fight | `session_01DgbUKYR9qmKyBdACUWGViw` | `job/fight` | step 4 done and brought in: full-detail foes fight with the kit's common moves timed to M7's dice and are never squashed or leaned (no stretching); the glowcap in full detail; six full-detail foes and the party at 61 draws on a phone; now, step 5: each Champion's named moves as their own 3D moments | https://claude.ai/artifact/Q9T8quXCTVgiVUZoMuUaP4 |
 | 3 | Models | `session_01DgbUKcWh5MEvjHnxzp4HHo` | `job/models` | sculpted masters for each kind of piece (eleven so far, Wren's starter kit: torso, skirt, sleeve, forearm, trousers, boot, foot, belt, tabard, cape, kettle hat), the whole hero's sculpt (908k) to look at, baked into one shared atlas on the same pieces and draws; heroes can't stretch (rigid pieces); next: helm, hood, gloves, robe, mantle, plate, shield face, grips, then the townsfolk and people foes | https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL |
 | 4 | Places | `session_01DgbUKZVFBfm1dVautXEw5f` | `job/places` | pools of water drawn as one (Mossfall 61 → 28 draws on a phone; the heaviest place on a phone now Willowmurk at 64); roofs coloured from the painting; Act One republished (version 10); next: the woods on a laptop (Thornway 336 draws) and Willowmurk on a phone | https://claude.ai/artifact/GBxRVSqwMwYUTy1xLNjATA |
-| 5 | Together | `session_01DgbUKbyjzZFe1BXHHxzHBn` | `job/together` | Act One version 5: full-detail Briarmaw, Rotwarden and sapwight in the game (heroes' textures at 192 px and paintings at 0.4 to fit); the Sunscorch page; next: the Ironspire and the Gloomfen the same way | https://claude.ai/artifact/RaeSK5hezqb3qH7jmuM5aj |
-| 6 | One Foe | `session_01DgbUKZCNBFY7zwSzwAXR8y` | `job/foe-hd` | the glowcap (841k sculpt → 17,284); the bake no longer bleeds between coat and parts (Briarmaw and the briarling re-baked); serpent, frog and winged rigs for session 7; next: boglurcher, the willows, the sparks, rockling, Mother Anvil, the wraiths | https://claude.ai/artifact/AyUxs7hCGjdzZDNG1jfRnJ |
-| 7 | Foes: beasts | `session_01DgbUKZ4qEpafSazysExsYV` | `job/foes-beasts` | the thornhound brought in (606k sculpt kept as an asset → ~20k); next: onto the kit, then the rotstag, Old Snag, the Mirelord, the rotgrub, the Gloamwing | https://claude.ai/artifact/64Ukg3yQAAb8DWz69xqvxs |
-| 8 | Foes: walkers | `session_01DgbUKcTDUjKDVHw3sPhu7R` | `job/foes-walkers` | the Rotwarden (1.07M sculpt → 47,500) and the sapwight (900k → 19,913) done and brought in, sculpts kept as assets; `walkersLook` for the Fight; next: lighter phone copies, then Old Horn and the rest | https://claude.ai/artifact/YBLUHaLG3bNdfcjBdeq3aj |
+| 5 | Together | `session_01DgbUKbyjzZFe1BXHHxzHBn` | `job/together` | Act One version 5 (full-detail Briarmaw, Rotwarden and sapwight); the Sunscorch page; the Ironspire's and the Gloomfen's pages built and brought in (each beginning where the story reaches it), being checked end to end before publishing | https://claude.ai/artifact/RaeSK5hezqb3qH7jmuM5aj |
+| 6 | One Foe | `session_01DgbUKZCNBFY7zwSzwAXR8y` | `job/foe-hd` | the glowcap; the kit has sessions 7 and 8's improvements and a common move set (idle, walk, bite, strike, swipe, cast, roar, hurt, ko); now: a stretch check and weights by part in the kit (Chris: no stretching), then the boglurcher, the willows, the sparks, rockling, Mother Anvil, the wraiths | https://claude.ai/artifact/AyUxs7hCGjdzZDNG1jfRnJ |
+| 7 | Foes: beasts | `session_01DgbUKZ4qEpafSazysExsYV` | `job/foes-beasts` | the thornhound's weights fixed by its own stretch check (worst 16.8× → 3.4×; pages republished); next: its mouth and neck under 1.3×, then the rotstag, Old Snag, the Mirelord, the rotgrub, the Gloamwing | https://claude.ai/artifact/64Ukg3yQAAb8DWz69xqvxs |
+| 8 | Foes: walkers | `session_01DgbUKcTDUjKDVHw3sPhu7R` | `job/foes-walkers` | phone copies of the Rotwarden and the sapwight; now, first: the Rotwarden's stretching (Chris's picture), then both in the kit's standard form, then Old Horn and the rest | https://claude.ai/artifact/YBLUHaLG3bNdfcjBdeq3aj |
 
 ## What's built (on the hub's branch)
 
