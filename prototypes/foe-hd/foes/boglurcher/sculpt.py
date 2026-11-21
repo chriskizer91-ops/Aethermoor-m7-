@@ -36,7 +36,8 @@ def build(K):
         r0 = prof(z); rad = 0.045 + 0.07 * rr.random() * (1.15 - z)
         c = np.array([math.cos(th) * (r0 - rad * 0.8), math.sin(th) * (r0 - rad * 0.8) * float(sy(math.sin(th))), z])
         # slabs, wider than tall, lying along the slope: the heap's layers
-        clods.append((c, (rad * 1.45, rad * 1.45, rad * 0.55)))
+        if any(abs(c[0] - ex) < 0.09 and abs(c[2] - ez) < 0.08 and c[1] > 0 for ex, ez, _ in EYES): continue   # keep the eyes clear
+        clods.append((c, (rad * 1.3, rad * 1.3, rad * 0.75)))
 
     def mound_sdf(P, lv=None):
         L = LV if lv is None else lv
@@ -55,7 +56,7 @@ def build(K):
         if L >= 3: d = d - 0.002 * (vnoise(P, 60.0) - 0.5)                        # grit
         # the eyes' hollows
         for ex, ez, er in EYES:
-            ey = math.sqrt(max(0.0, prof(ez) ** 2 - ex * ex)) * SY_F + 0.01
+            ey = math.sqrt(max(0.0, prof(ez) ** 2 - ex * ex)) * SY_F + 0.03
             d = smax(d, -ell(P, (ex, ey, ez), (er * 1.9, er * 1.4, er * 1.3)), 0.02)
         return np.maximum(d, -z)
 
@@ -65,7 +66,7 @@ def build(K):
     z = Vb[:, 2]
     n1 = fbm(Vb, 6.0)[:, None]
     proud = np.clip((np.hypot(Vb[:, 0], Vb[:, 1] / sy(Vb[:, 1])) - prof(z) * 0.93) / 0.05, 0, 1)[:, None]   # what stands out of the heap
-    col = mix(MUD, MUD2, np.clip(n1 * 1.2 - 0.55 + proud * 0.9, 0, 1))
+    col = mix(MUD, MUD2, np.clip(n1 * 1.1 - 0.55 + proud * 0.6, 0, 1))
     clodlit = np.clip((fbm(Vb * [1, 1, 3], 14.0)[:, None] - 0.45) * 2, 0, 1)        # wet streaks
     col = mix(col, WET, clodlit * 0.5)
     for ex, ez, er in EYES:                                                       # the hollows are dark
@@ -91,7 +92,7 @@ def build(K):
         if LV >= 2: shell = shell - 0.006 * (fbm(P, 30.0, 2) - 0.45) - 0.003 * (fbm(P * [1, 1, 0.3], 60.0, 2) - 0.5)   # tufty, stringy
         # on top it grows in clumps with mud between; the hanging strands below the top stay whole
         edge = moss_edge(P)
-        patch = np.where(P[:, 2] > edge + 0.07, 0.47 - fbm(P, 7.0, 2), -1.0)
+        patch = np.where(P[:, 2] > edge + 0.07, 0.33 - fbm(P, 7.0, 2), -1.0)
         shell = shell - thick * 0.8 * (fbm(P, 12.0, 2) - 0.5)                        # thicker and thinner clumps
         return np.maximum(np.maximum(shell, edge - P[:, 2]), patch * 0.05)
     log('moss')
@@ -115,7 +116,7 @@ def build(K):
 
     # ---- the eyes: amber, a dark round pupil, looking out of the hollows --------------------------------------
     for ex, ez, er in EYES:
-        ey = math.sqrt(max(0.0, prof(ez) ** 2 - ex * ex)) * SY_F - er * 0.25
+        ey = math.sqrt(max(0.0, prof(ez) ** 2 - ex * ex)) * SY_F + 0.012
         c = np.array([ex, ey, ez])
         V, F = G.ellipsoid(c, (er * 1.2, er * 0.8, er * 0.75), nt + 4, npp + 6)
         fwd = np.array([ex * 0.25, 1.0, 0.0]); fwd /= np.linalg.norm(fwd)
