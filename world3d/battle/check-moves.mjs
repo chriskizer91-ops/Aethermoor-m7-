@@ -2,8 +2,8 @@
 // for the move's effects to show and takes a still (out-dir/<move>.png), then lets the fight go on. Prints the moves
 // seen, in order, and the result.
 //   NODE_PATH=$(npm root -g) node battle/check-moves.mjs <page.html> <out-dir> [query] [--slow]
-// --slow: at each new move the arena's clock is held and stepped by hand (two stills: as it starts, as it lands at its
-// peak), so the effects show at their height whatever the browser's speed
+// --slow: at each new move the arena's clock is held from its first frame and stepped by hand (three stills: as it
+// bursts out, its thorns in the air, as it lands), so the effects show at their height whatever the browser's speed
 import { createRequire } from 'node:module';
 import path from 'node:path';
 import { mkdirSync } from 'node:fs';
@@ -39,10 +39,13 @@ for (;;) {
     // slow mode: the arena's clock held and stepped by hand, a still at the move's start and one at its landing peak
     const name = await p.evaluate(() => window.__moves[window.__moves.length - 1]);
     const tag = `${String(++shot).padStart(2, '0')}-${name.replace(/[^\w]+/g, '-')}`;
-    await p.evaluate(() => { const a = window.__fight.arena; a.manual = true; a.stepBy(0.6); });
+    // three stills: as it bursts out, its thorns in the air, and as it lands (times on the page's own clock)
+    await p.evaluate(() => { const a = window.__fight.arena; a.manual = true; a.stepBy(0.15); });
     await p.screenshot({ path: path.join(out, `${tag}-a.png`) });
-    await p.evaluate(() => { const a = window.__fight.arena, F = a.movingFoe(); if (F) { F.act.bit = true; F.act.bitT = F.act.t; a.landed(F); } a.stepBy(0.4); });
+    await p.evaluate(() => window.__fight.arena.stepBy(0.15));
     await p.screenshot({ path: path.join(out, `${tag}-b.png`) });
+    await p.evaluate(() => { const a = window.__fight.arena, F = a.movingFoe(); if (F) { F.act.bit = true; F.act.bitT = F.act.t; a.landed(F); } a.stepBy(0.2); });
+    await p.screenshot({ path: path.join(out, `${tag}-c.png`) });
     await p.evaluate(() => { window.__fight.arena.manual = false; window.__landing = null; const r = window.__wait; window.__wait = null; r && r(); });
     continue;
   }

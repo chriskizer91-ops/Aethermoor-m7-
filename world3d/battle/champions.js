@@ -8,7 +8,7 @@
 // A move missing here plays the kit's pick for M7's words (arena.js kitMove) with no extra effect.
 import { GENERATED } from './champion-moves.js';
 
-const head = (c) => c.F.pos.clone().setY(c.F.pos.y + c.F.size.h * 0.85);
+const head = (c) => c.F.pos.clone().setY(c.F.pos.y + c.F.size.h * 0.95);
 const chest = (h) => h.pos.clone().setY(h.pos.y + 1.1);
 const feet = (h) => h.pos.clone().setY(h.pos.y + 0.02);
 
