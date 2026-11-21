@@ -22,8 +22,8 @@ def build(K):
     S, G, LV, VOX, SIDES, SEG, log = K.sdf, K.geom, K.LV, K.VOX, K.SIDES, K.SEG, K.log
     smin, smax, ell, cap, fbm, mix, sstep, vnoise = S.smin, S.smax, S.ell, S.cap, S.fbm, S.mix, S.sstep, S.vnoise
     M = K.Mesh()
-    MUD = np.array([0.16, 0.10, 0.06]); MUD2 = np.array([0.38, 0.27, 0.15]); WET = np.array([0.10, 0.065, 0.04])
-    MOSS = np.array([0.30, 0.40, 0.10]); MOSS2 = np.array([0.50, 0.56, 0.16]); MOSSD = np.array([0.15, 0.22, 0.06])
+    MUD = np.array([0.11, 0.07, 0.045]); MUD2 = np.array([0.30, 0.20, 0.11]); WET = np.array([0.07, 0.045, 0.03])
+    MOSS = np.array([0.32, 0.40, 0.11]); MOSS2 = np.array([0.60, 0.62, 0.20]); MOSSD = np.array([0.13, 0.19, 0.05])
     STONE = np.array([0.36, 0.29, 0.22]); STALK = np.array([0.30, 0.36, 0.14]); HEAD = np.array([0.40, 0.23, 0.11])
     SPR = np.array([0.32, 0.50, 0.12]); AMBER = np.array([1.0, 0.62, 0.12])
     rr = np.random.default_rng(73)
@@ -31,10 +31,10 @@ def build(K):
     def prof(z): return np.interp(z, PROF_Z, PROF_R)
     # the clods: lumps of mud heaped over the mound, bigger low down (the sheet's layered, slumped heap)
     clods = []
-    for i in range(110):
+    for i in range(190):
         z = rr.uniform(0.02, 0.62) ** 1.05; th = rr.uniform(0, 2 * math.pi)
         r0 = prof(z); rad = 0.045 + 0.07 * rr.random() * (1.15 - z)
-        c = np.array([math.cos(th) * (r0 - rad * 1.05), math.sin(th) * (r0 - rad * 1.05) * float(sy(math.sin(th))), z])
+        c = np.array([math.cos(th) * (r0 - rad * 0.8), math.sin(th) * (r0 - rad * 0.8) * float(sy(math.sin(th))), z])
         # slabs, wider than tall, lying along the slope: the heap's layers
         clods.append((c, (rad * 1.45, rad * 1.45, rad * 0.55)))
 
@@ -46,12 +46,12 @@ def build(K):
         d = (rho - prof(zc) * 0.97) * 0.85                                        # the heap's profile (a little under-
         d = np.where(z > 0.645, np.hypot(rho, z - 0.645) - 0.02, d)              # estimated, safe for marching)
         for c, r in clods:
-            d = smin(d, ell(P, c, r), 0.05)
+            d = smin(d, ell(P, c, r), 0.025)
         # mud flows: slumped folds running down the sides, wobbling
         th = np.arctan2(y, x)
         flow = np.abs(np.sin(th * 9 + 2.5 * fbm(P, 2.5, 2) + 3 * z))
         d = d + 0.004 * (1 - flow) ** 2 * sstep(0.62, 0.3, z)
-        if L >= 2: d = d - 0.006 * (fbm(P, 9.0, 3) - 0.5)                         # clotted
+        if L >= 2: d = d - 0.012 * (fbm(P, 7.0, 3) - 0.5) - 0.004 * (fbm(P, 20.0, 2) - 0.5)   # clotted, lumpy
         if L >= 3: d = d - 0.002 * (vnoise(P, 60.0) - 0.5)                        # grit
         # the eyes' hollows
         for ex, ez, er in EYES:
@@ -89,8 +89,11 @@ def build(K):
         d0 = mound_sdf(P, 1)
         shell = np.abs(d0 - thick * 0.6) - thick
         if LV >= 2: shell = shell - 0.006 * (fbm(P, 30.0, 2) - 0.45) - 0.003 * (fbm(P * [1, 1, 0.3], 60.0, 2) - 0.5)   # tufty, stringy
-        patch = 0.3 - fbm(P, 6.0, 2) + 0.1 * sstep(0.5, 0.3, P[:, 2])               # clumps, mud showing between them
-        return np.maximum(np.maximum(shell, moss_edge(P) - P[:, 2]), patch * 0.05)
+        # on top it grows in clumps with mud between; the hanging strands below the top stay whole
+        edge = moss_edge(P)
+        patch = np.where(P[:, 2] > edge + 0.07, 0.47 - fbm(P, 7.0, 2), -1.0)
+        shell = shell - thick * 0.8 * (fbm(P, 12.0, 2) - 0.5)                        # thicker and thinner clumps
+        return np.maximum(np.maximum(shell, edge - P[:, 2]), patch * 0.05)
     log('moss')
     lo_m = np.array([K.lo[0], K.lo[1], 0.12]); Vm, Fm = S.mc(moss_sdf, VOX, lo_m, K.hi, band=BAND)
     m = fbm(Vm, 10.0)[:, None]
