@@ -81,5 +81,6 @@
   "three": "https://claude.ai/artifact/EwHdrinmmvPGCqF48sjdFP"
  },
  "stretchMoves": "pages/desert-deep/moves/lizard.js",
- "sculptTriangles": 1036230
+ "sculptTriangles": 1036230,
+ "moves": "lizard"
 }
