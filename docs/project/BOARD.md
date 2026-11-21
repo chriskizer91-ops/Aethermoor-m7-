@@ -1,13 +1,13 @@
 # The board
 
-Where the 3D game stands. Written by the hub only. Last updated November 21, before dawn.
+Where the 3D game stands. Written by the hub only. Last updated November 21, midday.
 
 ## The sessions
 
 | # | Job | Session | Branch | State | Latest link |
 |---|---|---|---|---|---|
 | 1 | the hub | `session_01DgbUKb6orvjjc1cMgBGPJK` | `claude/brave-davinci-790efm` | running | (the board) |
-| 2 | The Fight | `session_01DgbUKYR9qmKyBdACUWGViw` | `job/fight` | step 5: the moves table for all 298 Champion moves; the wraiths fight in full detail; big moments clear the screen; thick roots, clods and dust, thorns that read in flight; next: fresh stills, then the moments hand-made Champion by Champion | https://claude.ai/artifact/Q9T8quXCTVgiVUZoMuUaP4 |
+| 2 | The Fight | `session_01DgbUKYR9qmKyBdACUWGViw` | `job/fight` | step 5: Act One's twelve big foes' moments all hand-made and played (the Rotwarden on his own moves, in full detail on the fight page); tongues coil, trees thin in fights, the spoils camera indoors; next: close-up cameras clear of rocks and bushes, then Act Two's Champions on a new page | https://claude.ai/artifact/Q9T8quXCTVgiVUZoMuUaP4 |
 | 3 | Models | `session_01DgbUKcWh5MEvjHnxzp4HHo` | `job/models` | the eleven wraiths, first pass: shaped to Chris's sheets with their props, rigid (they can't stretch), wraithLook for the Fight, the Abbot's and the Lantern Mother's named moves; next: layered tatters, lace and embroidery, two thinned to budget | https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL |
 | 4 | Places | `session_01DgbUKZVFBfm1dVautXEw5f` | `job/places` | the set dressing in 3D done for every region (Gloomfen 127 things, Sunscorch 19, Ironspire 36), chests the game opens, the place map, the places alive; Act One version 17; next: a foe lane, the desert's and the deep's beasts (the Sand Wyrm, the Glass Matriarch, Old Jaws, the Blackwater Leviathan...) | https://claude.ai/artifact/GBxRVSqwMwYUTy1xLNjATA |
 | 5 | Together | `session_01DgbUKbyjzZFe1BXHHxzHBn` | `job/together` | the place map in every game page with M7's live marks; Act Three done (single file and full pictures), so every act has its pages; next: the Chained Deep and the Worldforge played to the end, then the chests and signs in 3D | https://claude.ai/artifact/RaeSK5hezqb3qH7jmuM5aj |
@@ -99,6 +99,9 @@ Where the 3D game stands. Written by the hub only. Last updated November 21, bef
   when they spread (`from-chris/2026-11-21-rotwarden-stretch.webp`). Session 8 fixes his weights; session 6 puts a
   stretch check and weights-by-part into the kit; sessions 7 and Models check theirs; the Fight leaves squash and
   stretch off the full-detail foes. Rules: `jobs/foes.md`, "No stretching".
+
+- **Usage (November 21):** at 05:25 UTC the account hit its 5-hour usage limit; every session stopped until it reset at
+  07:30, and most sat idle until the hub restarted them at about 12:00. Eight sessions at once can reach the limit.
 
 ## Next for the hub
 
