@@ -1,0 +1,14 @@
+{
+ "key": "rotwarden",
+ "name": "The Rotwarden",
+ "plan": "walker",
+ "rank": "champion",
+ "height": 2.5,
+ "moves": "pages/walkers/foes.js",
+ "bake": {
+  "res": 2048,
+  "phone": 1024
+ },
+ "rig": "rig.py",
+ "note": "a walker (session 8): its moves are pages/walkers/foes.js FOES[key] (walker.js movesFor); its own page assets are color.webp, orm.webp and phone/"
+}
