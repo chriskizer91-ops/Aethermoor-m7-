@@ -8,7 +8,7 @@ Where the 3D game stands. Written by the hub only. Last updated November 20, nea
 |---|---|---|---|---|---|
 | 1 | the hub | `session_01DgbUKb6orvjjc1cMgBGPJK` | `claude/brave-davinci-790efm` | running | (the board) |
 | 2 | The Fight | `session_01DgbUKYR9qmKyBdACUWGViw` | `job/fight` | step 4 done: full-detail foes fight with their own moves timed to M7's dice, both swallows proven (?land=1), six full-detail foes and the party at 61 draws on a phone; next, step 5: each Champion's named moves as their own 3D moments | https://claude.ai/artifact/Q9T8quXCTVgiVUZoMuUaP4 |
-| 3 | Models | `session_01DgbUKcWh5MEvjHnxzp4HHo` | `job/models` | sculpted heroes, first pass, in (relief on every surface, shaped faces, deeper folds; Wren beside Briarmaw in the Gear Room); next: a sculpted master for each body part and item kind, baked and fitted to the switchable pieces, starting with Wren's starter kit | https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL |
+| 3 | Models | `session_01DgbUKcWh5MEvjHnxzp4HHo` | `job/models` | sculpted masters for each kind of piece (eleven so far, Wren's starter kit: torso, skirt, sleeve, forearm, trousers, boot, foot, belt, tabard, cape, kettle hat), the whole hero's sculpt (908k) to look at, baked into one shared atlas on the same pieces and draws; heroes can't stretch (rigid pieces); next: helm, hood, gloves, robe, mantle, plate, shield face, grips, then the townsfolk and people foes | https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL |
 | 4 | Places | `session_01DgbUKZVFBfm1dVautXEw5f` | `job/places` | pools of water drawn as one (Mossfall 61 → 28 draws on a phone; the heaviest place on a phone now Willowmurk at 64); roofs coloured from the painting; Act One republished (version 10); next: the woods on a laptop (Thornway 336 draws) and Willowmurk on a phone | https://claude.ai/artifact/GBxRVSqwMwYUTy1xLNjATA |
 | 5 | Together | `session_01DgbUKbyjzZFe1BXHHxzHBn` | `job/together` | Act One version 5: full-detail Briarmaw, Rotwarden and sapwight in the game (heroes' textures at 192 px and paintings at 0.4 to fit); the Sunscorch page; next: the Ironspire and the Gloomfen the same way | https://claude.ai/artifact/RaeSK5hezqb3qH7jmuM5aj |
 | 6 | One Foe | `session_01DgbUKZCNBFY7zwSzwAXR8y` | `job/foe-hd` | the glowcap (841k sculpt → 17,284); the bake no longer bleeds between coat and parts (Briarmaw and the briarling re-baked); serpent, frog and winged rigs for session 7; next: boglurcher, the willows, the sparks, rockling, Mother Anvil, the wraiths | https://claude.ai/artifact/AyUxs7hCGjdzZDNG1jfRnJ |
@@ -54,6 +54,10 @@ Where the 3D game stands. Written by the hub only. Last updated November 20, nea
 - **Everyone:** hub commit 77f8eeb has all three first deliveries together (textured heroes, the Sunscorch, the fight)
   and `world3d/build.mjs` with every session's flags (`--herotex`, `--name`, `--out`, `--paint`, `--entry`, `--plugin`).
   Merge it before your next publish.
+
+- **Everyone who builds with `--herotex`:** from hub commit after f657c89, `world3d/build.mjs --herotex=N` leaves the
+  sculpted masters' atlas and the relief tiles whole (11 pictures, about 0.6 MB), so the heroes keep their sculpted
+  detail on a shrunk page.
 
 ## Asks between jobs
 
