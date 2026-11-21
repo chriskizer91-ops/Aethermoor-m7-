@@ -5,6 +5,20 @@ shown side by side with the code-built model and a cut-out of Chris's sheet.
 
 ## Done
 
+- **The willow-wight** (November 21), in full detail, **passing the stretch check** (120 frames):
+  - Three ways, with the crowd test: https://claude.ai/artifact/LoiEBTvYXJuM7nKijvueHH
+  - The sculpt itself (laptop): https://claude.ai/artifact/2aJ9QPBwtbvnfsEY3H3phj
+  - Sculpt about 1.25M triangles (saved, 5.5 MB); light model 30,634 (the veteran budget).
+  - A ridged trunk on splayed root feet, a scowling face with glowing eyes that weep, two branch arms (bluebells in
+    its left hand) grown out of the trunk as pieces of their own (so the shoulders can't stretch), and about 100
+    fronds draped over a dome of crown, parted over the face, every leaf sculpted; at the light level each frond is a
+    zigzag ribbon whose lobes are where the leaves are, and the leaves are baked onto it.
+  - A new plan in the kit, `willow` (`kit/js/moves/willow.js`, for Grandfather Willow too): sway, walk (it lurches on
+    its roots), lash, bough-fall, weep, hit, fall (it topples backwards). Common moves: strike, bite, swipe → lash;
+    cast → weep; roar → bough-fall.
+  - Kit fix found on the way: the behind-the-joint clean-up never moves a point to a parent its mask forbids.
+  - Next for it: the fronds denser and clumpier, as the sheet paints them.
+
 - **The boglurcher** (November 21), in full detail, **passing the stretch check** (worst 1.25x, the slam):
   - Three ways, with the crowd test: https://claude.ai/artifact/CBt1k8zotiyVb5BCkquENo
   - The sculpt itself (laptop): https://claude.ai/artifact/UXByzwgQxJTPVX3MRVunir
@@ -117,8 +131,8 @@ shown side by side with the code-built model and a cut-out of Chris's sheet.
    neck bones, a tail-root helper, driven by the loader from a HELPERS table so moves don't change). Also session 7's
    report that bind.py lets some neck weight onto the thornhound's ear root despite its weigh(): weigh gates need
    +1000 (an unseen bone costs 100), and a gate should also stop the bands and smoothing.
-1. My lane, each passing the stretch check before it's handed in: (briarling, glowcap, boglurcher done) the willows
-   (willow-wight, Grandfather Willow), the sparks (marsh-light, forge-spark), rockling, Mother Anvil. (The wraiths moved
+1. My lane, each passing the stretch check before it's handed in: (briarling, glowcap, boglurcher, willow-wight done)
+   Grandfather Willow, the sparks (marsh-light, forge-spark), rockling, Mother Anvil. (The wraiths moved
    to Models, session 3.)
 2. Briarmaw's moves smoothed (weights round the shoulders and hips, a fuller walk), a hit flash.
 2. The face closer still to the sheet; the coat's brown zones placed as the sheet paints them.
