@@ -10,7 +10,7 @@ mkdirSync(out, { recursive: true });
 const browser = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
 const f = foe ? `foe=${foe}&` : '';
 const shots = [['laptop', { width: 1280, height: 800 }, `?${f}`], ['phone', { width: 390, height: 844 }, `?${f}`], ['crowd', { width: 1280, height: 800 }, `?${f}crowd`]];
-for (const m of moves) { const [mv, yaw] = m.split(':'); shots.push([`move-${mv}`, { width: 700, height: 800 }, `?${f}move=${mv}&yaw=${yaw || 0.5}`]); }
+for (const m of moves) { const [mv, yaw, u] = m.split(':'); shots.push([`move-${mv}`, { width: 700, height: 800 }, `?${f}move=${mv}&yaw=${yaw || 0.5}${u ? `&u=${u}` : ''}`]); }   // move:yaw:u
 for (const [name, vp, q] of shots) {
   const page = await browser.newPage({ viewport: vp });
   const errs = [];

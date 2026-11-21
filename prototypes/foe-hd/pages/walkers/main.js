@@ -152,6 +152,7 @@ function loop() {
   if (W && !S.crowd) {
     const D = dur(S.move); let u = 0;
     if (D) { S.moveT += d; u = Math.min(1, S.moveT / D); if (S.moveT > D + 0.9) S.moveT = 0; }
+    if (S.fixU != null) u = S.fixU;          // ?u=0.5: hold the move at that moment (for checks)
     if (S.move === 'walk') step += d * 3.4;
     W.pose(S.move, u, t, step);
   }
@@ -181,6 +182,7 @@ function loop() {
   const q = new URLSearchParams(location.search);
   show(q.get('foe') && FOES[q.get('foe')] ? q.get('foe') : S.key);
   resize();
+  if (q.get('u')) S.fixU = +q.get('u');
   if (q.get('move')) { S.move = q.get('move'); S.turn = false; top.rotation.y = +(q.get('yaw') || 0); refresh(); }
   if (q.has('crowd')) $('crowd').onclick();
   if (q.has('lite') !== S.lite && (q.has('lite') || q.has('full'))) $('lite').onclick();

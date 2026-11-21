@@ -69,6 +69,17 @@ costing a phone more than a few draws:
 - Start with Act One (the Keep, Thornhollow, the Thornway, Mossfall, the Heartroot), then the regions. Republish your
   four region pages; tell the hub when Act One is ready to rebuild.
 
+**Step 5 (from November 21): the set dressing in 3D.** Today most of a place's small things are only painted on the
+ground: barrels, crates, sacks, carts, market stalls, wells, fences and gates, benches, signposts, statues, braziers,
+lamp posts, hay, logs, rocks and bushes, tables and shelves indoors. Stand them up as 3D objects where the painting
+draws them, in Chris's textures, so the place reads as a diorama from any angle:
+- Found from the painting and M7's map (what the tiles and entities say stands there), placed on the painting's spot.
+- A small kit of pieces built in code (like the buildings), instanced: one draw per kind of thing per place, phone
+  draws measured before and after (your slip); the painted copy under each is hidden or darkened as its shadow.
+- Not yours: chests, signs and Hearthfire stands (the game's things to use: Together's `game3d/props.js`). Talk to
+  Together so they match.
+- Act One first, then the regions; republish your pages and tell the hub when Act One is ready to rebuild.
+
 ## What others rely on (keep it working)
 
 - `W3D_PLACES['m7-<id>']` with its `anchors`, `exits` (`to`, `anchor`), `people`, `start`; the walk boxes in

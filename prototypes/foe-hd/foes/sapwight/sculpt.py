@@ -38,7 +38,7 @@ NECK0 = np.array([0, 0.07, 1.42]); NECK1 = np.array([0, 0.14, 1.56]); HEAD = np.
 SH = {s: np.array([s * 0.215, 0.05, 1.405]) for s in (1, -1)}
 ELB = {s: np.array([s * 0.30, 0.02, 1.06]) for s in (1, -1)}
 WRI = {s: np.array([s * 0.31, 0.06, 0.84]) for s in (1, -1)}
-THI = {s: np.array([s * 0.10, 0.0, 0.93]) for s in (1, -1)}
+THI = {s: np.array([s * 0.118, 0.0, 0.93]) for s in (1, -1)}     # apart enough that the thighs don't touch
 KNEE = {s: np.array([s * 0.115, 0.03, 0.49]) for s in (1, -1)}
 ANK = {s: np.array([s * 0.125, -0.01, 0.085]) for s in (1, -1)}
 # the limbs and trunk as segments: (a, b, radius a, radius b, strip width, helix turns per metre, sense)
@@ -54,13 +54,23 @@ def body(P):
     d = smin(d, ell(P, HIP + [0, 0, 0.0], (0.165, 0.115, 0.11)), 0.06)      # pelvis
     d = smin(d, ell(P, SHC + [0, -0.01, 0.0], (0.25, 0.10, 0.06)), 0.07)    # the shoulder yoke
     d = smin(d, cap(P, NECK0, NECK1, 0.065, 0.055), 0.04)
-    for s in (1, -1):
-        for a, b, ra, rb in ((SH[s], ELB[s], 0.062, 0.054), (ELB[s], WRI[s], 0.054, 0.045),
-                             (THI[s], KNEE[s], 0.10, 0.08), (KNEE[s], ANK[s], 0.08, 0.062)):
-            d = smin(d, cap(P, a, b, ra, rb), 0.03)
-        d = smin(d, sph(P, KNEE[s] + [0, 0.02, 0], 0.07), 0.03)
-        d = smin(d, sph(P, ELB[s], 0.05), 0.02)
     return d
+# its arms and legs are pieces of their own (Chris, November 21: "when they move their arms they stretch themselves"):
+# meshed apart from the body, their tops tucked into the shoulder and the hip
+def arms(P):
+    d = None
+    for s in (1, -1):
+        e = smin(cap(P, SH[s] + [-s * 0.01, 0, -0.02], ELB[s], 0.062, 0.054), cap(P, ELB[s], WRI[s], 0.054, 0.045), 0.03)
+        e = smin(e, sph(P, ELB[s], 0.05), 0.02)
+        d = e if d is None else np.minimum(d, e)
+    return np.minimum(d, palm(P))
+def legs(P):
+    d = None
+    for s in (1, -1):
+        e = smin(cap(P, THI[s] + [0, 0, 0.03], KNEE[s], 0.092, 0.08), cap(P, KNEE[s], ANK[s], 0.08, 0.062), 0.03)
+        e = smin(e, sph(P, KNEE[s] + [0, 0.02, 0], 0.07), 0.03)
+        d = e if d is None else np.minimum(d, e)
+    return np.minimum(d, feet(P))
 
 def head(P):
     # a long skull of twisted bark, jutting forward, deep sockets, a slack jaw dripping sap
@@ -89,7 +99,8 @@ def feet(P):
         d = e if d is None else np.minimum(d, e)
     return d
 
-core = lambda P: np.minimum(np.minimum(smin(body(P), head(P), 0.03), palm(P)), feet(P))
+core_body = lambda P: smin(body(P), head(P), 0.03)
+core = lambda P: np.minimum(np.minimum(core_body(P), arms(P)), legs(P))
 
 # ---- 2. the bark strips: wound round each limb and the trunk, shingled, sap in the gaps -----------------------------
 SEGS = LIMBS + TRUNK
@@ -140,7 +151,7 @@ def strip_w(P):
     foot = P[:, 2] < 0.10
     return np.where(hz | hand | foot, 0.0, 1.0).astype(F32)
 
-def full_sdf(P):
+def full_sdf(P, core=core):
     d = core(P)
     band = np.abs(d) < 0.03
     if band.any():
@@ -157,8 +168,13 @@ def full_sdf(P):
 M = Mesh()
 LO, HI = (-0.45, -0.25, -0.01), (0.45, 0.36, 1.85)
 log('body, voxel', VOX)
-Vb, Fb = mc(full_sdf, VOX, LO, HI)
-log('body tris', len(Fb))
+VS, FS, KS, off = [], [], [], 0
+for cf, kd, lo_, hi_ in ((core_body, 0, (-0.30, -0.25, 0.80), HI), (arms, 12, (-0.45, -0.15, 0.55), (0.45, 0.25, 1.50)),
+                         (legs, 13, (-0.32, -0.20, -0.01), (0.32, 0.36, 1.02))):
+    Vg, Fg = mc(lambda P, c=cf: full_sdf(P, c), VOX, lo_, hi_)
+    VS.append(Vg); FS.append(Fg + off); off += len(Vg); KS.append(np.full(len(Vg), kd, np.uint8))
+    log('piece', kd, 'tris', len(Fg))
+Vb = np.concatenate(VS); Fb = np.concatenate(FS); KB = np.concatenate(KS)
 h, sid, fr, segi = strips(Vb, True); w = strip_w(Vb)
 sapm = ((fr > 1.0) | (h < -0.001)) & (w > 0.5)
 col = np.zeros((len(Vb), 3)); mat = np.zeros((len(Vb), 2))
@@ -182,6 +198,7 @@ col[m] = SAP; mat[m] = MAT['sap']
 m = (np.linalg.norm((Vb - (HEAD + [0, 0.12, -0.03])) / [0.075, 0.08, 0.075], axis=1) < 1) & (Vb[:, 1] > HEAD[1] + 0.06)
 col[m] = mix(SAP, BARK_D, 0.25); mat[m] = MAT['sap']
 M.add(Vb, Fb, np.clip(col, 0, 1), 0, mat)
+M.K[-1][:] = KB                  # kinds: 0 body, 12 arms, 13 legs
 
 surf = core
 def lay(pts, r, lift=0.8):
@@ -202,7 +219,7 @@ def finger(base, d, L, r0, curl, kind=0):
     pts = np.array([base + d * L * x + down * L * curl * x * x for x in u])
     rr = r0 * (1 - 0.35 * u) * (1 + 0.12 * np.sin(u * np.pi * 3) ** 2)       # knuckles
     V, F = tube(pts, rr, SIDES + 2)
-    M.add(V, F, mix(BARK_D, BARK, 0.5 + 0.3 * rng.random()), 0, MAT['bark'])
+    M.add(V, F, mix(BARK_D, BARK, 0.5 + 0.3 * rng.random()), kind, MAT['bark'])     # kind: 12 a finger (the hand's), 13 a toe (the foot's)
     tip = pts[-1]; td = pts[-1] - pts[-2]; td /= np.linalg.norm(td)
     cl = np.array([tip + td * 0.045 * x + down * 0.02 * x * x for x in u])
     V, F = tube(cl, r0 * 0.75 * (1 - u) + 0.0012, SIDES + 2)
@@ -211,13 +228,13 @@ for s in (1, -1):
     hb = WRI[s] + [s * 0.008, 0.01, -0.10]
     for i in range(4):
         off = (i - 1.5) * 0.022
-        finger(hb + [0, off + 0.01, 0], [s * 0.05, 0.08 + off * 1.5, -1.0], 0.13 - abs(i - 1.2) * 0.012, 0.012, 0.35)
-    finger(WRI[s] + [-s * 0.012, 0.05, -0.06], [-s * 0.4, 0.8, -0.6], 0.08, 0.012, 0.2)
+        finger(hb + [0, off + 0.01, 0], [s * 0.05, 0.08 + off * 1.5, -1.0], 0.13 - abs(i - 1.2) * 0.012, 0.012, 0.35, kind=12)
+    finger(WRI[s] + [-s * 0.012, 0.05, -0.06], [-s * 0.4, 0.8, -0.6], 0.08, 0.012, 0.2, kind=12)
     for i in range(4):
         a = (i - 1.5) * 0.38
         base = ANK[s] + [math.sin(a) * 0.04, 0.12, -0.065]
-        finger(base, [math.sin(a) * 0.9, math.cos(a), -0.12], 0.10 + 0.02 * (i in (1, 2)), 0.017, 0.5)
-    finger(ANK[s] + [0, -0.05, -0.06], [s * 0.2, -1.0, -0.2], 0.06, 0.016, 0.5)        # a heel spur
+        finger(base, [math.sin(a) * 0.9, math.cos(a), -0.12], 0.10 + 0.02 * (i in (1, 2)), 0.017, 0.5, kind=13)
+    finger(ANK[s] + [0, -0.05, -0.06], [s * 0.2, -1.0, -0.2], 0.06, 0.016, 0.5, kind=13)        # a heel spur
 
 # ---- 4b. the head's twisted bark: strands from the brow and cheeks swept back over the crown and down the neck --------
 log('head strands')

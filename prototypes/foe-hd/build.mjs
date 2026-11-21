@@ -45,7 +45,10 @@ const res = await build({ entryPoints: [entry], bundle: true, format: 'iife', ta
   legalComments: 'none', plugins: [plugin], loader: { '.bin': 'binary', '.webp': 'dataurl', '.glb': 'binary' },
   nodePaths: [path.join(here, 'node_modules')] });
 const js = res.outputFiles[0].text.replace(/<\/script/gi, '<\\/script');
-const body = (await readFile(shell, 'utf8')).replace('/*SCRIPT*/', () => js);
+// the page's title names the foe (one foe's page), e.g. "Boglurcher Three Ways"
+const foeName = args.foe ? JSON.parse(await readFile(path.join(here, 'foes', args.foe, 'foe.json'), 'utf8')).name : null;
+const body = (await readFile(shell, 'utf8')).replace('/*SCRIPT*/', () => js)
+  .replace(/<title>Foe (Three Ways|Sculpt)<\/title>/, (m, w) => foeName ? `<title>${foeName} ${w}</title>` : m);
 await mkdir(path.join(here, 'dist'), { recursive: true });
 const full = '<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n</head>\n<body>\n' + body + '</body>\n</html>\n';
 await writeFile(path.join(here, `dist/${out}.html`), full);

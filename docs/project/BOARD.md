@@ -7,13 +7,13 @@ Where the 3D game stands. Written by the hub only. Last updated November 21, sma
 | # | Job | Session | Branch | State | Latest link |
 |---|---|---|---|---|---|
 | 1 | the hub | `session_01DgbUKb6orvjjc1cMgBGPJK` | `claude/brave-davinci-790efm` | running | (the board) |
-| 2 | The Fight | `session_01DgbUKYR9qmKyBdACUWGViw` | `job/fight` | step 5 under way and its first part brought in: each Champion's named moves as their own 3D moments (champions.js: Briarmaw's eight, the Rotwarden's eleven; thorns, roots, vines, a pulse; check-moves.mjs) | https://claude.ai/artifact/Q9T8quXCTVgiVUZoMuUaP4 |
+| 2 | The Fight | `session_01DgbUKYR9qmKyBdACUWGViw` | `job/fight` | step 5: the moves table covers every Champion, Relic-Bearer, Council member and the Unsmith (298 moves); Briarmaw's eight proven with stills (`slips/fight-stills/`); next: clearer Rootquake, Thornstorm, the wraiths' moments | https://claude.ai/artifact/Q9T8quXCTVgiVUZoMuUaP4 |
 | 3 | Models | `session_01DgbUKcWh5MEvjHnxzp4HHo` | `job/models` | the eleven wraiths, first pass: shaped to Chris's sheets with their props, rigid (they can't stretch), wraithLook for the Fight, the Abbot's and the Lantern Mother's named moves; next: layered tatters, lace and embroidery, two thinned to budget | https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL |
-| 4 | Places | `session_01DgbUKZVFBfm1dVautXEw5f` | `job/places` | next, first (Chris, November 21): the place map, a small map of where you are in a place, tap for the whole place (`world3d/m7/minimap.js`); then step 4: the places come alive | https://claude.ai/artifact/GBxRVSqwMwYUTy1xLNjATA |
-| 5 | Together | `session_01DgbUKbyjzZFe1BXHHxzHBn` | `job/together` | all four region pages up (Act One, the Sunscorch, the Ironspire, the Gloomfen); "Act One, full pictures" at a new link; next: that page with the heroes whole (pictures as files), then Act Three, then chests, signs and Hearthfire stands in 3D | https://claude.ai/artifact/RaeSK5hezqb3qH7jmuM5aj |
-| 6 | One Foe | `session_01DgbUKZCNBFY7zwSzwAXR8y` | `job/foe-hd` | Briarmaw, the briarling and the glowcap pass the stretch check (re-weighted by part, a cut mouth, no new bake); next: the boglurcher, the willows, the sparks, rockling, Mother Anvil (the wraiths moved to Models) | https://claude.ai/artifact/AyUxs7hCGjdzZDNG1jfRnJ |
+| 4 | Places | `session_01DgbUKZVFBfm1dVautXEw5f` | `job/places` | the place map done (Chris's ask): a small map of the place top left, tap for the whole place with named ways out, doors, stairs, people, shops, chests, Hearthfires and a goal star; on all five pages; Act One version 14; next: waterfall spray, banners and cloth, fish | https://claude.ai/artifact/GBxRVSqwMwYUTy1xLNjATA |
+| 5 | Together | `session_01DgbUKbyjzZFe1BXHHxzHBn` | `job/together` | only passing foes in full detail (stretch.json); both Act One links republished; now: the place map in every game page with the game's live marks; then Act Three | https://claude.ai/artifact/RaeSK5hezqb3qH7jmuM5aj |
+| 6 | One Foe | `session_01DgbUKZCNBFY7zwSzwAXR8y` | `job/foe-hd` | the boglurcher (1.30M sculpt → 19,774, passes the stretch check; a new mound plan); helper joints and holding gates in the kit; next: the willows, the sparks, rockling, Mother Anvil | https://claude.ai/artifact/CBt1k8zotiyVb5BCkquENo |
 | 7 | Foes: beasts | `session_01DgbUKZ4qEpafSazysExsYV` | `job/foes-beasts` | the thornhound down to 2.6× by its own check; next: the kit's check and binding until under 1.3×, then the rotstag, Old Snag, the Mirelord, the rotgrub, the Gloamwing | https://claude.ai/artifact/64Ukg3yQAAb8DWz69xqvxs |
-| 8 | Foes: walkers | `session_01DgbUKcTDUjKDVHw3sPhu7R` | `job/foes-walkers` | re-baking the Rotwarden with weights by part (the kit's check found 70× on him, 176× on the sapwight); then both in the kit's standard form, then Old Horn and the rest | https://claude.ai/artifact/YBLUHaLG3bNdfcjBdeq3aj |
+| 8 | Foes: walkers | `session_01DgbUKcTDUjKDVHw3sPhu7R` | `job/foes-walkers` | the Rotwarden's webbing fixed (Chris's report): arms, legs and head remade as separate pieces, bound by part; no webs by eye; worst stretch 70× → 2.3×, the sapwight 176× → 3×; next: the last few joints under the rule, the kit's standard form, then Old Horn (built, held until his cape passes) | https://claude.ai/artifact/YBLUHaLG3bNdfcjBdeq3aj |
 
 ## What's built (on the hub's branch)
 
@@ -38,6 +38,7 @@ Where the 3D game stands. Written by the hub only. Last updated November 21, sma
 | The event fights of Acts Two and Three (13: swallows, burrows, the dive, charms, summons, the guest ally, duels, the toll) | `world3d/battle/` | https://claude.ai/artifact/RLrMg73EPUxGCHRaQXfAZS |
 | The briarling, the first foe made with the kit (three ways; its sculpt) | `prototypes/foe-hd/foes/briarling/` | https://claude.ai/artifact/DorMujhAe9d1XNwLGYV4ae · https://claude.ai/artifact/LAjxUMG9Aoj2UPw7DuyHtB |
 | The glowcap (three ways; its sculpt, 841,184 triangles) | `prototypes/foe-hd/foes/glowcap/` | https://claude.ai/artifact/AyUxs7hCGjdzZDNG1jfRnJ · https://claude.ai/artifact/H5yc3TLZDp3Aho9R1nzaCg |
+| The boglurcher (three ways and a crowd; its sculpt, 1,296,288 triangles) | `prototypes/foe-hd/foes/boglurcher/` | https://claude.ai/artifact/CBt1k8zotiyVb5BCkquENo · https://claude.ai/artifact/UXByzwgQxJTPVX3MRVunir |
 | The beasts in full detail: the thornhound (phone gallery; laptop page with the sculpt) | `prototypes/foe-hd/pages/beasts/` | https://claude.ai/artifact/64Ukg3yQAAb8DWz69xqvxs · https://claude.ai/artifact/8pCvG7xuqHuCcARiUYa9SX |
 | The walkers in full detail: the Rotwarden and the sapwight | `prototypes/foe-hd/pages/walkers/` | https://claude.ai/artifact/YBLUHaLG3bNdfcjBdeq3aj |
 | The walkers' sculpts, for a laptop | `prototypes/foe-hd/foes/` | https://claude.ai/artifact/JCdvpAPKT781gZiU49jTh2 |
@@ -91,7 +92,7 @@ Where the 3D game stands. Written by the hub only. Last updated November 21, sma
   https://claude.ai/artifact/HD9GL1Ao4ymzRRodVY2ozm. Once Chris sees it work on his phone, the game and the heavy pages
   can stop shrinking textures.
 
-- **No stretching (Chris, November 21; every model session):** the Rotwarden's arms drag his waist and belt into a web
+- **No stretching (Chris, November 21; every model session; the Rotwarden's webbing fixed, hub ef4a3f3):** the Rotwarden's arms drag his waist and belt into a web
   when they spread (`from-chris/2026-11-21-rotwarden-stretch.webp`). Session 8 fixes his weights; session 6 puts a
   stretch check and weights-by-part into the kit; sessions 7 and Models check theirs; the Fight leaves squash and
   stretch off the full-detail foes. Rules: `jobs/foes.md`, "No stretching".

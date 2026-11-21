@@ -22,7 +22,7 @@ def seg_dist(P, a, b):
     t = np.clip(((P - a) @ ab) / (ab @ ab), 0, 1)
     return np.linalg.norm(P - (a + t[:, None] * ab), axis=1)
 
-def weights_biped(P, kind, BONES, J, arm_inner=None, leg_top=None, head_z=None):
+def weights_biped(P, kind, BONES, J, arm_inner=None, leg_top=None, head_z=None, arm_reach=None):
     """arm_inner: |x| inside which the arms take nothing (the trunk's half-width at the shoulders);
     leg_top: height above which the legs take nothing; head_z: height above which the head takes everything"""
     x, z = P[:, 0], P[:, 2]
@@ -35,6 +35,11 @@ def weights_biped(P, kind, BONES, J, arm_inner=None, leg_top=None, head_z=None):
         if n[2:] in ('upper', 'fore', 'hand'):
             if arm_inner is not None: D[:, i] += np.where((np.abs(x) < arm_inner) & (z > J['hips'][2] + 0.1), BIG, 0)
             if n.endswith('upper'): D[:, i] *= np.where(z > J[n[0] + '_shoulder'][2] - 0.03, 1.5, 1.0)
+            if arm_reach is not None:
+                s_ = n[0]
+                near = np.minimum.reduce([seg_dist(P, J[s_ + '_shoulder'], J[s_ + '_elbow']), seg_dist(P, J[s_ + '_elbow'], J[s_ + '_wrist']),
+                                          seg_dist(P, J[s_ + '_wrist'], J[s_ + '_hand_tip'])])
+                D[:, i] += np.where(near > arm_reach, BIG, 0)
         else:
             if leg_top is not None: D[:, i] += np.where(z > leg_top, BIG, 0)
             if n.endswith('thigh'): D[:, i] *= np.where(z > J[n[0] + '_hip'][2] - 0.05, 1.5, 1.0)
@@ -45,3 +50,19 @@ def weights_biped(P, kind, BONES, J, arm_inner=None, leg_top=None, head_z=None):
     top = np.argsort(-W, 1)[:, :4]
     Wt = np.take_along_axis(W, top, 1); Wt /= Wt.sum(1, keepdims=True)
     return top.astype(np.uint16), Wt.astype(np.float32)
+
+# ---- for weights by part (bind.py, session 6): the gating a biped needs ---------------------------------------------
+def gate(D, P, idx, arm_x, leg_z, names=None):
+    """each limb only on its own side; arms only beyond arm_x from the middle; legs only below leg_z"""
+    x, z = P[:, 0], P[:, 2]
+    for n, i in idx.items():
+        side = 1 if n.startswith('r_') else -1 if n.startswith('l_') else 0
+        if not side: continue
+        D[:, i] += np.where(np.sign(x + 1e-6) != side, 1000.0, 0.0)
+        if n[2:] in ('upper', 'fore', 'hand'): D[:, i] += np.where(np.abs(x) < arm_x, 1000.0, 0.0)
+        if n[2:] in ('thigh', 'shin', 'foot'): D[:, i] += np.where(z > leg_z, 1000.0, 0.0)
+    return D
+def nearest(P, BONES, idx, names):
+    """the nearest of the named bones to each point"""
+    D = np.stack([seg_dist(P, BONES[idx[n]][2], BONES[idx[n]][3]) for n in names], 1)
+    return np.array([idx[names[k]] for k in np.argmin(D, 1)])
