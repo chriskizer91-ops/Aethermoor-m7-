@@ -7,7 +7,7 @@ its sculpted detail as a small tile that repeats over any piece made of it, laid
 
     metal    hammer dents, a few scratches            mail     (the rings are in Chris's mail picture already)
     leather  creases and pebbling                     hide     deep wrinkles and pores
-    cloth    weave, and soft wrinkles                 wood     carved grain running along the haft
+    cloth    weave, small soft wrinkles                wood     carved grain running along the haft
     stone    chips                                    bone     growth rings and pits
     horn     ridges round it                          hair     strands running down
     skin     fine pores
@@ -87,7 +87,7 @@ def make(kind):
     elif kind == 'hide':
         h = ridged(34) * 1.2 + ridged(14) * 0.5 + dents(160, 1.2, 2.4, 0.6) + noise(3) * 0.2
     elif kind == 'cloth':
-        h = norm(weave(8)) * 0.8 + noise(48, 1, 0.35) * 0.9 + ridged(40, 1, 0.4) * 0.5
+        h = norm(weave(8)) * 0.8 + noise(30) * 0.5 + ridged(26) * 0.35   # weave and small soft wrinkles, no direction (laid on from any side)
     elif kind == 'wood':
         h = noise(18, 0.12, 1.0) * 1.0 + ridged(10, 0.08, 1.0) * 0.7 + noise(3, 0.3, 1) * 0.15
     elif kind == 'stone':
