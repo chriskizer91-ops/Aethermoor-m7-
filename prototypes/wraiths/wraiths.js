@@ -50,7 +50,7 @@ function ghost(h, o = {}) {
 
 /* ------------------------------------------------------------------ the parts */
 // a robe from y0 (top) down to y1 (hem), width w(t) and depth ratio d; folds; a tattered or scalloped hem
-function robeRings({ y0, y1, w, d = 0.82, n = 40, steps = 14, folds = 0.03, k = 9, tatter = 0, scallop = 0, seed = 1, open = 0 }) {
+function robeRings({ y0, y1, w, d = 0.82, n = 40, steps = 14, folds = 0.03, k = 9, tatter = 0, scallop = 0, scallopN = 14, arch = 0, drape = 0, seed = 1, open = 0 }) {
   const N = Math.max(12, Math.round(n * (Q.d > 1 ? 1.4 : 1))), rnd = rngOf(seed), jag = [];
   for (let j = 0; j < N; j++) { const r = rnd(); jag.push(tatter * (0.12 + 0.6 * r * r + (rnd() < 0.14 ? 0.9 + rnd() * 0.6 : 0))); }
   for (let pass = 0; pass < 1; pass++) for (let j = 0; j < N; j++) jag[j] = Math.max(jag[j], (jag[(j + N - 1) % N] + jag[(j + 1) % N]) * 0.35); // points, not single threads
@@ -58,9 +58,9 @@ function robeRings({ y0, y1, w, d = 0.82, n = 40, steps = 14, folds = 0.03, k = 
   for (let i = 0; i <= steps; i++) {
     const t = i / steps, y = lerp(y0, y1, t), R = w(t), ring = [];
     for (let j = 0; j < N; j++) {
-      const a = j / N * Math.PI * 2, fold = 1 + folds * t * Math.cos(a * k + seed) + folds * 0.4 * t * Math.sin(a * (k * 2 + 1));
+      const a = j / N * Math.PI * 2, fold = 1 + folds * t * Math.cos(a * k + seed) + folds * 0.4 * t * Math.sin(a * (k * 2 + 1)) + drape * (0.3 + 0.7 * t) * Math.pow(Math.abs(Math.cos(a * 2.5 + seed * 0.7)), 3);
       let yy = y;
-      if (t > 0.75) { const e = (t - 0.75) / 0.25; yy -= jag[j] * e * e; if (scallop) yy += scallop * e * e * (0.5 - 0.5 * Math.cos(a * 14)); }
+      if (t > 0.75) { const e = (t - 0.75) / 0.25; yy -= jag[j] * e * e; if (scallop) yy += scallop * e * e * (0.5 - 0.5 * Math.cos(a * scallopN)); if (arch) yy += arch * e * e * Math.sqrt(Math.abs(Math.sin(a * scallopN / 2))); }
       const front = Math.sin(a), gap = open && front > 0.92 ? (front - 0.92) * open : 0;
       ring.push(V(Math.cos(a) * R * fold * (1 - gap), yy, Math.sin(a) * R * d * fold));
     }
@@ -70,8 +70,10 @@ function robeRings({ y0, y1, w, d = 0.82, n = 40, steps = 14, folds = 0.03, k = 
 }
 // a robe's width from the neck over the shoulders and down: neck, shoulder, bottom (k: how far down the shoulders end)
 const wsh = (neck, sh, low, k = 0.14) => t => (t < k ? lerp(neck, sh, Math.sqrt(smooth(t / k))) : lerp(sh, low, (t - k) / (1 - k)));
+// a trim along the last ring of a robe (a wave-edged hem, a frost edge)
+function hemTrim(parent, robeMesh, m, r = 0.012, lift = 0.004) { const ring = robeMesh.userData.rings.at(-1).map(p => p.clone().multiplyScalar(1.01).setY(p.y + lift)); return add(fitMaster(tube(ring, r, { closed: true, n: 6 }), 'braid'), m, parent); }
 function robe(parent, m, o, kind = 'skirt') {
-  const out = add(fitMaster(loft(robeRings(o)), kind), m, parent);
+  const rings = robeRings(o), out = add(fitMaster(loft(rings), kind), m, parent); out.userData.rings = rings;
   // rags: shorter, a little wider layers hung over it, each torn deeper, so the hem is rag over rag like the paintings
   for (let i = 1; i <= (o.rags || 0); i++) {
     const lift = (o.y0 - o.y1) * 0.16 * i, grow = 0.012 * i;
@@ -244,8 +246,8 @@ B.drowned = (G, o) => {
 
 B['bell-ringer'] = (G, o) => {
   const R = rigOf(G, { shY: 1.32, shX: 0.22, headY: 1.42 }), robeM = cloth('#17171f'), weedM = cloth('#2d5a50'), stone = solid('stone', '#77756c');
-  robe(R.chest, robeM, { y0: 1.4 - 0.82, y1: 0.0, w: wsh(0.12, 0.25, 0.31), folds: 0.08, k: 6, seed: 21 }, 'torso');
-  robe(R.hem, robeM, { y0: 0.0, y1: 0.02 - 0.82, w: t => lerp(0.31, 0.44, t), tatter: 0.22, folds: 0.12, k: 6, seed: 22, rags: Q.d > 1 ? 2 : 1 });
+  robe(R.chest, robeM, { y0: 1.4 - 0.82, y1: 0.0, w: wsh(0.12, 0.25, 0.31), folds: 0.1, k: 5, drape: 0.08, seed: 21 }, 'torso');
+  robe(R.hem, robeM, { y0: 0.0, y1: 0.02 - 0.82, w: t => lerp(0.31, 0.46, t), tatter: 0.24, folds: 0.14, k: 5, drape: 0.12, seed: 22, rags: Q.d > 1 ? 2 : 1 });
   // the collar of stones, the weed and little skulls at the hem
   for (let i = 0; i < 9; i++) { const a = i / 9 * Math.PI * 2; add(sph(0.06, 10, 8), stone, R.chest, Math.cos(a) * 0.19, 0.6, Math.sin(a) * 0.16).scale.set(1.3, 0.75, 1.05); }
   weed(R.chest, weedM, { n: Q.d > 1 ? 20 : 12, len: 0.18, spread: 0.36, seed: 23, up: -1 }).forEach(w => w.position.y = 0.6);
@@ -307,7 +309,8 @@ B['drowned-abbess'] = (G, o) => {
   const R = rigOf(G, { shY: 1.36, shX: 0.19, headY: 1.52 , headK: 1.45 }), teal = cloth('#2f5a62'), teal2 = cloth('#3c6c72'), veil = cloth('#1e2230'), skin = solid('skin', SKIN.blue);
   robe(R.chest, teal, { y0: 1.46 - 0.84, y1: 0.0, w: wsh(0.07, 0.2, 0.26), seed: 51 }, 'torso');
   // three tiers, each with a wavy, scalloped hem
-  [[0.0, -0.36, 0.27, 0.36], [-0.3, -0.6, 0.33, 0.42], [-0.54, -0.82, 0.39, 0.48]].forEach(([a, b, w0, w1], i) => robe(R.hem, i % 2 ? teal2 : teal, { y0: a, y1: b, w: t => lerp(w0, w1, t), scallop: 0.04, folds: 0.07, k: 8, seed: 52 + i, steps: 8 }));
+  const foam = cloth('#8fb8bc');
+  [[0.0, -0.36, 0.27, 0.36], [-0.3, -0.6, 0.33, 0.42], [-0.54, -0.82, 0.39, 0.48]].forEach(([a, b, w0, w1], i) => { const t = robe(R.hem, i % 2 ? teal2 : teal, { y0: a, y1: b, w: t => lerp(w0, w1, t), scallop: 0.06, scallopN: 11, folds: 0.07, k: 8, seed: 52 + i, steps: 10 }); hemTrim(R.hem, t, foam, 0.009); });
   beads(R.hem, solid('bone', '#d8d0b8'), ringAt(0.02, 0.27, 0.23, 28), 0.017);
   for (const a of R.arms) { sleeve(a.sh, a.el, a.side, teal, { L1: 0.27, L2: 0.26, r: 0.058, flare: 1.6 }); hand(a.hand, a.side, skin, { closed: a.side === -1, len: 1.1 }); }
   armLengths(R, 0.27, 0.26);
@@ -325,9 +328,11 @@ B['drowned-abbess'] = (G, o) => {
 B['choir-wraith'] = (G, o) => {
   const R = rigOf(G, { shY: 1.32, shX: 0.19, headY: 1.48 , headK: 1.45 }), teal = cloth('#2c4a4a'), dark = cloth('#1c2c2e'), skin = solid('skin', SKIN.blue);
   robe(R.chest, teal, { y0: 1.42 - 0.82, y1: 0.0, w: wsh(0.07, 0.2, 0.27), tatter: 0.04, seed: 61 }, 'torso');
-  [[0.0, -0.42, 0.27, 0.38], [-0.36, -0.8, 0.34, 0.46]].forEach(([a, b, w0, w1], i) => robe(R.hem, i ? dark : teal, { y0: a, y1: b, w: t => lerp(w0, w1, t), tatter: 0.14, folds: 0.06, k: 10, seed: 62 + i, steps: 9, rags: i }));
+  const tiers = [[0.0, -0.42, 0.27, 0.38], [-0.36, -0.8, 0.34, 0.46]].map(([a, b, w0, w1], i) => robe(R.hem, i ? dark : teal, { y0: a, y1: b, w: t => lerp(w0, w1, t), arch: 0.09, scallopN: 12, tatter: i ? 0.12 : 0.05, folds: 0.05, k: 12, seed: 62 + i, steps: 10, rags: i }));
+  // the seams between the panels, running down to where two arches meet
+  tiers.forEach((t, ti) => { const rs = t.userData.rings, N = rs[0].length; for (let k = 0; k < 12; k++) { const j = Math.round(k / 12 * N) % N, pts = rs.filter((_, i) => i % 2 === 0).map(r => r[j].clone().multiplyScalar(1.015)); add(fitMaster(tube(pts, 0.006, { n: 5 }), 'braid'), dark, R.hem); } });
   // studs round the tiers, and tags at the sides
-  for (const y of [-0.38, -0.74]) beads(R.hem, solid('bronze', '#8a6a3a'), ringAt(y, y < -0.5 ? 0.43 : 0.35, y < -0.5 ? 0.36 : 0.29, 22), 0.012);
+  for (const y of [-0.3, -0.66]) beads(R.hem, solid('bronze', '#8a6a3a'), ringAt(y, y < -0.5 ? 0.43 : 0.36, y < -0.5 ? 0.36 : 0.3, 24), 0.012);
   for (const s of [-1, 1]) add(new THREE.BoxGeometry(0.012, 0.09, 0.06), solid('bronze', '#9a7a3a'), R.hem, s * 0.3, -0.14, 0);
   add(fitMaster(loft(robeRings({ y0: 0.6, y1: 0.36, w: t => lerp(0.14, 0.3, t), steps: 6, tatter: 0.06, seed: 64 })), 'mantle'), teal, R.chest);
   for (const a of R.arms) { sleeve(a.sh, a.el, a.side, teal, { L1: 0.26, L2: 0.25, r: 0.058, flare: 1.4, tatter: 0.4 }); hand(a.hand, a.side, skin, { closed: true, len: 1.1 }); }
@@ -376,6 +381,11 @@ B['rime-abbot'] = (G, o) => {
   // the cope over the shoulders to near the ground, edged with frost, tasselled
   add(fitMaster(loft(robeRings({ y0: 0.76, y1: -0.85, w: wsh(0.11, 0.3, 0.5, 0.12), open: 4, folds: 0.08, seed: 83, steps: 16 })), 'embroid'), navy, R.chest);
   add(fitMaster(tube(ringAt(-0.85, 0.5, 0.41, 40), 0.016, { closed: true, n: 6 }), 'braid'), frost, R.chest);
+  // the frosty capelet over it, to the elbows, edged in rime and hung with tassels
+  const cap = robe(R.chest, navy, { y0: 0.78, y1: 0.18, w: wsh(0.12, 0.31, 0.44, 0.2), folds: 0.06, k: 7, drape: 0.05, scallop: 0.03, scallopN: 9, seed: 84, steps: 9 }, 'embroid');
+  hemTrim(R.chest, cap, frost, 0.014);
+  { const ring = cap.userData.rings.at(-1); for (let i = 0; i < ring.length; i += 4) { const p = ring[i].clone().multiplyScalar(1.02); add(fitMaster(tube([p, p.clone().add(V(0, -0.09, 0))], t => 0.005 + t * 0.011, { n: 6 }), 'braid'), frost, R.chest); } }
+  for (let i = 0; i < 9; i++) { const a = i / 9 * Math.PI * 2; add(cone(0.012, 0.05, 5), iceM, R.chest, Math.cos(a) * 0.5, -0.85, Math.sin(a) * 0.41).rotation.x = Math.PI; }
   for (let i = 0; i < 7; i++) { const a = Math.PI * 0.62 + i / 6 * Math.PI * 0.76; const p = V(Math.cos(a) * 0.36, 0.25, Math.sin(a) * 0.3); add(fitMaster(tube([p, p.clone().add(V(0, -0.12, 0))], t => 0.006 + t * 0.012, { n: 6 }), 'braid'), frost, R.chest); }
   for (const s of [-1, 1]) add(fitMaster(tube(curve([V(s * 0.05, 0.62, 0.21), V(s * 0.06, 0.4, 0.25), V(s * 0.05, 0.2, 0.27)], 8), 0.01, { n: 6 }), 'braid'), frost, R.chest);
   add(ico(0.03, 1), glow('#7fd8ff', 1.6), R.chest, 0, 0.6, 0.23);
@@ -383,6 +393,11 @@ B['rime-abbot'] = (G, o) => {
   armLengths(R, 0.32, 0.31);
   // the braided cowl, and the grille of ice where a face should be
   hood(R.head, cowl, { r: 0.14, k: 1.3, open: 0.8, inner: '#04080e' });
+  // the cowl's braids: thick plaits round the face and back over the crown (two strands twisted round each other)
+  const plait = (pts, rr) => { const c = new THREE.CatmullRomCurve3(pts), L = 60; for (const ph of [0, Math.PI]) { const q = []; for (let i = 0; i <= L; i++) { const t = i / L, p = c.getPoint(t), tg = c.getTangent(t), side = new THREE.Vector3(0, 1, 0).cross(tg).normalize(), up = tg.clone().cross(side).normalize(), a = t * 22 + ph; q.push(p.clone().addScaledVector(side, Math.cos(a) * rr * 0.6).addScaledVector(up, Math.sin(a) * rr * 0.6)); } add(fitMaster(tube(q, rr * 0.75, { n: 6 }), 'braid'), cowl, R.head); } };
+  const hr = 0.14 * 1.3;
+  for (const k of [0.98, 1.05]) plait([0.95, 0.6, 0.25, 0, -0.25, -0.6, -0.95].map(t => V(Math.sin(t * 1.2) * hr * k * 0.95, hr * (0.35 + Math.cos(t * 1.4) * 0.45), Math.cos(t * 1.2) * hr * k)), 0.022);
+  for (const x of [-0.5, 0, 0.5]) plait([V(x * hr * 0.5, hr * 1.05, hr * 0.55), V(x * hr * 0.55, hr * 1.12, 0), V(x * hr * 0.6, hr * 0.9, -hr * 0.65), V(x * hr * 0.6, hr * 0.4, -hr * 0.95)], 0.02);
   const grille = solid('silver', '#b8d4e4');
   for (let i = 0; i < 5; i++) add(fitMaster(tube([V((i - 2) * 0.03, 0.07, 0.16), V((i - 2) * 0.028, -0.09, 0.15)], 0.007, { n: 6 }), 'rim'), grille, R.head);
   add(fitMaster(tube(curve([V(-0.08, 0.08, 0.14), V(0, 0.11, 0.17), V(0.08, 0.08, 0.14)], 10), 0.008, { n: 6 }), 'rim'), grille, R.head);
