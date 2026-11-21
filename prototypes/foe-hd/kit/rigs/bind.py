@@ -222,9 +222,10 @@ def bind(RIG, P, kind, tris, height, mid, log=print):
     A2 = coo_matrix((np.ones(len(E2)), (E2[:, 0], E2[:, 1])), shape=(nw, nw)).tocsr()
     A2 = ((A2 + A2.T) > 0).astype(np.float64)
     deg = np.asarray(A2.sum(1)).ravel()
-    for _ in range(int(getattr(RIG, 'SMOOTH', __import__('os').environ.get('BIND_SMOOTH', 8)))):
+    sm = free & (deg > 0)
+    for _ in range(int(getattr(RIG, 'SMOOTH', 8))):
         avg = (A2 @ Wd) / np.maximum(deg, 1)[:, None]
-        Wd[free & (deg > 0)] = 0.5 * Wd[free & (deg > 0)] + 0.5 * avg[free & (deg > 0)]
+        Wd[sm] = 0.5 * Wd[sm] + 0.5 * avg[sm]
 
     top = np.argsort(-Wd, 1)[:, :4]
     Wt = np.take_along_axis(Wd, top, 1); Wt /= Wt.sum(1, keepdims=True)

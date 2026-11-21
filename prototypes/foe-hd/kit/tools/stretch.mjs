@@ -25,6 +25,8 @@ const opt = (k, d) => { const a = args.find((x) => x.startsWith(`--${k}=`)); ret
 const dir = path.resolve(args.find((a) => !a.startsWith('--')));
 const key = path.basename(dir);
 const FRAMES = +opt('frames', 48), PICS = !args.includes('--no-pics');
+// --focus=x,y,z,r (sculpt coordinates, metres): draw the pictures close up round that place
+const FOCUS = opt('focus') ? opt('focus').split(',').map(Number) : null;
 const cfg = fs.existsSync(path.join(dir, 'foe.json')) ? JSON.parse(fs.readFileSync(path.join(dir, 'foe.json'))) : {};
 const LIMIT = cfg.stretch?.limit ?? 1.3, PART_LIMIT = cfg.stretch?.parts ?? {};
 
@@ -171,7 +173,8 @@ function picture(P, R, lim, label) {
   const S = 360, Wd = S * 2, img = new Uint8Array(Wd * S * 3).fill(28), zb = new Float32Array(Wd * S).fill(-1e9);
   let lo = [1e9, 1e9, 1e9], hi = [-1e9, -1e9, -1e9];
   for (let i = 0; i < n; i++) for (let a = 0; a < 3; a++) { lo[a] = Math.min(lo[a], P0[i * 3 + a], P[i * 3 + a]); hi[a] = Math.max(hi[a], P0[i * 3 + a], P[i * 3 + a]); }
-  const span = Math.max(hi[0] - lo[0], hi[1] - lo[1], hi[2] - lo[2]) * 1.08, cy = (lo[1] + hi[1]) / 2;
+  let span = Math.max(hi[0] - lo[0], hi[1] - lo[1], hi[2] - lo[2]) * 1.08, cy = (lo[1] + hi[1]) / 2, cx = 0, cz = 0;
+  if (FOCUS) { span = FOCUS[3] * 2; cx = -FOCUS[0]; cy = FOCUS[2]; cz = FOCUS[1]; }     // sculpt -> three.js
   const colour = (r) => {
     if (r > lim) return [230, 40, 220];
     if (r < 1.1) return [190, 186, 178];
@@ -184,7 +187,7 @@ function picture(P, R, lim, label) {
       const pr = v.map((i) => {
         const x = P[i * 3], y = P[i * 3 + 1], z = P[i * 3 + 2];
         const sx = view === 'front' ? -x : z, sz = view === 'front' ? z : x;    // screen x, depth toward the viewer
-        return [ox + S / 2 + (sx - (view === 'front' ? 0 : 0)) / span * S, S / 2 - (y - cy) / span * S, sz];
+        return [ox + S / 2 + (sx - (view === 'front' ? -cx : cz)) / span * S, S / 2 - (y - cy) / span * S, sz];
       });
       const ax = pr[1][0] - pr[0][0], ay = pr[1][1] - pr[0][1], bx = pr[2][0] - pr[0][0], by = pr[2][1] - pr[0][1];
       const area = ax * by - ay * bx; if (Math.abs(area) < 1e-9) continue;
