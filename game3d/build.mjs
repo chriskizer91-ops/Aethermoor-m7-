@@ -17,6 +17,7 @@ export const ACTS = {
   act1: { places: ACT_ONE, out: 'game3d-act1', name: null, foesHd: null, paint: '0.4', herotex: '192' },   // smaller pictures: room for the full-detail foes
   ironspire: { title: 'Hearth & Heirloom: the Ironspire', places: ['keep', 'keep-hall', 'old-bridge', 'drystone-lea', 'plankford', 'shrinewood', 'silverfall', 'last-camp', 'rockslide-pass', 'peaks-veil', 'highfold', 'iron-stair', 'ironhold', 'ironhold-deeps', 'harrows-forge', 'stormwatch', 'frost-road', 'frostmere', 'frostmere-below'], out: 'game3d-ironspire', name: 'Act Two, the Ironspire', foesHd: 'none', paint: '0.4' },
   gloomfen: { title: 'Hearth & Heirloom: the Gloomfen', places: ['keep', 'keep-hall', 'mossfall', 'murkway', 'willowmurk', 'rotbridge', 'bogmire', 'lanternfen', 'mothers-hollow', 'long-boardwalk', 'misthollow', 'drowned-belfry', 'blackwater-reach', 'tidal-flats', 'causeway'], out: 'game3d-gloomfen', name: 'Act Two, the Gloomfen', foesHd: 'none' },
+  act3: { title: 'Hearth & Heirloom: Act Three', places: ['keep', 'keep-hall', 'keep-gallery', 'keep-gallery-2', 'keep-gallery-3', 'hollow-hall', 'ash-stair', 'chained-deep', 'worldforge'], out: 'game3d-act3', name: 'Act Three, the Hollow Council', foesHd: 'none' },
   sunscorch: { title: 'Hearth & Heirloom: the Sunscorch', places: ['keep', 'keep-hall', 'sun-road', 'sandspire', 'dust-trail', 'dusthaven', 'deep-shaft-1', 'deep-shaft-2', 'glass-flats', 'miragewell', 'scorchgate', 'scorchgate-vaults'], out: 'game3d-sunscorch', name: 'Act Two, the Sunscorch', foesHd: 'none' },
 };
 const pass = process.argv.slice(2);

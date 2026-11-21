@@ -1,7 +1,7 @@
 // game3d/tools/region.mjs: a region's page, headless (Together, November 20). "Begin at <region>" (?act2=1: the journey
 // as the page's start makes it, by M7's rules) · the way in · the first road, its fights won on the way, to the next place
 // · a rest at a Hearthfire where the route has one · saved under the 3D game's own key.
-//   NODE_PATH=$(npm root -g) node game3d/tools/region.mjs <page.html> <sunscorch|ironspire|gloomfen> [out-dir]
+//   NODE_PATH=$(npm root -g) node game3d/tools/region.mjs <page.html> <sunscorch|ironspire|gloomfen|act3> [out-dir]
 import { createRequire } from 'node:module';
 import path from 'node:path';
 import { mkdirSync } from 'node:fs';
@@ -12,6 +12,7 @@ const [file, region = 'sunscorch', out = '/tmp/g3-' + region] = process.argv.sli
 const R = {
   sunscorch: { start: ['keep', 22, 22], in: ['keep', 22, 23, 'sun-road'], road: [12, 63, 'sandspire'], fire: 'spire-hearth' },
   ironspire: { start: ['keep', 28, 11], in: ['keep', 29, 11, 'old-bridge'], road: [23, 0, 'drystone-lea'], fire: null },
+  act3: { start: ['keep-hall', 12, 6], in: ['keep-hall', 21, 8, 'hollow-hall'], road: [33, 12, 'ash-stair'], fire: 'under-coal' },
   gloomfen: { start: ['mossfall', 20, 20], in: ['mossfall', 20, 21, 'murkway'], road: [44, 32, 'willowmurk'], fire: 'willow-hearth' },
 }[region];
 mkdirSync(out, { recursive: true });
