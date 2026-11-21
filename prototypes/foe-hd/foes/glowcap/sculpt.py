@@ -133,7 +133,7 @@ def build(K):
         M.add(np.vstack([top, bot]), np.vstack([F, F[:, ::-1] + n0]), C, kind)
     for s in (1, -1):                                               # the eyes: dark ovals, a little glossy
         Ve, Fe = G.ellipsoid([s * 0.048, 0.146, 0.425], [0.011, 0.006, 0.02], 10, 14)
-        M.add(Ve, Fe, np.array([0.05, 0.04, 0.035]), 8)
+        M.add(Ve, Fe, np.array([0.05, 0.04, 0.035]), 8, mat=(0.15, 0.0))     # glossy
     lr = np.random.default_rng(43)
     for i in range(30):                                             # the collar: a layered ruff of leaves, out and down
         a = i / 30 * 2 * math.pi + lr.random() * 0.1
