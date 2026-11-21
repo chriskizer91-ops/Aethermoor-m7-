@@ -99,7 +99,10 @@ about 25 MB).
 
 - `loader.js`: `ready, makeShared(A, res), makeFoe(shared, moves), cloneFoe(F)`: the Fight's face
   `{ group, plan, height, parts, update(t, step), hit(), act: { lunge, fall }, pose(move, u, t) }`.
-- `moves/quad.js`, `moves/biped.js`: `MOVES, DUR, LUNGE, pose(F, move, u, t, step)` by bone name.
+- `moves/<plan>.js` (quad, biped, sapling, mushroom, serpent, frog, winged): `MOVES, DUR, LUNGE, ALIAS?, pose(F, move,
+  u, t, step)` by bone name. **Every foe answers to the common moves** `idle, walk, bite, strike, swipe, cast, roar,
+  hurt, ko` (the Fight picks by M7's move): `F.pose(move, ...)` plays the plan's own move of that name, or its nearest
+  (`loader.js` `resolveMove`; a plan can map names in `ALIAS`); `F.duration(move)` gives its length.
 - `looks.js`: **one `setBeastLook` for every finished foe**: `register(assets)` each, then
   `setBeastLook(foeLook(buildBeast))`.
 - `viewer.js`: the sculpt viewer page. `pages/kit/`: the three-ways page. A lane's gallery: its own entry and shell in
