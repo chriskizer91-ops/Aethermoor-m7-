@@ -126,7 +126,8 @@ export const RECIPES = {
   tide: { start: (c) => c.fx.ring(c.F.pos.clone(), '#4aa0c0', 5, 1.2), land: (c) => { for (const h of c.heroes) c.fx.sparks(feet(h).setY(h.pos.y + 0.4), '#8ad0e8', 20, { spread: 1, up: 1.2 }); } },
   light: { start: (c) => c.fx.pulse(head(c), '#ffe8a0', 2.2, 0.9), land: (c) => { for (const h of c.heroes) c.fx.sparks(chest(h), '#fff4c0', 16); } },
   hex: { start: (c) => c.fx.pulse(head(c), '#b878ff', 1.4, 0.9), land: (c) => { for (const h of c.heroes) c.fx.ring(feet(h), '#b878ff', 1.0, 1.1, 0.06); } },
-  song: { start: (c, col) => { for (let k = 0; k < 3; k++) setTimeout(() => c.fx.ring(c.F.pos.clone(), col === '#e8d8b0' ? '#d8c8ff' : col, 7, 1.2, c.F.size.h * 0.6), k * 260); } },
+  // a call, bell or hymn: three waves rolling out along the floor (on the fight's own clock, so they keep its speed)
+  song: { start: (c, col) => { for (let k = 0; k < 3; k++) c.fx.later(k * 0.26, () => c.fx.ring(c.F.pos.clone(), col === '#e8d8b0' ? '#d8c8ff' : col, 5.5, 1.2, 0.06)); } },
   slash: { land: (c, col) => { for (const h of c.heroes) { c.fx.slash(chest(h), c.ar.cam, col === '#e8d8b0' ? '#ffffff' : col, true); c.fx.sparks(chest(h), col, 12); } } },
   maw: { start: (c) => c.fx.pulse(head(c), '#3a2a2a', 1.6, 1.0), land: (c) => { c.shake(2); for (const h of c.heroes) c.fx.sparks(chest(h), '#5a1a10', 24, { spread: 1.1 }); } },
   dig: { start: (c) => { c.fx.ring(c.F.pos.clone(), '#a07a48', 2.5, 0.8); c.fx.sparks(c.F.pos.clone().setY(c.F.pos.y + 0.2), '#c9a878', 24, { spread: 1.2, up: 0.8 }); } },
