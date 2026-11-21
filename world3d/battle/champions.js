@@ -257,6 +257,232 @@ export const MOMENTS = {
     start: (c) => { c.fx.flare(mid(c), '#fff4d0', 0.8, 0.6); },
     land: (c) => { for (const h of c.heroes) { c.fx.slash(chest(h), c.ar.cam, '#ffffff', true); c.fx.sparks(chest(h), '#8a1a10', 26, { spread: 1.2 }); c.fx.smoke(feet(h), '#3a2a18', 6, 1, 1); } c.shake(2); },
   },
+
+  // ---- Act Two's Champions (hand-made November 21 from M7's words): the Sunscorch, the Ironspire, the Gloomfen ----
+  'ashen-warden:ash-blade': { // "Scorchgate's last sword, still hot from the last fire."
+    move: ['ash-blade', 'swipe'],
+    land: (c) => { for (const h of c.heroes) { c.fx.slash(chest(h), c.ar.cam, '#ffb060', true); c.fx.flames(feet(h), 0.3, 0.9, 8, 0.7); c.fx.sparks(chest(h), '#ff8a3a', 14); } },
+  },
+  'ashen-warden:ember-sweep': { // "One wide, burning cut across the whole line."
+    move: ['ember-sweep', 'swipe'], camera: 'wide',
+    land: (c) => { c.all.forEach((h, i) => c.fx.later(i * 0.06, () => { c.fx.slash(chest(h), c.ar.cam, '#ff9a40', true); c.fx.flames(feet(h), 0.35, 1.0, 10, 0.8); })); },
+  },
+  'ashen-warden:ward-of-ash': { // "The Aegis comes up and the ash settles on it... (Warded)."
+    move: ['ward-of-ash', 'cast'],
+    land: (c) => { c.fx.smoke(mid(c), '#6a6460', 8, 0.8, 1.4); c.fx.ring(c.F.pos.clone(), '#c8b8a8', Math.max(1.2, c.F.size.w), 0.9, c.F.size.h * 0.5); },
+  },
+  'ashen-warden:call-the-watch': { // "It strikes the floor with the Aegis rim, and a wight climbs out of the ash."
+    move: ['call-the-watch', 'strike'], camera: 'close',
+    land: (c) => { const at = c.F.pos.clone().addScaledVector(c.ar.dir, -1.3); c.shake(1); c.fx.ring(c.F.pos.clone(), '#ff8a3a', 2.4, 0.7); c.fx.smoke(at, '#5a524c', 10, 0.9, 1.6); c.fx.flames(at, 0.5, 1.6, 14, 1.0); },
+  },
+  'ashen-warden:command-of-cinders': { // "The Cinder Crown flares and every soldier of Scorchgate answers at the double: every foe is Hasted."
+    move: ['command-of-cinders', 'roar'],
+    start: (c) => { c.fx.flare(head(c), '#ffb060', 1.4, 0.9); },
+    land: (c) => { for (const F of c.ar.foes.values()) if (!F.removed && !F.ko) c.fx.sparks(F.pos.clone().setY(F.pos.y + F.size.h * 0.5), '#ffb060', 12, { spread: 0.6, up: 1.2 }); },
+  },
+  'ashen-warden:scorch-the-vault': { // "It lifts its sword and the Vault fills with fire, charging: 3d8 ember to every hero."
+    move: ['scorch-the-vault', 'cast'], camera: 'wide',
+    start: (c) => { c.fx.flare(head(c), '#ffd27a', 1.2, 1.2); c.fx.flames(c.F.pos.clone(), 0.6, 1.8, 14, 1.2); },
+    land: (c) => { c.shake(2); for (const h of c.all) c.fx.flames(feet(h), 0.6, 2.0, 18, 1.2); c.fx.flames(c.ar.center.clone().addScaledVector(c.ar.dir, 2.2), 2.2, 1.4, 30, 1.2); },
+  },
+  'ashen-warden:watch-unbroken': { // "The embers in the Crown drink the fire off you: 1d6 ember to every hero, and the Warden heals."
+    move: ['watch-unbroken', 'cast'], camera: 'wide',
+    land: (c) => { for (const h of c.all) { c.fx.flames(feet(h), 0.3, 0.8, 6, 0.6); c.fx.thorn(chest(h), head(c), '#ff8a3a', 0.5, 0.25); } c.fx.later(0.5, () => c.fx.pulse(head(c), '#8ad872', 1.3, 0.9)); },
+  },
+
+  'kharzul:tail-lash': { // "The tail comes over like a thrown spear."
+    move: ['tail-lash', 'swipe'],
+    land: (c) => { for (const h of c.heroes) { c.fx.lash(mid(c), chest(h), '#3a3028', 0.12, 0.5, { bulb: false, gloss: false }); c.fx.later(0.17, () => { c.fx.slash(chest(h), c.ar.cam, '#ffc080', true); c.fx.sparks(chest(h), '#ff8a3a', 14); }); } },
+  },
+  'kharzul:glass-sting': { // "The stinger punches through plate and snaps off in the wound: 2 stacks of Bleeding."
+    move: ['glass-sting', 'bite'],
+    land: (c) => { for (const h of c.heroes) { c.fx.thorn(head(c), chest(h), '#c8f0ff', 0.2, 0); c.fx.later(0.2, () => { c.fx.sparks(chest(h), '#e0f8ff', 14, { spread: 0.6 }); c.fx.sparks(chest(h), '#c01a10', 18); }); } },
+  },
+  'kharzul:glasscutter': { // "Cinderfang comes round in one long arc, charging: a cut at every hero, and every cut Burns."
+    move: ['glasscutter', 'swipe'], camera: 'wide',
+    land: (c) => { c.all.forEach((h, i) => c.fx.later(i * 0.07, () => { c.fx.slash(chest(h), c.ar.cam, '#fff0c0', true); c.fx.flames(feet(h), 0.3, 1.0, 8, 0.8); })); c.shake(1); },
+  },
+  'kharzul:burrow': { // "It goes down into the glass floor as if it were water."
+    move: ['burrow', 'cast'],
+    start: (c) => { c.fx.ring(c.F.pos.clone(), '#c8f0ff', 2.6, 0.8); c.fx.sparks(c.F.pos.clone().setY(c.F.pos.y + 0.2), '#e0f8ff', 30, { spread: 1.3, up: 0.9 }); },
+  },
+  'kharzul:erupt': { // "The glass floor bursts under you, charging: a spray of glass that Bleeds, and you Stagger."
+    move: ['erupt', 'strike'], camera: 'close',
+    land: (c) => { c.shake(3); for (const h of c.heroes) { for (let k = 0; k < 10; k++) { const to = chest(h).add(rand(1.2)); to.y += 1.5 + Math.random(); c.fx.thorn(feet(h), to, '#c8f0ff', 0.35, k * 0.02); } c.fx.sparks(chest(h), '#c01a10', 22, { spread: 1 }); c.fx.smoke(feet(h), '#c8c0b0', 6, 0.8, 1.0); } },
+  },
+  'kharzul:carapace-brace': { // "The Glass Carapace locks plate over plate: Guarding, and Warded."
+    move: ['carapace-brace', 'cast'],
+    land: (c) => { c.fx.ring(c.F.pos.clone(), '#c8f0ff', Math.max(1.6, c.F.size.d * 0.7), 0.9, c.F.size.h * 0.5); c.fx.sparks(mid(c), '#e8fcff', 20, { spread: 0.9, up: 0.4 }); },
+  },
+  'kharzul:glass-rain': { // "The ceiling of the Glass Heart comes down in needles."
+    move: ['glass-rain', 'roar'], camera: 'wide',
+    land: (c) => { for (const h of c.all) for (let k = 0; k < 7; k++) { const to = chest(h).add(rand(0.6)); c.fx.thorn(to.clone().add(rand(1.2)).setY(to.y + 5 + Math.random() * 2), to, '#d8f4ff', 0.4, Math.random() * 0.5); } },
+  },
+  'kharzul:molten-tail': { // "Cinderfang glows white in the tail: 3d8 ember, and you Burn."
+    move: ['molten-tail', 'swipe'],
+    start: (c) => { c.fx.pulse(mid(c), '#fff4d0', 1.0, 0.9); },
+    land: (c) => { for (const h of c.heroes) { c.fx.slash(chest(h), c.ar.cam, '#fff4d0', true); c.fx.flames(feet(h), 0.45, 1.6, 16, 1.1); } },
+  },
+
+  'mother-anvil:hammerfall': { // "The anvil rears up on its iron legs and comes down on you: 2d10 crushing."
+    move: ['hammerfall', 'strike'],
+    land: (c) => { c.shake(2); for (const h of c.heroes) { c.fx.ring(feet(h), '#c8c0b0', 1.4, 0.5); c.fx.sparks(chest(h), '#ffd27a', 18, { spread: 0.9 }); c.fx.smoke(feet(h), '#7a7068', 5, 0.8, 0.9); } },
+  },
+  'mother-anvil:sparks': { // "She strikes her own back with the hammer, and the sparks go everywhere."
+    move: ['sparks', 'strike'], camera: 'wide',
+    start: (c) => { c.fx.sparks(head(c), '#ffd27a', 60, { spread: 2.4, up: 1.4 }); c.shake(1); },
+    land: (c) => { for (const h of c.all) { c.fx.sparks(chest(h).setY(h.pos.y + 2), '#ffb060', 14, { spread: 0.6, up: -0.8 }); c.fx.flames(feet(h), 0.25, 0.7, 5, 0.6); } },
+  },
+  'mother-anvil:temper': { // "The Anvil Heart glows white and the iron of her plates goes blue with temper: Guarding, and Warded."
+    move: ['temper', 'cast'],
+    land: (c) => { c.fx.pulse(mid(c), '#ffffff', 1.4, 0.8); c.fx.later(0.3, () => c.fx.ring(c.F.pos.clone(), '#7ab8ff', Math.max(1.4, c.F.size.w), 1.0, c.F.size.h * 0.5)); },
+  },
+  'mother-anvil:steam-burst': { // "She plunges her hammer-arm into the quench-trough and the forge fills with steam."
+    move: ['steam-burst', 'cast'], camera: 'wide',
+    land: (c) => { c.fx.smoke(c.F.pos.clone().setY(c.F.pos.y + 0.4), '#e8ecf0', 14, 2.4, 1.8); for (const h of c.all) c.fx.smoke(feet(h).setY(h.pos.y + 0.5), '#f0f4f8', 6, 1.0, 1.4); },
+  },
+  'mother-anvil:anvil-strike': { // "The Worldforge Hammer comes down on you as if you were iron on the anvil: 3d8 crushing, and you Stagger."
+    move: ['anvil-strike', 'strike'],
+    land: (c) => { c.shake(2); for (const h of c.heroes) { c.fx.flare(chest(h), '#ffd27a', 0.8, 0.5); c.fx.sparks(chest(h), '#ffb060', 30, { spread: 1.2 }); c.fx.ring(feet(h), '#ff8a3a', 1.6, 0.5); } },
+  },
+  'mother-anvil:bellows': { // "Harrow's great bellows breathe once, and a forgeborn climbs out of the fire-pit to stand at her side."
+    move: ['bellows', 'roar'], camera: 'close',
+    start: (c) => { c.fx.smoke(mid(c), '#4a4440', 8, 1.2, 1.2); },
+    land: (c) => { const at = c.F.pos.clone().addScaledVector(c.ar.dir, -1.4); c.fx.flames(at, 0.7, 2.2, 22, 1.3); c.fx.sparks(at.clone().setY(at.y + 0.5), '#ffb060', 30, { spread: 1, up: 1.6 }); },
+  },
+  'mother-anvil:heart-flare': { // "The Anvil Heart flares through her ribs like a furnace door flung open: 3d6 ember to every hero, and you Burn."
+    move: ['heart-flare', 'roar'], camera: 'wide',
+    start: (c) => { c.fx.flare(mid(c), '#ffb060', 2.4, 1.1); },
+    land: (c) => { for (const h of c.all) c.fx.flames(feet(h), 0.45, 1.5, 14, 1.0); },
+  },
+  'mother-anvil:worldforge-blow': { // "She lifts the Worldforge Hammer as high as the forge roof, charging: 4d10 crushing, for one of you."
+    move: ['worldforge-blow', 'strike'], camera: 'close',
+    start: (c) => { c.fx.pulse(head(c).setY(c.F.pos.y + c.F.size.h * 1.4), '#fff0b0', 1.2, 1.4); },
+    land: (c) => { c.shake(3); for (const h of c.heroes) { c.fx.pillar(feet(h), '#ffb060', 4); c.fx.sparks(chest(h), '#ffd27a', 40, { spread: 1.5 }); c.fx.smoke(feet(h), '#6a6058', 8, 1.2, 1.2); } },
+  },
+
+  'rime-abbot:crozier-strike': { // "The Rime Crozier comes down like a bell-clapper: 2d8 frost, and you are Chilled."
+    move: ['crozier-strike', 'strike'],
+    land: (c) => { for (const h of c.heroes) { c.fx.ring(chest(h), '#c8e8ff', 1.0, 0.5, 0); c.fx.sparks(chest(h), '#e0f4ff', 20, { spread: 0.7 }); c.fx.ring(feet(h), '#a8e0ff', 1, 1.0); } },
+  },
+  'rime-abbot:toll': { // "He tolls the drowned bell under the ice. Every hero: WIS save or Frightened."
+    move: ['toll', 'cast'],
+    start: (c) => { for (let k = 0; k < 3; k++) c.fx.later(k * 0.32, () => c.fx.ring(c.F.pos.clone(), '#a8d8ff', 6, 1.2, 0.06)); },
+    land: (c) => { for (const h of c.all) c.fx.mark(head1(h), '#c8a8ff', 0.26, 1.2); },
+  },
+  'rime-abbot:rime-ward': { // "He plants the Crozier, and the rime grows over him like a second habit: Warded."
+    move: ['rime-ward', 'cast'],
+    land: (c) => { c.fx.vines(c.F.pos.clone(), c.F.size.h * 1.0, Math.max(0.45, c.F.size.w * 0.55), '#d8f0ff', 1.4); c.fx.sparks(mid(c), '#ffffff', 16, { spread: 0.6, up: 0.4 }); },
+  },
+  'rime-abbot:drown': { // "He takes one of you by the collar and walks you down under the ice, charging: held under, for two turns."
+    move: ['drown', 'bite'], camera: 'close',
+    land: (c) => { for (const h of c.heroes) { c.fx.splash(feet(h), '#a8d8f0', 20, 1.2); c.fx.ring(feet(h), '#a8e0ff', 1.3, 1.2); } },
+  },
+  'rime-abbot:call-the-choir': { // "He lifts the Crozier, and one of his drowned choir rises through the ice, singing."
+    move: ['call-the-choir', 'roar'], camera: 'close',
+    start: (c) => { c.fx.pulse(head(c), '#a8d8ff', 1.2, 1.2); },
+    land: (c) => { const at = c.F.pos.clone().addScaledVector(c.ar.dir, -1.3); c.fx.splash(at, '#a8d8f0', 18, 1.4); c.fx.ring(at, '#a8e0ff', 2, 1.0); for (let k = 0; k < 3; k++) c.fx.later(k * 0.3, () => c.fx.ring(at, '#d8c8ff', 3, 1.0, 0.06)); },
+  },
+  'rime-abbot:hushing': { // "The Hushweave Cowl breathes out a silence, and one of you hears nothing but Hush."
+    move: ['hushing', 'cast'],
+    land: (c) => { for (const h of c.heroes) { c.fx.smoke(chest(h), '#d8e0f0', 6, 0.6, 1.4); c.fx.mark(head1(h), '#b878ff', 0.3, 1.4); } },
+  },
+  'rime-abbot:heartbeat': { // "Under the floor, Hush's heart beats once. The Abbot heals 2d8, and every hero is Chilled."
+    move: ['heartbeat', 'cast'],
+    land: (c) => { c.shake(1); c.fx.ring(c.ar.center.clone().addScaledVector(c.ar.dir, 2), '#c06080', 8, 1.0); c.fx.pulse(mid(c), '#8ad872', 1.2, 0.9); for (const h of c.all) c.fx.ring(feet(h), '#a8e0ff', 1, 0.9); },
+  },
+  'rime-abbot:rime-nova': { // "The whole cave of ice answers him at once: 3d8 frost to every hero."
+    move: ['rime-nova', 'roar'], camera: 'wide',
+    start: (c) => { c.fx.flare(mid(c), '#d8f0ff', 2.2, 1.0); },
+    land: (c) => { c.fx.ring(c.F.pos.clone(), '#e0f4ff', 9, 1.0); for (const h of c.all) { for (let k = 0; k < 5; k++) { const to = chest(h).add(rand(0.5)); c.fx.thorn(to.clone().add(rand(1)).setY(to.y + 4), to, '#e8f8ff', 0.35, Math.random() * 0.3); } c.fx.sparks(chest(h), '#ffffff', 18, { spread: 0.8 }); } },
+  },
+
+  'lantern-mother:lamp-pole': { // "The long hooked pole she lit Misthollow's lamps with, swung like a scythe."
+    move: ['lamp-pole', 'swipe'],
+    land: (c) => { for (const h of c.heroes) { c.fx.slash(chest(h), c.ar.cam, '#ffe8a0', true); c.fx.sparks(chest(h), '#ffd27a', 12); } },
+  },
+  'lantern-mother:lure': { // "She lifts the lantern and smiles at one of you, the way she smiled at the children."
+    move: ['lure', 'cast'],
+    start: (c) => { c.fx.pulse(head(c), '#ffe8a0', 1.0, 1.4); },
+    land: (c) => { for (const h of c.heroes) { c.fx.thorn(head(c), chest(h), '#ffe8a0', 0.8, 0); c.fx.mark(head1(h), '#ff9ad0', 0.3, 1.6); } },
+  },
+  'lantern-mother:lantern-flare': { // "Every lamp in the Hollow flares at once: 3d8 radiant to every hero."
+    move: ['lantern-flare', 'roar'], camera: 'wide',
+    start: (c) => { c.fx.flare(head(c), '#ffe8a0', 2.6, 1.1); },
+    land: (c) => { for (const h of c.all) c.fx.sparks(chest(h), '#fff0b0', 16, { spread: 0.8 }); },
+  },
+  'lantern-mother:hush-now': { // "\"Hush now,\" she says, \"hush,\" and it is very hard not to. Every hero: WIS save or Hexed."
+    move: ['hush-now', 'cast'],
+    start: (c) => { for (let k = 0; k < 2; k++) c.fx.later(k * 0.4, () => c.fx.ring(c.F.pos.clone(), '#d8c8ff', 5, 1.4, 0.06)); },
+    land: (c) => { for (const h of c.all) c.fx.mark(head1(h), '#b878ff', 0.26, 1.4); },
+  },
+  'lantern-mother:lead-them-down': { // "She takes one of you by the hand, charging: she means to lead you down under the water."
+    move: ['lead-them-down', 'bite'], camera: 'close',
+    land: (c) => { for (const h of c.heroes) { c.fx.lash(mid(c), chest(h), '#e8e0d0', 0.04, 1.0, { bulb: false, gloss: false }); c.fx.later(0.5, () => { c.fx.splash(feet(h), '#3a5a6a', 18, 1.0); c.fx.ring(feet(h), '#ffe8a0', 1.2, 1.0); }); } },
+  },
+  'lantern-mother:moths': { // "She holds up the lantern, and a lamp-moth comes to it out of the dark."
+    move: ['moths', 'roar'], camera: 'close',
+    start: (c) => { c.fx.pulse(head(c), '#ffe8a0', 1.4, 1.2); },
+    land: (c) => { c.fx.sparks(head(c), '#fff4d0', 40, { spread: 1.6, up: 0.3 }); },
+  },
+  'lantern-mother:mourning': { // "She lifts the veil, and you see her grief. Every hero is Frightened, and Rotting."
+    move: ['mourning', 'cast'],
+    land: (c) => { for (const h of c.all) { c.fx.mark(head1(h), '#c8a8ff', 0.26, 1.4); c.fx.sparks(chest(h), '#4a5a20', 14, { spread: 0.6, up: -0.4 }); } },
+  },
+  'lantern-mother:snuff': { // "She pinches out the lamps one by one, and the dark comes in close. Every hero is Exposed."
+    move: ['snuff', 'cast'],
+    land: (c) => { c.all.forEach((h, i) => c.fx.later(i * 0.15, () => { c.fx.smoke(head1(h), '#1a1820', 5, 0.5, 1.2); c.fx.mark(head1(h), '#f0e6c8', 0.26, 1.2); })); },
+  },
+  'lantern-mother:lantern-nova': { // "The lantern burns white, and so does everything it shines on: 3d8 radiant to every hero, and you Burn."
+    move: ['lantern-nova', 'roar'], camera: 'wide',
+    start: (c) => { c.fx.flare(head(c), '#ffffff', 3, 1.2); },
+    land: (c) => { for (const h of c.all) { c.fx.flames(feet(h), 0.4, 1.4, 12, 1.0); c.fx.sparks(chest(h), '#ffffff', 16, { spread: 0.8 }); } },
+  },
+  'lantern-mother:drown-the-light': { // "She plunges the lantern into the black water, and the water comes up out of it at one of you, charging: 4d10 tide."
+    move: ['drown-the-light', 'bite'], camera: 'close',
+    start: (c) => { c.fx.splash(c.F.pos.clone(), '#2a3a48', 18, 1); },
+    land: (c) => { for (const h of c.heroes) { c.fx.splash(feet(h), '#3a5a6a', 30, 2.2); c.fx.pillar(feet(h), '#4aa0c0', 3.5); } c.shake(2); },
+  },
+
+  'blackwater-leviathan:coil': { // "A loop of it comes up out of the water and closes on one of you: 2d10 crushing, and you are Rooted."
+    move: ['coil', 'bite'],
+    land: (c) => { for (const h of c.heroes) { c.fx.lash(mid(c), chest(h), '#1a2a28', 0.22, 1.0, { wrap: true, bulb: false }); c.fx.splash(feet(h), '#3a5a5a', 14, 1); } },
+  },
+  'blackwater-leviathan:tail-slap': { // "Its tail comes down across the flats: 2d6 tide to every hero."
+    move: ['tail-slap', 'strike'], camera: 'wide',
+    land: (c) => { c.shake(2); for (const h of c.all) c.fx.splash(feet(h), '#4a7a80', 20, 1.6); },
+  },
+  'blackwater-leviathan:sound': { // "It sounds: it goes down into the deep, and the great chain runs out after it."
+    move: ['sound', 'cast'],
+    start: (c) => { c.fx.splash(c.F.pos.clone(), '#3a5a6a', 30, 2.0); c.fx.ring(c.F.pos.clone(), '#4aa0c0', 4, 1.2); },
+  },
+  'blackwater-leviathan:breach': { // "The water heaves under one of you, charging: it comes up out of the deep underneath you, 4d10 tide, and you Stagger."
+    move: ['breach', 'strike'], camera: 'close',
+    land: (c) => { c.shake(3); for (const h of c.heroes) { c.fx.splash(feet(h), '#6aa0a8', 40, 3); c.fx.pillar(feet(h), '#4aa0c0', 5); } },
+  },
+  'blackwater-leviathan:swallow': { // "Its jaws open over one of you, charging: it means to swallow you whole."
+    move: ['swallow', 'bite'], camera: 'close',
+    start: (c) => { c.fx.pulse(head(c), '#1a2a28', 1.8, 1.0); },
+    land: (c) => { c.shake(2); for (const h of c.heroes) { c.fx.splash(feet(h), '#3a5a5a', 24, 1.6); c.fx.sparks(chest(h), '#1a2a28', 20, { spread: 1 }); } },
+  },
+  'blackwater-leviathan:undertow': { // "It rolls, and the flats run out from under your feet: whoever fails is Rooted and Chilled."
+    move: ['undertow', 'cast'], camera: 'wide',
+    land: (c) => { c.fx.ring(c.F.pos.clone(), '#4aa0c0', 8, 1.4); for (const h of c.all) { c.fx.splash(feet(h), '#6aa0a8', 12, 0.8); c.fx.ring(feet(h), '#a8e0ff', 1, 1.0); } },
+  },
+  'blackwater-leviathan:harpoon-rage': { // "The harpoon in its side twists, and the pain drives it mad: it coils on one of you twice in one breath."
+    move: ['harpoon-rage', 'bite'],
+    start: (c) => { c.fx.sparks(mid(c), '#c01a10', 18, { spread: 0.6 }); },
+    land: (c) => { for (const h of c.heroes) { c.fx.lash(mid(c), chest(h), '#1a2a28', 0.2, 0.7, { wrap: true, bulb: false }); c.fx.later(0.35, () => c.fx.lash(mid(c), chest(h), '#1a2a28', 0.2, 0.7, { wrap: true, bulb: false })); } },
+  },
+  'blackwater-leviathan:pearl-light': { // "The pearl in its brow lights the water green, and its wounds close: it heals 2d8, and is Warded."
+    move: ['pearl-light', 'cast'],
+    land: (c) => { c.fx.flare(head(c), '#a8ffc8', 1.4, 1.0); c.fx.ring(c.F.pos.clone(), '#6ad8a0', 4, 1.2); },
+  },
+  'blackwater-leviathan:flood': { // "The whole channel comes up over the flats: 3d8 tide to every hero."
+    move: ['flood', 'roar'], camera: 'wide',
+    start: (c) => { c.fx.ring(c.F.pos.clone(), '#4aa0c0', 10, 1.4); },
+    land: (c) => { c.shake(2); for (const h of c.all) { c.fx.splash(feet(h), '#6aa0a8', 30, 2.4); c.fx.ring(feet(h), '#4aa0c0', 2, 1.0); } },
+  },
 };
 // the Tallymen's chiefs (Hollis Fairweight, Dun the Counter) share their moves; only the chiefs have these moments,
 // so the plain tallymen with the same move names keep the kit's

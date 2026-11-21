@@ -184,6 +184,22 @@ export class Fx {
     this.add(light, dur, (u) => { light.intensity = 14 * Math.sin(Math.min(1, u * 1.6) * Math.PI); });
   }
 
+  // flames licking up at `at` (a burning blade's trail, a hero on fire, a fire-pit roaring): additive tongues rising,
+  // turning from yellow-white to orange to deep red as they climb and thin, with a glow under them
+  flames(at, r = 0.5, h = 1.4, n = 16, dur = 1.0) {
+    const C0 = col('#fff0b0'), C1 = col('#ff8a2a'), C2 = col('#a0200a');
+    for (let i = 0; i < n; i++) {
+      const m = new THREE.SpriteMaterial({ map: dot(), color: C0.clone(), blending: THREE.AdditiveBlending, transparent: true, depthWrite: false, toneMapped: false, opacity: 0 });
+      const sp = new THREE.Sprite(m), a = Math.random() * TAU, d = r * Math.sqrt(Math.random()), o = at.clone().add(new THREE.Vector3(Math.cos(a) * d, 0, Math.sin(a) * d));
+      const life = 0.45 + Math.random() * 0.4, dl = Math.random() * Math.max(0, 1 - life), s0 = 0.35 + Math.random() * 0.3, sway = (Math.random() - 0.5) * 0.3;
+      this.add(sp, dur, (u) => { const k = (u - dl) / life; if (k < 0 || k > 1) { m.opacity = 0; return; }
+        sp.position.set(o.x + Math.sin(k * 6 + a) * sway, o.y + k * h, o.z); sp.scale.set(s0 * (1 - k * 0.6), s0 * (1.5 - k * 0.5), 1);
+        m.color.copy(k < 0.4 ? C0.clone().lerp(C1, k / 0.4) : C1.clone().lerp(C2, (k - 0.4) / 0.6)); m.opacity = Math.sin(k * Math.PI) * 0.95; });
+    }
+    const light = new THREE.PointLight(C1, 0, 6, 1.6); light.position.copy(at).setY(at.y + 0.5);
+    this.add(light, dur, (u) => { light.intensity = 4 * Math.sin(Math.min(1, u * 1.2) * Math.PI) * (0.85 + Math.random() * 0.3); });
+  }
+
   // a ring of light out over the ground at `at`
   ring(at, color = '#ffcb66', r1 = 2, dur = 0.6, y = 0.05) {
     const m = glowMat(color, 0.9);
