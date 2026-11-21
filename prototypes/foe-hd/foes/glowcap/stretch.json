@@ -2,7 +2,7 @@
  "key": "glowcap",
  "limit": 1.3,
  "parts": {},
- "frames": 48,
+ "frames": 120,
  "triangles": 17284,
  "moves": {
   "idle": {
@@ -22,12 +22,12 @@
    ],
    "restEdge": 0.0102,
    "trianglesOver": 0,
-   "framesOver": "0/48",
+   "framesOver": "0/120",
    "bones": []
   },
   "walk": {
    "ok": true,
-   "worst": 1.257,
+   "worst": 1.229,
    "part": "hips > r_thigh",
    "limit": 1.3,
    "at": {
@@ -42,17 +42,17 @@
    ],
    "restEdge": 0.0099,
    "trianglesOver": 0,
-   "framesOver": "0/48",
+   "framesOver": "0/120",
    "bones": []
   },
   "spores": {
    "ok": true,
-   "worst": 1.284,
+   "worst": 1.281,
    "part": "body",
    "limit": 1.3,
    "at": {
-    "u": 0.34,
-    "t": 1.84,
+    "u": 0.345,
+    "t": 1.85,
     "step": 0
    },
    "where": [
@@ -62,7 +62,7 @@
    ],
    "restEdge": 0.0102,
    "trianglesOver": 0,
-   "framesOver": "0/48",
+   "framesOver": "0/120",
    "bones": []
   },
   "bump": {
@@ -71,7 +71,7 @@
    "part": "head",
    "limit": 1.3,
    "at": {
-    "u": 0.553,
+    "u": 0.546,
     "t": 1.85,
     "step": 0
    },
@@ -82,7 +82,7 @@
    ],
    "restEdge": 0.0098,
    "trianglesOver": 0,
-   "framesOver": "0/48",
+   "framesOver": "0/120",
    "bones": []
   },
   "hurt": {
@@ -91,8 +91,8 @@
    "part": "body",
    "limit": 1.3,
    "at": {
-    "u": 0.319,
-    "t": 1.56,
+    "u": 0.311,
+    "t": 1.55,
     "step": 0
    },
    "where": [
@@ -102,7 +102,7 @@
    ],
    "restEdge": 0.009,
    "trianglesOver": 0,
-   "framesOver": "0/48",
+   "framesOver": "0/120",
    "bones": []
   },
   "ko": {
@@ -122,7 +122,7 @@
    ],
    "restEdge": 0.0077,
    "trianglesOver": 0,
-   "framesOver": "0/48",
+   "framesOver": "0/120",
    "bones": []
   }
  },
