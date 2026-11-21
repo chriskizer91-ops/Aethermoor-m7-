@@ -1,0 +1,80 @@
+{
+  "key": "willow-wight",
+  "name": "Willow-Wight",
+  "plan": "willow",
+  "rank": "veteran",
+  "height": 1.8,
+  "sheet": "art-in/3d/sheets/sheet-willow-wight.webp",
+  "crops": [
+    [
+      38,
+      548
+    ],
+    [
+      622,
+      1155
+    ],
+    [
+      1229,
+      1744
+    ]
+  ],
+  "bounds": [
+    [
+      -0.66,
+      -0.6,
+      -0.01
+    ],
+    [
+      0.66,
+      0.62,
+      1.9
+    ]
+  ],
+  "voxel": {
+    "0": 0.016,
+    "1": 0.01,
+    "2": 0.0055,
+    "3": 0.0031
+  },
+  "view": {
+    "center": [
+      0,
+      0,
+      0.92
+    ],
+    "width": 2.15,
+    "head": [
+      0,
+      0.12,
+      1.28
+    ],
+    "headWidth": 0.6
+  },
+  "light": {
+    "level": 0,
+    "coat": 9000
+  },
+  "sculpt": {
+    "level": 3
+  },
+  "bake": {
+    "res": 1024,
+    "phone": 512,
+    "ao": 48,
+    "reach": {
+      "coat": [
+        0.025,
+        0.07
+      ],
+      "parts": [
+        0.006,
+        0.015
+      ]
+    }
+  },
+  "rig": "rig.py",
+  "blurb": "The willow-wight is a willow that pulled up its roots and walked: a ridged bark trunk on splayed root feet, a scowling face with glowing yellow-green eyes that weep, two branch arms (bluebells in its left hand), and a great crown of hanging willow fronds, every leaf sculpted.",
+  "next": "its moves smoothed.",
+  "pages": {}
+}

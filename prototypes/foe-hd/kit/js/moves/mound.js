@@ -78,7 +78,7 @@ export function pose(B, move, u, t, step = 0) {
     const slump = seg(u, 0, 0.5), down = seg(u, 0.35, 1);
     b.base.rotation.z = 0.4 * slump; B.body.position.x = -0.12 * slump;
     B.body.position.y = -0.3 * down;
-    b.top.rotation.z += 0.06 * slump;
+    b.top.rotation.z += 0.03 * slump;
     growths(b, t, 0, 0.5 * slump);
   }
 }

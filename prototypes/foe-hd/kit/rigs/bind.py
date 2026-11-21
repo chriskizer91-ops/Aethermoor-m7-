@@ -136,17 +136,19 @@ def bind(RIG, P, kind, tris, height, mid, log=print):
     # gates hold everywhere: a bone the rig's weigh() put 500 or more away from a point (+1000 = "never") gives that point
     # no weight at all, not through the labels, the joint bands or the smoothing; and a rig's soft mask(P, idx) ->
     # (n, bones) in 0..1 is multiplied in at every one of those steps (soft edges a few cm wide blend; hard ones tear)
-    MASK = (Dg < 500).astype(np.float64)
-    if hasattr(RIG, 'mask'): MASK *= np.clip(np.asarray(RIG.mask(Pw, idx), np.float64), 0, 1)
-    Dg[~seen] += 100.0                               # a bone it can't see only if it sees none
-    lab = np.argmin(Dg, 1)
+    # (part() runs first, so a mask may use what it found, e.g. which piece is an arm)
     if hasattr(RIG, 'part'):
         import inspect
         if len(inspect.signature(RIG.part).parameters) >= 4:     # part(P, kind, idx, piece): which separate piece each point is in
             own = np.asarray(RIG.part(Pw, Kw, idx, connected_components(A, directed=False)[1]))
         else:
             own = np.asarray(RIG.part(Pw, Kw, idx))
-        lab = np.where(own >= 0, own, lab)
+    MASK = (Dg < 500).astype(np.float64)
+    if hasattr(RIG, 'mask'): MASK *= np.clip(np.asarray(RIG.mask(Pw, idx), np.float64), 0, 1)
+    Dg[MASK <= 0] += 1000.0                           # a masked-off bone is never a point's part
+    Dg[~seen] += 100.0                               # a bone it can't see only if it sees none
+    lab = np.argmin(Dg, 1)
+    if hasattr(RIG, 'part'): lab = np.where(own >= 0, own, lab)
     fixed = np.zeros(nw, bool) if not hasattr(RIG, 'part') else own >= 0
 
     # 2. rigid pieces: one part each
