@@ -53,6 +53,23 @@ session 6 made Briarmaw.
   pose 129 edges longer than 9 mm still pass 1.3x (my `stretch.mjs` now prints this verdict). The hub has passed
   him; helper joints from the kit should clear the rest.
 
+- **Where the big edges still stretch** (rule: edges longer than 1% of the height under 1.3x). On a 0.9 m foe almost
+  every light-model edge is longer than 9 mm, so the rule is nearly 1.3x everywhere for him. The worst big edges:
+  the top of the shoulder in the walk (spine and upper foreleg, 1.9x), the rump where the thigh meets the tail root
+  (1.8x), the throat in the howl (neck and chest, 2.0x), the neck and chest in the fall (1.6x). I have not stiffened
+  him further, as asked.
+- **For session 6: helper joints for the kit** (proposal). Plain skinning can't spread a big turn where heavy masses
+  meet, whatever the weights. Suggested for every four-legged plan, each following its parent part of the way:
+  1. a **shoulder blade** per foreleg (chest > blade > upper), which turns about half the upper leg's swing, so the
+     top of the shoulder slides instead of stretching;
+  2. a **haunch** helper per hind leg (hips > haunch > upper), likewise half the thigh's swing, weighted to the big
+     muscle round the hip;
+  3. **two neck bones** in place of one (chest > neck1 > neck2 > head), each taking half the neck's bend, so the throat
+     stretches over twice the length;
+  4. a **tail root** helper (hips > tailroot > tail1) taking a quarter of the tail's sway.
+  The moves need nothing new: a helper reads its child's turn in pose() (the kit's loader could do it after every
+  pose, e.g. `HELPERS = { fl_blade: ['fl_upper', 0.5], ... }`).
+
 ## Next
 
 0. Move onto session 6's shared kit (commit f384b7d / 8f3b6e2 on job/foe-hd) once the hub brings it into its branch; my

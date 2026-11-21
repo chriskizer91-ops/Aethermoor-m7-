@@ -69,13 +69,13 @@ for (const [move] of quad.list) for (const u of [0, 0.2, 0.4, 0.5, 0.6, 0.8, 1])
     const rs = [];
     for (let e = 0; e < rest.length; e++) { const a = edges[e * 2], b = edges[e * 2 + 1];
       const r = Math.hypot(P[a * 3] - P[b * 3], P[a * 3 + 1] - P[b * 3 + 1], P[a * 3 + 2] - P[b * 3 + 2]) / rest[e];
-      if (r > LIMIT) rs.push([r, a, b, rest[e]]); }
+      if (r > LIMIT && (!process.env.BIG || rest[e] > MM)) rs.push([r, a, b, rest[e]]); }
     rs.sort((x, y) => y[0] - x[0]);
     for (const [r, a, b, l] of rs.slice(0, 12)) console.log(r.toFixed(2), 'rest mm', (l * 1000).toFixed(1), 'at three xyz', [0, 1, 2].map((k) => pos[a * 3 + k].toFixed(3)).join(','),
       'w', [0, 1, 2, 3].map((k) => meta.bones[ji[a * 4 + k]].name + ':' + jw[a * 4 + k]).join(' '), '|', [0, 1, 2, 3].map((k) => meta.bones[ji[b * 4 + k]].name + ':' + jw[b * 4 + k]).join(' '));
   }
   visWorst = Math.max(visWorst, vis); ruleWorst = Math.max(ruleWorst, ruleBad);
-  if (bad) report.push(`${move} u=${u}: ${bad} edges over ${LIMIT}x (${vis} also longer by over 1% of his height), worst ${max.toFixed(2)}x between ${boneOf(edges[at * 2])} and ${boneOf(edges[at * 2 + 1])}`);
+  if (bad) report.push(`${move} u=${u}: [rule ${ruleBad}] ${bad} edges over ${LIMIT}x (${vis} also longer by over 1% of his height), worst ${max.toFixed(2)}x between ${boneOf(edges[at * 2])} and ${boneOf(edges[at * 2 + 1])}`);
 }
 console.log(report.length ? report.join('\n') : `no edge stretches past ${LIMIT}x in any move`);
 console.log(`worst stretch: ${worst.toFixed(2)}x over ${rest.length.toLocaleString()} edges; most visibly stretched edges in one pose: ${visWorst}`);
