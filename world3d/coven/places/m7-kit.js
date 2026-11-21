@@ -158,7 +158,7 @@
     const ROOF = Object.assign({ slate: ['keep_roof_slate', 0xb4b8c4], red: ['shared_roof_tiles_red', 0xffffff], thatch: ['shared_roof_thatch', 0xffffff], moss: ['cottage_roof_moss', 0xffffff] }, LOOK ? LOOK.roofs : {});
     const extraMats = {};
     // (Places, step 4) every roof wears the painting where it looks up: from above it is the roof the painting shows
-    for (const [k, [tex, tint]] of Object.entries(ROOF)) extraMats['roof_' + k] = { tex, rep: 2.6, shade: 0.15, tint, side: 'double', paint: d.roofPainting ? 'm7_roofs' : null, paintMix: 0.85 };
+    for (const [k, [tex, tint]] of Object.entries(ROOF)) extraMats['roof_' + k] = { tex, rep: 2.6, shade: 0.15, tint, side: 'double', paint: d.roofPainting ? 'm7_roofs' : null, paintMix: 0.7 };
     if (LOOK) Object.assign(extraMats, {
       rockL: { tex: LOOK.rock[0], rep: 2.2, tint: LOOK.rock[1], shade: 0.5, paint: 'm7_paint', paintMix: 0.6 },
       palmBark: { tex: 'shared_bark_oak', rep: 1.4, tint: 0xd8b890, shade: 0.5 },
@@ -220,7 +220,8 @@
     const ALL = place.extraTrees || [];
     Object.defineProperty(place, 'extraTrees', { configurable: true, enumerable: true, get() { return G.W3D && W3D.quality === 'phone' ? phoneTrees(ALL, d) : ALL; } });
     Object.defineProperty(place, 'lightTrees', { configurable: true, enumerable: true, get() { return G.W3D && W3D.quality === 'phone'; } });
-    Object.defineProperty(place, 'treePatch', { configurable: true, enumerable: true, get() { return G.W3D && W3D.quality === 'phone' ? 33 : 22; } });
+    Object.defineProperty(place, 'groundPatch', { configurable: true, enumerable: true, get() { return G.W3D && W3D.quality === 'phone' ? 64 : 32; } });
+    Object.defineProperty(place, 'treePatch', { configurable: true, enumerable: true, get() { return G.W3D && W3D.quality === 'phone' ? 48 : 22; } });
     return place;
   }
   const PHONE_TREES = new Map();
@@ -285,6 +286,7 @@
     for (const [px, py, s] of d.cliffs || []) { const x = X(px), z = Z(py), g = gh(px, py); rock(RK, x, g - 0.2, z, s); rock(RK, x + (R() - 0.5) * 1.2, g + s * 0.5, z + (R() - 0.5) * 1.2, s * 0.7); }
     if (lookOf(d)) regional(K, d, R, rod, rock);
     things(K, d, R);
+    chimneys(K, d, R);
     // a root wall: an earth bank with thick roots twisting up out of it and over into the next tile
     for (const [px, py] of d.roots || []) {
       const x = X(px), z = Z(py), g = gh(px, py);
@@ -452,6 +454,22 @@
       else if (kind === 'glint') { for (let i = 0; i < 2; i++) cone('glassL', x + (R() - 0.5) * 1.2, g - 0.1, z + (R() - 0.5) * 1.2, 0.12, 0.35, 1.2, 0, 4); }
       else if (kind === 'wisp') K.lights.push([px, py, 60, 0.6, 'moonwell']);
       else if (kind === 'lava') K.lights.push([px, py, 110, 1.1, 'forge']);
+    }
+  }
+
+  // ---- (Places, step 4) a stone chimney on every house (not the halls, stalls, tents or a region with flat roofs), near
+  // one end of its ridge: real 3D, where the painting's chimneys used to be painted on ----
+  function chimneys(K, d, R) {
+    const { B, X, Z, gh } = K, flat = d.region === 'sunscorch' || d.region === 'below';
+    if (flat || d.interior) return;
+    for (const b of d.buildings || []) {
+      const [x0, y0, x1, y1] = b.fp, tw = (x1 - x0) / TX, td = (y1 - y0) / TY;
+      if (/^hall/.test(b.id) || tw * td < 4 || !b.roof || b.roof.kind === 'thatch' && d.region === 'ironspire') continue;
+      const ew = b.roof.ridge === 'ew', f = R() < 0.5 ? 0.2 : 0.8, wh = (b.walls || []).reduce((a, w) => a + w.h, 0) || 3.2;
+      const px = ew ? x0 + (x1 - x0) * f : (x0 + x1) / 2 + (R() - 0.5) * 20, py = ew ? (y0 + y1) / 2 - 8 : y0 + (y1 - y0) * f;
+      const g = gh((x0 + x1) / 2, y1 - 4), top = g + wh + b.roof.rise * 0.92 + 0.9;
+      B.box('stone', X(px), g + wh, Z(py), 0.62, top - g - wh, 0.62, 0, [0.82, 0.8, 0.84]);
+      B.box('stone', X(px), top, Z(py), 0.74, 0.14, 0.74, 0, [0.7, 0.68, 0.72], { solid: false });
     }
   }
 

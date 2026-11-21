@@ -5,7 +5,25 @@
 // Each figure: { root (a three.js group, feet at 0), update(t, dt, walking), height, F? (the arena's figure, for a fight) }
 import { FOES } from '../game/src/data/foes.js';
 import { setPose } from '../prototypes/hero-3d/model.js';
-import { foeFigure } from '../world3d/battle/arena.js';
+import { foeFigure, setBeastLook } from '../world3d/battle/arena.js';
+import { buildBeast } from '../prototypes/bestiary/beasts.js';
+import { standeeLook } from '../prototypes/bestiary/standee.js';
+import { ready as hdReady } from '../prototypes/foe-hd/kit/js/loader.js';
+import { register, foeLook } from '../prototypes/foe-hd/kit/js/looks.js';
+import { FOES_HD } from 'game3d:foes-hd';
+
+// the foes' look (Chris is choosing; questions.md): 'hd' full detail where a foe has one (session 6's kit: Briarmaw so
+// far), the sculpted beasts for the rest (the default); 'hd-cutout' full detail, else Chris's painted cut-outs;
+// '3d' the sculpted beasts only; 'cutout' the painted cut-outs only. ?foes=<look> on the address.
+export const LOOKS = ['hd', 'hd-cutout', '3d', 'cutout'];
+let hdDone = false;
+export async function setFoeLook(look = 'hd') {
+  if (look.startsWith('hd') && !hdDone) { try { await hdReady(); for (const A of FOES_HD) register(A); hdDone = true; } catch (e) { console.warn('full-detail foes', e); } }
+  const fall = look.endsWith('cutout') ? standeeLook : buildBeast;
+  setBeastLook(look.startsWith('hd') && hdDone ? foeLook(fall) : look === 'cutout' ? standeeLook : null);
+  return look;
+}
+export const hdFoes = () => FOES_HD.map((A) => A.key);
 
 // the townsfolk are Models' (prototypes/hero-3d/people.js personFigure: looks picked as M7's npcSheet does, a standing
 // weight shift, a talking gesture while .talking is true)

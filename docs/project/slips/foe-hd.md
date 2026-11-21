@@ -5,7 +5,15 @@ shown side by side with the code-built model and a cut-out of Chris's sheet.
 
 ## Done
 
-- **First look, published:** https://claude.ai/artifact/5iUqJsPw3NGrvun4Ng73eh (9.8 MB)
+- **The full-detail one (pass 3), published November 20:**
+  - Three ways, with the crowd test: https://claude.ai/artifact/5iUqJsPw3NGrvun4Ng73eh (version 3, 14.2 MB).
+    Chris saw the crowd (six of him with the four heroes) at 144 frames a second on his machine.
+  - **The sculpt itself**, beside the light version baked from it, for a laptop:
+    https://claude.ai/artifact/AVSmLbEu3jz1NVnohgqT9P (10.2 MB): 982,634 triangles against 50,090.
+  - **The full-detail model is kept as an asset**: `prototypes/foe-hd/assets/briarmaw-sculpt.glb` (with colours,
+    meshopt-compressed, 4.5 MB). Chris: aim sculpts at 500,000 to 1,000,000 triangles, more only where needed; the game
+    uses the ~50,000 bake. I passed this to the hub and all four jobs.
+- **First look** (same link, version 1-2):
   - Three stands turning together under the same light: built in code (Models' beast, 77,452 triangles), the painted
     cut-out (Models' standee, `prototypes/bestiary/standee.js`, from the hub's branch), and the full-detail light
     version (50,167 triangles, baked from a 407,000-triangle sculpt, 2048 px pictures). Page 14.4 MB.
@@ -22,11 +30,28 @@ shown side by side with the code-built model and a cut-out of Chris's sheet.
   The sheet is the measuring guide and colour reference, not projected onto him: it is painted with its own light and
   shows only three views. Its front view could be projected onto the face as an option.
 
+- **The foe kit (step 2), November 20**: `prototypes/foe-hd/kit/` and its README. Briarmaw moved to
+  `prototypes/foe-hd/foes/briarmaw/` and rebuilt through it (same triangles, same pages, checks pass). The kit has:
+  the sculpt runner and helpers (shapes, mesh pieces, a coat of tufts, scales or plates, cloth folds), the sheet checks
+  (outline and side-by-side from each foe's crop boxes), the bake reading each foe's settings and rig, rig templates
+  (four legs, two legs), packing, the sculpt asset export, the page loader, moves for four and two legs, one
+  `setBeastLook` for every finished foe (`kit/js/looks.js`), the sculpt viewer and the three-ways page for any foe.
+  Sessions 7 and 8 told.
+
+- **Briarling** (my lane's first, November 20): three ways with its moves and the crowd test,
+  https://claude.ai/artifact/DorMujhAe9d1XNwLGYV4ae (11.8 MB); its sculpt beside its light model,
+  https://claude.ai/artifact/LAjxUMG9Aoj2UPw7DuyHtB. Sculpt 589,428 triangles (asset
+  `foes/briarling/assets/briarling-sculpt.glb`, 2.7 MB); light model 16,640 (rabble budget ~20k), 1024 px pictures,
+  phone 512. Moves for small walking plants: `kit/js/moves/sapling.js` (bob, waddle, hop, lunge, hit, fall).
+  Kit fixes from it: pages and viewer scale with the foe's height; parts are placed on a surface that is exactly the
+  same at every level (fixes missed bakes on small foes).
+
 ## Next
 
-1. Pass 3 (up to a million triangles), and the sculpt's own page for a laptop (too heavy for this one).
-2. The face closer to the sheet (heavier brow, bigger golden fangs), the body rounder in the side view.
-3. His moves smoothed, and a proper "hit" flash; the eyes' glow.
+1. My lane: (briarling done) glowcap, boglurcher, the willows, the sparks, rockling, Mother Anvil, the wraiths.
+2. Briarmaw's moves smoothed (weights round the shoulders and hips, a fuller walk), a hit flash.
+2. The face closer still to the sheet; the coat's brown zones placed as the sheet paints them.
+3. Done: pass 3, the sculpt's own page, the heavier brow and golden fangs, the rump and tail as the sheet shows.
 
 ## For the Fight
 
@@ -56,6 +81,13 @@ shown side by side with the code-built model and a cut-out of Chris's sheet.
 - Headless Chromium (SwiftShader, software drawing, so far slower than a phone's graphics chip): the page loads with
   no errors at 1280 x 800 and 390 x 844; 20 frames a second on the stands, 22 with the crowd (774,000 triangles drawn
   including shadows). Not yet checked on a real phone.
+
+## What others rely on (keep working)
+
+- `prototypes/foe-hd/page/briarmaw.js` (`briarmawLook`, `makeShared`, `ready`): kept as a forwarding module onto the kit.
+- `prototypes/foe-hd/assets/` (Briarmaw's `light.json/bin`, pictures): forwarding copies of `foes/briarmaw/assets/`,
+  for the Fight's plugin, until it moves onto `kit/js/looks.js`.
+- The kit's file layout and `foe.json` fields (sessions 7 and 8 build on them): changes are announced to them first.
 
 ## Changed outside my files
 

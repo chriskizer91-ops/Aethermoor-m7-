@@ -1,0 +1,20 @@
+[
+  { "key": "thornhound", "name": "Thornhound", "act": 1 },
+  { "key": "rotstag", "name": "The Rot-Stag", "act": 1 },
+  { "key": "oldsnag", "name": "Old Snag", "act": 1 },
+  { "key": "mirelord", "name": "Gorrow the Mire-King", "act": 1 },
+  { "key": "rotgrub", "name": "Rotgrub", "act": 1 },
+  { "key": "gloamwing", "name": "The Gloamwing", "act": 1 },
+  { "key": "rime-wolf", "name": "Rime Wolf", "act": 2 },
+  { "key": "sand-skink", "name": "Sand-Skink", "act": 2 },
+  { "key": "mire-leech", "name": "Mire Leech", "act": 2 },
+  { "key": "blackwater-gar", "name": "Blackwater Gar", "act": 2 },
+  { "key": "lamp-moth", "name": "Lamp-Moth", "act": 2 },
+  { "key": "glass-scorpion", "name": "Glass Scorpion", "act": 2 },
+  { "key": "glass-matriarch", "name": "The Glass Matriarch", "act": 2 },
+  { "key": "old-jaws", "name": "Old Jaws", "act": 2 },
+  { "key": "sand-wyrm", "name": "The Sand Wyrm", "act": 2 },
+  { "key": "thunder-roc", "name": "The Thunder-Roc", "act": 2 },
+  { "key": "kharzul", "name": "Kharzul the Glass Scorpion", "act": 2 },
+  { "key": "blackwater-leviathan", "name": "The Blackwater Leviathan", "act": 2 }
+]
