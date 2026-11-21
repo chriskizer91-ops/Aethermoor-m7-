@@ -83,6 +83,13 @@
   | phases, disarms, escapes, revives, Legend Strikes | Briarmaw, Kharzul, the Rotwarden, Old Snag and others |
   | the cameras indoors | the Great Hall, Mosswatch's stair and lantern room, the Heartroot (fight and spoils) |
 
+- **Full detail is the foe kit's** (`prototypes/foe-hd/kit/js/looks.js` `foeLook`): every finished foe shows in full
+  detail (Briarmaw, the thornhound, the briarling on the fight page; the rest stay sculpted). The build plugin carries
+  the foes named in `FIGHT_HD` (default briarmaw) at their phone size; every `three` import is one copy.
+- **Living faces** (Models' `rig.faceCtl`): effort on a strike or spell, a wince when hit, eyes shut while fallen, a
+  cheer on victory, worried at a quarter health or less.
+- Build the fight page: `FIGHT_HD=briarmaw,thornhound,briarling node build.mjs --page=m7-fight
+  --places=thornhollow,briarmaw-den --tex=768 --herotex=256 --entry=fight.js --plugin=battle/swap.mjs` (12.0 MB).
 - Not proven by Auto: the Sand Wyrm's and the Thunder-Roc's swallows (their charge never landed in those runs).
 
 ## For Together: starting a fight from outside
