@@ -72,7 +72,7 @@ export const quad = {
       rx(b, 'neck', 0.25 * low - 0.2 * leap); rx(b, 'head', -0.1 * low + 0.1 * leap + tremble);
       rx(b, 'jaw', 0.8 * leap);
       // in the air: forelegs reach forward, hind legs kick back
-      for (const k of ['fl', 'fr']) { rx(b, k + '_upper', -1.0 * leap); rx(b, k + '_lower', 0.2 * leap); }
+      for (const k of ['fl', 'fr']) { rx(b, k + '_upper', -0.7 * leap); rx(b, k + '_lower', 0.25 * leap); }
       for (const k of ['bl', 'br']) { rx(b, k + '_upper', 0.9 * leap); rx(b, k + '_foot', 0.4 * leap); }
       rz(b, 'ear_l', -0.5 * low); rz(b, 'ear_r', 0.5 * low);
       tail(b, 0.05 * Math.sin(t * 20) * low, -0.2 * low + 0.3 * leap);
@@ -82,7 +82,7 @@ export const quad = {
       // sit back on the haunches, muzzle to the sky, the jaw open, the throat working
       const up = seg(u, 0, 0.25), hold = 1 - seg(u, 0.8, 1), k = up * hold, quaver = Math.sin(u * 40) * 0.03 * k;
       rx(b, 'hips', -0.18 * k); rx(b, 'spine', -0.08 * k); rx(b, 'chest', -0.1 * k);
-      rx(b, 'neck', -0.75 * k); rx(b, 'head', -0.45 * k + quaver);
+      rx(b, 'neck', -0.5 * k); rx(b, 'head', -0.55 * k + quaver);
       rx(b, 'jaw', 0.42 * k + quaver);
       for (const l of ['bl', 'br']) { rx(b, l + '_upper', -0.25 * k); rx(b, l + '_lower', 0.45 * k); rx(b, l + '_foot', -0.25 * k); }
       for (const l of ['fl', 'fr']) rx(b, l + '_upper', 0.12 * k);
