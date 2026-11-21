@@ -492,6 +492,10 @@ export const arena = {
     if (this.onIdle) this.onIdle(d, t);
     // ?fast=1 (headless checks only): draw a few times a second, so a slow software browser leaves M7's timers their time
     if (FAST) { this._drawT = (this._drawT || 0) + dt; if (this._drawT < 0.3) return; this._drawT = 0; }
+    // the walk is paused while we fight, so its own thinning of the trees between the camera and the leader stops: the
+    // place's update thins the ones between our camera and the middle of the field instead (a canopy no longer fills the
+    // view in a wood), and keeps its water and lamps moving
+    try { if (this.W?.P?.update) { const mid = heroCenter.clone().lerp(foeCenter, 0.5); mid.y -= 1.0; this.W.P.update(this.t, this.cam, mid); } } catch (e) { /* a place without it */ }
     this.renderer.render(this.scene, this.cam);
   },
 };
