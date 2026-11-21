@@ -30,8 +30,9 @@ import { heroGear } from '../game/src/ui/battle/sprites.js';
 import { arena, foeFigure, setBeastLook } from './battle/arena.js';
 import { standeeLook } from '../prototypes/bestiary/standee.js';
 import { buildBeast } from '../prototypes/bestiary/beasts.js';
-import { ready as hdReady, makeShared, briarmawLook } from '../prototypes/foe-hd/page/briarmaw.js';
-import { A as HD_ASSETS } from 'fight-briarmaw-assets';
+import { ready as hdReady } from '../prototypes/foe-hd/kit/js/loader.js';
+import { register as hdRegister, foeLook as hdFoeLook } from '../prototypes/foe-hd/kit/js/looks.js';
+import { FOES as HD_FOES } from 'fight-foe-assets';
 import { runFight } from './battle/run.js';
 import { openParty } from './battle/party-room.js';
 
@@ -59,11 +60,12 @@ function encScene(id) {
     battle: (game) => startBattle(game, { nodeId: id }) };
 }
 SCENES.den = encScene('briarmaw-den');
-// the beasts' look: '3d' (sculpted), 'cutout' (Chris's painted standees) or 'hd' (Briarmaw in full detail, session 6)
+// the beasts' look: '3d' (sculpted), 'cutout' (Chris's painted standees) or 'hd' (every finished full-detail foe of the foe
+// kit, sessions 6-8; the rest as sculpted)
 const LOOKS = ['3d', 'cutout', 'hd'];
 let look = LOOKS.includes(Q.get('foes')) ? Q.get('foes') : '3d', hdLook = null;
 async function useLook(k) {
-  if (k === 'hd' && !hdLook) { await hdReady(); hdLook = briarmawLook(makeShared(HD_ASSETS, 1024), buildBeast); }
+  if (k === 'hd' && !hdLook) { await hdReady(); for (const A of HD_FOES) hdRegister(A, { res: Number(Object.keys(A.tex)[0]) }); hdLook = hdFoeLook(buildBeast); }
   setBeastLook(k === 'cutout' ? standeeLook : k === 'hd' ? hdLook : null);
 }
 let SC = Q.get('enc') && encScene(Q.get('enc')) || SCENES[Q.get('fight') === 'briarmaw' ? 'den' : 'road'];
@@ -275,7 +277,7 @@ async function main() {
     look = LOOKS[(LOOKS.indexOf(look) + 1) % LOOKS.length]; await useLook(look); looks();
     if (pack) for (const F of pack.figs) W.P.scene.remove(F.root);
     pack = null; spawnPack();
-    toast({ '3d': 'The foes as 3D models', cutout: 'The foes as Chris painted them', hd: SC === SCENES.den ? 'Briarmaw in full detail' : 'Full detail: Briarmaw, in his den' }[look]);
+    toast({ '3d': 'The foes as 3D models', cutout: 'The foes as Chris painted them', hd: `In full detail: ${HD_FOES.map((A) => A.key).join(', ') || 'none on this page'}` }[look]);
   });
   looks();
   $('scenebtn').addEventListener('click', () => { drawList(); list.classList.toggle('on'); });
