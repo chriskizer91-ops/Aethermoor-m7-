@@ -21,9 +21,9 @@ function legs(B, step, amp = 1) {
   const P = { fl: 0, br: 0, fr: Math.PI, bl: Math.PI };
   for (const k of ['fl', 'fr', 'bl', 'br']) {
     const ph = step + P[k], s = Math.sin(ph), lift = Math.max(0, Math.cos(ph));
-    bn(k + '_upper').rotation.x = -0.32 * s * amp;
-    bn(k + '_lower').rotation.x = (k[0] === 'f' ? 0.45 : -0.45) * lift * amp;
-    bn(k + '_paw').rotation.x = 0.25 * s * amp - (k[0] === 'f' ? 0.3 : -0.2) * lift * amp;
+    bn(k + '_upper').rotation.x = -0.1 * s * amp;     // the upper leg is in the body: it barely swings, the lower leg steps
+    bn(k + '_lower').rotation.x = (k[0] === 'f' ? 0.3 : -0.3) * lift * amp;
+    bn(k + '_paw').rotation.x = 0.15 * s * amp - (k[0] === 'f' ? 0.2 : -0.15) * lift * amp;
   }
 }
 export function pose(B, move, u, t, step = 0) {
@@ -57,8 +57,8 @@ export function pose(B, move, u, t, step = 0) {
     const lift = seg(u, 0, 0.3), rake = seg(u, 0.32, 0.55), back = 1 - seg(u, 0.7, 1), k = back;
     b.hips.rotation.x = -0.18 * lift * k; b.chest.rotation.x = -0.12 * lift * k;
     b.chest.rotation.y = (0.25 * lift - 0.55 * rake) * k;
-    b.fr_upper.rotation.x = (-1.25 * lift + 0.9 * rake) * k; b.fr_upper.rotation.z = (-0.35 * lift + 0.6 * rake) * k;
-    b.fr_lower.rotation.x = (0.6 * lift - 0.4 * rake) * k; b.fr_paw.rotation.x = -0.4 * lift * k;
+    b.fr_upper.rotation.x = (-0.3 * lift + 0.2 * rake) * k; b.fr_upper.rotation.z = (-0.12 * lift + 0.2 * rake) * k;     // the paw comes up
+    b.fr_lower.rotation.x = (-0.7 * lift + 0.5 * rake) * k; b.fr_paw.rotation.x = (-0.5 * lift + 0.3 * rake) * k;     // and rakes from the elbow down
     b.head.rotation.y += (0.3 * lift - 0.5 * rake) * k; b.jaw.rotation.x = 0.05 + 0.3 * rake * k;
     B.body.position.y = 0.06 * lift * k;
     return;
@@ -82,7 +82,7 @@ export function pose(B, move, u, t, step = 0) {
   if (move === 'ko') {
     // the legs buckle, he rolls onto his side, the head drops last
     const buckle = seg(u, 0, 0.35), roll = seg(u, 0.25, 0.75), drop = seg(u, 0.6, 1);
-    for (const k of ['fl', 'fr', 'bl', 'br']) { b[k + '_upper'].rotation.x = (k[0] === 'f' ? 0.5 : -0.5) * buckle; b[k + '_lower'].rotation.x = (k[0] === 'f' ? -0.6 : 0.6) * buckle; }
+    for (const k of ['fl', 'fr', 'bl', 'br']) { b[k + '_upper'].rotation.x = (k[0] === 'f' ? 0.15 : -0.15) * buckle; b[k + '_lower'].rotation.x = (k[0] === 'f' ? -0.3 : 0.3) * buckle; }
     B.body.position.y = -0.25 * buckle + 0.1 * roll; B.body.rotation.z = 1.45 * roll; B.body.position.x = -0.55 * roll;
     b.neck.rotation.x = 0.3 * drop; b.head.rotation.z = -0.3 * drop; b.jaw.rotation.x = 0.05 + 0.25 * drop;
     b.tail.rotation.y = 0;

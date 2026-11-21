@@ -18,7 +18,7 @@ export function pose(B, move, u, t, step = 0) {
   if (move === 'idle') return;
   if (move === 'walk') {
     const s = Math.sin(step);
-    b.l_thigh.rotation.x = -0.12 * s; b.r_thigh.rotation.x = 0.12 * s;     // a waddle: its body reaches nearly to the ground, so
+    b.l_thigh.rotation.x = -0.09 * s; b.r_thigh.rotation.x = 0.09 * s;     // a waddle: its body reaches nearly to the ground, so
     b.hips.rotation.z = 0.14 * s;     // the legs swing a little under it and the whole of it rocks b.head.rotation.z += -0.12 * s; B.body.position.y = 0.012 * Math.abs(Math.cos(step));
     b.r_arm.rotation.x = 0.3 * s; b.l_arm.rotation.x = -0.3 * s;
     return;

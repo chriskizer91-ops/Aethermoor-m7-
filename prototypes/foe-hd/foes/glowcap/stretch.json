@@ -27,8 +27,8 @@
   },
   "walk": {
    "ok": true,
-   "worst": 1.264,
-   "part": "hips",
+   "worst": 1.257,
+   "part": "hips > r_thigh",
    "limit": 1.3,
    "at": {
     "u": 0,
@@ -36,11 +36,11 @@
     "step": 4.71
    },
    "where": [
-    -0.005,
-    -0.132,
-    0.135
+    -0.058,
+    -0.118,
+    0.121
    ],
-   "restEdge": 0.0029,
+   "restEdge": 0.0099,
    "trianglesOver": 0,
    "framesOver": "0/48",
    "bones": []

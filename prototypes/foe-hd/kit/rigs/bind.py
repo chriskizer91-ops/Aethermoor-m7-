@@ -17,7 +17,8 @@
 #      A limb's first bone takes no point farther from it than 1.8 times the thickness of the limb's next bone (a
 #      wide body's belly is nearer a leg bone than the spine, but it isn't leg).
 #   4. Where two limbs merely touch in the sculpt (two boots, a hand on a thigh, a beard on a leg), the light mesh is
-#      joined across them; those few triangles are cut (parts more than one joint apart, neither in the trunk).
+#      joined across them; those few triangles are cut (parts more than one joint apart, neither in the trunk; never
+#      trunk against limb, which would open holes in the flank).
 #      TRUNK: the bones down the middle (default: the root and the bones the limbs branch from); a rig may set it.
 #   5. Each joint blends its two parts in a band of half-width w across the joint, and only within a ball of radius R
 #      round it (w and R from the thickness of the limb; a rig may set BANDS = {bone: w or (w, R)}).
@@ -103,9 +104,14 @@ def bind(RIG, P, kind, tris, height, mid, log=print):
     L = np.maximum(np.linalg.norm(T - H, axis=1), 1e-6); Dn = (T - H) / L[:, None]
 
     # weld the points split at UV seams, and join them by the triangles' edges
-    q = np.round(np.asarray(P, np.float64) / (height * 2e-4)).astype(np.int64)
-    _, first, wid = np.unique(q, axis=0, return_index=True, return_inverse=True)
-    wid = wid.ravel(); nw = len(first)
+    # (points closer than 0.05% of the height are one point: by distance, not by rounding, so no two near points
+    # land in different cells and get different weights)
+    from scipy.spatial import cKDTree
+    Pf = np.asarray(P, np.float64)
+    pairs = cKDTree(Pf).query_pairs(height * 5e-4, output_type='ndarray')
+    G = coo_matrix((np.ones(len(pairs)), (pairs[:, 0], pairs[:, 1])), shape=(len(Pf), len(Pf)))
+    nw, wid = connected_components(G, directed=False)
+    first = np.full(nw, -1); first[wid[::-1]] = np.arange(len(Pf))[::-1]
     Pw = np.asarray(P, np.float64)[first]; Kw = np.asarray(kind)[first]
     E = wid[np.concatenate([tris[:, [0, 1]], tris[:, [1, 2]], tris[:, [2, 0]]])]
     E = E[E[:, 0] != E[:, 1]]
@@ -196,9 +202,9 @@ def bind(RIG, P, kind, tris, height, mid, log=print):
         else: w[idx[n]] = v; R[idx[n]] = 1.6 * r[idx[n]] + v
     Wd = np.zeros((nw, nb))
 
-    def share(b, X):                                 # how much of a point lies past joint b (into bone b)
+    def share(b, X):                                 # where a point lies across joint b: s along bone b, and near it
         s = (X - H[b]) @ Dn[b]; d = np.linalg.norm(X - H[b], axis=1)
-        return sstep(-w[b], w[b], s), 1 - sstep(R[b], 1.5 * R[b], d)
+        return s, 1 - sstep(R[b], 1.5 * R[b], d)
 
     # a bone whose part is only separate pieces (leaf arms, a held thing) shares no joint band with the skin
     skin = np.array([(free & (lab == b)).any() for b in range(nb)])
@@ -209,24 +215,27 @@ def bind(RIG, P, kind, tris, height, mid, log=print):
         own = np.ones(len(ii)); blend = free[ii]
         if par[b] >= 0 and skin[par[b]]:
             f, near = share(b, X)
-            mp = np.where(blend, (1 - f) * near, 0.0)
+            mp = np.where(blend & seen[ii, par[b]], (1 - sstep(-w[b], w[b], f)) * near, 0.0)
             Wd[ii, par[b]] += mp; own -= mp
         for c in kids[b]:
             if not skin[c]: continue
             f, near = share(c, X)
-            g = np.where(blend, f * near, 0.0)
+            # from a child only near the child bone itself, not merely near its joint (so a face in front of the
+            # jaw's hinge stays head)
+            dc = seg_dist(X, H[c], T[c]); nc = 1 - sstep(1.6 * r[c] + w[c], 2.4 * r[c] + w[c], dc)
+            g = np.where(blend & seen[ii, c], sstep(-w[c], w[c], f) * near * nc, 0.0)     # and only a bone it can see
             Wd[ii, c] += own * g; own *= 1 - g
         Wd[ii, b] += own
 
-    # cut where parts merely touch (by the bone that moves each point most): parts three or more joints apart, or two
-    # apart when neither is in the trunk (two boots, a hand on a thigh, a skirt of fur on a lower leg)
+    # cut where limbs merely touch (by the bone that moves each point most): two limbs, neither in the trunk, more than
+    # one joint apart (two boots, a hand on a thigh, a beard on a leg). Never trunk against limb: that leaves holes.
     main = np.argmax(Wd, 1)
     lt = main[wid][tris]
     cut = np.zeros(len(tris), bool)
     for e in range(3):
         a, b = lt[:, e], lt[:, (e + 1) % 3]
         dif = np.flatnonzero(a != b)
-        far = np.array([(lambda j: j >= 3 or (j >= 2 and x not in trunk and y not in trunk))(apart(x, y))
+        far = np.array([apart(x, y) >= 2 and x not in trunk and y not in trunk
                         for x, y in zip(a[dif], b[dif])], bool)
         cut[dif[far]] = True
     if cut.any(): log(f'cut {int(cut.sum())} triangles where parts touch')

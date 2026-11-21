@@ -15,7 +15,7 @@ def weigh(D, P, idx):
         D[:, idx[n]] += 10.0          # the arms are their leaves only (part() below); the body's skin never follows them
     for n in ('r_thigh', 'r_foot', 'l_thigh', 'l_foot'):
         D[:, idx[n]] *= np.where(z > 0.12, 4.0, 1.0)
-        D[:, idx[n]] += np.where(np.sign(x) != (1 if n[0] == 'r' else -1), 1.0, 0.0)
+        D[:, idx[n]] += np.where(np.sign(x) != (1 if n[0] == 'r' else -1), 1000.0, 0.0)     # never the other side
     return D
 
 # weights by part (kit/rigs/bind.py, November 21)
