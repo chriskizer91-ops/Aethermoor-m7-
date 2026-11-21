@@ -49,7 +49,7 @@
   1024 px; the page is 14.6 MB. `?foes=hd` starts there.
 - On phones the three who follow the leader are Models' lite heroes (two draws each).
 
-## Step 3 (in progress)
+## Step 3
 
 - **Every Act One fight**: https://claude.ai/artifact/Q9T8quXCTVgiVUZoMuUaP4 (14.2 MB). The **Fights** button lists all
   28 of Act One's fights, each from M7's own map data (where the foes stand, which way they face, the party's level);
@@ -64,7 +64,26 @@
 - **The Legend Strike close-up** (`?surge=100`): the camera cuts in on the hero; the foes' plates step aside.
 - **Phone frame rate**: each figure's pieces on one joint with one material are drawn as one; a phone fight is 152
   draws (was 278).
-- **Headless proof** (`battle/check-all.mjs`, with the test-only `?fast=1`): results below as they come.
+- **Fights across Aethermoor**: https://claude.ai/artifact/RLrMg73EPUxGCHRaQXfAZS (14.9 MB): the Acts Two and Three
+  fights that show the rest of M7's tricks (Fights list, `?enc=`).
+- **Headless proof** (`battle/check-all.mjs`, Auto, test-only `?fast=1`): **all 28 Act One fights and 13 more** played
+  to their end with no page errors (wins and losses are M7's own Auto at the region's level). Each event seen on a
+  real fight:
+
+  | M7 event or status | Seen in |
+  |---|---|
+  | swallow (held: "Held under", "In the river") | the Rime-Abbot, the Blackwater Leviathan |
+  | burrowing / the Leviathan's dive | Kharzul / the Blackwater Leviathan |
+  | charm | the Wisp-Queen, the Lantern-Mother |
+  | summons / Twinned split | Briarmaw, the druids' circle, the Rotwarden, the Rime-Abbot / the road's pack with `?omen=twinned` |
+  | a guest ally | Tamsin against the Unsmith (also his Stolen Arts, Unmade) |
+  | a duel | Tamsin's duel in the Eldergrove (lost: M7's yield) |
+  | the toll | the road with `?toll=1` ("the toll is due", the foe loses a turn) |
+  | Hexed, Rotting / Burning, Bleeding | the bog-hags of Grue Hollow / almost every fight |
+  | phases, disarms, escapes, revives, Legend Strikes | Briarmaw, Kharzul, the Rotwarden, Old Snag and others |
+  | the cameras indoors | the Great Hall, Mosswatch's stair and lantern room, the Heartroot (fight and spoils) |
+
+- Not proven by Auto: the Sand Wyrm's and the Thunder-Roc's swallows (their charge never landed in those runs).
 
 ## For Together: starting a fight from outside
 

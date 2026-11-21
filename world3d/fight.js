@@ -75,6 +75,8 @@ window.addEventListener('DOMContentLoaded', () => { main().catch((e) => { consol
 async function main() {
   const $ = (id) => document.getElementById(id);
   const H = window.M7_HEROES, PL = window.W3D_PLACES, W3D = window.W3D;
+  // a page without Thornhollow starts on the first fight whose place it carries
+  if (!PL[SC.place]) SC = encScene(Object.keys(ENC_AT).find((id) => PL['m7-' + ENC_AT[id].map.id])) || SC;
   // a phone (a touch screen with no mouse) gets the lighter heroes and foes; ?quality=phone|high forces either (as the walk does)
   const QP = (location.search.match(/[?&]quality=(high|phone)/) || [])[1];
   const PHONE = QP ? QP === 'phone' : matchMedia('(pointer: coarse)').matches && !matchMedia('(any-pointer: fine)').matches;
