@@ -15,3 +15,22 @@ def four(D):
     top = np.argsort(-W, 1)[:, :4]
     Wt = np.take_along_axis(W, top, 1); Wt /= Wt.sum(1, keepdims=True)
     return top.astype(np.uint16), Wt.astype(np.float32)
+
+# Helper joints (session 7's proposal, November 21): a helper bone sits between a bone and its parent and turns a share
+# of that bone's turn, so the joint's volume is kept (the top of a shoulder doesn't fold, a throat doesn't web). The
+# moves never touch helpers: the loader (kit/js/loader.js applyHelpers) gives each helper its share of its one child's
+# turn after every pose, and takes it off the child, so the limb ends where the move put it.
+HELPER_SHARE = {'_blade': 0.5, '_haunch': 0.5, '_shoulder': 0.35, '_hip': 0.3, 'neck_base': 0.5, 'tail_root': 0.25}
+
+def helpers_for(BONES, given=None):
+    """[[helper, its child (the driver), share], ...]: the rig's HELPERS ({helper: share}) or, by name, any bone ending
+    _blade, _haunch, _shoulder, _hip, or named neck_base, tail_root, that has exactly one child"""
+    kids = {}
+    for n, par, *_ in BONES: kids.setdefault(par, []).append(n)
+    out = []
+    for n, *_ in BONES:
+        share = (given or {}).get(n)
+        if share is None:
+            share = next((v for k, v in HELPER_SHARE.items() if n == k or (k.startswith('_') and n.endswith(k))), None)
+        if share is not None and len(kids.get(n, [])) == 1: out.append([n, kids[n][0], share])
+    return out
