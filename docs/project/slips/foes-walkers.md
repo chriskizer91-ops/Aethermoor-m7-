@@ -70,6 +70,18 @@ triangles; the sapwight's neck and elbows bend less.
   goes on a page only when he passes.
 - The laptop sculpt page still shows the earlier sculpts; to be refreshed.
 
+## The Rotwarden's named moves for the Fight (done)
+
+All the moves the Fight's table asks of him by name, each from M7's own words for it, each passing the stretch check
+(full and phone): rootlash, bark-hide, graft, blacken, grasping-roots, ichor-tide, heartroot-bloom, ichor-rain,
+devour, unmaking, grief, plus breathe, walk, hit and fall. They're in `pages/walkers/foes.js` under those keys; the kit
+gets them through `walker.js movesFor()` (asked of session 6: register() to use it for plan 'walker').
+
+## In the kit's standard asset form (done)
+
+Both walkers' assets are also in the kit's form (color-N, normal-N, ao-1024, orm-1024, emit-256, light.json with key,
+plan 'walker' and height; foe.json), written by `pages/walkers/kit/standard.py` at the end of each make.sh.
+
 ## Phone versions (done)
 
 - Each walker now also has a phone version, baked from the same sculpt with fewer triangles and smaller pictures
