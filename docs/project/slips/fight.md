@@ -114,6 +114,25 @@
 - Published to the same links: the fight page, Act One (15.6 million bytes at 400 px world textures, with the full-detail foes; its
   painted look carries the three most-met beasts), and the events page.
 
+## Step 5 (in progress): the Champions' own moves
+
+- `world3d/battle/champions.js`: a table keyed by foe and move id, `{ move, start, land, camera }`, each built from
+  M7's own words for the move. The move is the foe's own of that name where its lane made one (a list of choices,
+  the first it has), else the kit's common one; `start` and `land` are its effects (thorns flying, roots bursting from
+  the ground under each hero, bramble knitting round the body, the crown's pulse, slashes and blood); `camera` is
+  `close` (in on the foe) or `wide` (back and up over the whole field) for the big ones.
+- **Briarmaw: all eight moves proven** in headless fights (`battle/check-moves.mjs`, a still as each starts and as it
+  lands): Maul, Thorn Volley, Call the Briars (close), Fang Rake, Bramble Wall, Rootquake (wide, the stage shakes),
+  Devour (close; needs `?land=1` and a strong party, `?level=12`, to reach his third phase), Thornstorm (wide).
+  The test mode draws a few frames a second, so the stills show the cameras and the moves more clearly than the
+  thorns and roots.
+- **The Rotwarden: all eleven moves are in the table** (Rootlash, Bark Hide, Graft, Blacken the Sap, Grasping
+  Roots, Ichor Tide, Heartroot Bloom, Ichor Rain, Devour, Unmaking, Grief). They play on his sculpted model now; his
+  full-detail model joins when session 8 saves him in the kit's standard form.
+- **For session 8** (Foes: walkers): the table asks the Rotwarden for his own moves by these names: `rootlash`,
+  `bark-hide`, `graft`, `blacken`, `grasping-roots`, `ichor-tide`, `heartroot-bloom`, `ichor-rain`, `devour`,
+  `unmaking`, `grief` (each falls back to a common move until it exists).
+
 ## For Together: starting a fight from outside
 
 `world3d/battle/run.js` exports one function. It pauses the walk, swings the camera round, plays M7's battle screen

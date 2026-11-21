@@ -20,7 +20,7 @@ export function pose(B, move, u, t, step = 0) {
   reset(B);
   const b = new Proxy(B.bones, { get: (o, k) => o[k] || NOOP }), br = Math.sin(t * 1.8);
   // breathing, and arms a little out from the body
-  b.chest.scale.set(1 + 0.01 * br, 1 + 0.012 * br, 1);
+  b.chest.rotation.x = -0.012 * br;     // breathing: the chest lifts (bones turn, never scale)
   b.head.rotation.y = 0.1 * Math.sin(t * 0.5);
   b.l_upperarm.rotation.z = 0.12; b.r_upperarm.rotation.z = -0.12;
   b.l_forearm.rotation.x = b.r_forearm.rotation.x = -0.25 - 0.03 * br;

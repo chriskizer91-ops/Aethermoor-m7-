@@ -50,6 +50,11 @@ Last updated November 20.
   Begins after the Wilds and the Sunscorch (four Brands, the Council sat twice, level 10) at the Keep's east postern.
   Checked (`game3d/tools/region.mjs ironspire`, 5 of 5): the postern to the Old Bridge, on to Drystone Lea, saved.
 
+- **The Gloomfen** (Act Two's third region): https://claude.ai/artifact/N2iCRiMardtJNbntUoXYsA (15.1 MB; `--act=gloomfen`).
+  Begins after the Wilds, the Sunscorch and the Ironspire (six Brands, the Council sat three times, level 15) at the
+  top of Mossfall's fen stair. Checked (`game3d/tools/region.mjs gloomfen`, 6 of 6, no page errors): down the stair to
+  Murkway, the leech ford and the reed-cutters' chain fought and won, on to Willowmurk, a rest at its fire, saved.
+
 ## Next
 
 - Briarmaw, the spoils and the new creatures as the Fight and Models deliver them (the foes' figures come through

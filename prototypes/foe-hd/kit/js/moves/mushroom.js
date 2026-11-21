@@ -12,7 +12,7 @@ function reset(B) { for (const b of Object.values(B.bones)) { b.rotation.set(0, 
 export function pose(B, move, u, t, step = 0) {
   reset(B);
   const b = new Proxy(B.bones, { get: (o, k) => o[k] || NOOP }), br = Math.sin(t * 2.2);
-  b.body.scale.set(1 + 0.015 * br, 1 - 0.015 * br, 1 + 0.015 * br);
+  b.body.rotation.x = 0.015 * br;     // breathing: a slow nod (bones turn, never scale)
   b.head.rotation.z = 0.05 * Math.sin(t * 1.3); b.head.rotation.x = 0.03 * Math.sin(t * 1.7);
   b.r_arm.rotation.z = -0.1 - 0.05 * br; b.l_arm.rotation.z = 0.1 + 0.05 * br;
   if (move === 'idle') return;
@@ -26,7 +26,7 @@ export function pose(B, move, u, t, step = 0) {
   if (move === 'spores') {
     // it squats, then shakes its cap hard (the spores fly), arms out
     const sq = seg(u, 0, 0.25), shake = seg(u, 0.25, 0.35) * (1 - seg(u, 0.75, 0.9)), back = 1 - seg(u, 0.8, 1);
-    B.body.position.y = -0.03 * sq * back; b.body.scale.set(1 + 0.08 * sq * back, 1 - 0.1 * sq * back, 1 + 0.08 * sq * back);
+    B.body.position.y = -0.03 * sq * back; b.body.rotation.x = 0.18 * sq * back;     // it ducks into the bump (no squash: bones never scale)
     b.head.rotation.z += 0.25 * Math.sin(u * 60) * shake; b.head.rotation.x += -0.2 * shake;
     b.r_arm.rotation.z = -0.1 - 0.9 * shake; b.l_arm.rotation.z = 0.1 + 0.9 * shake;
     return;
