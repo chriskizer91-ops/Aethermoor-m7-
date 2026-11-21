@@ -85,6 +85,12 @@ session 6 made Briarmaw.
   the hind knee in the walk and lunge (1.8-2.0x, the most edges), the throat in the howl (2.1x), the ear roots in the
   bite and hit (1.7-1.9x).
 
+- **One more round on the hind knee** (as the hub asked): a wider knee band took the walk from 132 big edges over
+  1.3x to about 100; the haunch helper's share (tried 0.3, 0.5, 0.65) made little difference; the lunge stays at
+  about 410 (2.0x). Stopped there, as the hub said. The cause, as session 6 found on Briarmaw: his hind legs are
+  sculpted tucked into the haunches, so they can't swing without dragging the body. Next time round: re-pose his hind
+  legs clear of the body in the sculpt and bake again.
+
 ## Next
 
 0. Move onto session 6's shared kit (commit f384b7d / 8f3b6e2 on job/foe-hd) once the hub brings it into its branch; my

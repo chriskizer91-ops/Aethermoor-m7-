@@ -162,5 +162,6 @@ def rigid(kind, P, idx):
 BANDS = {k + p: ((0.085, 0.21) if p == '_lower' else (0.03, 0.08) if p in ('_paw', '_foot') else (0.03, 0.12))
          for k in ('fl', 'fr', 'bl', 'br') for p in ('_upper', '_lower', '_foot', '_paw')}
 BANDS.update({'ear_l': (0.03, 0.06), 'ear_r': (0.03, 0.06)})
+BANDS.update({'bl_lower': (0.12, 0.28), 'br_lower': (0.12, 0.28), 'bl_upper': (0.05, 0.16), 'br_upper': (0.05, 0.16)})   # the hind knee, wider
 SPLIT = [('head', 'jaw')]          # the mouth cut along the lips (the kit's bind), so the jaw opens without dragging the cheeks
 
