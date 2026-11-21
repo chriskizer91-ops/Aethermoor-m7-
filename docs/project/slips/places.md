@@ -87,12 +87,14 @@
 
   | Page | Phone detail: median (heaviest) | Laptop detail: median (heaviest) | The place alone, phone / laptop (median) |
   |---|---|---|---|
-  | Act One | 36 calls, 132k tris (Mossfall 69, 160k) | 108, 232k (Thornway 336, 570k) | 28, 86k / 47, 78k |
-  | Sunscorch | 24, 84k (Miragewell 30, 81k) | 78, 174k (Dust Trail 182, 267k) | 16, 36k / 27, 32k |
-  | Ironspire | 30, 103k (Old Bridge 49, 155k) | 114, 227k (Shrinewood 223, 472k) | 22, 56k / 43, 52k |
-  | Gloomfen | 36, 132k (Willowmurk 67, 201k) | 102, 244k (Long Boardwalk 196, 311k) | 28, 84k / 53, 96k |
-  | Act Three | 21, 78k (Worldforge 24, 99k) | 98, 200k (Ash Stair 177, 260k) | 12, 31k / 19, 26k |
+  | Act One | 36 calls, 135k tris (Hearth Road 61, 226k) | 95 calls, 263k tris (Hearth Road 271, 550k) | 28, 86k / 32, 102k |
+  | Sunscorch | 24 calls, 86k tris (Miragewell 29, 83k) | 75 calls, 178k tris (Dust Trail 180, 281k) | 16, 36k / 20, 34k |
+  | Ironspire | 30 calls, 105k tris (Old Bridge 47, 157k) | 112 calls, 232k tris (Iron Stair 193, 307k) | 22, 56k / 34, 57k |
+  | Gloomfen | 35 calls, 138k tris (Willowmurk 63, 205k) | 88 calls, 260k tris (Long Boardwalk 188, 319k) | 27, 88k / 36, 112k |
+  | Act Three | 21 calls, 80k tris (Worldforge 24, 101k) | 96 calls, 205k tris (Ash Stair 178, 272k) | 12, 31k / 14, 27k |
 
+  On laptop detail the trees go in 40 m batches and the ground in 48-cell patches (the Thornway's place alone 179 -> 95
+  calls, the Hindwood's 98 -> 63, the Hearth Road's 143 -> 112; some more triangles, which a laptop carries easily).
   On phone detail the trees are drawn in 48 m batches and the ground in 64-cell patches (`place.treePatch`,
   `place.groundPatch`, engine additive): the Hearth Road's place alone went from 99 to 54 calls, and the Thornway's from
   86 to 47. The cost is some 10-30k more triangles, since bigger batches are culled less finely. All of a place's
