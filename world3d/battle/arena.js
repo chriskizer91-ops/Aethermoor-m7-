@@ -121,14 +121,17 @@ export const arena = {
   momentCam(F, kind, dur = 2.4) {
     if (this.reduced || !this.want) return;
     const at = F.pos.clone().setY(F.pos.y + F.size.h * 0.6), P = this.W.P;
-    const clear = (p, q) => { try { return P.sight.hit(p.x, p.y, p.z, q.x, q.y, q.z) > 0.97; } catch (e) { return true; } };
+    // a clear line to the foe, from over open ground (not inside a wall or a tree the sight test can't see into)
+    const open = (p) => { try { return P.walkable(P.M.px(p.x), P.M.py(p.z)); } catch (e) { return true; } };
+    const clear = (p, q) => { try { return open(p) && P.sight.hit(p.x, p.y, p.z, q.x, q.y, q.z) > 0.97; } catch (e) { return true; } };
     let pos = null, look = at;
     if (kind === 'close') {
       // a charge at one hero: frame the ground between them (the foe crosses it) from a little further back
       const tg = F.act && !F.act.self && F.act.target && this.heroes.get(F.act.target);
       if (tg) at.lerp(tg.pos.clone().setY(at.y), 0.4);
       const back = V3(-this.dir.x, 0, -this.dir.z), side = V3(this.dir.z, 0, -this.dir.x), r = Math.max(4.5, F.size.h * 3.4 + F.size.d * 1.3) * (tg ? 1.35 : 1);
-      for (const sd of [1, -1, 0.4, -0.4]) { const p = at.clone().addScaledVector(back, r).addScaledVector(side, sd * r * 0.6); p.y = F.pos.y + F.size.h * 1.1 + 0.9; pos = pos || p; if (clear(p, at)) { pos = p; break; } }
+      // (a charge: well round to the side, so the hero it's aimed at doesn't stand in the way)
+      for (const sd of tg ? [1.7, -1.7, 1.2, -1.2, 1, -1, 0.4, -0.4] : [1, -1, 0.4, -0.4]) { const p = at.clone().addScaledVector(back, r).addScaledVector(side, sd * r * 0.6); p.y = F.pos.y + F.size.h * 1.1 + 0.9; pos = pos || p; if (clear(p, at)) { pos = p; break; } }
     } else {
       // wide: straight back and a little up along the fight camera's own line, so the party stays at the bottom and the
       // foes in the stage's open upper part, only more of the field round them
