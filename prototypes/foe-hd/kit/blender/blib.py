@@ -49,7 +49,7 @@ def vcol_material(name='sculpt', skin=None, skin_mix=0.35, rough=0.75):
     eq = N.new('ShaderNodeMath'); eq.operation = 'COMPARE'; eq.inputs[1].default_value = 7; eq.inputs[2].default_value = 0.5
     L.new(ka.outputs['Fac'], eq.inputs[0])
     L.new(attr.outputs['Color'], bsdf.inputs['Emission Color'])
-    em = N.new('ShaderNodeMath'); em.operation = 'MULTIPLY'; em.inputs[1].default_value = 6.0
+    em = N.new('ShaderNodeMath'); em.operation = 'MULTIPLY'; em.inputs[1].default_value = 2.5
     L.new(eq.outputs['Value'], em.inputs[0]); L.new(em.outputs['Value'], bsdf.inputs['Emission Strength'])
     return m
 
