@@ -131,6 +131,9 @@ export const arena = {
       pos = this.want.pos.clone().addScaledVector(this.dir, -3.5); pos.y += 3.2;
       if (!clear(pos, look)) pos = this.want.pos.clone().setY(this.want.pos.y + 2.5);
     }
+    // close in: the foe stands in the stage's open upper part, not behind the turn strip across the screen's middle
+    // (aimed a little under it: about 8 degrees, so it sits some 190 px above the middle of a phone's 844)
+    if (kind === 'close') { look = at.clone(); look.y -= pos.distanceTo(at) * 0.146; }
     const q = new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().lookAt(pos, look, UP));
     this.close = { t: 0, dur, pos, q, fov: kind === 'close' ? 36 : this.want.fov + 6 };
     if (kind === 'close') this.stage?.host.classList.add('f3-close');
@@ -390,6 +393,8 @@ export const arena = {
     F.act = { kind: 'attack', t: 0, target: h ? h.id : null, bit: false, bitT: null, self, moment: M,
       kmove: (M && F.fig.beast?.pose && ownMove(F, M.move)) || kitMove(F, it.move || it.name || '', self) };
     if (M) { try { M.start?.(this.momentCtx(F)); } catch (e) { console.warn(e); } if (M.camera) this.momentCam(F, M.camera); }
+    // headless stills only (check-moves --slow): told as a big move begins, so the clock can be held from its first frame
+    if (M && this.onMoment) try { this.onMoment(F, unit, it); } catch (e) { console.warn(e); }
   },
   foeHurt(id, big) { const F = this.foes.get(id); if (F && !F.ko) { F.hurt = { t: 0, dur: F.fig.beast?.pose ? Math.min(0.9, kitDur(F, 'hurt')) : big ? 0.5 : 0.36 }; F.fig.beast?.hit?.(); } },
   foeKo(id) { const F = this.foes.get(id); if (!F) return; F.ko = { t: 0, dur: 0.6 }; F.act = null; },

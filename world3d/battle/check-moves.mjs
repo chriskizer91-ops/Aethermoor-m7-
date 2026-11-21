@@ -20,7 +20,7 @@ await p.addInitScript(() => {
   globalThis.__btHooks = { log() {}, peak(ev) {
     // the blow of a move just seen landing (its first damage or status): a second still, as its effects show
     if (window.__landing && (ev.t === 'damage' || ev.t === 'status')) { const n = window.__landing; window.__landing = null; window.__land = n; return new Promise((r) => { window.__wait = r; }); }
-    if (ev.t !== 'move' || !ev.name || window.__moves.includes(ev.name)) return null;
+    if (ev.t !== 'move' || !ev.name || window.__moves.includes(ev.name)) { if (ev.t === 'move' && window.__fight?.arena) window.__fight.arena.manual = false; return null; }
     const u = window.__fight?.battle?.units?.[ev.actor]; if (u && u.side !== 'foe') return null;
     window.__moves.push(ev.name); window.__landing = ev.name; return new Promise((r) => { window.__wait = r; });
   } };
@@ -28,6 +28,8 @@ await p.addInitScript(() => {
 await p.goto('file://' + path.resolve(page) + '?' + q, { timeout: 180000 });
 await p.waitForFunction(() => window.__ready, null, { timeout: 180000 });
 let shot = 0;
+// slow mode: the arena tells us as each big move begins; one not yet seen holds the clock from its very first frame
+if (SLOW) await p.evaluate(() => { const seen = new Set(); window.__fight.arena.onMoment = (F, unit, it) => { const k = it.name || it.move; if (seen.has(k)) return; seen.add(k); window.__fight.arena.manual = true; }; });
 for (;;) {
   const s = await p.waitForFunction(() => (window.__wait && 'move') || (window.__fight.result && 'end'), null, { polling: 300, timeout: 1800000 }).then((h) => h.jsonValue()).catch(() => 'timeout');
   if (s !== 'move') break;
@@ -37,9 +39,9 @@ for (;;) {
     // slow mode: the arena's clock held and stepped by hand, a still at the move's start and one at its landing peak
     const name = await p.evaluate(() => window.__moves[window.__moves.length - 1]);
     const tag = `${String(++shot).padStart(2, '0')}-${name.replace(/[^\w]+/g, '-')}`;
-    await p.evaluate(() => { const a = window.__fight.arena; a.manual = true; a.stepBy(0.55); });
+    await p.evaluate(() => { const a = window.__fight.arena; a.manual = true; a.stepBy(0.6); });
     await p.screenshot({ path: path.join(out, `${tag}-a.png`) });
-    await p.evaluate(() => { const a = window.__fight.arena, F = a.movingFoe(); if (F) { F.act.bit = true; F.act.bitT = F.act.t; a.landed(F); } a.stepBy(0.45); });
+    await p.evaluate(() => { const a = window.__fight.arena, F = a.movingFoe(); if (F) { F.act.bit = true; F.act.bitT = F.act.t; a.landed(F); } a.stepBy(0.4); });
     await p.screenshot({ path: path.join(out, `${tag}-b.png`) });
     await p.evaluate(() => { window.__fight.arena.manual = false; window.__landing = null; const r = window.__wait; window.__wait = null; r && r(); });
     continue;
