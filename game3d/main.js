@@ -21,19 +21,22 @@ import { createAudio } from '../game/src/core/audio.js';
 import { createInput } from '../game/src/core/input.js';
 import { migrate } from '../game/src/rules/migrate.js';
 import { newGame } from '../game/src/rules/gauntlet.js';
+import { grantXp, xpForLevel } from '../game/src/rules/progression.js';
+import { deriveHero } from '../game/src/rules/stats.js';
+import { createRng } from '../game/src/core/rng.js';
 import * as aftermath from '../game/src/ui/screens/aftermath.js';
 import * as partyScreen from '../game/src/ui/screens/party.js';
 import * as journal from '../game/src/ui/screens/journal.js';
 import * as codex from '../game/src/ui/screens/codex.js';
 import * as newgame from '../game/src/ui/screens/newgame.js';
 import * as settingsScreen from '../game/src/ui/screens/settings.js';
-import * as atlasScreen from '../game/src/ui/screens/atlas.js';
 import { travel } from '../game/src/rules/gauntlet.js';
 import { HEARTHS } from '../game/src/data/world.js';
 import { arena } from '../world3d/battle/arena.js';
 import { runFight } from '../world3d/battle/run.js';
 import { loadLive, hasLive, saveLive, backupLive, clearLive, readM7, loadSettings, saveSettings } from './save.js';
 import { createWorld, gearFor } from './walk.js';
+import { setFoeLook, LOOKS, hdFoes } from './figures.js';
 import { openParty } from '../world3d/battle/party-room.js';
 
 const Q = new URLSearchParams(location.search);
@@ -42,7 +45,7 @@ window.addEventListener('DOMContentLoaded', () => { main().catch((e) => { consol
 
 const DEFAULTS = { sound: true, music: true, battleSpeed: Number(Q.get('speed')) || 1, reducedMotion: false, touchControls: 'auto', alwaysRun: false, mapZoom: 'normal' };
 // M7's screens that lie over the 3D (the walk waits under them)
-const SCREENS = { aftermath, party: partyScreen, journal, codex, newgame, settings: settingsScreen, atlas: atlasScreen };
+const SCREENS = { aftermath, party: partyScreen, journal, codex, newgame, settings: settingsScreen };
 
 async function main() {
   const $ = (id) => document.getElementById(id);
@@ -116,6 +119,7 @@ async function main() {
 
   // ---- the walk ----
   async function startWorld() {
+    window.__g3.foeLook = { look: await setFoeLook(LOOKS.includes(Q.get('foes')) ? Q.get('foes') : 'hd'), full: hdFoes() };
     $('title').hidden = true;
     world = createWorld({
       ctx, places: window.W3D_PLACES, heroes: window.M7_HEROES, phone: PHONE, toast,
@@ -207,15 +211,45 @@ async function main() {
     const b = (label, sub, fn, cls = '') => { const x = document.createElement('button'); x.className = 'g3-big ' + cls; x.innerHTML = label + (sub ? `<small>${sub}</small>` : ''); x.onclick = fn; box.append(x); return x; };
     const live = hasLive() ? loadLive() : null;
     const m7 = readM7();
+    // a page without the Wilds (the Sunscorch's): a journey can begin where this page does, or come by its save code
+    const PL = window.W3D_PLACES || {}, here = (m) => !!PL['m7-' + m];
+    const actTwo = !here('thornhollow') && here('sun-road');
     const begin = () => { T.hidden = true; if (world) { world.start(); } else { $('load').style.display = 'grid'; $('load').style.opacity = 1; startWorld(); } };
-    if (live) b('Go on', `${live.party.roster[live.party.active[0]]?.name || 'The party'} · day ${live.progress.flags.day || 1}`, () => { game = live; held = false; begin(); }, 'primary');
-    b('A new journey', 'The prologue, then the Great Hall', () => { T.hidden = true; go('newgame', {}); }, live ? '' : 'primary');
+    if (live && !here(live.progress.pos?.map)) {
+      b('Go on (from the Keep)', `${live.party.roster[live.party.active[0]]?.name || 'The party'} · day ${live.progress.flags.day || 1}. Where you stood isn't on this page; you start in the Great Hall.`, () => { game = live; held = false; begin(); }, 'primary');
+    } else if (live) b('Go on', `${live.party.roster[live.party.active[0]]?.name || 'The party'} · day ${live.progress.flags.day || 1}`, () => { game = live; held = false; begin(); }, 'primary');
+    if (actTwo) {
+      b('Begin at the Sunscorch', 'Act One done (both Brands of the Wilds, the Council sat), the party at level 8, at the Keep\'s south-east gate', () => { backupLive(); game = actTwoStart(); held = false; saveLive(game); begin(); }, live ? '' : 'primary');
+      b('Bring a journey by its save code', 'From the Act One page: Menu, Settings, copy the code; paste it here in Settings', () => { T.hidden = true; go('settings', { from: 'title' }); });
+    } else b('A new journey', 'The prologue, then the Great Hall', () => { T.hidden = true; go('newgame', {}); }, live ? '' : 'primary');
     if (m7) b('Bring the party from the 2D game', `Your M7 save, read only: ${m7.party.roster[m7.party.active[0]]?.name || 'the party'}, day ${m7.progress.flags.day || 1}. The 2D game's save is never changed.`, () => { backupLive(); game = structuredClone(m7); held = true; begin(); });
     window.__ready = true;
   }
 
+  // the journey as Act One leaves it, made by M7's own rules: level 8, both Brands of the Wilds, the Council sat, standing
+  // at the Keep's south-east gate (which the end of Act One opens onto the Sun Road)
+  function actTwoStart() {
+    const g = newGame({ name: 'Wren', starter: 'hearthbrand', seed: Number(Q.get('seed')) || 21 });
+    const rng = createRng('sunscorch-start');
+    for (const id of g.party.active) {
+      let h = g.party.roster[id];
+      const need = xpForLevel(8) - (h.xp || 0);
+      if (need > 0) h = grantXp(h, need, rng).hero;
+      const d = deriveHero(h, g.inventory);
+      g.party.roster[id] = { ...h, hp: d.maxHp, mp: d.maxMp };
+    }
+    const f = g.progress.flags;
+    f.story = { ...f.story, 'intro-done': true, 'act1-complete': true, 'council-done': true };
+    for (const enc of ['keep-vault', 'briarmaw-den', 'rotwarden-heart']) { f.done[enc] = true; f.cleared[enc] = true; f.beaten = { ...(f.beaten || {}), [enc]: 1 }; }
+    g.progress.brands = ['brand-of-briars', 'brand-of-the-heartroot'];
+    g.progress.act = 2;
+    g.progress.pos = { map: 'keep', x: 22, y: 22, face: 's' };
+    return g;
+  }
+
   // ?new=1: straight into a new journey (the headless checks)
-  if (Q.get('new') === '1') {
+  if (Q.get('act2') === '1') { clearLive(); game = actTwoStart(); saveLive(game); startWorld(); }
+  else if (Q.get('new') === '1') {
     clearLive();
     game = newGame({ name: Q.get('name') || 'Wren', starter: 'hearthbrand', seed: Number(Q.get('seed')) || 7 });
     saveLive(game);

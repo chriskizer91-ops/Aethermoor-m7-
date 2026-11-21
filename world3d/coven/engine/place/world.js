@@ -221,7 +221,7 @@
       groundGrid = { H, nx, nz, x0, z0, dx, dz };
       const h = (i, j) => H[Math.min(nz, Math.max(0, j)) * (nx + 1) + Math.min(nx, Math.max(0, i))];
       // one patch every 32 cells each way; normals from the heights round each corner, so patches meet without a seam
-      const PC = 32;
+      const PC = place.groundPatch || 32;   // (Aethermoor, Places) a place may ask for bigger ground patches (fewer draws on a phone)
       for (let pj = 0; pj < nz; pj += PC) for (let pi = 0; pi < nx; pi += PC) {
         const ni = Math.min(PC, nx - pi), nj = Math.min(PC, nz - pj), pos = [], nor = [], col = [], uv = [], idx = [];
         for (let j = 0; j <= nj; j++) for (let i = 0; i <= ni; i++) {

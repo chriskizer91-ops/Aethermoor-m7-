@@ -403,12 +403,15 @@ export function createWorld(o) {
       case 'encounter': return encounterFlow(e.id);
       case 'gate': return gateFlow(e);
       case 'lock': return lockFlow(e);
-      case 'trigger': return dialogueFlow(e.dialogue);
+      case 'trigger': {
+        if (leader) { leader.talking = true; if (leader.face) leader.face('talk', 30); }
+        try { return await dialogueFlow(e.dialogue); } finally { if (leader) { leader.talking = false; if (leader.face) leader.face('neutral', 0.1); } }
+      }
       case 'talk': {
         // the one spoken to turns to the party and talks (Models' townsfolk gesture while .talking is true)
         const who = e.npc && [...standing.values()].find((q) => q.e.npc === e.npc);
-        if (who) { who.fig.talking = true; if (leader) { const p = who.fig.root.position, L = leader.root.position; who.fig.root.rotation.y = Math.atan2(L.x - p.x, L.z - p.z); } }
-        try { return await dialogueFlow(e.dialogue, { enc: e.enc }); } finally { if (who) who.fig.talking = false; }
+        if (who) { who.fig.talking = true; if (who.fig.face) who.fig.face('talk', 30); if (leader) { const p = who.fig.root.position, L = leader.root.position; who.fig.root.rotation.y = Math.atan2(L.x - p.x, L.z - p.z); } }
+        try { return await dialogueFlow(e.dialogue, { enc: e.enc }); } finally { if (who) { who.fig.talking = false; if (who.fig.face) who.fig.face('neutral', 0.1); } }
       }
       case 'sign': await openMessage(ctx, { text: e.text }); return null;
       case 'use': return useFlow(e);
@@ -735,7 +738,7 @@ export function createWorld(o) {
 
   async function afterReturn(params, was) {
     const brand = params.brand;
-    if (brand) { await playBrandBanner(ctx, brand, game); if (brand.first !== false && CROWNWALL.open?.brand === brand.id) await playCrownwalls(ctx); }
+    if (brand) { for (const A of [leader, ...followers]) if (A && A.face) A.face('cheer', 4); await playBrandBanner(ctx, brand, game); if (brand.first !== false && CROWNWALL.open?.brand === brand.id) await playCrownwalls(ctx); }
     if (params.rematch) o.toast('A rematch: the Brand is already yours.');
     if (params.wokeAt) o.toast(`You wake at ${HEARTHS[params.wokeAt]?.name || ENCOUNTERS[params.wokeAt]?.name || 'the Hearthfire'}.`);
     const enc = was?.enc || params.enc, res = params.yield ? 'yield' : params.result;

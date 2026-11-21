@@ -30,3 +30,6 @@ body.fighting #world > button, body.fighting #party, body.fighting #toast.hidefi
 #fight.party-room { overflow-y: auto; background: rgba(14, 10, 9, .9); }
 #fight .f3-has-turn > canvas:not(.f3-turn) { display: none; }
 #fight .f3-turn { display: block; margin: 0 auto; touch-action: none; cursor: grab; }
+/* the Legend Strike close-up: the foes' plates and intents step aside while the camera is on the hero */
+#fight .f3-close .bt-foe, #fight .f3-close .f3-marks { opacity: 0; transition: opacity .2s; }
+#fight .bt-foe { transition: opacity .3s; }

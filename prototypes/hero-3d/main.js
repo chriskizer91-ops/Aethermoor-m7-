@@ -16,8 +16,9 @@ import { MAT } from '../../game/src/art/forge.js';
 import { generateItem, relicItem } from '../../game/src/rules/loot.js';
 import { RELICS } from '../../game/src/data/relics.js';
 import { createRng } from '../../game/src/core/rng.js';
-import { buildHero, setPose, glowColor } from './model.js';
+import { buildHero, setPose, glowColor, SWING_ON } from './model.js';
 import { Q, TEXTURES } from './kit.js';
+import { auditList, gearFor, checkBuilt, HERO_NAMES } from './audit.js';
 
 const HEROES = [{ id: 'warden', name: 'Wren' }, { id: 'pip', name: 'Pip' }, { id: 'bryn', name: 'Bryn' }, { id: 'alondra', name: 'Alondra' }];
 const SLOT_NAME = { weapon: 'Weapon', offhand: 'Off hand', head: 'Head', body: 'Body', hands: 'Hands', feet: 'Feet', amulet: 'Amulet', ring: 'Ring' };
@@ -250,6 +251,10 @@ $('b-party').onclick = () => setParty(!S.party);
 $('b-strike').onclick = () => { S.strike = 0; trailPts.length = 0; };
 $('b-detail').onclick = () => { S.detail = S.detail === 'high' ? 'light' : S.detail === 'light' ? 'lite' : 'high'; applyDetail(); rebuild(); };
 window.__party = () => setParty(true);
+// Walk about: walk, run, stop (a dead stop, to watch things swing on and settle), back to the plinth
+S.roam = null; S.roamT = 0; S.step = 0;
+$('b-roam').onclick = () => { S.roam = S.roam === null ? 'walk' : S.roam === 'walk' ? 'run' : S.roam === 'run' ? 'stop' : null; $('b-roam').textContent = { walk: 'Walking', run: 'Running', stop: 'Stopped' }[S.roam] || 'Walk about'; $('b-roam').setAttribute('aria-pressed', !!S.roam);
+  if (!S.roam) { hero.group.position.set(S.party ? SLOT_X[S.hero] : 0, 0, 0); hero.group.rotation.y = 0; } else { S.goal = { c: new THREE.Vector3(0, 0.6, 0), dist: 4.2 }; } };
 // faces that live: step through the expressions (the party makes the same face)
 const FACES_ = ['neutral', 'talk', 'cheer', 'effort', 'hurt', 'worried', 'asleep'], FACE_NAMES = { neutral: 'Face: calm', talk: 'Face: talking', cheer: 'Face: cheer', effort: 'Face: effort', hurt: 'Face: hurt', worried: 'Face: worried', asleep: 'Face: asleep' };
 S.face = 'neutral';
@@ -312,7 +317,15 @@ function loop() {
   if (hero) {
     let u = 0, pose = 'idle';
     if (S.strike >= 0) { S.strike += dt / 0.75; u = Math.min(1, S.strike); pose = 'strike'; if (S.strike >= 1) S.strike = -1; }
-    setPose(hero.rig, pose, t, u);
+    // walking about (to judge what swings): a figure of eight round the plinth, walking, running, then a dead stop
+    if (S.roam) {
+      const run = S.roam === 'run', sp = run ? 1.9 : 0.9;
+      if (S.roam !== 'stop') { S.roamT += dt * sp / 1.6; S.step += dt * (run ? 11 : 7.2); }
+      const a = S.roamT, R0 = 0.75, x = Math.sin(a) * R0, z = Math.sin(2 * a) * R0 * 0.5, dx = Math.cos(a), dz = Math.cos(2 * a);
+      hero.group.position.set(x, 0, z); hero.group.rotation.y = Math.atan2(dx, dz);
+      hero.rig.run = run;
+      if (S.roam === 'stop') setPose(hero.rig, pose === 'strike' ? 'strike' : 'idle', t, u); else setPose(hero.rig, 'walk', t, S.step);
+    } else setPose(hero.rig, pose, t, u);
     for (const o of Object.values(others)) { setPose(o.rig, 'idle', t + o.phase, 0); for (const g of o.fx.glows) if (g.obj?.material && g.obj.material.emissiveIntensity !== undefined) g.obj.material.emissiveIntensity = 1.3 + Math.sin(t * 3 + g.power * 5) * 0.3; }
     hero.group.updateMatrixWorld(true);
     // the weapon's light and its trail
@@ -348,6 +361,70 @@ function loop() {
   spriteT += dt; if (spriteT > 0.31) { spriteT = 0; drawSprite(t); }
   frames++; fpsT += dt; if (fpsT > 1) { $('fps').textContent = `${Math.round(frames / fpsT)} fps · ${Math.round(S.tris / 1000)}k triangles · ${S.meshes} pieces · ${S.calls} draws · built in ${S.lastBuild} ms`; frames = 0; fpsT = 0; }
 }
+/* ------------------------------------------------------------------ the item audit */
+// Every item M7 can roll or hand out, built on the hero it suits and checked (audit.js); a small picture of each is made
+// as it scrolls into view; tap one to put it on the hero above for a close look.
+const AUD = { list: null, filter: 'all', res: new Map(), queue: [], busy: false };
+let tR = null, tScene, tCam;
+function thumbSetup() {
+  tR = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true }); tR.setSize(150, 150); tR.setPixelRatio(1); tR.toneMapping = renderer.toneMapping;
+  tScene = new THREE.Scene(); tScene.environment = new THREE.PMREMGenerator(tR).fromScene(new RoomEnvironment(), 0.04).texture; tScene.environmentIntensity = 0.6;
+  tScene.add(new THREE.HemisphereLight(0xffe8d0, 0x302018, 1.3)); const d = new THREE.DirectionalLight(0xfff0e0, 2.6); d.position.set(1, 2, 2.2); tScene.add(d);
+  tCam = new THREE.PerspectiveCamera(30, 1, 0.005, 30);
+}
+function auditOne(e, picture = true) {
+  const keepQ = Q.d; Q.d = 1; let B, flags;
+  try { B = buildHero(e.hero, gearFor(e), {}); setPose(B.rig, 'idle', 0); flags = checkBuilt(B, e); }
+  catch (err) { Q.d = keepQ; return { flags: [{ level: 'broken', text: 'error building it: ' + err.message }], img: null }; }
+  Q.d = keepQ;
+  let img = null;
+  if (picture) {
+    if (!tR) thumbSetup();
+    const R = B.rig, node = e.slot === 'weapon' ? R.weapon : e.slot === 'offhand' ? R.offhand : e.slot === 'head' ? R.head : e.slot === 'hands' || e.slot === 'ring' ? R.armL.hand : e.slot === 'feet' ? R.legs[0] : e.slot === 'amulet' ? R.chest : null;
+    tScene.add(B.group); B.group.updateMatrixWorld(true);
+    let box = new THREE.Box3().setFromObject(node || B.group); if (box.isEmpty() || e.slot === 'body') box = new THREE.Box3().setFromObject(B.group);
+    if (e.slot === 'amulet') { const c0 = R.head.getWorldPosition(new THREE.Vector3()).add(new THREE.Vector3(0, -0.2, 0.04)); box = new THREE.Box3().setFromCenterAndSize(c0, new THREE.Vector3(0.22, 0.22, 0.22)); }
+    const c = box.getCenter(new THREE.Vector3()), r = Math.max(0.06, box.getSize(new THREE.Vector3()).length() / 2);
+    const dist = r / Math.tan(THREE.MathUtils.degToRad(15)) * 1.05; tCam.position.copy(c).add(new THREE.Vector3(0.32, 0.14, 0.94).normalize().multiplyScalar(dist)); tCam.lookAt(c);
+    tR.render(tScene, tCam); img = tR.domElement.toDataURL('image/webp', 0.82);
+    tScene.remove(B.group);
+  }
+  B.group.traverse(o => o.geometry?.dispose?.());
+  return { flags, img };
+}
+const AF = [['all', 'All'], ['flagged', 'Flagged'], ['weapon', 'Weapons'], ['offhand', 'Off hand'], ['head', 'Head'], ['body', 'Body'], ['hands', 'Hands'], ['feet', 'Feet'], ['jewel', 'Amulets, rings'], ['relic', 'Relics']];
+function auditShown() {
+  return AUD.list.filter(e => AUD.filter === 'all' || (AUD.filter === 'flagged' ? (AUD.res.get(e.key)?.flags.length) : AUD.filter === 'relic' ? e.relic : AUD.filter === 'jewel' ? (e.slot === 'amulet' || e.slot === 'ring') : e.slot === AUD.filter));
+}
+function auditSummary() { const done = [...AUD.res.values()], bad = done.filter(r => r.flags.some(f => f.level === 'broken')).length, warn = done.filter(r => r.flags.length && !r.flags.some(f => f.level === 'broken')).length; $('audit-sum').textContent = `${AUD.list.length} items · ${done.length} checked so far · ${bad} broken · ${warn} to look at · tap one for a close look`; }
+function auditCard(e) {
+  const b = document.createElement('button'); b.className = 'acard'; b.dataset.k = e.key;
+  b.innerHTML = `<div class="ph"></div><span class="an"></span><span class="as"></span><span class="af"></span>`;
+  b.querySelector('.an').textContent = e.label; b.querySelector('.as').textContent = `${e.sub} · on ${HERO_NAMES[e.hero]}`;
+  b.onclick = () => { S.gears[e.hero] = gearFor(e); setHero(e.hero); lookAt(e.slot === 'weapon' ? 'weapon' : e.slot === 'offhand' && hero.rig.offhand ? 'offhand' : e.slot === 'head' ? 'face' : 'whole'); };
+  const fill = r => { const ph = b.querySelector('.ph'); if (r.img && ph.tagName !== 'IMG') { const im = new Image(); im.src = r.img; im.alt = e.label; ph.replaceWith(im); } const af = b.querySelector('.af'); af.innerHTML = r.flags.length ? r.flags.map(f => (f.level === 'broken' ? '<b>' : '<i>') + f.text.replace(/</g, '&lt;') + (f.level === 'broken' ? '</b>' : '</i>')).join('<br>') : '<span class="ok">looks right</span>'; };
+  b._fill = fill; if (AUD.res.has(e.key)) fill(AUD.res.get(e.key)); else { b._entry = e; io.observe(b); }
+  return b;
+}
+const io = new IntersectionObserver(es => { for (const x of es) if (x.isIntersecting) { io.unobserve(x.target); AUD.queue.push(x.target); } pump(); }, { rootMargin: '200px' });
+function pump() {
+  if (AUD.busy || !AUD.queue.length) return; AUD.busy = true;
+  setTimeout(() => { const b = AUD.queue.shift(); const e = b._entry; if (e && !AUD.res.has(e.key)) AUD.res.set(e.key, auditOne(e)); if (e) b._fill(AUD.res.get(e.key)); auditSummary(); AUD.busy = false; pump(); }, 16);
+}
+function drawAudit() {
+  if (!AUD.list) AUD.list = auditList();
+  const fl = $('audit-filters'); fl.innerHTML = '';
+  for (const [k, n] of AF) { const b = document.createElement('button'); b.textContent = n; b.setAttribute('aria-pressed', AUD.filter === k); b.onclick = () => { AUD.filter = k; drawAudit(); }; fl.append(b); }
+  const g = $('audit-grid'); g.innerHTML = ''; io.disconnect(); AUD.queue.length = 0;
+  for (const e of auditShown()) g.append(auditCard(e));
+  auditSummary();
+}
+$('b-audit').onclick = () => { $('auditPanel').hidden = false; $('gearPanel').hidden = true; $('b-audit').hidden = true; drawAudit(); };
+$('b-audit-back').onclick = () => { $('auditPanel').hidden = true; $('gearPanel').hidden = false; $('b-audit').hidden = false; };
+// for checks without pictures (headless): every item, flags only
+window.__audit = { thumbs(from, to) { return window.__audit.list().slice(from, to).map(e => ({ key: e.key, label: e.label, sub: e.sub, img: auditOne(e, true).img })); }, list: () => (AUD.list ||= auditList()), run(from = 0, to = 1e9) { const L = window.__audit.list().slice(from, to); return L.map(e => ({ key: e.key, hero: e.hero, flags: auditOne(e, false).flags })).filter(r => r.flags.length); } };
+// the cost of what swings: setPose n times with and without it (ms per call)
+window.__swingCost = (n = 2000) => { const rig = hero.rig, time = on => { SWING_ON.on = on; const t0 = performance.now(); for (let i = 0; i < n; i++) setPose(rig, 'walk', i / 60, i * 0.12); return (performance.now() - t0) / n; }; const off = time(false), on = time(true); SWING_ON.on = true; return { pieces: rig.danglers.length, off: +off.toFixed(4), on: +on.toFixed(4) }; };
 window.__gear = { renderer, S, rebuild, setHero, rollFor, nextRelic, lookAt: w => lookAt(w), get hero() { return hero; }, camera, controls };
 applyDetail();
 setHero('warden');

@@ -1,25 +1,26 @@
 # The board
 
-Where the 3D game stands. Written by the hub only. Last updated November 20, late evening.
+Where the 3D game stands. Written by the hub only. Last updated November 20, near midnight.
 
 ## The sessions
 
 | # | Job | Session | Branch | State | Latest link |
 |---|---|---|---|---|---|
 | 1 | the hub | `session_01DgbUKb6orvjjc1cMgBGPJK` | `claude/brave-davinci-790efm` | running | (the board) |
-| 2 | The Fight | `session_01DgbUKYR9qmKyBdACUWGViw` | `job/fight` | step 3 under way: cameras keep a clear line indoors (in); any M7 fight from its own map data (`?enc=`, a Fights list); next: every battle event and status in 3D | https://claude.ai/artifact/NpeXL5Pf4RxNfkQsguTnEK |
-| 3 | Models | `session_01DgbUKcWh5MEvjHnxzp4HHo` | `job/models` | faces that live done and brought in (blink, talk, six expressions: `figure.face(expr, seconds)`); next: every item M7 can drop, checked on the heroes and made epic | https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL |
-| 4 | Places | `session_01DgbUKZVFBfm1dVautXEw5f` | `job/places` | step 4 brought in (phones: Act One ~82 draw calls on phone; the paintings on roofs, water, decks, rocks; signposts, chests, pedestals); fixing: roofs over a house's front row show the painted front | https://claude.ai/artifact/MXyu3A9zTjoCavHFKXCbpi |
-| 5 | Together | `session_01DgbUKbyjzZFe1BXHHxzHBn` | `job/together` | the spoils, the Party room and the light figures in the game; an end-of-Act-One run (the Rotwarden, the second Brand, home, the Council) being checked before republishing | https://claude.ai/artifact/RaeSK5hezqb3qH7jmuM5aj |
-| 6 | One Foe | `session_01DgbUKZCNBFY7zwSzwAXR8y` | `job/foe-hd` | Briarmaw's pass 3, then the foes' shared kit (`docs/project/jobs/foes.md`), then the strange ones (wraiths, willows, sparks) | https://claude.ai/artifact/5iUqJsPw3NGrvun4Ng73eh |
-| 7 | Foes: beasts | `session_01DgbUKZ4qEpafSazysExsYV` | `job/foes-beasts` | starting: the thornhound, then Act One's other beasts, in full detail | - |
-| 8 | Foes: walkers | `session_01DgbUKcTDUjKDVHw3sPhu7R` | `job/foes-walkers` | starting: the Rotwarden, then the sapwight, in full detail | - |
+| 2 | The Fight | `session_01DgbUKYR9qmKyBdACUWGViw` | `job/fight` | step 3 nearly done: every Act One fight, indoor cameras, statuses, swallow, guest ally, charm, Legend Strike, Hodge's toll and Twinned splits; the fight page builds again | https://claude.ai/artifact/Q9T8quXCTVgiVUZoMuUaP4 |
+| 3 | Models | `session_01DgbUKcWh5MEvjHnxzp4HHo` | `job/models` | swinging gear in; next: the heroes and people at the full-detail foes' level (sculpted detail baked onto every switchable piece) | https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL |
+| 4 | Places | `session_01DgbUKZVFBfm1dVautXEw5f` | `job/places` | roofs coloured from the commonest hue in the painting, a hall and its wings sharing one colour; the Hearth Road 99 → 54 draw calls on a phone; all brought in, Act One republished (version 9) | https://claude.ai/artifact/GBxRVSqwMwYUTy1xLNjATA |
+| 5 | Together | `session_01DgbUKbyjzZFe1BXHHxzHBn` | `job/together` | Act One playable start to end, with full-detail Briarmaw; **the Sunscorch page** (begin at the Keep's south-east gate, or bring a journey by its save code); next: the Ironspire and the Gloomfen the same way | https://claude.ai/artifact/RaeSK5hezqb3qH7jmuM5aj |
+| 6 | One Foe | `session_01DgbUKZCNBFY7zwSzwAXR8y` | `job/foe-hd` | the kit in; the briarling made with it (589k sculpt → 16,640); forwarding copies fixed the fight's build; next: glowcap, boglurcher, the willows, the sparks, rockling, Mother Anvil, the wraiths | https://claude.ai/artifact/DorMujhAe9d1XNwLGYV4ae |
+| 7 | Foes: beasts | `session_01DgbUKZ4qEpafSazysExsYV` | `job/foes-beasts` | the thornhound brought in (606k sculpt kept as an asset → ~20k); next: onto the kit, then the rotstag, Old Snag, the Mirelord, the rotgrub, the Gloamwing | https://claude.ai/artifact/64Ukg3yQAAb8DWz69xqvxs |
+| 8 | Foes: walkers | `session_01DgbUKcTDUjKDVHw3sPhu7R` | `job/foes-walkers` | the Rotwarden (1.07M sculpt → 47,500) and the sapwight (900k → 19,913) done and brought in, sculpts kept as assets; `walkersLook` for the Fight; next: lighter phone copies, then Old Horn and the rest | https://claude.ai/artifact/YBLUHaLG3bNdfcjBdeq3aj |
 
 ## What's built (on the hub's branch)
 
 | What | Where | Link |
 |---|---|---|
-| **The game: Act One playable in 3D** (title, prologue, walking with M7's rules, fights, chests, rest, the Atlas, its own save) | `game3d/` | https://claude.ai/artifact/RaeSK5hezqb3qH7jmuM5aj |
+| **The game, the Sunscorch** (the Keep and all ten Sunscorch places) | `game3d/` | https://claude.ai/artifact/7dPEGKka7t1FyHF5SSLPAo |
+| **The game: Act One playable start to end in 3D** (prologue, walking with M7's rules, fights and spoils, chests, rest, the party room, the Atlas, the Rotwarden, both Brands, the Council; its own save) | `game3d/` | https://claude.ai/artifact/RaeSK5hezqb3qH7jmuM5aj |
 | Act One's 14 places, from M7's own maps and paintings, by day (a Light switch), the party walking as a group | `world3d/m7/` | https://claude.ai/artifact/GBxRVSqwMwYUTy1xLNjATA |
 | The Sunscorch's 10 places, by day, in Chris's desert textures | `world3d/m7/` | https://claude.ai/artifact/Awn5YJ761bD7rPyp4AkEdf |
 | The Ironspire with the East Road (17 places), in snow, ice, dwarf stone and forge brick | `world3d/m7/` | https://claude.ai/artifact/BPcAuRLL3njp1Q3ZHPTUWQ |
@@ -30,6 +31,12 @@ Where the 3D game stands. Written by the hub only. Last updated November 20, lat
 | The Verdant Wilds (Coven's zone 1, borrowed), the small and big maps, the 3D continent | `world3d/` | https://claude.ai/artifact/R3Ecr7e1VVbb9Qi7GXEPpx |
 | The Gear Room: a hero whose outfit is built from M7's gear, in Chris's 47 textures and the four faces | `prototypes/hero-3d/` | https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL |
 | Briarmaw three ways: code-built, painted, full detail (baked from a sculpt), with a crowd test | `prototypes/foe-hd/` | https://claude.ai/artifact/5iUqJsPw3NGrvun4Ng73eh |
+| Every Act One fight, from M7's own map data (28) | `world3d/battle/` | https://claude.ai/artifact/Q9T8quXCTVgiVUZoMuUaP4 |
+| The briarling, the first foe made with the kit (three ways; its sculpt) | `prototypes/foe-hd/foes/briarling/` | https://claude.ai/artifact/DorMujhAe9d1XNwLGYV4ae · https://claude.ai/artifact/LAjxUMG9Aoj2UPw7DuyHtB |
+| The beasts in full detail: the thornhound (phone gallery; laptop page with the sculpt) | `prototypes/foe-hd/pages/beasts/` | https://claude.ai/artifact/64Ukg3yQAAb8DWz69xqvxs · https://claude.ai/artifact/8pCvG7xuqHuCcARiUYa9SX |
+| The walkers in full detail: the Rotwarden and the sapwight | `prototypes/foe-hd/pages/walkers/` | https://claude.ai/artifact/YBLUHaLG3bNdfcjBdeq3aj |
+| The walkers' sculpts, for a laptop | `prototypes/foe-hd/foes/` | https://claude.ai/artifact/JCdvpAPKT781gZiU49jTh2 |
+| Briarmaw's full sculpt (982,634 triangles) beside his light version, for a laptop | `prototypes/foe-hd/` | https://claude.ai/artifact/AVSmLbEu3jz1NVnohgqT9P |
 | The Bestiary: all 93 foes; the 54 beasts painted (cut from Chris's sheets) or in 3D (Act One's 12 sculpted), with a switch | `prototypes/bestiary/` | https://claude.ai/artifact/CA6CcAKVHSxGPB5TAZF5sY |
 | The story on the atlas: M7's places on the map of Aethermoor | `docs/lore/` | https://claude.ai/artifact/XTicYjY9EcZ4V54cjSzJcZ |
 | Chris's 136 pictures | `art-in/3d/` | `art-requests/RECEIVED.md` |
@@ -66,6 +73,13 @@ Where the 3D game stands. Written by the hub only. Last updated November 20, lat
 
 - **The foes, from now:** every beast in full detail (sessions 6, 7, 8; `docs/project/jobs/foes.md`). Models' sculpted
   and painted beasts stand in until each full-detail one lands; Models keeps the heroes and the people.
+
+
+- **Pages beyond 16 MB (hub, being tried):** `world3d/build.mjs --files` puts the pictures beside the page as files
+  (published with the `files` map in `dist/<name>.files.json`) instead of inside it; the 3D engine accepts them
+  (`core.js`, marked "Aethermoor, hub"). Act One with every texture and painting at full size is up as a test:
+  https://claude.ai/artifact/HD9GL1Ao4ymzRRodVY2ozm. Once Chris sees it work on his phone, the game and the heavy pages
+  can stop shrinking textures.
 
 ## Next for the hub
 

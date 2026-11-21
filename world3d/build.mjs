@@ -6,12 +6,14 @@
 //   node build.mjs              textures as kept (1024 px): a laptop file
 //   node build.mjs --tex=512    textures shrunk to 512 px for a page a phone opens from a link (16 MB at most)
 import { build } from 'esbuild';
-import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, existsSync, statSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 //   node build.mjs --page=m7-places --places=keep,hearth-road   Hearth & Heirloom's own places (m7/convert.mjs makes them)
 //   --herotex=256                  the heroes' textures smaller, for a heavy page
+//   --files                        pictures as files beside the page, not inside it (publish with the files map in
+//                                  dist/<name>.files.json): no 16 MB limit on the pictures
 const arg = (k) => (process.argv.find((a) => a.startsWith('--' + k + '=')) || '').split('=')[1];
 const PAGE_ID = arg('page') || 'aethermoor';
 // (Together, November 20) --html=../game3d/page.html builds a page kept outside coven/pages/ (its scripts and pictures
@@ -26,11 +28,13 @@ const TEX = +((process.argv.find((a) => a.startsWith('--tex=')) || '').split('='
 const MIME = { webp: 'image/webp', png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', avif: 'image/avif' };
 const PIC = /"((?:art\/|\.\/)[^"\n]+\.(webp|png|jpe?g|avif))"/g;
 let pics = 0, bytes = 0; const left = new Set();
+// --files: pictures as files beside the page (written to dist/<name>.files/, listed in dist/<name>.files.json for publishing)
+const FILES = process.argv.includes('--files'), fileList = [];
 // a smaller copy of a texture (never of the land's data pictures), made once into .cache/
 // (Places, November 20) --paint=0.75: the game's paintings (coven/art/m7/) at that scale and quality 70, for a page with many
 function sized(f) {
   if (PAINTK && /\/art\/m7\//.test(f)) {
-    const out = path.join(here, '.cache', 'paint' + PAINTK, path.basename(f));
+    const st = statSync(f), out = path.join(here, '.cache', 'paint' + PAINTK, Math.round(st.mtimeMs) + '-' + st.size + '-' + path.basename(f));   // (Places) a changed painting is shrunk again
     if (!existsSync(out)) { mkdirSync(path.dirname(out), { recursive: true }); execFileSync('python3', ['-I', '-c', `import sys\nfrom PIL import Image\nim=Image.open(sys.argv[1]);im.load();w,h=im.size;k=${PAINTK}\nif k<1: im=im.resize((round(w*k),round(h*k)),Image.LANCZOS)\nim.save(sys.argv[2],quality=70,method=6)`, f, out]); }
     return out;
   }
@@ -45,7 +49,14 @@ const inline = (code, dir) => code.replace(PIC, (m, p, ext) => {
   if (!f) { left.add(p); return m; }
   // each picture goes into the page once (window.__PIC, before every script) and is named by its number where it is used
   const key = sized(f);
-  if (!seen.has(key)) { const d = readFileSync(key); seen.set(key, table.length); table.push(`"data:${MIME[ext.toLowerCase()]};base64,${d.toString('base64')}"`); pics++; bytes += d.length; }
+  if (!seen.has(key)) {
+    const d = readFileSync(key); seen.set(key, table.length);
+    // --files (hub, November 20): the picture goes beside the page as its own file (a claude.ai page holds 16 MB, but
+    // a page with files can carry far more), and the page names it by its path
+    if (FILES) { const pub = `f/p${table.length}.${ext.toLowerCase()}`; fileList.push([pub, key]); table.push(JSON.stringify(pub)); }
+    else table.push(`"data:${MIME[ext.toLowerCase()]};base64,${d.toString('base64')}"`);
+    pics++; bytes += d.length;
+  }
   return `(window.__PIC[${seen.get(key)}])`;
 });
 const seen = new Map(), table = [];
@@ -80,5 +91,13 @@ mkdirSync(path.join(here, 'dist'), { recursive: true });
 const full = '<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">\n</head>\n<body>\n' + html + '</body>\n</html>\n';
 const base = OUT || (PAGE_ID === 'aethermoor' ? 'aethermoor-3d' : PAGE_ID), name = TEX ? `${base}-${TEX}` : base;
 writeFileSync(path.join(here, `dist/${name}.html`), full);
+if (FILES) {
+  const dir = path.join(here, 'dist', name + '.files'); mkdirSync(path.join(dir, 'f'), { recursive: true });
+  const map = {};
+  for (const [pub, src] of fileList) { writeFileSync(path.join(dir, pub), readFileSync(src)); map[pub] = path.join('dist', name + '.files', pub); }
+  writeFileSync(path.join(here, `dist/${name}.files.json`), JSON.stringify(map, null, 1));
+  // the page opened from disk finds its pictures beside it
+  for (const [pub, src] of fileList) { mkdirSync(path.join(here, 'dist', path.dirname(pub)), { recursive: true }); writeFileSync(path.join(here, 'dist', pub), readFileSync(src)); }
+}
 writeFileSync(path.join(here, `dist/${name}.artifact.html`), html);
 console.log(`built dist/${name}.html (${(Buffer.byteLength(full) / 1048576).toFixed(1)} MB, ${pics} pictures, ${(bytes / 1048576).toFixed(1)} MB of pictures; ${left.size} stand-in paths left as they are)`);

@@ -118,11 +118,51 @@ https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL
   `rig.faceCtl.talking` is true. Suggested: `'effort'` for the strike, `'hurt'` for a second when hit, `'asleep'` while
   fallen, `'cheer'` on victory, `'worried'` when low.
 
+**Every item, checked on the heroes.** Gear Room, **Item audit** (top of the panel): https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL
+- The audit lists all 458 things M7 can roll or hand out: the 41 bases at all 8 rarities, every weapon tempered +7 and
+  +10, the 75 Codex relics and every starter piece, each on the hero it suits (`audit.js`). Each card builds the item,
+  checks it, and shows a picture as it scrolls into view; tap one to put it on the hero above for a close look. Filters:
+  all, flagged, weapons, off hand, head, body, hands, feet, amulets and rings, relics.
+- The checks: the build fails, no look, an empty or tiny weapon, a weapon not in the fist (to the surface, within 5 cm),
+  an off-hand piece not held, hair through a helm, kettle hat, coif or hood, a rare piece that is plain, a ring not shown.
+- What was wrong, and fixed:
+  - Rings were never shown on the 3D heroes. Now a band on the left hand's ring finger, its gem facing out.
+  - Every relic amulet looked the same small disc (the 3D builder only knew the sun). Each now has its own shape from its
+    art: the Warden's Seal's sun and rays, the First Seed's glowing seed with leaf and bud, Zara's orrery rings and
+    planet, the Mirage Glass lens with runes, the Sunstone Heart, the Veilbell, the Anvil Heart's cage of ribs, Hodge's
+    toll coin, the Deep-Pearl in coral and barnacles, the Hollow Chain's badge of office with its tally (heavier links),
+    plus seals. Pendants are a little bigger.
+  - An amulet's chain went under a mantle or pelt (Alondra's). It now lies over it.
+  - Tempered +7 and +10 metal glowed flat cream; the glow is now softer and in the metal's own deep colour, so it still
+    shines.
+  - The Hollow Chalice stood taller than its bearer's head; it is a fifth smaller.
+  - Not wrong, for the record: Fenwick's Poker looked to float (the check measured to corners only); its rod runs through
+    the fist.
+- Checked: all 458 build and pass the checks (no flags), and I looked at every picture.
+
+**Things that swing.** Gear Room, **Walk about** (walking a figure of eight, running, a dead stop):
+https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL
+- Capes (in two hinged halves, so the hem swings further than the shoulders), long hair down the back, ponytails and
+  braids, skirts and robes (they now turn about the waist), quivers, belt pouches, scarf ends and tails, satchels,
+  sacks, ledgers, lanterns, trinkets and charms each hang from a pivot of their own with a spring: they lag when the
+  figure starts, fly back when it runs, swing on when it stops or turns, and react to the fight's strikes and hits, within
+  limits that keep them out of the body and legs (a cape never swings forward into the back, front pieces never back
+  into the belly).
+- It is all inside `setPose` (`swing()` at its end), so every page has it with no change; it works in High, Light and
+  Lite (the pivots are Lite's bones). `SWING_ON.on = false` (model.js) turns it off. Locks framing the face stay put.
+- Cost, measured (`__swingCost()` in the Gear Room, setPose 2000 times with and without): 2 to 5 swinging pieces per
+  hero, about 0.005 to 0.015 ms more per figure per frame (High 0.010 to 0.018 ms with it, against 0.002 to 0.005
+  without); for a party of four and ten townsfolk, about 0.15 ms a frame. No extra draws.
+- For the Fight and Together: nothing to do; a figure that moves through the world (its group or root moving) swings
+  by itself, and a figure standing on the spot sways only with its own pose.
+
 ## Next
 
-- Paused (the hub, November 20): more 3D reshaping waits until Chris chooses painted or 3D. Then: the Champions and Relic-Bearers beyond Act One (Kharzul, Mother Anvil, the Rime-Abbot, the
-  Lantern-Mother, the Blackwater Leviathan, the Unsmith, the Wisp-Queen, the Glass Matriarch, the Thunder-Roc, Grandfather
-  Willow, Old Horn...), then the others.
+- Chris chose full detail for the beasts (November 20): sessions 6 to 8 build them (`docs/project/jobs/foes.md`;
+  sculpts of 500k to 1M triangles kept as viewable assets, baked to about 50k for the game). This job does no more
+  beast reshaping. The sculpted twelve (`sculpt.js`) and the painted standees (`standee.js`, `standeeLook`) stay as
+  stand-ins, and `buildBeast` and the Bestiary keep working, until each full-detail foe lands.
+- This job keeps the heroes, the townsfolk and the 39 people foes: next, whatever the hub asks for them.
 
 ## Changed outside my files
 
