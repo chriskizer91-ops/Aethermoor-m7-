@@ -191,6 +191,192 @@
    "framesOver": "0/48",
    "bones": []
   },
+  "graft": {
+   "ok": true,
+   "big": {
+    "worst": 1.226,
+    "limit": 1.3,
+    "part": "root2",
+    "where": [
+     -0.422,
+     0.065,
+     1.037
+    ],
+    "restEdge": 0.0256,
+    "u": 0.489,
+    "trianglesOver": 0
+   },
+   "crease": {
+    "worst": 1.536,
+    "limit": 3,
+    "part": "r_fore > r_upper",
+    "where": [
+     0.584,
+     -0.119,
+     1.3
+    ],
+    "restEdge": 0.0159,
+    "u": 0.681,
+    "trianglesOver": 0
+   },
+   "framesOver": "0/48",
+   "bones": []
+  },
+  "ichor-tide": {
+   "ok": true,
+   "big": {
+    "worst": 1.18,
+    "limit": 1.3,
+    "part": "chest > spine",
+    "where": [
+     0.075,
+     0.257,
+     1.374
+    ],
+    "restEdge": 0.0252,
+    "u": 0.191,
+    "trianglesOver": 0
+   },
+   "crease": {
+    "worst": 1.292,
+    "limit": 3,
+    "part": "root2",
+    "where": [
+     -0.548,
+     0.074,
+     1.235
+    ],
+    "restEdge": 0.0065,
+    "u": 0.787,
+    "trianglesOver": 0
+   },
+   "framesOver": "0/48",
+   "bones": []
+  },
+  "heartroot-bloom": {
+   "ok": true,
+   "big": {
+    "worst": 1.244,
+    "limit": 1.3,
+    "part": "r_fore",
+    "where": [
+     0.584,
+     -0.112,
+     1.276
+    ],
+    "restEdge": 0.0346,
+    "u": 0.766,
+    "trianglesOver": 0
+   },
+   "crease": {
+    "worst": 1.589,
+    "limit": 3,
+    "part": "r_upper",
+    "where": [
+     0.457,
+     0.083,
+     1.324
+    ],
+    "restEdge": 0.003,
+    "u": 0.489,
+    "trianglesOver": 0
+   },
+   "framesOver": "0/48",
+   "bones": []
+  },
+  "ichor-rain": {
+   "ok": true,
+   "big": {
+    "worst": 1.18,
+    "limit": 1.3,
+    "part": "root2",
+    "where": [
+     -0.42,
+     0.097,
+     1.045
+    ],
+    "restEdge": 0.0281,
+    "u": 0.511,
+    "trianglesOver": 0
+   },
+   "crease": {
+    "worst": 1.406,
+    "limit": 3,
+    "part": "root2",
+    "where": [
+     -0.548,
+     0.074,
+     1.235
+    ],
+    "restEdge": 0.0065,
+    "u": 0.596,
+    "trianglesOver": 0
+   },
+   "framesOver": "0/48",
+   "bones": []
+  },
+  "unmaking": {
+   "ok": true,
+   "big": {
+    "worst": 1.197,
+    "limit": 1.3,
+    "part": "chest",
+    "where": [
+     -0.122,
+     0.249,
+     1.453
+    ],
+    "restEdge": 0.0285,
+    "u": 0.468,
+    "trianglesOver": 0
+   },
+   "crease": {
+    "worst": 1.319,
+    "limit": 3,
+    "part": "chest",
+    "where": [
+     0.107,
+     0.254,
+     1.39
+    ],
+    "restEdge": 0.0217,
+    "u": 0.468,
+    "trianglesOver": 0
+   },
+   "framesOver": "0/48",
+   "bones": []
+  },
+  "grief": {
+   "ok": true,
+   "big": {
+    "worst": 1.197,
+    "limit": 1.3,
+    "part": "chest",
+    "where": [
+     -0.122,
+     0.249,
+     1.453
+    ],
+    "restEdge": 0.0285,
+    "u": 0.362,
+    "trianglesOver": 0
+   },
+   "crease": {
+    "worst": 1.319,
+    "limit": 3,
+    "part": "chest",
+    "where": [
+     0.107,
+     0.254,
+     1.39
+    ],
+    "restEdge": 0.0217,
+    "u": 0.362,
+    "trianglesOver": 0
+   },
+   "framesOver": "0/48",
+   "bones": []
+  },
   "devour": {
    "ok": true,
    "big": {

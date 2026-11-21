@@ -54,6 +54,51 @@ const rotwarden = {
       b.root1.rotation.z += 0.65 * k; b.root2.rotation.z += 0.2 * k; b.root3.rotation.z += -0.15 * k;
       W.body.position.y = 0.04 * k;
     } },
+    graft: { label: 'Graft', dur: 2.0, pose(W, u, t) {
+      // "The First Seed pulses, and a Sapwight tears out of the wall": he drives the root down beside him and wrenches up
+      const b = W.bones, down = seg(u, 0, 0.35) * (1 - seg(u, 0.5, 0.65)), pull = seg(u, 0.5, 0.65) * (1 - seg(u, 0.85, 1));
+      b.root1.rotation.z += 0.45 * down + 0.2 * pull; b.root1.rotation.x += 0.25 * down - 0.6 * pull;
+      b.root2.rotation.x += 0.3 * down - 0.3 * pull; b.root3.rotation.x += 0.25 * down;
+      b.r_upper.rotation.x = -0.8 * pull; b.r_fore.rotation.x = -0.5 * pull;
+      crouch(W, 0.3 * down); b.chest.rotation.y = 0.05 * down - 0.04 * pull;
+    } },
+    'ichor-tide': { label: 'Ichor Tide', dur: 2.0, pose(W, u, t) {
+      // "Black sap floods the chamber": he sweeps the root low along the floor in a wide arc, leaning into it
+      const b = W.bones, sweep = seg(u, 0.15, 0.75), k = seg(u, 0, 0.2) * (1 - seg(u, 0.8, 1));
+      b.root1.rotation.x += -0.55 * k; b.root1.rotation.z += (0.5 - 1.0 * sweep) * k;
+      b.root2.rotation.z += (0.3 - 0.5 * sweep) * k; b.root3.rotation.x += 0.2 * k;
+      b.chest.rotation.y = (0.06 - 0.1 * sweep) * k; b.r_upper.rotation.z -= 0.3 * k;
+      crouch(W, 0.3 * k);
+    } },
+    'heartroot-bloom': { label: 'Heartroot Bloom', dur: 2.2, pose(W, u, t) {
+      // "The Seed blooms": he straightens, fist to his chest, the root curling up in front of him like a growing shoot
+      const b = W.bones, k = seg(u, 0, 0.4) * (1 - seg(u, 0.8, 1)), pulse = 0.04 * Math.sin(u * 30) * k;
+      b.r_upper.rotation.x = -0.85 * k; b.r_fore.rotation.x = -0.55 * k;
+      b.root1.rotation.x += -0.7 * k; b.root1.rotation.z += -0.2 * k; b.root2.rotation.x += -0.45 * k + pulse; b.root3.rotation.x += -0.4 * k - pulse;
+      b.neck.rotation.x = -0.2 * k; b.head.rotation.x += -0.15 * k;
+      W.body.position.y = 0.03 * k;
+    } },
+    'ichor-rain': { label: 'Ichor Rain', dur: 2.2, pose(W, u, t) {
+      // "It rains sap from the roots": the root high over him, shaken so the sap falls
+      const b = W.bones, k = seg(u, 0, 0.35) * (1 - seg(u, 0.8, 1)), sh = Math.sin(u * 40) * seg(u, 0.35, 0.45) * (1 - seg(u, 0.7, 0.8));
+      b.root1.rotation.x += -1.8 * k; b.root1.rotation.z += 0.15 * k;
+      b.root2.rotation.x += -0.3 * k + 0.12 * sh; b.root3.rotation.x += -0.2 * k - 0.15 * sh; b.root4.rotation.z += 0.2 * sh;
+      b.neck.rotation.x = -0.25 * k; b.r_upper.rotation.z -= 0.3 * k;
+    } },
+    unmaking: { label: 'Unmaking', dur: 2.0, pose(W, u, t) {
+      // "The mask turns to one of you, charging": he leans in, head low, the mask thrust forward, root and fist spread wide
+      const b = W.bones, k = seg(u, 0.05, 0.45) * (1 - seg(u, 0.8, 1)), tremble = 0.015 * Math.sin(u * 70) * k;
+      W.body.position.z = 0.3 * k; b.hips.rotation.x = 0.12 * k; b.chest.rotation.x = 0.15 * k; b.neck.rotation.x = 0.25 * k + tremble;
+      b.r_upper.rotation.z -= 0.6 * k; b.r_upper.rotation.x = 0.2 * k; b.root1.rotation.z += 0.55 * k; b.root1.rotation.x += 0.15 * k;
+      crouch(W, 0.3 * k);
+    } },
+    grief: { label: 'Grief', dur: 2.6, pose(W, u, t) {
+      // "It weeps sap. Something under the wood says 'Thank you.'": he slumps, head bowed, root hanging, swaying slowly
+      const b = W.bones, k = seg(u, 0, 0.35) * (1 - seg(u, 0.85, 1)), sw = Math.sin(u * 7) * k;
+      b.chest.rotation.x = 0.15 * k; b.neck.rotation.x = 0.4 * k; b.head.rotation.x += 0.2 * k; b.head.rotation.z = 0.08 * sw;
+      b.r_upper.rotation.x = 0.1 * k; b.r_fore.rotation.x = -0.05 * k; b.root1.rotation.z += 0.08 * sw; b.root1.rotation.x += 0.1 * k;
+      crouch(W, 0.2 * k); W.body.rotation.z = 0.03 * sw;
+    } },
     devour: { label: 'Devour', dur: 1.8, pose(W, u, t) {
       // the charge: he leans in, takes a long stride and the root sweeps up from below
       const b = W.bones, go = seg(u, 0.1, 0.45), back = 1 - seg(u, 0.65, 1), k = go * back;
