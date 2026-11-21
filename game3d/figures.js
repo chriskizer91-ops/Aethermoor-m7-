@@ -12,19 +12,21 @@ import { ready as hdReady } from '../prototypes/foe-hd/kit/js/loader.js';
 import { register, foeLook } from '../prototypes/foe-hd/kit/js/looks.js';
 import { FOES_HD, WALKERS } from 'game3d:foes-hd';
 import { registerWalkers } from '../prototypes/foe-hd/pages/walkers/register.js';
+import { withWraiths, WRAITHS } from '../prototypes/wraiths/wraiths.js';
 
 // the foes' look (Chris is choosing; questions.md): 'hd' full detail where a foe has one (session 6's kit: Briarmaw;
-// session 8's walkers: the Rotwarden and the sapwight), the sculpted beasts for the rest (the default); 'hd-cutout' full detail, else Chris's painted cut-outs;
+// session 8's walkers: the Rotwarden and the sapwight; Models' eleven wraiths), the sculpted beasts for the rest (the default); 'hd-cutout' full detail, else Chris's painted cut-outs;
 // '3d' the sculpted beasts only; 'cutout' the painted cut-outs only. ?foes=<look> on the address.
 export const LOOKS = ['hd', 'hd-cutout', '3d', 'cutout'];
 let hdDone = false;
 export async function setFoeLook(look = 'hd') {
   if (look.startsWith('hd') && !hdDone) { try { await hdReady(); for (const A of FOES_HD) register(A); registerWalkers(WALKERS, register); hdDone = true; } catch (e) { console.warn('full-detail foes', e); } }
   const fall = look.endsWith('cutout') ? standeeLook : buildBeast;
-  setBeastLook(look.startsWith('hd') && hdDone ? foeLook(fall) : look === 'cutout' ? standeeLook : null);
+  // the wraiths (Models: the eleven robed foes, rigid, so always allowed) come first in a full-detail look
+  setBeastLook(look.startsWith('hd') ? withWraiths(hdDone ? foeLook(fall) : fall) : look === 'cutout' ? standeeLook : null);
   return look;
 }
-export const hdFoes = () => [...FOES_HD.map((A) => A.key), ...Object.keys(WALKERS)];
+export const hdFoes = () => [...FOES_HD.map((A) => A.key), ...Object.keys(WALKERS), ...WRAITHS];
 
 // the townsfolk are Models' (prototypes/hero-3d/people.js personFigure: looks picked as M7's npcSheet does, a standing
 // weight shift, a talking gesture while .talking is true)

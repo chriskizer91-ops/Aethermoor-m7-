@@ -41,7 +41,7 @@ import { setFoeLook, LOOKS, hdFoes } from './figures.js';
 import { openParty } from '../world3d/battle/party-room.js';
 
 const Q = new URLSearchParams(location.search);
-// Chris's open call 10 (the suggestion): a journey from the 2D game can begin here, by M7's own save code (AETH6, from
+// Open call 10 (questions.md), the hub's suggestion until Chris decides: a journey from the 2D game can begin here, by M7's own save code (AETH6, from
 // its Settings) or, where the browser shares its storage, from M7's save itself. Only ever read; M7's key is never
 // written. To switch it off, set this to false (or open a page with ?m7=0).
 const CARRY_M7 = true && Q.get('m7') !== '0';
