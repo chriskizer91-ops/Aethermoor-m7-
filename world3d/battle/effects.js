@@ -137,15 +137,42 @@ export class Fx {
     this.add(grp, dur, (u, dt, cam) => { if (cam) grp.quaternion.copy(cam.quaternion); const k = Math.min(1, u / 0.15); grp.scale.setScalar(0.4 + k * 0.6); grp.position.y = at.y + u * 0.15; m.opacity = 0.95 * (u > 0.7 ? (1 - u) / 0.3 : 1); ringM.opacity = m.opacity * 0.6; });
   }
 
-  // something long shot out from `from` to `to` and pulled back (a tongue, a rope, a whip, a chain)
-  lash(from, to, color = '#a04a50', thick = 0.07, dur = 0.7) {
-    const m = new THREE.MeshStandardMaterial({ color: col(color), roughness: 0.6 });
-    const mesh = new THREE.Mesh(new THREE.CylinderGeometry(thick * 0.7, thick, 1, 8), m);
-    const tip = new THREE.Mesh(new THREE.SphereGeometry(thick * 1.6, 10, 8), m); const grp = new THREE.Group(); grp.add(mesh, tip);
-    const d = to.clone().sub(from), L = d.length(), mid = new THREE.Vector3(), q = new THREE.Quaternion(), Y = new THREE.Vector3(0, 1, 0);
-    q.setFromUnitVectors(Y, d.clone().normalize());
-    this.add(grp, dur, (u) => { const k = u < 0.4 ? 1 - (1 - u / 0.4) ** 2 : u < 0.6 ? 1 : 1 - ((u - 0.6) / 0.4) ** 2; const len = Math.max(0.01, L * k);
-      mid.copy(from).addScaledVector(d, k / 2); mesh.position.copy(mid); mesh.quaternion.copy(q); mesh.scale.set(1, len, 1); tip.position.copy(from).addScaledVector(d, k); });
+  // something long shot out from `from` to `to` and pulled back (a tongue, a rope, a whip, a vine): thick at the root,
+  // tapering to a bulb at the tip, glistening; it curves and whips as it flies, and with { wrap: true } it coils round
+  // the one it catches before it pulls back
+  lash(from, to, color = '#a04a50', thick = 0.07, dur = 0.7, { wrap = false, bulb = true, gloss = true } = {}) {
+    const m = new THREE.MeshPhysicalMaterial({ color: col(color), roughness: gloss ? 0.22 : 0.7, clearcoat: gloss ? 1 : 0, clearcoatRoughness: 0.15, sheen: 0 });
+    const grp = new THREE.Group(), SEG = 22, RAD = 8;
+    const d = to.clone().sub(from), L = d.length(), dir = d.clone().normalize();
+    const side = new THREE.Vector3().crossVectors(dir, new THREE.Vector3(0, 1, 0)); if (side.lengthSq() < 1e-6) side.set(1, 0, 0); side.normalize();
+    const up = new THREE.Vector3().crossVectors(side, dir).normalize(), phase = Math.random() * TAU;
+    let mesh = null;
+    const tip = bulb ? new THREE.Mesh(new THREE.SphereGeometry(thick * 1.7, 12, 10), m) : null; if (tip) grp.add(tip);
+    // the coil round the caught one: a ring of the same flesh that tightens
+    const coil = wrap ? new THREE.Mesh(new THREE.TorusGeometry(0.42, thick * 0.75, 8, 28), m) : null; if (coil) { coil.rotation.x = Math.PI / 2; coil.position.copy(to); coil.visible = false; grp.add(coil); }
+    const pts = Array.from({ length: 9 }, () => new THREE.Vector3());
+    const shape = (k, t) => {
+      // out along the line to fraction k of the way, a soft arc up and a sideways whip that settles as it reaches
+      for (let i = 0; i < pts.length; i++) {
+        const u = i / (pts.length - 1), s = u * k, wob = Math.sin(u * Math.PI) * (1 - k * 0.7);
+        pts[i].copy(from).addScaledVector(d, s).addScaledVector(up, Math.sin(s * Math.PI) * L * 0.08)
+          .addScaledVector(side, Math.sin(u * 5 + t * 18 + phase) * 0.18 * wob * L * 0.25);
+      }
+      return new THREE.CatmullRomCurve3(pts);
+    };
+    const build = (curve) => {
+      const geo = new THREE.TubeGeometry(curve, SEG, thick, RAD, false), P = geo.attributes.position, c = new THREE.Vector3(), v = new THREE.Vector3();
+      for (let ring = 0; ring <= SEG; ring++) { const u = ring / SEG, w = 1 - u * 0.62; curve.getPointAt(u, c); for (let j = 0; j <= RAD; j++) { const ix = ring * (RAD + 1) + j; v.fromBufferAttribute(P, ix).sub(c).multiplyScalar(w).add(c); P.setXYZ(ix, v.x, v.y, v.z); } }
+      geo.computeVertexNormals(); return geo;
+    };
+    this.add(grp, dur, (u) => {
+      const k = u < 0.35 ? 1 - (1 - u / 0.35) ** 2 : u < 0.65 ? 1 : 1 - ((u - 0.65) / 0.35) ** 2;
+      const curve = shape(Math.max(0.02, k), u * dur);
+      if (mesh) { grp.remove(mesh); mesh.geometry.dispose(); }
+      mesh = new THREE.Mesh(build(curve), m); grp.add(mesh);
+      if (tip) curve.getPointAt(1, tip.position);
+      if (coil) { const caught = u >= 0.33 && u < 0.7; coil.visible = caught; if (caught) { const c = (u - 0.33) / 0.37; coil.scale.setScalar(1.25 - Math.min(1, c * 2.5) * 0.4); coil.position.copy(to); } }
+    }, () => { if (mesh) mesh.geometry.dispose(); });
   }
 
   // a flare bursting overhead at `at` and lighting the field (a signal lantern, a seal blazing): a bright core, rays of

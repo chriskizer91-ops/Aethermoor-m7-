@@ -31,7 +31,9 @@ const hero = units.find((u) => u.side === 'hero')?.id;
 console.log(`${enc}: ${foe.family}${foe.variant ? '/' + foe.variant : ''}, ${Object.keys(mv).length} moves`);
 await p.evaluate(() => { const a = window.__fight.arena; a.manual = true; a.stepBy(1.2, 5); });
 let n = 0;
+const ONLY = process.env.ONLY ? process.env.ONLY.split(',') : null; // ONLY=drag-under,wallow: just those moves
 for (const [id, m] of Object.entries(mv)) {
+  if (ONLY && !ONLY.includes(id)) { n++; continue; }
   const tag = `${String(++n).padStart(2, '0')}-${id}`;
   const self = m.target === 'self' || m.target === 'all-allies' || m.target === 'ally';
   const r = await p.evaluate(({ fid, id, name, tgt }) => {
@@ -42,7 +44,7 @@ for (const [id, m] of Object.entries(mv)) {
   }, { fid: foe.id, id, name: m.name, tgt: self ? foe.id : hero });
   await p.evaluate(() => window.__fight.arena.stepBy(0.15, 10)); await p.screenshot({ path: path.join(out, `${tag}-a.png`) });
   await p.evaluate(() => window.__fight.arena.stepBy(0.35, 10)); await p.screenshot({ path: path.join(out, `${tag}-b.png`) });
-  await p.evaluate(() => { const a = window.__fight.arena, G = a.movingFoe(); if (G) { G.act.bit = true; G.act.bitT = G.act.t; a.landed(G); } a.stepBy(0.25, 10); });
+  await p.evaluate((cstep) => { const a = window.__fight.arena, G = a.movingFoe(); if (G) { G.act.bit = true; G.act.bitT = G.act.t; a.landed(G); } a.stepBy(cstep, 10); }, Number(process.env.CSTEP || 0.25));
   await p.screenshot({ path: path.join(out, `${tag}-c.png`) });
   // done: the foe home, the effects cleared, the camera back
   await p.evaluate(() => { const a = window.__fight.arena; for (const G of a.foes.values()) G.act = null; a.fx.clear(); a.close = null; a.stage?.host.classList.remove('f3-close'); a.stepBy(1.0, 5); });

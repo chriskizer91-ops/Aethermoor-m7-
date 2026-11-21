@@ -129,9 +129,10 @@ export const arena = {
       // a charge at one hero: frame the ground between them (the foe crosses it) from a little further back
       const tg = F.act && !F.act.self && F.act.target && this.heroes.get(F.act.target);
       if (tg) at.lerp(tg.pos.clone().setY(at.y), 0.4);
-      const back = V3(-this.dir.x, 0, -this.dir.z), side = V3(this.dir.z, 0, -this.dir.x), r = Math.max(4.5, F.size.h * 3.4 + F.size.d * 1.3) * (tg ? 1.35 : 1);
-      // (a charge: well round to the side, so the hero it's aimed at doesn't stand in the way)
-      for (const sd of tg ? [1.7, -1.7, 1.2, -1.2, 1, -1, 0.4, -0.4] : [1, -1, 0.4, -0.4]) { const p = at.clone().addScaledVector(back, r).addScaledVector(side, sd * r * 0.6); p.y = F.pos.y + F.size.h * 1.1 + 0.9; pos = pos || p; if (clear(p, at)) { pos = p; break; } }
+      const back = V3(-this.dir.x, 0, -this.dir.z), side = V3(this.dir.z, 0, -this.dir.x), r = Math.max(4.5, F.size.h * 3.4 + F.size.d * 1.3) * (tg ? 1.5 : 1);
+      // (a charge: well round to the side, so the hero it's aimed at doesn't stand in the way, and high enough that the
+      // ground right under the camera stays out of shot)
+      for (const sd of tg ? [1.7, -1.7, 1.2, -1.2, 1, -1, 0.4, -0.4] : [1, -1, 0.4, -0.4]) { const p = at.clone().addScaledVector(back, r).addScaledVector(side, sd * r * 0.6); p.y = F.pos.y + Math.max(F.size.h * 1.1 + 0.9, tg ? r * 0.85 : 0); pos = pos || p; if (clear(p, at)) { pos = p; break; } }
     } else {
       // wide: straight back and a little up along the fight camera's own line, so the party stays at the bottom and the
       // foes in the stage's open upper part, only more of the field round them
