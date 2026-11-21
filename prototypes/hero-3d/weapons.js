@@ -5,7 +5,7 @@
 // Sizes: k metres per card px, at the size the hand holds it. Up the weapon is +Y; its flats face Z.
 import * as THREE from 'three';
 import { MAT } from '../../game/src/art/forge.js';
-import { V, lerp, smooth, clamp01, loft, ellipse, tube, curve, lathe, wedge, plate, blade, mat, glowColor, isEmit, KIND, Q, sph, tor, cone, ico, etchMaterial, stitchGeo, add, gem, rngOf } from './kit.js';
+import { V, lerp, smooth, clamp01, loft, ellipse, tube, curve, lathe, wedge, plate, blade, mat, glowColor, isEmit, KIND, Q, sph, tor, cone, ico, etchMaterial, stitchGeo, add, gem, rngOf, fitMaster, withMaster } from './kit.js';
 
 const TAU = Math.PI * 2;
 const has = k => !!(k && MAT[k]);
@@ -71,7 +71,7 @@ function sword({ inner, k, fx, W, p }, tip) {
   else add(lathe([[0, -pr * 1.9 * k], [pr * 0.55 * k, -pr * 1.85 * k], [pr * k, -pr * 1.3 * k], [pr * 1.05 * k, -pr * 0.8 * k], [pr * 0.7 * k, -pr * 0.25 * k], [gr * 0.8 * k, 0]], { n: 18, sz: 0.6 }), pm, inner);
   if (p.pommelGem) gem(p.pommelGem, pr * 0.45 * k, inner, 0, -pr * 1.05 * k, pr * (p.pommelShape === 'coin' ? 0.3 : 0.62) * k, has(p.pommel) ? p.pommel : 'gold');
   // grip: leather or cloth under a wound wire (a bramble grip is a twist of thorny vine)
-  add(tube([V(0, 0, 0), V(0, grip * 0.5 * k, 0), V(0, grip * k, 0)], t => gr * k * (1 + Math.sin(t * Math.PI) * 0.12), { n: 12 }), mat(p.grip || 'leather'), inner);
+  add(fitMaster(tube([V(0, 0, 0), V(0, grip * 0.5 * k, 0), V(0, grip * k, 0)], t => gr * k * (1 + Math.sin(t * Math.PI) * 0.12), { n: 12 }), 'grip'), mat(p.grip || 'leather'), inner);
   if (p.grip === 'bramble') for (let i = 0; i < 6; i++) add(cone(0.35 * k, 1.4 * k, 4), mat('thorn'), inner, Math.cos(i * 2.3) * gr * 1.1 * k, (i + 0.5) / 6 * grip * k, Math.sin(i * 2.3) * gr * 1.1 * k).rotation.z = Math.cos(i * 2.3) * -1.4;
   else if (p.binding) wrapGrip(inner, 0.5, grip - 0.5, gr, p.binding, k);
   else wireGrip(inner, grip, gr, p.guardMat === 'gold' || p.guardMat === 'bronze' ? p.guardMat : 'silver', k);
@@ -375,7 +375,7 @@ export function buildOffhand(O, art, fx, u) {
     const front = plate(outline, (x, y) => 2.5 * k + bulge(x, y));
     const faceKey = O.face || p.face || 'wood';
     const faceMat = p.style === 'scale' ? mat(has(faceKey) ? faceKey : 'bronze', { as: 'scale', rep: 2 }) : heraldry(faceKey, O.paint, O.paint2, p.style);
-    add(front, faceMat, sh);
+    add(fitMaster(front, 'shield'), withMaster(faceMat), sh);
     add(plate(outline, (x, y) => -0.5 * k + bulge(x, y)), mat('leatherDark', { side: true }), sh);
     const rim = front.userData.rim.map(([x, y]) => V(x, y, bulge(x, y) + 1.2 * k));
     add(tube(rim, (p.style === 'wicker' ? 2 : 1.3) * k, { closed: true, n: 8 }), mat(has(O.rim) ? O.rim : has(p.rim) ? p.rim : 'iron'), sh);
