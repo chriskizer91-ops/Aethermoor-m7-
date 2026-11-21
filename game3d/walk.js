@@ -138,6 +138,8 @@ export function createWorld(o) {
       Wk.setIo(px, py, YAW[face] ?? 0);
     }
     if (hold) hold = { px: Wk.io.px, py: Wk.io.py };   // a new place mid-flow: hold the leader where they now stand
+    // the place map (Places' world3d/m7/minimap.js): one for the page, told each new place
+    if (window.M7_MINIMAP) { try { if (!mm) mm = window.M7_MINIMAP.create({ root: dom.world, W: Wk, place: pl }); else mm.setPlace(pl); } catch (err) { console.warn('place map', err); } }
     dressParty();
     stand();
     dom.load.style.opacity = 0; setTimeout(() => { dom.load.style.display = 'none'; }, 600);
@@ -187,8 +189,37 @@ export function createWorld(o) {
       }
     }
     for (const [k, pr] of props) if (!keep.has(k) || !Wk.P.scene.children.includes(pr.root)) { Wk.P.scene.remove(pr.root); props.delete(k); }
+    mapMarks(here);
     syncRoamers(true);
   }
+  // the place map's live marks, from M7's state: who is here, which chests are opened, which Hearthfires are lit, and
+  // the story's next goal (rules/story.js nextObjective) as a star when it is in this place
+  let mm = null;
+  function mapMarks(here) {
+    if (!mm) return;
+    const people = [], chests = {}, kindled = [];
+    for (const e of here) {
+      if (e.kind === 'npc') people.push(e.id);
+      else if (e.kind === 'chest' && e.state === 'opened') chests[e.id] = true;
+      else if (e.kind === 'hearthfire' && e.state !== 'cold') kindled.push(e.id);
+    }
+    let goal = null;
+    try {
+      const nx = Story.nextObjective(game);
+      if (nx && nx.map === walk.map) {
+        const ent = (W.mapOf(walk.map)?.entities || []).find((q) => q.id === nx.entity || q.npc === nx.entity || q.enc === nx.entity);
+        const a = ent && (ent.at || (ent.area && [Math.round((ent.area[0] + ent.area[2]) / 2), Math.round((ent.area[1] + ent.area[3]) / 2)]));
+        if (a) goal = { at: centre(a[0], a[1]), label: nx.text };
+      }
+    } catch (err) { goal = null; }
+    try { mm.set({ people, chests, kindled, goal }); } catch (err) { console.warn('place map', err); }
+  }
+  // hidden in fights, talk, menus, M7's screens and the Atlas (checked a few times a second, never in the frame loop)
+  setInterval(() => {
+    if (!mm) return;
+    const hide = lock > 0 || overlayOpen() || o.fighting() || o.away() || document.body.classList.contains('fighting') || !!(window.M7_ATLAS && window.M7_ATLAS.isOpen);
+    if (hide !== !!mm.hidden) { try { mm.hide(hide); } catch (err) { /* the map came and went */ } }
+  }, 250);
   function syncRoamers(snap) {
     if (!Wk) return;
     const want = new Set();
@@ -654,7 +685,7 @@ export function createWorld(o) {
 
   const api = {
     get W() { return Wk; }, get game() { return game; }, get walk() { return walk; }, get leader() { return leader; }, get followers() { return followers; },
-    get busy() { return lock > 0; }, get steps() { return steps; },
+    get busy() { return lock > 0; }, get steps() { return steps; }, get placeMap() { return mm; },
     // the first time the world is shown: a new, loaded or carried-over game, at its saved spot
     async start() {
       game = ctx.game;
