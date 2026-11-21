@@ -11,7 +11,7 @@ import * as THREE from 'three';
 import { MAT } from '../../game/src/art/forge.js';
 import { HERO_ART } from '../../game/src/art/hero-looks.js';
 import { itemArt, lookFor, RARITY_LOOK, ASPECT_LOOK, SLOTS, rarityTier } from '../../game/src/art/item-looks.js';
-import { V, lerp, smooth, clamp01, loft, ellipse, tube, curve, lathe, wedge, plate, blade, mat, glowColor, isEmit, sRGB, KIND, Q, sph, tor, cone, ico, bake, etchMaterial, stitchGeo, add, gem, rngOf, ring, FACES, TEXTURES, mergeGeometries, fitMaster, MASTER_ON } from './kit.js';
+import { V, lerp, smooth, clamp01, loft, ellipse, tube, curve, lathe, wedge, plate, blade, mat, glowColor, isEmit, sRGB, KIND, Q, sph, tor, cone, ico, bake, etchMaterial, stitchGeo, add, gem, rngOf, ring, FACES, TEXTURES, mergeGeometries, fitMaster, MASTER_ON, withMaster } from './kit.js';
 import { buildWeapon, buildOffhand } from './weapons.js';
 
 export { glowColor };
@@ -389,7 +389,7 @@ export function buildHero(heroKey, gear, o = {}) {
     add(new THREE.BoxGeometry(fw * 2.05, 0.016 * u, fl * 1.06), mat('leatherDark'), leg, 0, gnd + 0.008 * u, fl * 0.33);
     if (F?.fold) add(tube(ellipse(V(0, top - 0.01 * u, 0), V(1, 0, 0), V(0, 0, 1), br * 1.18, br * 1.14, 20), 0.018 * u, { closed: true, n: 8 }), mat(F.trim || F.mat), leg);
     else if (F?.trim) add(tube(ellipse(V(0, top, 0), V(1, 0, 0), V(0, 0, 1), br * 1.04, br * 1.0, 20), 0.007 * u, { closed: true, n: 6 }), mat(F.trim), leg);
-    if (F?.greave) { const gm = mat(F.greave); add(lathe([[br * 1.18, top - 0.01 * u], [br * 1.24, lerp(top, ank, 0.5)], [br * 1.1, ank + 0.02 * u]], { n: 14, phi0: -1.25, phiLen: 2.5 }), mat(F.greave, { side: true }), leg); add(tube([V(0, top - 0.02 * u, br * 1.26), V(0, ank + 0.03 * u, br * 1.12)], 0.005 * u, { n: 6 }), gm, leg); }
+    if (F?.greave) { const gm = mat(F.greave); add(fitMaster(lathe([[br * 1.18, top - 0.01 * u], [br * 1.24, lerp(top, ank, 0.5)], [br * 1.1, ank + 0.02 * u]], { n: 14, phi0: -1.25, phiLen: 2.5 }), 'vambrace'), mat(F.greave, { side: true }), leg); add(tube([V(0, top - 0.02 * u, br * 1.26), V(0, ank + 0.03 * u, br * 1.12)], 0.005 * u, { n: 6 }), gm, leg); }
   }
 
   /* ---- the torso, the garment over it and the hem */
@@ -425,13 +425,13 @@ export function buildHero(heroKey, gear, o = {}) {
   if (kind === 'plate') {
     const pm = torsoMat, rings = [];
     for (let i = 0; i <= 12; i++) { const t = i / 12, y = lerp(S.waistY - 0.03 * u, S.shY - 0.01 * u, t), r = torsoRing(S, y, 0.024 * u, 32); r.forEach((p, j) => { const a = j / 32 * TAU, front = Math.max(0, Math.sin(a)); p.z += front * front * 0.022 * u * Math.sin(t * Math.PI) + Math.pow(Math.abs(Math.cos(a)), 40) * 0; }); rings.push(r); }
-    add(loft(rings), pm, chest);
+    add(fitMaster(loft(rings), 'plate'), pm, chest);
     // the ridge down the breastplate, the rolled edges, and the lames below the waist
     const ridge = []; for (let i = 0; i <= 10; i++) { const y = lerp(S.waistY, S.shY - 0.04 * u, i / 10), [w, d] = torsoAt(S, y); ridge.push(V(0, y, w * d + 0.024 * u + 0.022 * u * Math.sin(i / 10 * Math.PI))); }
     add(tube(ridge, [0.004 * u, 0.006 * u], { n: 6 }), mat(body.trim || body.mat), chest);
     add(tube(rings[rings.length - 1].map(p => p.clone()), 0.008 * u, { closed: true, n: 6 }), mat(body.trim || body.mat), chest);
     add(tube(rings[0].map(p => p.clone()), 0.008 * u, { closed: true, n: 6 }), mat(body.trim || body.mat), chest);
-    for (let k = 0; k < 3; k++) { const y0 = S.waistY - 0.035 * u - k * 0.045 * u, y1 = y0 - 0.05 * u; const g = loft([torsoRing(S, Math.max(y0, S.keys[0][0]), (0.03 + k * 0.006) * u, 32, 0, k * 0.008 * u), torsoRing(S, Math.max(y1, S.keys[0][0]), (0.034 + k * 0.006) * u, 32, 0, (k + 1) * 0.01 * u)]); add(g, mat(body.mat, { side: true }), skirt); }
+    for (let k = 0; k < 3; k++) { const y0 = S.waistY - 0.035 * u - k * 0.045 * u, y1 = y0 - 0.05 * u; const g = loft([torsoRing(S, Math.max(y0, S.keys[0][0]), (0.03 + k * 0.006) * u, 32, 0, k * 0.008 * u), torsoRing(S, Math.max(y1, S.keys[0][0]), (0.034 + k * 0.006) * u, 32, 0, (k + 1) * 0.01 * u)]); add(fitMaster(g, 'lame'), mat(body.mat, { side: true }), skirt); }
   }
   if (body?.belt || kind === 'leather' || kind === 'mail' || robe) {
     const by = S.waistY - 0.005 * u, bk = robe ? (body.sash || body.trim || 'leather') : body?.belt || 'leatherDark';
@@ -472,14 +472,14 @@ export function buildHero(heroKey, gear, o = {}) {
     const fore = [V(0, 0, 0), V(0, -S.fore * 0.5, 0.003 * u), V(0, -S.fore, 0)];
     const foreRad = t => { const r = lerp(ar * 0.9, ar * 0.62, t) + Math.sin(clamp01(t / 0.6) * Math.PI) * ar * 0.1; return [r, r * 0.88]; };
     add(fitMaster(tube(curve(fore, 10), foreRad, { n: 12 }), 'forearm'), mat(robe ? body.mat : sleeveKey), elbow);
-    if (robe) add(tube([V(0, -S.fore * 0.25, 0), V(0, -S.fore * 0.8, 0.01 * u), V(0, -S.fore * 1.05, 0.02 * u)], t => [lerp(ar * 1.1, ar * 1.7, t * t), lerp(ar * 1.1, ar * 1.6, t * t)], { n: 16, capA: false, capB: false }), mat(body.mat, { side: true }), elbow);
-    if (kind === 'plate') { add(tube([V(0, -S.fore * 0.15, 0), V(0, -S.fore * 0.9, 0)], t => [lerp(ar * 1.05, ar * 0.8, t), lerp(ar * 1.0, ar * 0.76, t)], { n: 12 }), torsoMat, elbow); add(sph(ar * 0.95, 12, 8), torsoMat, elbow); }
+    if (robe) add(fitMaster(tube([V(0, -S.fore * 0.25, 0), V(0, -S.fore * 0.8, 0.01 * u), V(0, -S.fore * 1.05, 0.02 * u)], t => [lerp(ar * 1.1, ar * 1.7, t * t), lerp(ar * 1.1, ar * 1.6, t * t)], { n: 16, capA: false, capB: false }), 'robesleeve'), mat(body.mat, { side: true }), elbow);
+    if (kind === 'plate') { add(fitMaster(tube([V(0, -S.fore * 0.15, 0), V(0, -S.fore * 0.9, 0)], t => [lerp(ar * 1.05, ar * 0.8, t), lerp(ar * 1.0, ar * 0.76, t)], { n: 12 }), 'vambrace'), torsoMat, elbow); add(sph(ar * 0.95, 12, 8), torsoMat, elbow); }
     const hand = new THREE.Group(); hand.position.y = -S.fore; elbow.add(hand);
     const grip = buildHand(hand, side, mat(gloveKey, { tint: bareTint }), gloves, u * S.hand, fx, gripRadius(L, side, uw), side === 1 ? L.ring : null);
     if (side === 1 && L.ring) rig.ring = true;
     // pauldrons: three lames over the shoulder
     const pk = body?.pauldrons || (kind === 'plate' ? body.mat : null);
-    if (pk) for (let k = 0; k < 3; k++) { const r = ar * (2.0 - k * 0.22); const p = add(sph(r, 18, 10, 0, TAU, 0, Math.PI * 0.42), mat(pk, { side: true }), sh, side * 0.006 * u, 0.025 * u - k * 0.03 * u, 0); p.rotation.z = -side * (0.35 + k * 0.12); p.scale.set(1.1, 0.75, 1); if (body?.trim && k === 0) add(tube(ellipse(V(0, Math.cos(Math.PI * 0.42) * r, 0), V(1, 0, 0), V(0, 0, 1), Math.sin(Math.PI * 0.42) * r, Math.sin(Math.PI * 0.42) * r, 24), 0.005 * u, { closed: true, n: 6 }), mat(body.trim), p); }
+    if (pk) for (let k = 0; k < 3; k++) { const r = ar * (2.0 - k * 0.22); const p = add(fitMaster(sph(r, 18, 10, 0, TAU, 0, Math.PI * 0.42), 'pauldron'), mat(pk, { side: true }), sh, side * 0.006 * u, 0.025 * u - k * 0.03 * u, 0); p.rotation.z = -side * (0.35 + k * 0.12); p.scale.set(1.1, 0.75, 1); if (body?.trim && k === 0) add(tube(ellipse(V(0, Math.cos(Math.PI * 0.42) * r, 0), V(1, 0, 0), V(0, 0, 1), Math.sin(Math.PI * 0.42) * r, Math.sin(Math.PI * 0.42) * r, 24), 0.005 * u, { closed: true, n: 6 }), mat(body.trim), p); }
     rig.arms.push({ sh, elbow, hand, grip, side });
   }
   rig.armR = rig.arms[0]; rig.armL = rig.arms[1];
@@ -519,7 +519,7 @@ export function buildHero(heroKey, gear, o = {}) {
   /* ---- the identity's cloth: mantle, cloak, quiver */
   if ((H.mantle || H.pelt) && look !== 'hood' && look !== 'coif') {
     const rings = []; for (let i = 0; i <= 6; i++) { const t = i / 6, y = lerp(S.neckY + 0.01 * u, S.shY - 0.085 * u, t); rings.push(torsoRing(S, y, (0.018 + t * 0.022) * u, 32, t * 0.05, 0)); }
-    add(loft(rings), mat(H.mantle || H.pelt, { side: true }), chest);
+    add(fitMaster(loft(rings), 'mantle'), mat(H.mantle || H.pelt, { side: true }), chest);
   }
   if (H.cloak && !robe) {
     const cape = new THREE.Group(); cape.position.set(0, S.shY - 0.02 * u, 0); root.add(cape); rig.cape = cape;
@@ -846,12 +846,12 @@ function buildHand(hand, side, m, gloves, u, fx, gr = 0.012, ring = null) {
   // the grip's centre: against the palm, as far out as the grip is thick (the fist opens round a thick haft)
   const gc = V(med * (pd * 0.55 + gr * 0.85), -0.07 * u - gr * 0.25, 0.004 * u);
   // palm and back of the hand
-  add(tube([V(0, 0.005 * u, 0), V(0, -pl * 0.5, 0.002 * u), V(0, -pl, 0.004 * u)], t => [pd * (1.05 - t * 0.1), pw * (0.62 + t * 0.4)], { n: 14, up: V(1, 0, 0) }), m, hand);
+  add(fitMaster(tube([V(0, 0.005 * u, 0), V(0, -pl * 0.5, 0.002 * u), V(0, -pl, 0.004 * u)], t => [pd * (1.05 - t * 0.1), pw * (0.62 + t * 0.4)], { n: 14, up: V(1, 0, 0) }), 'glove'), m, hand);
   // fingers: four curls round the grip, stacked along z
   for (let f = 0; f < 4; f++) {
     const rad = (0.0068 - f * 0.0004) * u, z = (f - 1.5) * 0.0175 * u, R = gr + rad * 0.95;
     const pts = []; for (let i = 0; i <= 8; i++) { const a = lerp(0.2, 4.2, i / 8); pts.push(V(gc.x - med * Math.cos(a) * R, gc.y + Math.sin(a) * R * 0.95 - 0.004 * u, z * (1 + i * 0.01) + gc.z)); }
-    add(tube(curve(pts, 12), t => rad * (1 - t * 0.2), { n: 8 }), m, hand);
+    add(fitMaster(tube(curve(pts, 12), t => rad * (1 - t * 0.2), { n: 8 }), 'finger'), m, hand);
   }
   // a ring on the ring finger (November 20: rings were never shown): a band round the finger where it leaves the palm,
   // its gem facing out
@@ -863,7 +863,7 @@ function buildHand(hand, side, m, gloves, u, fx, gr = 0.012, ring = null) {
     const g = ring.gem || ring.p?.gem; if (g) gem(g, rad * 0.75, hand, p.x + out.x * rad * 1.4, p.y + out.y * rad * 1.4, p.z, metal, out);
   }
   // thumb over the fingers
-  { const tr = 0.0085 * u, Rt = gr + tr * 0.9, pts = [V(-med * 0.004 * u, -0.022 * u, 0.026 * u)]; for (let i = 0; i <= 6; i++) { const a = lerp(-0.2, 2.1, i / 6); pts.push(V(gc.x - med * Math.cos(a) * Rt, gc.y + Math.sin(a) * Rt, gc.z + 0.034 * u - i * 0.002 * u)); } add(tube(curve(pts, 12), t => tr * (1 - t * 0.25), { n: 8 }), m, hand); }
+  { const tr = 0.0085 * u, Rt = gr + tr * 0.9, pts = [V(-med * 0.004 * u, -0.022 * u, 0.026 * u)]; for (let i = 0; i <= 6; i++) { const a = lerp(-0.2, 2.1, i / 6); pts.push(V(gc.x - med * Math.cos(a) * Rt, gc.y + Math.sin(a) * Rt, gc.z + 0.034 * u - i * 0.002 * u)); } add(fitMaster(tube(curve(pts, 12), t => tr * (1 - t * 0.25), { n: 8 }), 'finger'), m, hand); }
   if (gloves) {
     // a cuff at the wrist; gauntlets get plates over the back of the hand and knuckles
     add(lathe([[0.03 * u, 0.03 * u], [0.034 * u, 0.012 * u], [0.026 * u, -0.004 * u]], { n: 16 }), m, hand);
@@ -953,10 +953,10 @@ function buildHeadgear(head, root, HL, art, r, S, u, fx) {
     for (let i = 0; i < 12; i++) { const a = i / 12 * TAU; add(sph(0.0045 * u, 6, 4), mat(HL.trim || metalKey), head, Math.sin(a) * r * 1.1, r * 0.34, Math.cos(a) * r * 1.13); }
   } else if (look === 'helm') {
     const m = mat(metalKey, { side: true });
-    add(lathe([[0, r * 1.2], [r * 0.55, r * 1.13], [r * 0.93, r * 0.86], [r * 1.12, r * 0.42], [r * 1.15, r * 0.24]], { n: 40, sx: 0.97 }), m, head);
+    add(fitMaster(lathe([[0, r * 1.2], [r * 0.55, r * 1.13], [r * 0.93, r * 0.86], [r * 1.12, r * 0.42], [r * 1.15, r * 0.24]], { n: 40, sx: 0.97 }), 'helm', { v1: 0.432 }), m, head);
     // the eye slit runs wide across the face; below it a narrow opening for the nose and mouth (a T)
-    add(lathe([[r * 1.15, r * 0.24], [r * 1.16, -r * 0.05]], { n: 32, sx: 0.97, phi0: 1.05, phiLen: TAU - 2.1 }), m, head);
-    add(lathe([[r * 1.16, -r * 0.05], [r * 1.14, -r * 0.45], [r * 1.06, -r * 0.8], [r * 0.95, -r * 1.02]], { n: 32, sx: 0.97, phi0: 0.32, phiLen: TAU - 0.64 }), m, head);
+    add(fitMaster(lathe([[r * 1.15, r * 0.24], [r * 1.16, -r * 0.05]], { n: 32, sx: 0.97, phi0: 1.05, phiLen: TAU - 2.1 }), 'helm', { u0: 1.05 / TAU, u1: 1 - 1.05 / TAU, v0: 0.432, v1: 0.563 }), m, head);
+    add(fitMaster(lathe([[r * 1.16, -r * 0.05], [r * 1.14, -r * 0.45], [r * 1.06, -r * 0.8], [r * 0.95, -r * 1.02]], { n: 32, sx: 0.97, phi0: 0.32, phiLen: TAU - 0.64 }), 'helm', { u0: 0.32 / TAU, u1: 1 - 0.32 / TAU, v0: 0.563 }), m, head);
     // a brow ridge over the slit and a rim round the opening
     add(tube(curve([V(-Math.sin(1.05) * r * 1.16 * 0.97, r * 0.26, Math.cos(1.05) * r * 1.16), V(0, r * 0.3, r * 1.2), V(Math.sin(1.05) * r * 1.16 * 0.97, r * 0.26, Math.cos(1.05) * r * 1.16)], 20), [0.007 * u, 0.012 * u], { n: 6 }), mat(HL.trim || metalKey), head);
     for (const sd of [-1, 1]) add(tube(curve([V(sd * Math.sin(0.32) * r * 1.17 * 0.97, -r * 0.05, Math.cos(0.32) * r * 1.17), V(sd * Math.sin(0.32) * r * 1.13 * 0.97, -r * 0.5, Math.cos(0.32) * r * 1.13), V(sd * Math.sin(0.32) * r * 0.97 * 0.97, -r * 1.0, Math.cos(0.32) * r * 0.97)], 12), 0.006 * u, { n: 6 }), mat(HL.trim || metalKey), head);
@@ -966,11 +966,12 @@ function buildHeadgear(head, root, HL, art, r, S, u, fx) {
   } else if (look === 'coif' || look === 'hood') {
     const cloth = look === 'hood' || (look === 'coif' && HL.mat && !MAT[HL.mat]?.metal), m = cloth ? mat(HL.mat || 'hoodGreen', { side: true }) : mat(metalKey, { as: 'mail', side: true, rep: 1.5 });
     const k = cloth ? 1.2 : 1.12;
-    add(lathe([[0, r * 1.1 * k], [r * 0.6 * k, r * 1.0 * k], [r * 1.0 * k, r * 0.62 * k]], { n: 40, sx: 0.97 }), m, head);
-    add(lathe([[r * 1.0 * k, r * 0.62 * k], [r * 1.05 * k, r * 0.1], [r * 0.95 * k, -r * 0.6], [r * 0.86 * k, -r * 0.98]], { n: 32, sx: 0.97, phi0: 0.95, phiLen: TAU - 1.9 }), m, head);
+    const hv = (1.1 * k - 0.62 * k) / (1.1 * k + 0.98); // where the crown ends along the hood's master (by height)
+    add(fitMaster(lathe([[0, r * 1.1 * k], [r * 0.6 * k, r * 1.0 * k], [r * 1.0 * k, r * 0.62 * k]], { n: 40, sx: 0.97 }), 'hood', { v1: hv }), m, head);
+    add(fitMaster(lathe([[r * 1.0 * k, r * 0.62 * k], [r * 1.05 * k, r * 0.1], [r * 0.95 * k, -r * 0.6], [r * 0.86 * k, -r * 0.98]], { n: 32, sx: 0.97, phi0: 0.95, phiLen: TAU - 1.9 }), 'hood', { u0: 0.95 / TAU, u1: 1 - 0.95 / TAU, v0: hv }), m, head);
     // the drape over the shoulders
     const rings = []; for (let i = 0; i <= 6; i++) { const t = i / 6, y = lerp(S.neckY + 0.04 * u, S.shY - 0.13 * u, t); rings.push(torsoRing(S, y, (0.02 + t * 0.025) * u, 32, cloth ? t * 0.06 : 0, 0)); }
-    add(loft(rings), m, root);
+    add(fitMaster(loft(rings), 'mantle'), m, root);
     if (cloth && HL.tip) add(tube(curve([V(0, r * 0.9, -r * 0.8), V(0, r * 0.75, -r * 1.35), V(0, r * 0.2, -r * 1.8)], 12), t => [lerp(r * 0.45, 0.002, t), lerp(r * 0.35, 0.002, t)], { n: 12 }), m, head);
     if (trim) { const ed = (rad, y, sd) => V(sd * Math.sin(0.95) * rad * 0.97, y, Math.cos(0.95) * rad); const pts = [ed(r * 0.86 * k, -r * 0.98, -1), ed(r * 0.95 * k, -r * 0.6, -1), ed(r * 1.05 * k, r * 0.1, -1), ed(r * 1.0 * k, r * 0.62 * k, -1), V(0, r * 0.66 * k, r * 1.02 * k), ed(r * 1.0 * k, r * 0.62 * k, 1), ed(r * 1.05 * k, r * 0.1, 1), ed(r * 0.95 * k, -r * 0.6, 1), ed(r * 0.86 * k, -r * 0.98, 1)]; add(tube(curve(pts, 30), 0.007 * u, { n: 6 }), trim, head, 0, 0, 0.002 * u); }
   } else if (look === 'circlet' || look === 'crown') {

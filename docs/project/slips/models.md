@@ -213,6 +213,24 @@ sculpt** (the full-detail sculpt itself) and **Sculpted** on or off: https://cla
   (helm, hood, coif, gloves, robe, mantle, plate, the shield's face and the weapons' grips), then the people foes and
   townsfolk, who share them all.
 
+**More masters: helm, hood and coif, mantle, gloves, robe, plate, the shield's face, grips** (November 21). Gear Room,
+same buttons: https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL
+- Twelve more kinds, 23 in all: helm (a comb over the crown, a riveted band, breaths beside the mouth, a rolled edge),
+  hood and coif (seams over the crown and down the back, a turned hem round the face, bunched at the neck), mantle (also
+  a hood's drape and a pelt: gathered at the neck, a stitched hem), glove (knuckle wrinkles, seams, the wrist) and finger
+  (knuckle creases; bare hands too), robe sleeve (deep folds, an embroidered cuff), plate (broad dents, scratches,
+  rivets along both edges), lame (rivets, a rolled edge), vambrace (also greaves: rolled ends, rivets, the hinge line),
+  pauldron (a rolled edge, a ring of rivets), the shield's face (six boards, two battens of nails, knocks toward the rim)
+  and the grip (leather wound round it).
+- The atlas is now 4 x 6 cells of 256 px, 1024 x 1536, **366 KB** (about 490 KB in a page), still one picture in
+  `masters/pack.js`. One cell is free.
+- A piece now carries its master's place in its own attribute (`mUv`), so pieces with a painted picture of their own
+  keep it: the shields' painted faces wear the boards and nails over their paint (`withMaster(material)` in kit.js).
+- Still no new materials or draws (Wren 48 pieces, 218 / 100 / 24 draws at High / Light / Lite). Item audit 458 items,
+  0 flags. The sculpt view: 915,000 triangles. Bestiary builds (11.7 MB).
+- Next: the townsfolk's and people foes' own pieces (scarves, masks, aprons, sashes, wraps, hats, satchels, the foes'
+  looks), which already share every master above.
+
 ## Next
 
 - Chris chose full detail for the beasts (November 20): sessions 6 to 8 build them (`docs/project/jobs/foes.md`;
