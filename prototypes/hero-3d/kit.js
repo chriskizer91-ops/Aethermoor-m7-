@@ -317,17 +317,20 @@ export function fitMaster(geo, kind, { v0 = 0, v1 = 1, u0 = 0, u1 = 1, planar = 
 }
 const masterUniforms = U => Object.assign(U, { triMaster: { value: masterTexture() }, triMSlope: { value: MSLOPE }, triMK: { value: MASTER_ON.on ? 1 : 0 } });
 // withMaster(material): a material without a grain picture (a shield's painted face) that still wears the masters
+// (it keeps a shader the material already has, the faces' living-face shader: that runs first)
 export function withMaster(m) {
   if (!MASTER_ON.on || !TEXTURES.on || m.userData.tri) return m;
   const U = masterUniforms({}); m.userData.tri = U;
-  m.onBeforeCompile = sh => {
+  const prev = m.onBeforeCompile, prevKey = m.customProgramCacheKey?.bind(m);
+  m.onBeforeCompile = (sh, r) => {
+    if (prev) prev.call(m, sh, r);
     Object.assign(sh.uniforms, U);
     sh.vertexShader = sh.vertexShader.replace('void main() {', 'attribute vec2 mUv;\nvarying vec2 vMUv;\nvoid main() {').replace('#include <begin_vertex>', 'vMUv = mUv;\n#include <begin_vertex>');
     sh.fragmentShader = sh.fragmentShader.replace('void main() {', `uniform sampler2D triMaster; uniform float triMSlope[${NCELL}]; uniform float triMK; varying vec2 vMUv;\nvoid main() {`)
       .replace('#include <map_fragment>', '#include <map_fragment>\n' + MASTER_AO)
       .replace('#include <normal_fragment_maps>', '#include <normal_fragment_maps>\n' + MASTER_NORMAL);
   };
-  m.customProgramCacheKey = () => 'aeth-master';
+  m.customProgramCacheKey = () => 'aeth-master|' + (prevKey ? prevKey() : '');
   return m;
 }
 function triplanar(m, name, kind, opt = {}) {
