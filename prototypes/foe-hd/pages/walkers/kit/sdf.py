@@ -76,6 +76,7 @@ def ridged(P, f, n=3):
     s, a, t = 0, 0.5, 0
     for _ in range(n): s = s + a * (1 - np.abs(2 * vnoise(P + 7.1 * t, f) - 1)); f *= 2.1; a *= 0.5; t += 1
     return s
+def tri(x): f = x - np.floor(x); return 1 - np.abs(2 * f - 1)        # 0 at whole numbers, 1 halfway (the kit's coat uses it)
 def mix(a, b, t): return np.asarray(a) * (1 - t) + np.asarray(b) * t
 def sstep(a, b, x): x = np.clip((x - a) / (b - a), 0, 1); return x * x * (3 - 2 * x)
 
