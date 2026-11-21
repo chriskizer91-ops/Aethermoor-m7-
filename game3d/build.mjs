@@ -2,7 +2,7 @@
 //   node game3d/build.mjs              Act One, phone sizes: world3d/dist/game3d-act1.html (open it) and .artifact.html
 //   node game3d/build.mjs --act=sunscorch   the Sunscorch's page: world3d/dist/game3d-sunscorch-400.html
 //   node game3d/build.mjs --tex=768    other sizes pass through (--tex, --paint, --herotex)
-//   node game3d/build.mjs --full --files --herotex=384 --out=game3d-act1-full   every picture at full size, as files beside the page
+//   node game3d/build.mjs --full --files --out=game3d-act1-full   every picture at full size, as files beside the page
 //                                      (publish with world3d/dist/<out>.files.json as the files map)
 // Needs world3d/node_modules (a link to prototypes/hero-3d/node_modules: npm install there) and Python with Pillow.
 import { execFileSync } from 'node:child_process';
@@ -14,9 +14,10 @@ export const ACT_ONE = ['keep', 'keep-hall', 'hearth-road', 'thornhollow', 'thor
 // a page per act or region (each under 16 MB): --act=act1 (default) or --act=sunscorch (Act Two's first region, with the
 // Keep and its Great Hall to start from)
 export const ACTS = {
-  act1: { places: ACT_ONE, out: 'game3d-act1', name: null, foesHd: null, paint: '0.4', herotex: '192' },   // smaller pictures: room for the full-detail foes
+  act1: { places: ACT_ONE, out: 'game3d-act1', name: null, foesHd: null, paint: '0.4', herotex: '192', tex: '360' },   // smaller pictures: room for the full-detail foes
   ironspire: { title: 'Hearth & Heirloom: the Ironspire', places: ['keep', 'keep-hall', 'old-bridge', 'drystone-lea', 'plankford', 'shrinewood', 'silverfall', 'last-camp', 'rockslide-pass', 'peaks-veil', 'highfold', 'iron-stair', 'ironhold', 'ironhold-deeps', 'harrows-forge', 'stormwatch', 'frost-road', 'frostmere', 'frostmere-below'], out: 'game3d-ironspire', name: 'Act Two, the Ironspire', foesHd: 'none', paint: '0.4' },
   gloomfen: { title: 'Hearth & Heirloom: the Gloomfen', places: ['keep', 'keep-hall', 'mossfall', 'murkway', 'willowmurk', 'rotbridge', 'bogmire', 'lanternfen', 'mothers-hollow', 'long-boardwalk', 'misthollow', 'drowned-belfry', 'blackwater-reach', 'tidal-flats', 'causeway'], out: 'game3d-gloomfen', name: 'Act Two, the Gloomfen', foesHd: 'none' },
+  act3: { title: 'Hearth & Heirloom: Act Three', places: ['keep', 'keep-hall', 'keep-gallery', 'keep-gallery-2', 'keep-gallery-3', 'hollow-hall', 'ash-stair', 'chained-deep', 'worldforge'], out: 'game3d-act3', name: 'Act Three, the Hollow Council', foesHd: 'none' },
   sunscorch: { title: 'Hearth & Heirloom: the Sunscorch', places: ['keep', 'keep-hall', 'sun-road', 'sandspire', 'dust-trail', 'dusthaven', 'deep-shaft-1', 'deep-shaft-2', 'glass-flats', 'miragewell', 'scorchgate', 'scorchgate-vaults'], out: 'game3d-sunscorch', name: 'Act Two, the Sunscorch', foesHd: 'none' },
 };
 const pass = process.argv.slice(2);
@@ -30,14 +31,14 @@ const args = [
   '--out=' + (has('out') ? pass.find((a) => a.startsWith('--out=')).split('=')[1] : ACT.out),
   ...(ACT.name && !has('name') ? ['--name=' + ACT.name] : []),
   // --full: every picture at its own size (no --tex, --paint or --herotex); meant with --files, the pictures beside the page
-  ...(FULL || has('tex') ? [] : ['--tex=400']), ...(FULL || has('paint') ? [] : ['--paint=' + (ACT.paint || '0.5')]), ...(FULL || has('herotex') ? [] : ['--herotex=' + (ACT.herotex || '256')]),
+  ...(FULL || has('tex') ? [] : ['--tex=' + (ACT.tex || '400')]), ...(FULL || has('paint') ? [] : ['--paint=' + (ACT.paint || '0.5')]), ...(FULL || has('herotex') ? [] : ['--herotex=' + (ACT.herotex || '256')]),
   ...pass.filter((a) => !/^--(places|out|act)=/.test(a) && a !== '--full'),
 ];
 execFileSync('node', args, { cwd: path.join(here, '../world3d'), stdio: 'inherit', env: process.env });
 // the page's tab title, per act (the shared builder's --name only rewrites the words "Act One")
 if (ACT.title) {
   const { readFileSync, writeFileSync } = await import('node:fs');
-  const out = (has('out') ? pass.find((a) => a.startsWith('--out=')).split('=')[1] : ACT.out) + (FULL ? '' : '-' + (has('tex') ? pass.find((a) => a.startsWith('--tex=')).split('=')[1] : '400'));
+  const out = (has('out') ? pass.find((a) => a.startsWith('--out=')).split('=')[1] : ACT.out) + (FULL ? '' : '-' + (has('tex') ? pass.find((a) => a.startsWith('--tex=')).split('=')[1] : (ACT.tex || '400')));
   for (const f of [`${out}.html`, `${out}.artifact.html`]) {
     const p = path.join(here, '../world3d/dist', f);
     writeFileSync(p, readFileSync(p, 'utf8').replace('<title>Hearth &amp; Heirloom in 3D</title>', `<title>${ACT.title.replace(/&/g, '&amp;')}</title>`));

@@ -52,6 +52,8 @@ const STARTS = [
     level: 10, flags: [...ACT1.flags, 'sunscorch-complete', 'council-2-done'], beaten: [...ACT1.beaten, 'kharzul-heart', 'ashen-warden'], brands: [...ACT1.brands, 'brand-of-glass', 'brand-of-ash'], pos: { map: 'keep', x: 28, y: 11, face: 'e' } },
   { page: 'murkway', label: 'Begin at the Gloomfen', sub: 'The Wilds, the Sunscorch and the Ironspire done (six Brands, the Council sat three times), the party at level 15, at the top of Mossfall\'s fen stair',
     level: 15, flags: [...ACT1.flags, 'sunscorch-complete', 'council-2-done', 'ironspire-complete', 'council-3-done'], beaten: [...ACT1.beaten, 'kharzul-heart', 'ashen-warden', 'mother-anvil', 'rime-abbot'], brands: [...ACT1.brands, 'brand-of-glass', 'brand-of-ash', 'brand-of-iron', 'brand-of-frost'], pos: { map: 'mossfall', x: 20, y: 20, face: 's' } },
+  { page: 'hollow-hall', label: 'Begin Act Three', sub: 'Acts One and Two done (all eight Brands, the Council sat four times), the party at level 20, in the Great Hall as the Council sits a fifth time',
+    level: 20, flags: [...ACT1.flags, 'sunscorch-complete', 'council-2-done', 'ironspire-complete', 'council-3-done', 'gloomfen-complete', 'council-4-done'], beaten: [...ACT1.beaten, 'kharzul-heart', 'ashen-warden', 'mother-anvil', 'rime-abbot', 'lantern-mother', 'blackwater-leviathan'], brands: [...ACT1.brands, 'brand-of-glass', 'brand-of-ash', 'brand-of-iron', 'brand-of-frost', 'brand-of-lanterns', 'brand-of-the-deep'], pos: { map: 'keep-hall', x: 12, y: 6, face: 'n' }, act: 3 },
 ];
 const DEFAULTS = { sound: true, music: true, battleSpeed: Number(Q.get('speed')) || 1, reducedMotion: false, touchControls: 'auto', alwaysRun: false, mapZoom: 'normal' };
 // M7's screens that lie over the 3D (the walk waits under them)
@@ -253,7 +255,7 @@ async function main() {
     for (const k of st.flags) f.story[k] = true;
     for (const enc of ['keep-vault', ...st.beaten]) { f.done[enc] = true; f.cleared[enc] = true; f.beaten = { ...(f.beaten || {}), [enc]: 1 }; }
     g.progress.brands = st.brands.slice();
-    g.progress.act = 2;
+    g.progress.act = st.act || 2;
     g.progress.pos = { ...st.pos };
     return g;
   }

@@ -23,6 +23,9 @@
 #      SPLIT = [('head', 'jaw')] cuts two parts apart where they meet, with no blend (a mouth that opens).
 #   5. Each joint blends its two parts in a band of half-width w across the joint, and only within a ball of radius R
 #      round it (w and R from the thickness of the limb; a rig may set BANDS = {bone: w or (w, R)}).
+#   Gates: in weigh(), +1000 on a bone means "never" for that point, and holds through every step below (labels, joint
+#   bands, smoothing); mask(P, idx) -> (n, bones) in 0..1 is a soft gate, multiplied in at each step (give it soft
+#   edges a few cm wide, or the hard edge tears when the parts move apart).
 #   6. The weights are smoothed over the surface a few passes (never across a cut), so each change of part is spread
 #      over a few centimetres. Smoothing runs along the skin, not through the air, so it can't bleed across a gap.
 #
@@ -130,6 +133,11 @@ def bind(RIG, P, kind, tris, height, mid, log=print):
     D = np.stack([seg_dist(Pw, H[i], T[i]) for i in range(nb)], 1)
     Dg = RIG.weigh(D.copy(), Pw, idx) if hasattr(RIG, 'weigh') else D.copy()
     seen = sight(Pw, wid, tris, H, T, height)
+    # gates hold everywhere: a bone the rig's weigh() put 500 or more away from a point (+1000 = "never") gives that point
+    # no weight at all, not through the labels, the joint bands or the smoothing; and a rig's soft mask(P, idx) ->
+    # (n, bones) in 0..1 is multiplied in at every one of those steps (soft edges a few cm wide blend; hard ones tear)
+    MASK = (Dg < 500).astype(np.float64)
+    if hasattr(RIG, 'mask'): MASK *= np.clip(np.asarray(RIG.mask(Pw, idx), np.float64), 0, 1)
     Dg[~seen] += 100.0                               # a bone it can't see only if it sees none
     lab = np.argmin(Dg, 1)
     if hasattr(RIG, 'part'):
@@ -223,7 +231,7 @@ def bind(RIG, P, kind, tris, height, mid, log=print):
         own = np.ones(len(ii)); blend = free[ii]
         if par[b] >= 0 and skin[par[b]] and (b, par[b]) not in split:
             f, near = share(b, X)
-            mp = np.where(blend & seen[ii, par[b]], (1 - sstep(-w[b], w[b], f)) * near, 0.0)
+            mp = np.where(blend & seen[ii, par[b]], (1 - sstep(-w[b], w[b], f)) * near, 0.0) * MASK[ii, par[b]]
             Wd[ii, par[b]] += mp; own -= mp
         for c in kids[b]:
             if not skin[c] or (b, c) in split: continue
@@ -232,7 +240,7 @@ def bind(RIG, P, kind, tris, height, mid, log=print):
             # jaw's hinge stays head)
             dc = seg_dist(X, H[c], T[c]); rc = min(1.6 * r[c] + w[c], R[c])
             nc = 1 - sstep(rc, 1.5 * rc, dc)
-            g = np.where(blend & seen[ii, c], sstep(-w[c], w[c], f) * near * nc, 0.0)     # and only a bone it can see
+            g = np.where(blend & seen[ii, c], sstep(-w[c], w[c], f) * near * nc, 0.0) * MASK[ii, c]     # only a bone it can see
             Wd[ii, c] += own * g; own *= 1 - g
         Wd[ii, b] += own
 
@@ -262,9 +270,12 @@ def bind(RIG, P, kind, tris, height, mid, log=print):
     A2 = ((A2 + A2.T) > 0).astype(np.float64)
     deg = np.asarray(A2.sum(1)).ravel()
     sm = free & (deg > 0)
+    keep_ = MASK.copy(); keep_[np.arange(nw), lab] = 1.0          # (a point's own part always counts)
     for _ in range(int(getattr(RIG, 'SMOOTH', 8))):
         avg = (A2 @ Wd) / np.maximum(deg, 1)[:, None]
         Wd[sm] = 0.5 * Wd[sm] + 0.5 * avg[sm]
+        Wd[sm] *= keep_[sm]                                      # the gates and the mask hold through the smoothing
+        Wd[sm] /= np.maximum(Wd[sm].sum(1, keepdims=True), 1e-9)
 
     cut |= cuts(Wd)                                   # and again on the smoothed weights
     if cut.any(): log(f'cut {int(cut.sum())} triangles where parts touch (after smoothing)')

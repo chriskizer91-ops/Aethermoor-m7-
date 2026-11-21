@@ -97,8 +97,10 @@ shown side by side with the code-built model and a cut-out of Chris's sheet.
 
 ## Next
 
-0. Later kit pass (after the boglurcher is under way): helper joints in the rig templates for every lane, starting from
-   session 7's proposal (docs/project/slips/foes-beasts.md: a shoulder blade per foreleg, a haunch per hind leg, two
+0. Done (November 21): gates that hold through bands and smoothing (weigh +1000, or a soft mask()), and helper joints
+   in the quad and biped templates (blades, haunches/hips, shoulders, neck_base, tail_root), driven by the loader's
+   applyHelpers. Briarmaw re-bound with them and passes; a livelier walk still fails at his knees, under the belly fur:
+   real swing back needs his legs drawn out of the belly in the sculpt (a later pass). Earlier note: session 7's proposal (docs/project/slips/foes-beasts.md: a shoulder blade per foreleg, a haunch per hind leg, two
    neck bones, a tail-root helper, driven by the loader from a HELPERS table so moves don't change). Also session 7's
    report that bind.py lets some neck weight onto the thornhound's ear root despite its weigh(): weigh gates need
    +1000 (an unseen bone costs 100), and a gate should also stop the bands and smoothing.

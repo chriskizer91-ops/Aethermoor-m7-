@@ -68,7 +68,6 @@ export function pose(B, move, u, t, step = 0) {
     b.neck.rotation.x = 0.05 * go * back; b.head.rotation.x += -0.03 * go * back;
     b.jaw.rotation.x = 0.05 + 0.4 * go * (1 - snap) * back;
     b.hips.rotation.x = 0.14 * go * back; B.body.position.z = 0.25 * go * back;     // he dips whole into the bite
-    b.fl_upper.rotation.x = b.fr_upper.rotation.x = -0.06 * go * back;
     return;
   }
   if (move === 'hurt') {

@@ -17,7 +17,7 @@ import path from 'node:path';
 import zlib from 'node:zlib';
 import { pathToFileURL } from 'node:url';
 import * as THREE from 'three';
-import { decodeLight, buildSkinned, ready, resolveMove, COMMON } from '../js/loader.js';
+import { decodeLight, buildSkinned, ready, resolveMove, COMMON, applyHelpers } from '../js/loader.js';
 
 const KIT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '../..');
 const args = process.argv.slice(2);
@@ -62,7 +62,7 @@ const moves = await loadMoves();
 const group = new THREE.Group(), body = new THREE.Group(); group.add(body); body.add(mesh);
 for (const b of Object.values(bones)) b.userData.p0 = b.position.clone();
 const F = { group, body, mesh, bones, key, plan: meta.plan || cfg.plan, height: meta.height || cfg.height || moves.height || 1.7,
-  parts: { head: bones.head, tail: bones.tail, jaw: bones.jaw }, act: { lunge: 0, fall: 0 }, moves };
+  parts: { head: bones.head, tail: bones.tail, jaw: bones.jaw }, act: { lunge: 0, fall: 0 }, moves, helpers: meta.helpers || [] };
 function reset() {
   for (const b of Object.values(bones)) { b.rotation.set(0, 0, 0); b.position.copy(b.userData.p0); b.scale.set(1, 1, 1); }
   body.position.set(0, 0, 0); body.rotation.set(0, 0, 0); body.scale.set(1, 1, 1);
@@ -151,7 +151,7 @@ for (const mv of list) {
   const W = { big: { over: 0 }, crease: { over: 0 } }; let worstOver = 0, worstP = null, worstO = null, rules = new Set(), badFrames = 0;
   for (let f = 0; f < FRAMES; f++) {
     const u = loop ? 0 : f / (FRAMES - 1), t = loop ? (f / FRAMES) * 4 : 1.3 + u * dur, step = mv === 'walk' ? (f / FRAMES) * Math.PI * 4 : 0;
-    reset(); moves.pose(F, mv, u, t, step);
+    reset(); moves.pose(F, mv, u, t, step); applyHelpers(F);     // as the loader does
     for (const r of boneRules()) rules.add(r);
     skin(); const m = measure();
     if (m.over > 1) badFrames++;

@@ -101,7 +101,21 @@ about 25 MB).
   middle), `BANDS = {bone: w or (w, R)}` (a joint's blend: half-width and reach), `SMOOTH` (smoothing passes, default
   8) and `SPLIT = [('head', 'jaw')]` (cut two parts apart with no blend: a mouth that opens; the page then draws the
   model's inside too, so the open mouth shows the inside of the head).
-- In `weigh`, gate a bone off with a large number (`+ 1000`): a bone a point can't see already costs 100.
+- **Gates.** In `weigh`, `+ 1000` on a bone means "never" for that point, and it holds through everything (labels,
+  joint bands, smoothing). A value under 500 only steers the labels (smoothing may still blend a little in). A rig may
+  also give `mask(P, idx) -> (n, bones)` in 0..1, a soft gate multiplied in at every step: give it soft edges a few cm
+  wide, because a hard edge tears when the two sides move apart.
+- **Helper joints** (November 21, from session 7's proposal). The quad and biped templates add them by default
+  (`make(..., helpers=False)` to leave them out):
+  - quad: `fl_blade`, `fr_blade` (a shoulder blade over each foreleg, half the upper leg's turn), `bl_haunch`,
+    `br_haunch` (half the thigh's), `neck_base` (half the neck's), `tail_root` (a quarter of the tail's);
+  - biped: `r_shoulder`, `l_shoulder` (0.35 of the upper arm's), `r_hip`, `l_hip` (0.3 of the thigh's), `neck_base`.
+  A helper sits between a bone and its parent. The moves never touch it: the loader (`applyHelpers`, also used by the
+  stretch check) gives it its share of its one child's turn after every pose, and takes that share off the child, so
+  the limb ends where the move put it. Any rig can have them: name a bone `<x>_blade`, `_haunch`, `_shoulder`,
+  `_hip`, `neck_base` or `tail_root` with exactly one child, or list `HELPERS = {bone: share}`. The bake and
+  `rebind.py` write the list into `light.json` (`helpers`); a page that builds foes without the kit's loader must call
+  `applyHelpers(F)` after each pose.
 
 ### No stretching (Chris, November 21)
 
