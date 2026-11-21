@@ -144,7 +144,7 @@
     }
 
     // ---- rings on still water (not on molten metal) ----
-    if (!(place.water || []).some((wt) => wt.emis) && (place.water || []).length) {
+    if (!(place.water || []).some((wt) => wt.emis) && (place.water || []).length && biome !== 'frozen-lake') {   // (not on Frostmere's ice)
       const polys = place.water.map((wt) => wt.poly), inPoly = (p, x, y) => { let c = false; for (let i = 0, k = p.length - 1; i < p.length; k = i++) { const [xi, yi] = p[i], [xk, yk] = p[k]; if ((yi > y) !== (yk > y) && x < (xk - xi) * (y - yi) / (yk - yi) + xi) c = !c; } return c; };
       const spots = [], want = Math.round(28 * K);
       for (let tries = 0; tries < 4000 && spots.length < want; tries++) { const x = R() * w, y = R() * h; if (polys.some((p) => inPoly(p, x, y))) spots.push([x, y]); }
@@ -160,7 +160,7 @@
         const m = new THREE.Mesh(g, mat); m.frustumCulled = false; m.renderOrder = 4; m.name = 'life:rings'; put(m);
       }
       // ---- fish: each spot's fish leaps once in its cycle, an arc a metre high, turning nose-down as it falls ----
-      if (spots.length >= 6 && !indoors) {
+      if (spots.length >= 6 && !indoors && wk !== 'snow') {
         const at = [], sd = [], n = Math.min(spots.length, Math.round(10 * K));
         for (let i = 0; i < n; i++) { const [x, y] = spots[i]; at.push(wx(x), -0.46, wz(y)); sd.push(R(), R(), R(), R()); }
         put(points(n, at, sd, { U, name: 'fish', sprite: 'fish', color: 0xd8e4ec, order: 5,
