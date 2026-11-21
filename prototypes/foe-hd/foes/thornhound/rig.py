@@ -128,7 +128,7 @@ def weigh(D, P, idx):
         if n[:2] in ('fl', 'fr', 'bl', 'br'):
             D[:, i] += np.where(np.sign(x) != np.sign(b[2][0]), 1.0, 0.0)
             D[:, i] += np.where((sx_ > 850) != (n[0] == 'f'), 1.0, 0.0)
-    return D + (1 - M) * 2.0
+    return D + (M < 0.05) * 1000.0 + (1 - M) * 0.1      # masked out: never (bind adds +100 for unseen bones)
 
 def rigid(kind, P, idx):
     r = rigid_root(P, kind)
@@ -140,3 +140,4 @@ def rigid(kind, P, idx):
 BANDS = {'bl_upper': (0.07, 0.16), 'br_upper': (0.07, 0.16), 'fl_upper': (0.06, 0.14), 'fr_upper': (0.06, 0.14),
          'neck': (0.06, 0.14), 'head': (0.04, 0.10), 'tail1': (0.04, 0.10), 'spine': (0.08, 0.2), 'chest': (0.08, 0.2),
          'tail2': (0.04, 0.08), 'bl_lower': (0.05, 0.10), 'br_lower': (0.05, 0.10), 'fl_lower': (0.04, 0.08), 'fr_lower': (0.04, 0.08)}
+
