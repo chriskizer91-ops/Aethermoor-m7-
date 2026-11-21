@@ -33,6 +33,8 @@
 
   // ---- (Places, step 4) the place comes alive: flames, smoke, sparks, weather, ripples, birds, butterflies, moths (m7/life.js) ----
   let life = window.M7_LIFE ? window.M7_LIFE.add(W, PL['m7-' + cur]) : null;
+  // ---- (Places) the place map: the small map top left, the whole place's map when tapped (m7/minimap.js) ----
+  const mm = window.M7_MINIMAP ? window.M7_MINIMAP.create({ root: $('world'), W, place: PL['m7-' + cur] }) : null;
 
   // ---- the party: the leader walks; the other three keep loose spots round them (party.js), not in single file ----
   let followers = [], leader = W3D.witch('warden');
@@ -72,6 +74,7 @@
     if (life) life.remove();
     await W.switchTo(next, a.at[0], a.at[1], a.face);
     life = window.M7_LIFE ? window.M7_LIFE.add(W, next) : null;
+    if (mm) mm.setPlace(next);
     cur = to; leader = W3D.witch(lead.id); setFollowers(); list(); setLight();
     $('load').style.opacity = 0; setTimeout(() => { $('load').style.display = 'none'; }, 600);
     toast(next.name, true);
@@ -101,6 +104,6 @@
   $('load').style.opacity = 0; setTimeout(() => { $('load').style.display = 'none'; }, 700);
   setTimeout(() => toast(PL['m7-' + cur].name, true), 800);
   setTimeout(() => toast(PHONE ? 'Drag on the left to walk · Places to jump' : 'W A S D walk · Shift runs · Places to jump'), 4200);
-  window.__m7 = { W, go, get life() { return life; }, setLightPick: (k) => { lightPick = k; setLight(); }, get cur() { return cur; }, get leader() { return leader; } };
+  window.__m7 = { W, go, mm, get life() { return life; }, setLightPick: (k) => { lightPick = k; setLight(); }, get cur() { return cur; }, get leader() { return leader; } };
   window.__ready = true;
 })();
