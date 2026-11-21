@@ -6,13 +6,14 @@
 //   ../battle/tray.js   -> tray3d.js    M7's own dice tray, with real dice tumbling in it
 //   ../../rules/battle.js -> rules-tap.js  M7's own rules, every one as it is; act() and foeTurn() are only watched, so
 //                                       the field knows a command (a drink, a guard) before its events play
+//   ../../rules/autoplay.js -> auto-tap.js  M7's Auto as it is; ?land=1 (a test switch) has it use plain attacks only
 // Nothing else is swapped, and only for the battle screen: every other importer of those files gets M7's own.
 import path from 'node:path';
 import { readFileSync, existsSync, readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-const SWAP = { '../battle/stage.js': 'stage3d.js', '../battle/party.js': 'party3d.js', '../battle/tray.js': 'tray3d.js', '../../rules/battle.js': 'rules-tap.js' };
+const SWAP = { '../battle/stage.js': 'stage3d.js', '../battle/party.js': 'party3d.js', '../battle/tray.js': 'tray3d.js', '../../rules/battle.js': 'rules-tap.js', '../../rules/autoplay.js': 'auto-tap.js' };
 const SCREEN = path.join('game', 'src', 'ui', 'screens', 'battle.js');
 
 // Chris's painted standees (Models' prototypes/bestiary/standees/pack.js holds every creature, 5 MB): only the ones
@@ -76,7 +77,7 @@ const oneThree = {
 export default [oneThree, trimPack, foeAssets, {
   name: 'aethermoor-fight-swap',
   setup(b) {
-    b.onResolve({ filter: /^(\.\.\/battle\/(stage|party|tray)|\.\.\/\.\.\/rules\/battle)\.js$/ }, (a) => {
+    b.onResolve({ filter: /^(\.\.\/battle\/(stage|party|tray)|\.\.\/\.\.\/rules\/(battle|autoplay))\.js$/ }, (a) => {
       if (!a.importer.endsWith(SCREEN)) return undefined;
       return { path: path.join(here, SWAP[a.path]) };
     });
