@@ -18,6 +18,7 @@ import { FOE_ART, renderFoe, foeLooks } from '../../game/src/art/foes.js';
 import { poseHero, poseFoe, strikeStyle, RANGED, foeMover } from './moves.js';
 import { Fx } from './effects.js';
 import { aura } from './auras.js';
+import { momentFor } from './champions.js';
 
 const V3 = (x = 0, y = 0, z = 0) => new THREE.Vector3(x, y, z);
 const UP = V3(0, 1, 0);
@@ -104,6 +105,33 @@ export const arena = {
       return d;
     });
     for (const d of this.drops) this.fx.ring(d.g.position.clone(), '#' + new THREE.Color(RARITY[d.item.rarity] || '#e8e4da').getHexString(), 1, 0.7);
+  },
+  // a moment's surroundings: the foe, the effects, the heroes it is aimed at (all of them for a move at everyone)
+  momentCtx(F) {
+    const all = [...this.heroes.values()].filter((h) => !h.down && !h.held);
+    const t = F.act?.target && this.heroes.get(F.act.target);
+    return { ar: this, F, fx: this.fx, all, heroes: t ? [t] : all, shake: (n) => this.shake(n) };
+  },
+  landed(F) { const M = F.act?.moment; if (!M || F.act.landed) return; F.act.landed = true; try { M.land?.(this.momentCtx(F)); } catch (e) { console.warn(e); } },
+  // the stage shaken (M7's own shake classes on the stage box)
+  shake(n = 1) { const h = this.stage?.host; if (!h || this.reduced) return; const c = n >= 3 ? 'shake-3' : n === 2 ? 'shake-2' : 'shake-1'; h.classList.remove('shake-1', 'shake-2', 'shake-3'); void h.offsetWidth; h.classList.add(c); setTimeout(() => h.classList.remove(c), 560); },
+  // a big move's camera: 'close' in on the foe from the party's side; 'wide' back and up over the party, the whole field
+  momentCam(F, kind, dur = 2.4) {
+    if (this.reduced || !this.want) return;
+    const at = F.pos.clone().setY(F.pos.y + F.size.h * 0.6), P = this.W.P;
+    const clear = (p, q) => { try { return P.sight.hit(p.x, p.y, p.z, q.x, q.y, q.z) > 0.97; } catch (e) { return true; } };
+    let pos = null, look = at;
+    if (kind === 'close') {
+      const back = V3(-this.dir.x, 0, -this.dir.z), side = V3(this.dir.z, 0, -this.dir.x), r = Math.max(4.5, F.size.h * 3.4 + F.size.d * 1.3);
+      for (const sd of [1, -1, 0.4, -0.4]) { const p = at.clone().addScaledVector(back, r).addScaledVector(side, sd * r * 0.6); p.y = F.pos.y + F.size.h * 1.1 + 0.9; pos = pos || p; if (clear(p, at)) { pos = p; break; } }
+    } else {
+      look = this.center.clone().addScaledVector(this.dir, 2.2).setY(this.center.y + 0.6);
+      pos = this.want.pos.clone().addScaledVector(this.dir, -3.5); pos.y += 3.2;
+      if (!clear(pos, look)) pos = this.want.pos.clone().setY(this.want.pos.y + 2.5);
+    }
+    const q = new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().lookAt(pos, look, UP));
+    this.close = { t: 0, dur, pos, q, fov: kind === 'close' ? 36 : this.want.fov + 6 };
+    if (kind === 'close') this.stage?.host.classList.add('f3-close');
   },
   // the Legend Strike close-up (step 3): the camera cuts in low and close on the hero, a little to the side, while they
   // raise the relic and M7's card slams; then back to the fight's camera
@@ -330,7 +358,7 @@ export const arena = {
     if (!h.down) { this.play(h, 'hurt', big ? 0.55 : 0.42, { big }); face(h, 'hurt', 1.0); }
     this.fx.sparks(h.pos.clone().setY(h.pos.y + 1.1), '#ff8a6a', big ? 16 : 9, { spread: 0.7 });
     // the foe going for this hero bites now, as the blow lands
-    for (const F of this.foes.values()) if (F.act && F.act.kind === 'attack' && F.act.target === h.id && !F.act.bit) { F.act.bit = true; F.act.bitT = F.act.t; F.bite = { t: 0, dur: 0.3 }; }
+    for (const F of this.foes.values()) if (F.act && F.act.kind === 'attack' && !F.act.bit && (F.act.target === h.id || F.act.moment)) { F.act.bit = true; F.act.bitT = F.act.t; F.bite = { t: 0, dur: 0.3 }; this.landed(F); }
   },
   heroFlash(unitId, tint) { const h = this.heroByUnit(unitId); if (h) h.flash = { t: 0, dur: 0.35, c: new THREE.Color(tint[0] / 255, tint[1] / 255, tint[2] / 255) }; },
   heroState(u) {
@@ -355,7 +383,11 @@ export const arena = {
     const h = tgt ? this.heroByUnit(tgt) : null;
     const it = unit && (unit.intent?.played ? unit.intent2 || unit.intent : unit.intent) || {};
     const self = !it.target || it.target === id || !h;
-    F.act = { kind: 'attack', t: 0, target: h ? h.id : null, bit: false, bitT: null, self, kmove: kitMove(F, it.move || it.name || '', self) };
+    // a Champion's or Relic-Bearer's named move has its own moment (champions.js): its body move, effects, a camera
+    const M = momentFor(unit?.family || F.key, it.move);
+    F.act = { kind: 'attack', t: 0, target: h ? h.id : null, bit: false, bitT: null, self, moment: M,
+      kmove: (M && F.fig.beast?.pose && ownMove(F, M.move)) || kitMove(F, it.move || it.name || '', self) };
+    if (M) { try { M.start?.(this.momentCtx(F)); } catch (e) { console.warn(e); } if (M.camera) this.momentCam(F, M.camera); }
   },
   foeHurt(id, big) { const F = this.foes.get(id); if (F && !F.ko) { F.hurt = { t: 0, dur: F.fig.beast?.pose ? Math.min(0.9, kitDur(F, 'hurt')) : big ? 0.5 : 0.36 }; F.fig.beast?.hit?.(); } },
   foeKo(id) { const F = this.foes.get(id); if (!F) return; F.ko = { t: 0, dur: 0.6 }; F.act = null; },
@@ -550,7 +582,7 @@ function stepFoe(ar, F, d, t, heroCenter) {
     const h = a.target && ar.heroes.get(a.target);
     // gather and close on the hero, hold at the top of the move until the blow lands (the hero's hurt) or a miss is
     // plain (2 s), then finish it and go back to its place; a spell or a call stays where it is
-    if (!a.bit && a.t > 2.0) { a.bit = true; a.bitT = a.t; if (!a.self) F.bite = { t: 0, dur: 0.3 }; }
+    if (!a.bit && a.t > (a.self ? 0.7 : 2.0)) { a.bit = true; a.bitT = a.t; if (!a.self) F.bite = { t: 0, dur: 0.3 }; ar.landed(F); }
     const after = a.bit ? a.t - a.bitT : 0;
     move = 'attack'; mu = Math.min(0.45, a.t / 0.42 * 0.45) + (a.bit ? Math.min(0.55, after / 0.55 * 0.55) : 0);
     a.ku = mu;
@@ -623,6 +655,13 @@ function kitMove(F, move, self) {
   if (/claw|swipe|rake|maul|slash|cut|lash|whip|scythe|thorn/.test(m)) return 'swipe';
   if (/slam|stomp|crush|hammer|smash|bash|charge|gore|butt/.test(m)) return 'strike';
   return 'bite';
+}
+// a moment's move: the first of its choices the foe has as its own (a lane's move named for M7's: rootlash, devour...),
+// else the first of the kit's common set
+const COMMON_MOVES = ['bite', 'strike', 'swipe', 'cast', 'roar'];
+function ownMove(F, want) {
+  const list = Array.isArray(want) ? want : [want], own = F.fig.beast?.moves?.MOVES || [];
+  return list.find((m) => own.some(([k]) => k === m)) || list.find((m) => COMMON_MOVES.includes(m)) || null;
 }
 const kitDur = (F, m) => { try { return F.fig.beast.duration?.(m) || 1.2; } catch (e) { return 1.2; } };
 
