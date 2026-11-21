@@ -6,6 +6,9 @@
 //   weather     a box of drifting things round the camera: leaves in the woods, dust on the Sunscorch, snow on the
 //               Ironspire, mist low over the Gloomfen, ash and embers in the Hearth Below, dust motes indoors
 //   rings       rings spreading on still water (fish, a drop), flat on the surface
+//   fish        now and then a fish leaps out of open water and drops back in (a ring where it lands)
+//   spray       mist and drops where a waterfall lands (place data falls), streaks of white running down it
+//   banners     the Keep's banners sway (the kit's cloth material, core.js CLOTH)
 //   small life  birds wheeling high by day, butterflies low near the flowers by day, moths round the lanterns at night
 // The trees' sway is the engine's (place.wind, core.js WIND). A phone gets about half the particles.
 //   M7_LIFE.add(W, place)   after the walker has built a place (and after every switchTo); returns { remove, count }
@@ -33,6 +36,10 @@
       g.fillStyle = '#fff'; g.beginPath(); g.ellipse(20, 26, 14, 18, -0.4, 0, TAU); g.ellipse(44, 26, 14, 18, 0.4, 0, TAU); g.fill();
       g.beginPath(); g.ellipse(22, 46, 9, 11, 0.3, 0, TAU); g.ellipse(42, 46, 9, 11, -0.3, 0, TAU); g.fill();
       g.fillStyle = 'rgba(0,0,0,0.6)'; g.fillRect(30, 18, 4, 34);
+    } else if (kind === 'fish') {   // a little fish side on, nose up (the shader turns it along its leap)
+      g.fillStyle = '#fff'; g.beginPath(); g.ellipse(32, 30, 9, 20, 0, 0, TAU); g.fill();
+      g.beginPath(); g.moveTo(32, 46); g.lineTo(20, 60); g.lineTo(44, 60); g.closePath(); g.fill();
+      g.fillStyle = 'rgba(0,0,0,0.55)'; g.beginPath(); g.arc(30, 18, 2.2, 0, TAU); g.fill();
     } else soft(32, 32, 30, 'rgba(255,255,255,1)');   // a soft dot: smoke, mist, dust, snow, sparks, motes
     const t = new THREE.CanvasTexture(c); t.minFilter = THREE.LinearFilter; t.generateMipmaps = false;
     return (sprites[kind] = t);
@@ -43,6 +50,7 @@
     const g = new THREE.BufferGeometry();
     g.setAttribute('position', new THREE.Float32BufferAttribute(at, 3));
     g.setAttribute('seed', new THREE.Float32BufferAttribute(seeds, 4));
+    for (const k in o.attrs || {}) g.setAttribute(k, new THREE.Float32BufferAttribute(o.attrs[k], 3));
     const uni = Object.assign({ map: { value: sprite(o.sprite) }, uTime: o.U.uTime, uScale: { value: 400 }, uCam: { value: new THREE.Vector3() },
       uFogNear: o.U.uFogNear, uFogFar: o.U.uFogFar, uDay: o.U.uDay || { value: 1 }, uCol: { value: new THREE.Color(o.color || 0xffffff) } }, o.uniforms || {});
     const mat = new THREE.ShaderMaterial({
@@ -151,6 +159,35 @@
           fragmentShader: 'uniform sampler2D map; varying vec2 vUv; varying float vA; void main(){ float a = texture2D(map, vUv).a * vA; if (a < 0.01) discard; gl_FragColor = vec4(vec3(0.92, 0.96, 1.0), a); }' });
         const m = new THREE.Mesh(g, mat); m.frustumCulled = false; m.renderOrder = 4; m.name = 'life:rings'; put(m);
       }
+      // ---- fish: each spot's fish leaps once in its cycle, an arc a metre high, turning nose-down as it falls ----
+      if (spots.length >= 6 && !indoors) {
+        const at = [], sd = [], n = Math.min(spots.length, Math.round(10 * K));
+        for (let i = 0; i < n; i++) { const [x, y] = spots[i]; at.push(wx(x), -0.46, wz(y)); sd.push(R(), R(), R(), R()); }
+        put(points(n, at, sd, { U, name: 'fish', sprite: 'fish', color: 0xd8e4ec, order: 5,
+          move: `float cyc = 5.0 + seed.y * 7.0, t = mod(uTime + seed.x * cyc, cyc), j = t / 0.9;   // a leap lasts 0.9 s
+                 float up = step(j, 1.0); vec2 dir = normalize(vec2(seed.z - 0.5, seed.w - 0.5) + 0.001);
+                 p += vec3(dir.x * (j - 0.5) * 0.9, 4.0 * 0.85 * j * (1.0 - j), dir.y * (j - 0.5) * 0.9);
+                 size = 0.42 * up; alpha = up * smoothstep(0.0, 0.08, j) * (1.0 - smoothstep(0.92, 1.0, j)); frame = j;`,
+          frag: 'float an = (vF - 0.5) * 2.6 * (vS.z > 0.5 ? 1.0 : -1.0); uv = mat2(cos(an), -sin(an), sin(an), cos(an)) * (uv - 0.5) + 0.5; if (uv.x < 0.0 || uv.x > 1.0 || uv.y < 0.0 || uv.y > 1.0) discard;' }));
+      }
+    }
+
+    // ---- waterfalls: white streaks running down each fall, and spray boiling up where it lands (two draws in all) ----
+    if ((d.falls || []).length) {
+      const at = [], sd = [], foot = [], at2 = [], sd2 = [];
+      for (const [x, y0, y1, fw, drop] of d.falls) {
+        const wid = fw / 50 * 2, lo = -0.4, top = drop ? lo + drop : Math.max(gh(x, y0 - 10), 0) + 2.2, n1 = Math.round((drop ? 24 : 60) * K), n2 = Math.round((drop ? 22 : 70) * K);
+        for (let i = 0; i < n1; i++) { const ox = (R() - 0.5) * wid; at.push(wx(x) + ox, top, wz(y0)); foot.push(wx(x) + ox, lo, wz(y1)); sd.push(R(), R(), R(), R()); }
+        for (let i = 0; i < n2; i++) { at2.push(wx(x) + (R() - 0.5) * wid, lo, wz(y1) - R() * 1.2); sd2.push(R(), R(), R(), drop ? 0.5 : 1); }
+      }
+      put(points(at.length / 3, at, sd, { U, name: 'fall-streaks', sprite: 'soft', color: 0xf0f6ff, order: 6, attrs: { foot }, head: 'attribute vec3 foot;',
+        move: `float k = fract(uTime * (0.55 + seed.w * 0.3) + seed.z);
+               p = mix(position, foot, k * k); p.y += (seed.y - 0.5) * 0.3;
+               size = 0.35 + 0.25 * seed.w; alpha = 0.55 * smoothstep(0.0, 0.08, k) * (1.0 - smoothstep(0.9, 1.0, k));` }));
+      put(points(at2.length / 3, at2, sd2, { U, name: 'fall-spray', sprite: 'soft', color: 0xf4f8ff, order: 6,
+        move: `float age = fract(uTime * (0.3 + seed.x * 0.25) + seed.z);
+               p += vec3((seed.x - 0.5) * 3.0 * age, 2.2 * age * (1.2 - age), (seed.y - 0.2) * 2.4 * age) * seed.w;
+               size = (0.5 + 1.8 * age) * seed.w; alpha = 0.42 * smoothstep(0.0, 0.1, age) * (1.0 - age);` }));
     }
 
     // ---- birds: by day, outdoors, wheeling in wide circles high over the place ----

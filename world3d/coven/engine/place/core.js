@@ -199,7 +199,7 @@
   const CHUNK_V = `
     varying vec3 vW; varying vec3 vN; varying vec2 vUv; varying vec3 vCol;
     uniform vec2 uRep;
-    #ifdef WIND
+    #if defined(WIND) || defined(CLOTH)
       uniform float uTime, uWind;   // (Aethermoor, Places) trees and boughs sway in the wind, more the higher they are
     #endif
     void main() {
@@ -212,6 +212,13 @@
         float hk = clamp(w.y - 0.5, 0.0, 9.0) * uWind, ph = uTime * 1.25 + w.x * 0.31 + w.z * 0.23;
         w.x += (sin(ph) * 0.7 + sin(ph * 2.7 + 1.3) * 0.3) * hk;
         w.z += sin(ph * 0.83 + 2.1) * 0.45 * hk;
+      #endif
+      #ifdef CLOTH
+        // (Aethermoor, Places) cloth hanging from its top edge (uv.y = 1): the free end ripples and swings
+        float fk = 1.0 - clamp(uv.y, 0.0, 1.0); fk *= fk;
+        float cp = uTime * 1.7 + w.x * 0.6 + w.z * 0.45 + uv.x * 2.2;
+        w.xyz += normalize(mat3(modelMatrix) * n) * (sin(cp) * 0.6 + sin(cp * 2.3 + 1.0) * 0.4) * fk * uWind;
+        w.y += abs(sin(cp * 0.5)) * 0.15 * fk * uWind;
       #endif
       vW = w.xyz; vN = normalize(mat3(modelMatrix) * n);
       vUv = uv * uRep;
@@ -292,7 +299,9 @@
     if (o.water) defs.WATER = '';
     if (o.nofog) defs.NOFOG = '';
     if (o.paint) defs.PAINTMAP = '';
-    if (o.wind) defs.WIND = '';   // (Aethermoor, Places) sway (CHUNK_V)   // (Aethermoor, Places) the place's painting laid over the faces that look up (roofs)
+    if (o.wind && !o.cloth) defs.WIND = '';
+    if (o.wind && o.cloth) defs.CLOTH = '';   // (Aethermoor, Places) hanging cloth sways (CHUNK_V)
+      // (Aethermoor, Places) sway (CHUNK_V)   // (Aethermoor, Places) the place's painting laid over the faces that look up (roofs)
     // the reskin job (November 17): vary: no two stretches of a surface quite the same tone, so a repeated picture doesn't
     // read as a pattern; and on the laptop (W3D.quality 'high'), grain: fine grain close up, where a picture would go soft;
     // bump: relief from the picture's own light and dark (mortar lines sink, stones and beams stand out) under the moon

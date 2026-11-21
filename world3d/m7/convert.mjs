@@ -31,6 +31,9 @@ const TX = 50, TY = 40, PAD = 9;
 const cl0 = (v, a, b) => Math.max(a, Math.min(b, v));
 // (Places, step 3) each Act One place's light, as the 2D game has it: by day, unless it's indoors, underground or in deep
 // woods. 'day' | 'dusk' | 'night' | 'indoor'. Acts Two and Three take theirs from the region's look (m7-kit.js), unless named here
+// (step 4) waterfalls, as tile columns [x0, x1, yTop, yFoot]: the water drops from yTop and lands in the pool at yFoot
+// [x0, x1, yTop, yFoot, drop?]: drop (metres) for a short cascade over a ledge; without it, from the ground at the top
+const FALLS = { silverfall: [[8, 10, 3, 9]] };   // (the Iron Stair's gully runs inside its cliff, out of sight from the path)
 const LIGHT = { 'heartroot-1': 'night', 'heartroot-2': 'night', 'briarmaw-den': 'dusk', eldergrove: 'dusk' };
 // (Places) Chris's textures each region's places wear (web copies of art-in/3d/world/), written into each place's file so a
 // page carries only its own region's (the build puts every picture in once)
@@ -421,6 +424,7 @@ out.save(sys.argv[2],quality=80,method=6)`, webp, roofFile, JSON.stringify(roofJ
     water: water.map((p) => ({ poly: p })), decks, buildings, walls: segs, towers, torches, lamps, props, flowers, extraTrees, lawns, groundPatches,
     fence: GLOOM || undefined, things, stairs, hearthfires,
     doors: doors.concat(buildings.flatMap((b) => (b.doors || []).map((dr) => [Math.round(dr.x), b.fp[3] + 6]))).filter((p, i, a) => a.findIndex((q) => Math.abs(q[0] - p[0]) < 30 && Math.abs(q[1] - p[1]) < 30) === i),
+    falls: FALLS[id] ? FALLS[id].map(([x0, x1, y0, y1, drop]) => [(x0 + x1 + 1) / 2 * TX, y0 * TY, (y1 + 1) * TY, (x1 - x0 + 1) * TX, drop || 0]) : undefined,
     light: LIGHT[id] || (!ACT2 ? (interior ? 'indoor' : 'day') : undefined),
     tileH: rows.map((r, j) => [...r].map((c, i) => c === 'x' && !(GLOOM && !interior) ? 3 : c === 'w' ? 2 : WET[j][i] ? 1 : ACT2 && MASSC.includes(c) ? 4 : 0).join('')),
   };
