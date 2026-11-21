@@ -1,0 +1,36 @@
+{
+  "sun-road": [
+    ["stall", 19.0, 38.9, "S", {"s": 1.5, "replace": true}],
+    ["stall", 3.0, 52.5, "S", {"s": 1.5, "replace": true}]
+  ],
+  "sandspire": [
+    ["jars", 5.4, 9.6, "S", {"s": 0.8}]
+  ],
+  "dust-trail": [],
+  "dusthaven": [
+    ["tent", 13.0, 8.0, "S", {"s": 1.4, "replace": true}],
+    ["tent", 13.0, 15.0, "S", {"s": 1.4, "replace": true}],
+    ["tent", 20.0, 14.0, "S", {"s": 1.4, "replace": true}],
+    ["tent", 17.0, 17.0, "S", {"s": 1.4, "replace": true}]
+  ],
+  "deep-shaft-1": [],
+  "deep-shaft-2": [],
+  "glass-flats": [
+    ["stall", 26.0, 3.5, "S", {"s": 1.5, "replace": true}],
+    ["stall", 22.0, 4.5, "S", {"s": 1.5, "replace": true}],
+    ["stall", 30.0, 4.5, "S", {"s": 1.5, "replace": true}],
+    ["stall", 21.0, 7.4, "S", {"s": 1.5, "replace": true}],
+    ["stall", 31.0, 7.4, "S", {"s": 1.5, "replace": true}],
+    ["tent", 39.0, 6.0, "S", {"s": 1.3, "replace": true}],
+    ["tent", 46.9, 6.0, "S", {"s": 1.3, "replace": true}],
+    ["rock", 25.6, 16.2, "S"]
+  ],
+  "miragewell": [
+    ["jars", 17.1, 10.7, "S", {"s": 0.5}],
+    ["rock", 13.3, 5.3, "S", {"s": 0.5}],
+    ["rock", 15.6, 7.2, "S", {"s": 0.3}],
+    ["rock", 18.5, 7.2, "S", {"s": 0.3}]
+  ],
+  "scorchgate": [],
+  "scorchgate-vaults": []
+}

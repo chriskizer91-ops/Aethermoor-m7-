@@ -390,7 +390,7 @@ out.save(sys.argv[2],quality=80,method=6)`, webp, roofFile, JSON.stringify(roofJ
   // ---- lamps: light entities, hearthfires ----
   for (const e of map.entities || []) {
     if (!e.at) continue; const [x, y] = [(e.at[0] + 0.5) * TX, (e.at[1] + 0.5) * TY];
-    if (e.kind === 'light' || e.kind === 'hearthfire') lamps.push({ at: [x, y], kind: 'pillar', h: 1.1 });
+    if (e.kind === 'light' || e.kind === 'hearthfire') lamps.push({ at: [x, y], kind: 'pillar', h: 1.1, ...(e.kind === 'hearthfire' ? { noLantern: true } : {}) });   // (a Hearthfire's fire is game3d/props.js's)
     // (Places, step 4) the map's own things, each as itself (m7-kit.js things): a signpost, a notice board, a chest, a relic's
     // pedestal, a table, a bell frame. Gates and locks open and close with the story, so the game shows those
     else if (['chest', 'sign', 'board', 'pedestal', 'table', 'bellframe'].includes(e.kind)) things.push([x, y, e.kind, ({ s: 0, n: Math.PI, e: Math.PI / 2, w: -Math.PI / 2 })[e.face] ?? 0, e.id]);

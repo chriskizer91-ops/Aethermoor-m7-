@@ -3,11 +3,17 @@
 // One entry per thing, in tiles (x across, y down; 16.5 is the middle of tile 16), facing S/E/N/W (or degrees, 0 = S):
 //   [kind, x, y, face?, { s: size, load }?]       kinds: barrel barrels crate crates sacks cart stall well bench signpost
 //                                                  statue brazier lamppost hay haystack logs woodpile rock bush table
-//                                                  shelf trough jars anvil cauldron tent lowwall
+//                                                  shelf trough jars anvil cauldron tent lowwall boat
 //   { replace: true } on a thing: the map's little building under it is left out (a stall always replaces)
 //   ['fence' | 'pickets', x0, y0, x1, y1]          a wooden fence along a line
 // Chests, signs, boards and the Hearthfire stands are the game's own things (m7/convert.mjs things, game3d/props.js).
+import { readdirSync, readFileSync } from 'node:fs';
+const here = new URL('./dress/', import.meta.url);
+// the regions' lists, one JSON file each in m7/dress/ ({ "<id>": [entry, ...] }, same entries as below)
+const FILES = (() => { try { return readdirSync(here).filter((f) => f.endsWith('.json')); } catch { return []; } })();
+const FROM_FILES = Object.assign({}, ...FILES.map((f) => JSON.parse(readFileSync(new URL(f, here), 'utf8'))));
 export const DRESS = {
+  ...FROM_FILES,
   keep: [
     // the courtyard well in its ring of stones (its water is the map's own tile)
     ['well', 4.5, 4.55, 'S'],
