@@ -95,9 +95,13 @@ about 25 MB).
   legs), `winged.py` (body, neck, head, jaw?, tail?, r_/l_ wing1-3, legs); moves in `kit/js/moves/<plan>.js` (first
   passes; the lanes improve them).
 - A rig file gives `BONES`, and may give `weigh(D, P, idx)` (adjust distances), `rigid(kind, P, idx)` (a bone name
-  for a rigid piece, e.g. tusks to the jaw, a weapon to a hand), `part(P, kind, idx)` (a bone index per point where you
-  know better, -1 elsewhere), `TRUNK` (the bones down the middle), `BANDS = {bone: w or (w, R)}` (a joint's blend) and
-  `SMOOTH` (smoothing passes, default 8).
+  for a rigid piece, e.g. tusks to the jaw, a weapon to a hand), `part(P, kind, idx[, piece])` (a bone index per point
+  where you know better, -1 elsewhere; with a fourth argument it also gets which separate piece each point is in, so a
+  leaf or a strap can be judged whole; a piece that part() mostly names is all that part), `TRUNK` (the bones down the
+  middle), `BANDS = {bone: w or (w, R)}` (a joint's blend: half-width and reach), `SMOOTH` (smoothing passes, default
+  8) and `SPLIT = [('head', 'jaw')]` (cut two parts apart with no blend: a mouth that opens; the page then draws the
+  model's inside too, so the open mouth shows the inside of the head).
+- In `weigh`, gate a bone off with a large number (`+ 1000`): a bone a point can't see already costs 100.
 
 ### No stretching (Chris, November 21)
 
@@ -120,7 +124,16 @@ Chris saw the Rotwarden's belt and straps drag out into a web when he spread his
   each move in `foes/<key>/build/stretch/<move>.png` (front and side; stretched triangles yellow to red, past the
   limit magenta): look at them by eye. A soft part may have its own limit in foe.json, `"stretch": {"limit": 1.3,
   "parts": {"jaw": 1.5}}`; say why in your slip. It finds the moves itself (the kit's plan, the walkers' `foes.js`,
-  the beasts' `moves-<name>.js`), or take `--moves=path.js#name`.
+  the beasts' `moves-<name>.js`), or take `--moves=path.js#name`. `--focus=x,y,z,r` draws the pictures close up round a
+  place (sculpt coordinates, metres); `--parts` also draws `parts.png`, each point coloured by the bone that moves it
+  most (look at it first: a leg that claims the flank, a face that follows the jaw); `--frames=120` for a final check.
+  `BIND_AT=x,y,z python3.12 kit/tools/rebind.py foes/<key>` prints what the binding decided at one place (its part, the
+  bones it sees, the nearest after gating).
+- **What made the three pass** (November 21): a part for each separate piece (the briarling's coat is all ball and its
+  leg tubes go with the legs; the glowcap's leaf-arms are whole leaves on the arm bones and its cap all head); legs that
+  claim only what is near their own line and below the belly (Briarmaw); a mouth cut along the lips; and moves that turn
+  the whole body (the root) for drama instead of bending a neck or a leg that is buried in the body. Where a limb is
+  inside the body in the sculpt, it can only move a little; move it from the joint that shows.
 
 ### The page side (`kit/js/`)
 
