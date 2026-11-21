@@ -2,7 +2,7 @@
 //   node game3d/build.mjs              Act One, phone sizes: world3d/dist/game3d-act1.html (open it) and .artifact.html
 //   node game3d/build.mjs --act=sunscorch   the Sunscorch's page: world3d/dist/game3d-sunscorch-400.html
 //   node game3d/build.mjs --tex=768    other sizes pass through (--tex, --paint, --herotex)
-//   node game3d/build.mjs --full --files --herotex=384 --out=game3d-act1-full   every picture at full size, as files beside the page
+//   node game3d/build.mjs --full --files --out=game3d-act1-full   every picture at full size, as files beside the page
 //                                      (publish with world3d/dist/<out>.files.json as the files map)
 // Needs world3d/node_modules (a link to prototypes/hero-3d/node_modules: npm install there) and Python with Pillow.
 import { execFileSync } from 'node:child_process';

@@ -41,10 +41,10 @@ Last updated November 20.
   Road, the road's toll fight won, Sandspire, a rest at its Hearthfire, saved.
 
 - **Act One, full pictures** (beside the safe one, the hub's test of pictures as files): https://claude.ai/artifact/9rGvzRh4eocZrz4RYPQLz6
-  (`node game3d/build.mjs --full --files --herotex=384 --out=game3d-act1-full`; publish with
+  (version 2: `node game3d/build.mjs --full --files --out=game3d-act1-full`; publish with
   `world3d/dist/game3d-act1-full.files.json` as the files map). Every place texture and painting at full size (69
-  pictures, 14 MB, beside the page), the sculpted masters whole, the 3D Atlas in, Briarmaw, the Rotwarden and the
-  sapwight in full detail; the page itself 13.2 MB (the heroes' own textures at 384 px, which `--files` doesn't move).
+  pictures), the heroes whole (their textures, faces and the sculpted masters too: 169 files, 19.5 MB beside the page), the 3D Atlas in, Briarmaw, the Rotwarden and the
+  sapwight in full detail; the page itself 8.0 MB.
   Loads with no errors when served over http (opened from disk, a browser refuses the pictures).
 - **The Ironspire** (Act Two's second region): https://claude.ai/artifact/6jSwPVzbwwZWmmD6VsQ1sU (14.9 MB; `--act=ironspire`).
   Begins after the Wilds and the Sunscorch (four Brands, the Council sat twice, level 10) at the Keep's east postern.
