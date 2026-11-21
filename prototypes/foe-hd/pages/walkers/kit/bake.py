@@ -120,11 +120,55 @@ tris = inv.reshape(-1, 3)
 pos_s = pos_b.copy(); pos_s[:, 0] *= -1; pos_s[:, 1] *= -1
 def to3(A): return np.column_stack([A[:, 0], A[:, 2], -A[:, 1]]).astype(np.float32)
 kind = KL[vi]
-J, W = rig.weights_at(pos_s, kind)
-# rigid parts: each piece of these kinds moves as one with its bone
-for k, bone in rig.RIGID.items():
-    m = kind == k
-    J[m] = np.array([rig.IDX[bone], 0, 0, 0], np.uint16); W[m] = np.array([1, 0, 0, 0], np.float32)
+# weights by part (session 6's kit/rigs/bind.py; Chris, November 21: "when they move their arms they stretch
+# themselves"): each point belongs to one part and blends only in a narrow band at its own joint; parts that merely
+# touch are cut apart; the rig gives its gating (weigh), its pieces' parts (part) and its rigid pieces (rigid)
+from bind import bind
+def rig_seg(P, a, b):
+    a = np.asarray(a, np.float32); b = np.asarray(b, np.float32); ab = b - a
+    t = np.clip(((P - a) @ ab) / (ab @ ab), 0, 1); return np.linalg.norm(P - (a + t[:, None] * ab), axis=1)
+height = float(pos_s[:, 2].max()); mid = (pos_s.min(0) + pos_s.max(0)) / 2
+J, W, part_, keep = bind(rig, pos_s.astype(np.float64), kind, tris, height, mid, log)
+tris = tris[keep]
+# each piece keeps only its own bones (session 8): where two separately meshed pieces pass through each other (the root
+# arm through a pauldron) the binding can weld a few points and leak weight across; rig.PIECES = {kind: [bone names]}
+if hasattr(rig, 'PIECES'):
+    NMS = [b_[0] for b_ in rig.BONES]
+    Dd = np.zeros((len(J), len(NMS)), np.float32)
+    for a_ in range(4): np.add.at(Dd, (np.arange(len(J)), J[:, a_].astype(int)), W[:, a_])
+    for k_, allowed in rig.PIECES.items():
+        m_ = kind == k_
+        if not m_.any(): continue
+        ok_ = np.array([n in allowed for n in NMS])
+        Dd[np.ix_(m_, ~ok_)] = 0
+        empty = m_ & (Dd.sum(1) < 1e-6)
+        if empty.any():
+            cand = [i for i, n in enumerate(NMS) if n in allowed]
+            dist = np.stack([rig_seg(pos_s[empty], rig.BONES[i][2], rig.BONES[i][3]) for i in cand], 1)
+            Dd[np.flatnonzero(empty), np.array(cand)[np.argmin(dist, 1)]] = 1
+    top_ = np.argsort(-Dd, 1)[:, :4]; W = np.take_along_axis(Dd, top_, 1); W = (W / np.maximum(W.sum(1, keepdims=True), 1e-9)).astype(np.float32)
+    J = top_.astype(np.uint16)
+    log('pieces kept to their own bones:', {int(k): int((kind == k).sum()) for k in rig.PIECES})
+# and one cut more (session 8): bind keeps a triangle between a trunk bone and a limb two joints away (the ribs against
+# a hanging arm, the hips' skin between the thighs); those are pieces that touched too, so they go
+PARENT = {n: p for n, p, _, _ in rig.BONES}; NM = [b[0] for b in rig.BONES]
+def chain(n):
+    out = [n]
+    while PARENT.get(out[-1]): out.append(PARENT[out[-1]])
+    return out
+UP = {n: chain(n) for n in NM}
+def apart(a, b):
+    ca, cb = UP[a], UP[b]; c = next(x for x in ca if x in cb); return ca.index(c) + cb.index(c)
+TR = set(getattr(rig, 'TRUNK', ('hips', 'spine', 'chest', 'neck')))
+mainb = np.array(NM)[J[np.arange(len(J)), np.argmax(W, 1)]]
+lt = mainb[tris]
+bad = np.zeros(len(tris), bool)
+for e in range(3):
+    a_, b_ = lt[:, e], lt[:, (e + 1) % 3]
+    for i in np.flatnonzero(a_ != b_):
+        if apart(a_[i], b_[i]) >= 2 and not (a_[i] in TR and b_[i] in TR): bad[i] = True
+log('cut', int(bad.sum()), 'more triangles between trunk and limbs two joints apart')
+tris = tris[~bad]
 bones = []
 for n, par, hd, tl in rig.BONES:
     hd3 = to3(np.array([[-hd[0], -hd[1], hd[2]]], np.float32))[0]
