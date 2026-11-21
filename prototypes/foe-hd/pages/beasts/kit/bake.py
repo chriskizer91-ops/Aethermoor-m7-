@@ -147,6 +147,35 @@ pos_s = pos_b.copy(); pos_s[:, 0] *= -1; pos_s[:, 1] *= -1
 def to3(A): return np.column_stack([A[:, 0], A[:, 2], -A[:, 1]]).astype(np.float32)
 kind = KL[vi]
 J, W = weights_at(pos_s)
+# smooth the weights over the surface, so no edge has one end on a bone and the other on a far-off one (Chris,
+# November 21: "when they move their arms they stretch themselves"): the coat's vertices (not the rigid parts) take
+# the mean of their neighbours' weights, SMOOTH times, with seams (split by the picture) joined by position
+SMOOTH = getattr(rig, 'SMOOTH', 0)
+if SMOOTH:
+    from scipy.sparse import csr_matrix
+    nb = len(BONES); nv = len(pos_s)
+    Wf = np.zeros((nv, nb), np.float32)
+    np.add.at(Wf, (np.repeat(np.arange(nv), 4), J.ravel().astype(np.int64)), W.ravel())
+    _, wid = np.unique(np.round(pos_s * 2000).astype(np.int64), axis=0, return_inverse=True); wid = wid.ravel()
+    nw = wid.max() + 1
+    Ww = np.zeros((nw, nb), np.float32); np.add.at(Ww, wid, Wf); cnt = np.bincount(wid, minlength=nw)[:, None]; Ww /= cnt
+    e = np.concatenate([tris[:, [0, 1]], tris[:, [1, 2]], tris[:, [2, 0]]])
+    e = wid[e]; e = e[e[:, 0] != e[:, 1]]
+    A = csr_matrix((np.ones(len(e) * 2, np.float32), (np.r_[e[:, 0], e[:, 1]], np.r_[e[:, 1], e[:, 0]])), shape=(nw, nw))
+    A.data[:] = 1; deg = np.asarray(A.sum(1)).ravel(); deg[deg == 0] = 1
+    soft = np.isin(kind, [k for k in range(16) if k not in rig.RIGID])
+    fixed_w = np.zeros(nw, bool); np.logical_or.at(fixed_w, wid, ~soft)
+    keep = getattr(rig, 'SMOOTH_KEEP', None)       # vertices whose weights the smoothing must not move (e.g. the jaw)
+    if keep is not None: np.logical_or.at(fixed_w, wid, keep(pos_s))
+    for _ in range(SMOOTH):
+        Wn = 0.5 * Ww + 0.5 * (A @ Ww) / deg[:, None]
+        Ww = np.where(fixed_w[:, None], Ww, Wn)
+    Wf = Ww[wid]
+    if hasattr(rig, 'mask'): Wf = Wf * rig.mask(pos_s)      # where each bone may reach, applied again after smoothing
+    top = np.argsort(-Wf, 1)[:, :4]
+    W2 = np.take_along_axis(Wf, top, 1); W2 /= np.maximum(W2.sum(1, keepdims=True), 1e-9)
+    J = np.where(soft[:, None], top, J).astype(np.uint16); W = np.where(soft[:, None], W2, W).astype(np.float32)
+    log('weights smoothed', SMOOTH, 'times')
 # rigid parts: each thorn, tusk, tooth, claw and eye moves as one, with the weights where it meets the body
 ncomp, comp = connected_components(coo_matrix((np.ones(len(FL) * 3), (np.repeat(FL[:, 0], 3), FL[:, [0, 1, 2]].ravel())),
                                               shape=(len(VL), len(VL))), directed=False)

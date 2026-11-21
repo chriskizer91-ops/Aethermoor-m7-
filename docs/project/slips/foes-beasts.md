@@ -23,6 +23,17 @@ session 6 made Briarmaw.
 - Checks: the page loads headless with no errors at laptop and phone sizes, no sideways scroll; 20 frames a second in
   software drawing (much slower than a phone's graphics chip), with the pack too.
 
+- **No stretching (Chris, November 21):** a stretch check of my own, `pages/beasts/stretch.mjs <foe>`, poses every
+  move at seven moments, skins the light model and compares each edge with its rest length. The thornhound was bad:
+  up to **16.8x**, 670 edges over 1.3x in one pose (the two front legs pulling the chest between them like a web, the
+  hips dragging the thigh, the head pulling the chest, the ears pulling the neck). Fixed by: where each bone may
+  reach (a leg's lower bones stay below their joint, the tail's below its own, the head's in front of the neck, the
+  neck off the shoulders), the weights smoothed over the surface 8 times, and a smaller neck bend in the howl and
+  foreleg reach in the lunge. Now: **worst 3.4x**, and at most 39 edges in any pose both over 1.3x and longer by more
+  than 1% of his height (9 mm). What's left is mostly the mouth (the light model's lips are joined, so opening the jaw
+  stretches the corners) and the throat and ear roots in the hit and howl. Still to do: a cut mouth in the light model
+  and finer neck weights, to get under 1.3x everywhere.
+
 ## Next
 
 0. Move onto session 6's shared kit (commit f384b7d / 8f3b6e2 on job/foe-hd) once the hub brings it into its branch; my
