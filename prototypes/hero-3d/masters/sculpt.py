@@ -24,7 +24,7 @@ from PIL import Image
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 N = 1024
-COLS, ROWS = 4, 8             # the atlas: 4 across, 8 down
+COLS, ROWS = 4, 9             # the atlas: 4 across, 9 down
 CELL = 256                   # each kind's bake
 HCELL = 512                  # each kind's height, for the sculpt view
 INSET = 2                    # pixels kept clear round each cell (the code maps the piece inside them)
@@ -64,6 +64,8 @@ KINDS = {
     'strap':    (28, 0.05, 0.30, None),  # a flat strap (u 0 and .5 its faces, .25 and .75 its edges), a pouch
     'blade':    (29, 0.08, 0.50, None),  # a blade: u 0 and .5 its edges, .25 and .75 the middle of each face; v to the tip
     'forged':   (30, 0.15, 0.15, None),  # a forged head (axe, spear, mace, hammer, pommel), laid on flat over it
+    'hand':     (31, 0.11, 0.06, None),  # a bare hand: v 0 the wrist, 1 the knuckles; the back at u 0 or .5 (by the side)
+    'head':     (32, 0.55, 0.30, 0.25),  # the skull under the painted face (a sphere: u .25 the front, v 0 the chin, 1 the crown)
 }
 rng = np.random.default_rng(21)
 V_, U_ = np.mgrid[0:N, 0:N] / N          # V_ down the rows (v), U_ across (u)
@@ -379,6 +381,19 @@ def sculpt(kind):
         yy, xx = V_ - 0.5, U_ - 0.5; rr = np.hypot(xx, yy)
         h += np.sin(rr / 0.004 * 2 * np.pi + P.noise(0.02, 0.02, 303) * 2) * 0.00006                 # grinding arcs
         h += P.dents(30, 0.0015, 0.004, 0.0005, 0, 1, 304)
+    elif kind == 'hand':
+        h = np.zeros((N, N))
+        for back in (0.0, 0.5):                                                                     # either side may be the back
+            for i in range(4):
+                cu = back + (i - 1.5) * 0.06; du = wrapd(U_, cu) * C
+                h += np.exp(-(du / 0.0035) ** 2) * ss(0.2, 0.75, V_) * (1 - ss(0.85, 0.95, V_)) * 0.0005        # tendons
+                dv = (V_ - 0.9) * L; h += np.exp(-(du * du + dv * dv) / 0.004 ** 2) * 0.0012                    # knuckles
+        h += P.wrinkles(0.06, 0.006, None, 0.0006, 311, 0.003)                                       # the wrist's creases
+        h += P.dents(500, 0.0003, 0.0006, 0.00008, 0, 1, 312) + P.noise(0.003, 0.003, 313) * 0.00008
+    elif kind == 'head':
+        face = np.exp(-(wrapd(U_, 0.25) / 0.2) ** 2) * band(V_, 0.2, 0.8, 0.1)
+        h = P.dents(3500, 0.0004, 0.0008, 0.00009, 0, 1, 321) * (0.4 + face)                         # pores, finer off the face
+        h += P.noise(0.004, 0.004, 322) * 0.00008 + P.noise(0.02, 0.02, 323) * 0.0002
     return P, h
 
 

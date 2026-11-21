@@ -500,7 +500,7 @@ export function buildHero(heroKey, gear, o = {}) {
   const relief = SCULPT.on ? faceRelief(faceMarksOf(faceName, S.chibi), S.chibi ? 0.6 : 1) : null;
   { const p = skull.attributes.position; for (let i = 0; i < p.count; i++) { let x = p.getX(i), y = p.getY(i), z = p.getZ(i);
     if (relief) { const ux = x / r, uy = y / r, uz = z / r; if (uz > 0) { const d = relief(ux, uy) * uz; x += ux * d * r * 0.3; y += uy * d * r * 0.3; z += d * r; } } const low = clamp01(-y / r); const k = 1 - low * low * 0.3 * (z > 0 ? 1 : 0.6); x *= k * 0.94; z *= (z > 0 ? 1 - low * 0.05 : 1.04); if (z > 0) z += low * low * r * 0.08 * (1 - Math.abs(x) / r); y *= 1.06; p.setXYZ(i, x, y, z); } skull.computeVertexNormals(); }
-  add(skull, faceM, head);
+  add(fitMaster(skull, 'head'), withMaster(faceM), head); // the skull's fine skin under the painted face (after the face's own shader)
   for (const s of [-1, 1]) {
     if (H.ears === 'long') { const e = add(tube(curve([V(s * r * 0.86, -r * 0.05, -r * 0.1), V(s * r * 1.2, r * 0.18, -r * 0.25), V(s * r * 1.45, r * 0.42, -r * 0.42)]), t => [lerp(r * 0.16, 0.001, t), lerp(r * 0.06, 0.001, t)], { n: 8 }), skinM, head); }
     else add(sph(r * 0.17, 10, 8), skinM, head, s * r * 0.9, -r * 0.08, -r * 0.08).scale.set(0.5, 1, 0.8);
@@ -847,7 +847,7 @@ function buildHand(hand, side, m, gloves, u, fx, gr = 0.012, ring = null) {
   // the grip's centre: against the palm, as far out as the grip is thick (the fist opens round a thick haft)
   const gc = V(med * (pd * 0.55 + gr * 0.85), -0.07 * u - gr * 0.25, 0.004 * u);
   // palm and back of the hand
-  add(fitMaster(tube([V(0, 0.005 * u, 0), V(0, -pl * 0.5, 0.002 * u), V(0, -pl, 0.004 * u)], t => [pd * (1.05 - t * 0.1), pw * (0.62 + t * 0.4)], { n: 14, up: V(1, 0, 0) }), 'glove'), m, hand);
+  add(fitMaster(tube([V(0, 0.005 * u, 0), V(0, -pl * 0.5, 0.002 * u), V(0, -pl, 0.004 * u)], t => [pd * (1.05 - t * 0.1), pw * (0.62 + t * 0.4)], { n: 14, up: V(1, 0, 0) }), gloves ? 'glove' : 'hand'), m, hand);
   // fingers: four curls round the grip, stacked along z
   for (let f = 0; f < 4; f++) {
     const rad = (0.0068 - f * 0.0004) * u, z = (f - 1.5) * 0.0175 * u, R = gr + rad * 0.95;

@@ -251,7 +251,22 @@ share every kind. The same coverage check over the 39 people foes and the townsf
 master. More than half of the rest is boot soles (never seen); the scarves, aprons and head wraps (and the wraps' and
 turbans' bands) are now fitted too (braid, tabard). Side by side with Wren (cutpurse, ash-wight, Hollow Brundar,
 Fenwick, Durra): the same folds, seams, dents and grain at the same scale. The Gear Room can now build any of them
-(\`window.__people\`); a picker for Chris comes with step 4.
+(`window.__people`); a picker for Chris comes with step 4.
+
+**Faces and hands, and anyone in full detail** (November 21). Gear Room: https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL
+- Faces: the head's sculpted shape (nose, brow, sockets, cheekbones, lips, chin) was already placed by each painted
+  face's own features. Now the skull also wears a head master: fine skin and pores, finer away from the face. It is
+  laid under Chris's painted face, after the face's living shader (blinks, mouth, expressions), so the approved faces
+  look the same and keep moving. `withMaster` now keeps a material's own shader and runs after it.
+- Hands: bare hands now have their own master (knuckles, tendons on the back, the wrist's creases; before they wore the
+  glove's seams); gloved hands keep the glove's. Fingers and thumbs keep the finger master (knuckle creases).
+- **Anyone in full detail:** a picker in the Gear Room ("Anyone in full detail") lists the four heroes, all
+  the townsfolk and all the people foes (96). Choosing one builds them in their own outfit, with their own game
+  sprite in the corner, at High, Light or Lite; **The sculpt** then shows their whole sculpt (a people foe: about
+  930,000 triangles). The heroes' tabs or the picker bring the heroes back with their gear.
+- Atlas: 4 x 9 cells, 1024 x 2304, 512 KB (34 kinds, two cells free), in `masters/pack.js`. Same pieces and draws
+  (Wren 48; 218 / 100 / 24). Item audit 458 items, 0 flags. Bestiary builds (11.9 MB). Gear Room 9.2 MB (the people
+  foes' and townsfolk's looks and sprites are in it now).
 
 ## Next
 
