@@ -12,7 +12,7 @@ const [file, region = 'sunscorch', out = '/tmp/g3-' + region] = process.argv.sli
 const R = {
   sunscorch: { start: ['keep', 22, 22], in: ['keep', 22, 23, 'sun-road'], road: [12, 63, 'sandspire'], fire: 'spire-hearth' },
   ironspire: { start: ['keep', 28, 11], in: ['keep', 29, 11, 'old-bridge'], road: [23, 0, 'drystone-lea'], fire: null },
-  act3: { start: ['keep-hall', 12, 6], in: ['keep-hall', 21, 8, 'hollow-hall'], road: [33, 12, 'ash-stair'], fire: 'under-coal' },
+  act3: { start: ['keep-hall', 12, 6], in: ['keep-hall', 21, 8, 'hollow-hall'], road: [32, 12, 'ash-stair'], fire: 'under-coal' },
   gloomfen: { start: ['mossfall', 20, 20], in: ['mossfall', 20, 21, 'murkway'], road: [44, 32, 'willowmurk'], fire: 'willow-hearth' },
 }[region];
 mkdirSync(out, { recursive: true });
