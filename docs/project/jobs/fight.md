@@ -50,6 +50,20 @@ turning in 3D.
   start any of them.
 - **The Legend Strike** as a close-up moment, and the phone frame rate (fewer draws in a fight).
 
+**Step 4 (from November 21, after step 3):**
+- **The full-detail foes fight with their own moves.** The foe kit's look (`prototypes/foe-hd/kit/js/loader.js`) has
+  `act.lunge`, `act.fall`, `hit()` and `pose(move, u, t, step)`, and each body plan names its moves (`MOVES`, `DUR`,
+  `LUNGE` in `prototypes/foe-hd/kit/js/moves/<plan>.js`: roar, swipe, bite, cast and so on). Today the fight calls only
+  `hit()` and leans the whole body. Drive the rest: the move picked from M7's move (a bite, a claw, a spell; a roar at
+  a new phase; the fall when it's beaten), timed so the blow lands when the dice say. If a plan lacks a move you need,
+  ask session 6 in your slip (the kit is theirs).
+- **The two swallows Auto never landed** (the Sand Wyrm, the Thunder-Roc): a switch that makes the charge land, and
+  both proven.
+- **The phone frame rate in a fight**: six full-detail foes and the party at phone settings; count draws and triangles
+  (`renderer.info`) and bring them down where they're high. Put the numbers in your slip.
+- **Every finished foe on your pages as it lands** (`FIGHT_HD`): the glowcap now; the Rotwarden and the sapwight once
+  session 8 saves them in the kit's standard form (the hub has asked).
+
 ## Your files
 
 - Yours: `world3d/battle/**` (new), `world3d/fight.js` (new, the page), `world3d/coven/pages/m7-fight.html` (new),
