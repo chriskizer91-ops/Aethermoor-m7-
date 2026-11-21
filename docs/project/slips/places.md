@@ -143,7 +143,13 @@
   The regions: Sandspire 29 -> 33, the Dust Trail 24 -> 28, the Frost Road 18 -> 21, Ironhold 22 -> 25, Bogmire
   34 -> 39, Willowmurk 54 -> 59, the Worldforge 25 -> 27. Frame time again within the noise, except a few per cent
   where the dust or snow fills the view (Sandspire 316 -> 338 ms, the Frost Road 278 -> 294 ms headless).
-- Not yet: waterfalls' spray, banners and cloth swaying (they'd need their own shader), fish leaping.
+- The rest of the list (November 21, after the place map): **Silverfall's waterfall** has white streaks running down
+  it and spray boiling up where it lands (place data `falls`, from `m7/convert.mjs`'s FALLS; two draws in all, however
+  many falls). The Iron Stair's gully is left without: it runs inside the cliff, out of sight from the path.
+  **Fish** leap now and then out of open water, an arc a metre high, turning nose-down as they drop back in (one
+  draw; not indoors or on molten metal). **The Keep's banners sway** (doors and the Great Hall's walls): engine
+  `core.js` CLOTH, hanging cloth pinned at its top edge, ripples and swings in the vertex shader; the kit's banner
+  material asks for it (`cloth: true, wind`); `world.js` passes `wind`/`cloth` through extraMats. No extra draws.
 - Checks: `m7/check-life.mjs` (what comes alive in each place, stills mid-flight), `m7/probe-life.mjs` (the cost).
 
 ### The place map (November 21)
@@ -201,6 +207,8 @@ people are `people[].id` (the game's NPC ids).
 - Coven's engine (mine to change, additive, marked "Aethermoor, Places"): `core.js` a day sky (`night.day`) and a day sky on
   the water, and molten metal that glows (`waterMat` `emis`); steep ground wears a rock texture instead of the painting stretched down it (`ground.rock`, only when a
   place asks); `world.js` passes `ground.rock` through. Act One asks for neither, so it looks as it did.
+- Engine, step 4 life (additive, marked): `core.js` WIND (trees and boughs sway, `place.wind`) and CLOTH (hanging cloth
+  sways from its top edge; a material with `cloth: true` and `wind`); `world.js` passes `wind`/`cloth` on extraMats.
 
 ## Needs
 

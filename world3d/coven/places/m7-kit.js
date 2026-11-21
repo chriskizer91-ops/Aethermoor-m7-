@@ -183,7 +183,7 @@
     extraMats.glowF = { emis: 0x66ffcc, lit: 0, tint: 0x66ffcc, cut: false };
     extraMats.glowI = { emis: 0xc070ff, lit: 0, tint: 0xc070ff, cut: false };
     extraMats.paper = { tint: 0xeee2c4, shade: 0.4, cut: false };   // (Places) notices, a map on a table
-    extraMats.banner = { tex: 'keep_banner_red', rep: 1, tint: 0x9a9090, side: 'double', shade: 0.3 };
+    extraMats.banner = { tex: 'keep_banner_red', rep: 1, tint: 0x9a9090, side: 'double', shade: 0.3, cloth: true, wind: d.interior ? 0.05 : 0.12 };   // (step 4) they sway
     // the Keep's own stone (Hearthstone Keep, the Great Hall and the Keep's galleries)
     const KEEP = d.biome === 'keep';
     d.buildings.forEach((b) => { b.roof = Object.assign({}, b.roof, { mat: 'roof_' + (b.roof.kind || 'slate') }); if (KEEP) delete b.wear; });
