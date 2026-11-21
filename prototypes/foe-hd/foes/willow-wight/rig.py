@@ -38,7 +38,7 @@ def part(P, kind, idx, piece):
         if c in arms: continue                                                  # an arm: its own bones (mask below)
         k = np.bincount(kind[m]).argmax()
         Q = P[m]
-        if k == 1 and Q[:, 2].max() > 1.2: out[m] = idx['crown']                 # a frond (and its drops)
+        if k == 1 and (Q[:, 2].max() > 1.2 or len(Q) < 200): out[m] = idx['crown']   # a frond, its drops, or a scrap of one
         elif k == 7 and Q[:, 2].mean() > 1.0 and abs(Q[:, 0].mean()) < 0.12: out[m] = idx['head']   # eyes, tears
         elif k in (3, 7) and Q[:, 2].mean() < 1.0: out[m] = idx['l_hand']       # the bluebells
     _parts_cache['arms'] = arms; _parts_cache['piece'] = piece

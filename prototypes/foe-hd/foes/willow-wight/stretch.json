@@ -52,7 +52,7 @@
     "trianglesOver": 0
    },
    "crease": {
-    "worst": 1.054,
+    "worst": 1.055,
     "limit": 3,
     "part": "chest > head",
     "where": [
@@ -238,7 +238,7 @@
     "trianglesOver": 0
    },
    "crease": {
-    "worst": 1.054,
+    "worst": 1.055,
     "limit": 3,
     "part": "chest > head",
     "where": [

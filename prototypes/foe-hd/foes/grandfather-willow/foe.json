@@ -75,6 +75,9 @@
   },
   "rig": "rig.py",
   "blurb": "Grandfather Willow is the eldest of the walking willows: a vast mossy trunk on spreading roots, a hollow in it like a door, a bearded old face under a crown of fronds two metres across, hung with glowing drops, and in his arm the Weeping Bow, strung with his own hair, its string glowing green.",
-  "next": "his moves smoothed.",
-  "pages": {}
+  "next": "his fronds denser and clumpier, his trunk more gnarled and mossier, as the sheet paints him.",
+  "pages": {
+    "three": "https://claude.ai/artifact/VVD4hHroTdUSQ2pEZAtaZf",
+    "sculpt": "https://claude.ai/artifact/CQZDYsv6DHM5FzXh19ymzC"
+  }
 }

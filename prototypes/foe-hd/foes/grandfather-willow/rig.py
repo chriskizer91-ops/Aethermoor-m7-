@@ -29,14 +29,20 @@ def _bow_dist(Q):
     return np.min(np.linalg.norm(Q[:, None] - stave[None], axis=2), 1)
 
 _cache = {}
+def _seg(Q, a, b):
+    a = np.array(a); b = np.array(b); ab = b - a
+    t = np.clip(((Q - a) @ ab) / (ab @ ab), 0, 1)
+    return np.linalg.norm(Q - (a + t[:, None] * ab), axis=1)
 def part(P, kind, idx, piece):
     out = np.full(len(P), -1); arms = {}
     for c in np.unique(piece):
         m = piece == c; Q = P[m]; k = np.bincount(kind[m]).argmax()
         near_bow = _bow_dist(Q).mean() < 0.14
-        if k == 1 and len(Q) > 200 and Q[:, 2].mean() < 2.0 and np.abs(Q[:, 0]).mean() > 0.25:
-            arms[c] = 'r' if Q[:, 0].mean() > 0 else 'l'                         # an arm: its own bones (mask)
-        elif k == 1 and Q[:, 2].max() > 1.9: out[m] = idx['crown']               # a frond
+        near_arm = {sd: min(_seg(Q, pts[i], pts[i + 1]).min() for i in range(3)) for sd, pts in ARMS.items()}
+        side = min(near_arm, key=near_arm.get)
+        if k == 1 and Q[:, 2].max() < 2.1 and near_arm[side] < 0.12:
+            arms[c] = side                                                       # an arm, or a twig of its hand: its own bones
+        elif k == 1 and (Q[:, 2].max() > 1.9 or len(Q) < 200): out[m] = idx['crown']   # a frond (or a scrap of one)
         elif k in (7, 8) and near_bow: out[m] = idx['l_hand']                    # the bow, its string, drops, flowers
         elif k == 7 and Q[:, 2].mean() > 2.0 and abs(Q[:, 0].mean()) < 0.15: out[m] = idx['head']   # eyes, tears
         elif k in (7, 8): out[m] = idx['crown']                                  # the teal drops and their caps
