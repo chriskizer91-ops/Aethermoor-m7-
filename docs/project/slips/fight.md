@@ -88,7 +88,7 @@
   the foes named in `FIGHT_HD` (default briarmaw) at their phone size; every `three` import is one copy.
 - **Living faces** (Models' `rig.faceCtl`): effort on a strike or spell, a wince when hit, eyes shut while fallen, a
   cheer on victory, worried at a quarter health or less.
-- Build the fight page: `FIGHT_HD=briarmaw,thornhound,briarling node build.mjs --page=m7-fight
+- Build the fight page: `FIGHT_HD=briarmaw,briarling,glowcap node build.mjs --page=m7-fight
   --places=thornhollow,briarmaw-den --tex=768 --herotex=256 --entry=fight.js --plugin=battle/swap.mjs` (12.0 MB).
 - Not proven by Auto: the Sand Wyrm's and the Thunder-Roc's swallows (their charge never landed in those runs).
 
@@ -106,8 +106,9 @@
   `battle/check-perf.mjs`, renderer.info): **61 draws, 248 thousand triangles** (was 99 draws, 268 thousand). Each
   full-detail foe is one draw (thornhound 20k triangles, briarling 17k); the party 8 draws (the leader now fights as a
   lite figure on phones, 2 draws instead of 40); the other 47 draws are Thornhollow itself (the place's engine, Places').
-- **FIGHT_HD**: briarmaw, thornhound, briarling, glowcap on the fight and Act One pages. The Rotwarden and the
-  sapwight join once they're in the kit's standard form.
+- **FIGHT_HD** (hub's rule, November 21: only a foe that passes the kit's stretch check on every move fights in full
+  detail): briarmaw, briarling, glowcap on the fight and Act One pages, re-weighted (hub 7cc2a1d). The thornhound is
+  back on its stand-in until session 7 says it passes; the Rotwarden and the sapwight join the same way.
 - **The kit's common moves** (d70f6fe): the pick is by name only (cast, roar on a new phase, swipe, strike, bite; hurt,
   ko), each move's length from the foe's own `duration()`. **No squash or lean on full-detail foes** (Chris, November
   21: no model may stretch): their own moves carry the hit and the lunge; the code-built and painted ones keep theirs.
@@ -124,8 +125,13 @@
 - **Briarmaw: all eight moves proven** in headless fights (`battle/check-moves.mjs`, a still as each starts and as it
   lands): Maul, Thorn Volley, Call the Briars (close), Fang Rake, Bramble Wall, Rootquake (wide, the stage shakes),
   Devour (close; needs `?land=1` and a strong party, `?level=12`, to reach his third phase), Thornstorm (wide).
-  The test mode draws a few frames a second, so the stills show the cameras and the moves more clearly than the
-  thorns and roots.
+  **Proof stills, slow mode** (`check-moves.mjs ... --slow`): the battle clock is held from a big move's first frame
+  and stepped by hand, three stills per move (as it bursts out, its thorns in the air, as it lands), so the effects
+  show at their height however slow the test browser is. Stills for Chris in `docs/project/slips/fight-stills/`.
+- **Fixed while making them**: at 2x speed every effect played four times as fast instead of twice (its length was
+  shortened and its clock sped up too); the crown's pulse was hidden inside Briarmaw's body (it now glows over him);
+  the close camera on a summoning left the foe behind the turn strip across the screen's middle (it now stands in the
+  stage's open upper part).
 - **The Rotwarden: all eleven moves are in the table** (Rootlash, Bark Hide, Graft, Blacken the Sap, Grasping
   Roots, Ichor Tide, Heartroot Bloom, Ichor Rain, Devour, Unmaking, Grief). They play on his sculpted model now; his
   full-detail model joins when session 8 saves him in the kit's standard form.
