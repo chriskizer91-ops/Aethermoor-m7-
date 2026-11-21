@@ -95,7 +95,10 @@
 
   On phone detail the trees are drawn in 48 m batches and the ground in 64-cell patches (`place.treePatch`,
   `place.groundPatch`, engine additive): the Hearth Road's place alone went from 99 to 54 calls, and the Thornway's from
-  86 to 47. The cost is some 10-30k more triangles, since bigger batches are culled less finely.
+  86 to 47. The cost is some 10-30k more triangles, since bigger batches are culled less finely. All of a place's
+  pools of water are drawn as one (`place.waterMerge`, engine additive; each pool is still its own for the ground and
+  walking): Mossfall's place alone went from 61 to 28 calls (was the heaviest, 69 with the party, now 36); Willowmurk
+  is now the heaviest on a phone at 64.
   With Models' light figures (the hub's d96e11e; m7places.js: the leader 'auto' and the followers 'lite' on a phone,
   'auto-high' and 'auto' on a laptop) the party costs about 9 draw calls on phone detail, where it took about 144.
   Phone medians fell from 60-82 calls to 26-43 (and then to 21-36 with the bigger batches). The heaviest places are now the long wooded roads (the Hearth Road,

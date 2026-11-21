@@ -52,8 +52,11 @@ export function makeShared(A, res) {
   const geo = decodeLight(A.lightMeta, A.lightBin);
   const mat = new THREE.MeshStandardMaterial({
     map: tex(A.tex[res].color, true), normalMap: tex(A.tex[res].normal, false), aoMap: tex(A.ao, false), aoMapIntensity: 1.0,
-    emissiveMap: tex(A.emit, true), emissive: new THREE.Color(0xffffff), emissiveIntensity: 1.3, roughness: 0.82, metalness: 0,
+    emissiveMap: tex(A.emit, true), emissive: new THREE.Color(A.glow ?? 0xffffff), emissiveIntensity: A.glowIntensity ?? 1.3,
+    roughness: 0.82, metalness: 0,
   });
+  // ORM (R shading, G roughness, B metalness; session 8): plate and gold keep their shine
+  if (A.orm) { const o = tex(A.orm, false); mat.roughnessMap = o; mat.metalnessMap = o; mat.roughness = 1; mat.metalness = 1; }
   return { geo, mat, meta: A.lightMeta, res };
 }
 
@@ -74,13 +77,30 @@ export function buildSkinned(shared) {
 }
 
 
+// The common moves every foe answers to (the Fight picks by M7's move): idle, walk, bite, strike, swipe, cast, roar,
+// hurt, ko. A plan that lacks one plays its nearest: its own ALIAS table first, then these.
+export const COMMON = ['idle', 'walk', 'bite', 'strike', 'swipe', 'cast', 'roar', 'hurt', 'ko'];
+const NEAREST = { bite: ['bite', 'strike', 'lunge'], strike: ['strike', 'bite', 'swing', 'dive', 'bump'],
+  swipe: ['swipe', 'swing', 'slam', 'strike'], cast: ['cast', 'spores', 'roar'], roar: ['roar', 'spores', 'cast', 'hop'],
+  idle: ['idle'], walk: ['walk'], hurt: ['hurt'], ko: ['ko'] };
+export function resolveMove(moves, move) {
+  const has = (m) => moves.MOVES.some(([k]) => k === m);
+  if (has(move)) return move;
+  const alias = moves.ALIAS && moves.ALIAS[move];
+  if (alias && has(alias)) return alias;
+  for (const m of NEAREST[move] || []) if (has(m)) return m;
+  return moves.LUNGE && ['bite', 'strike', 'swipe', 'cast', 'roar'].includes(move) ? moves.LUNGE : 'idle';
+}
+export function moveDuration(moves, move) { return (moves.DUR || {})[resolveMove(moves, move)] || 1; }
+
 function wrap(group, body, mesh, bones, meta, moves) {
   for (const b of Object.values(bones)) b.userData.p0 = b.position.clone();
   const F = { group, body, mesh, bones, key: meta.key, plan: meta.plan || 'quad', height: meta.height || 1.7,
     parts: { head: bones.head, tail: bones.tail, jaw: bones.jaw }, triangles: meta.triangles, moves };
   F.act = { lunge: 0, fall: 0 }; F.hitAt = -9; F.t = 0;
   F.hit = () => { F.hitAt = F.t; };
-  F.pose = (move, u, t, step = 0) => moves.pose(F, move, u, t, step);
+  F.pose = (move, u, t, step = 0) => moves.pose(F, resolveMove(moves, move), u, t, step);
+  F.duration = (move) => moveDuration(moves, move);      // seconds the move takes (its plan's DUR)
   // what the Fight drives: act.fall plays the fall, a hit() a flinch, act.lunge the plan's lunge; else idle or walk
   F.update = (t, step = 0) => {
     F.t = t;

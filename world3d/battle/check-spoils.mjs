@@ -41,6 +41,14 @@ if (chests.length) {
     await p.screenshot({ path: path.join(out, 'e-redressed.png') });
     console.log('re-dressed', await p.evaluate(() => window.__fight.arena.heroes.get('warden').A !== window.__A0));
   }
+  // back to walking: the walk runs again, and only one Wren stands there
+  const back = p.locator('button', { hasText: /Back to the Wilds|Walk on|Get back up/ }).first();
+  if (await back.count()) {
+    await back.click();
+    await p.waitForTimeout(6000);
+    await p.screenshot({ path: path.join(out, 'f-back.png') });
+    console.log('walking', await p.evaluate(() => !window.__fight.W.paused), 'figures in the scene', await p.evaluate(() => window.__fight.W.P.scene.children.filter((o) => o.visible && o.children.some((c) => c.isGroup)).length));
+  }
 }
 console.log(errs.join('\n'));
 await b.close();

@@ -7,11 +7,11 @@ Where the 3D game stands. Written by the hub only. Last updated November 20, nea
 | # | Job | Session | Branch | State | Latest link |
 |---|---|---|---|---|---|
 | 1 | the hub | `session_01DgbUKb6orvjjc1cMgBGPJK` | `claude/brave-davinci-790efm` | running | (the board) |
-| 2 | The Fight | `session_01DgbUKYR9qmKyBdACUWGViw` | `job/fight` | step 3 nearly done: every Act One fight, indoor cameras, statuses, swallow, guest ally, charm, Legend Strike, Hodge's toll and Twinned splits; the fight page builds again | https://claude.ai/artifact/Q9T8quXCTVgiVUZoMuUaP4 |
-| 3 | Models | `session_01DgbUKcWh5MEvjHnxzp4HHo` | `job/models` | sculpted heroes, first pass, in (relief on every surface, shaped faces, deeper folds; Wren beside Briarmaw in the Gear Room); next: a sculpted master for each body part and item kind, baked and fitted to the switchable pieces, starting with Wren's starter kit | https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL |
-| 4 | Places | `session_01DgbUKZVFBfm1dVautXEw5f` | `job/places` | roofs coloured from the commonest hue in the painting, a hall and its wings sharing one colour; the Hearth Road 99 → 54 draw calls on a phone; all brought in, Act One republished (version 9) | https://claude.ai/artifact/GBxRVSqwMwYUTy1xLNjATA |
-| 5 | Together | `session_01DgbUKbyjzZFe1BXHHxzHBn` | `job/together` | Act One playable start to end, with full-detail Briarmaw; **the Sunscorch page** (begin at the Keep's south-east gate, or bring a journey by its save code); next: the Ironspire and the Gloomfen the same way | https://claude.ai/artifact/RaeSK5hezqb3qH7jmuM5aj |
-| 6 | One Foe | `session_01DgbUKZCNBFY7zwSzwAXR8y` | `job/foe-hd` | the kit in; the briarling made with it (589k sculpt → 16,640); forwarding copies fixed the fight's build; next: glowcap, boglurcher, the willows, the sparks, rockling, Mother Anvil, the wraiths | https://claude.ai/artifact/DorMujhAe9d1XNwLGYV4ae |
+| 2 | The Fight | `session_01DgbUKYR9qmKyBdACUWGViw` | `job/fight` | step 4 done: full-detail foes fight with their own moves timed to M7's dice, both swallows proven (?land=1), six full-detail foes and the party at 61 draws on a phone; next, step 5: each Champion's named moves as their own 3D moments | https://claude.ai/artifact/Q9T8quXCTVgiVUZoMuUaP4 |
+| 3 | Models | `session_01DgbUKcWh5MEvjHnxzp4HHo` | `job/models` | sculpted masters for each kind of piece (eleven so far, Wren's starter kit: torso, skirt, sleeve, forearm, trousers, boot, foot, belt, tabard, cape, kettle hat), the whole hero's sculpt (908k) to look at, baked into one shared atlas on the same pieces and draws; heroes can't stretch (rigid pieces); next: helm, hood, gloves, robe, mantle, plate, shield face, grips, then the townsfolk and people foes | https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL |
+| 4 | Places | `session_01DgbUKZVFBfm1dVautXEw5f` | `job/places` | pools of water drawn as one (Mossfall 61 → 28 draws on a phone; the heaviest place on a phone now Willowmurk at 64); roofs coloured from the painting; Act One republished (version 10); next: the woods on a laptop (Thornway 336 draws) and Willowmurk on a phone | https://claude.ai/artifact/GBxRVSqwMwYUTy1xLNjATA |
+| 5 | Together | `session_01DgbUKbyjzZFe1BXHHxzHBn` | `job/together` | Act One version 5: full-detail Briarmaw, Rotwarden and sapwight in the game (heroes' textures at 192 px and paintings at 0.4 to fit); the Sunscorch page; next: the Ironspire and the Gloomfen the same way | https://claude.ai/artifact/RaeSK5hezqb3qH7jmuM5aj |
+| 6 | One Foe | `session_01DgbUKZCNBFY7zwSzwAXR8y` | `job/foe-hd` | the glowcap (841k sculpt → 17,284); the bake no longer bleeds between coat and parts (Briarmaw and the briarling re-baked); serpent, frog and winged rigs for session 7; next: boglurcher, the willows, the sparks, rockling, Mother Anvil, the wraiths | https://claude.ai/artifact/AyUxs7hCGjdzZDNG1jfRnJ |
 | 7 | Foes: beasts | `session_01DgbUKZ4qEpafSazysExsYV` | `job/foes-beasts` | the thornhound brought in (606k sculpt kept as an asset → ~20k); next: onto the kit, then the rotstag, Old Snag, the Mirelord, the rotgrub, the Gloamwing | https://claude.ai/artifact/64Ukg3yQAAb8DWz69xqvxs |
 | 8 | Foes: walkers | `session_01DgbUKcTDUjKDVHw3sPhu7R` | `job/foes-walkers` | the Rotwarden (1.07M sculpt → 47,500) and the sapwight (900k → 19,913) done and brought in, sculpts kept as assets; `walkersLook` for the Fight; next: lighter phone copies, then Old Horn and the rest | https://claude.ai/artifact/YBLUHaLG3bNdfcjBdeq3aj |
 
@@ -27,12 +27,14 @@ Where the 3D game stands. Written by the hub only. Last updated November 20, nea
 | The Gloomfen (12 places), plank streets on stilts over bog water | `world3d/m7/` | https://claude.ai/artifact/RkoGBME3ANqwAVLnwKLbj8 |
 | Act Three: the Keep's galleries and the Hearth Below (stand-in paintings for four until batch 4) | `world3d/m7/` | https://claude.ai/artifact/HMZiN2rDQThhvvsJqwmE56 |
 | The Atlas: all of M7's places on the 3D continent, travel by kindled Hearthfires | `world3d/m7/atlas.js` | https://claude.ai/artifact/MXyu3A9zTjoCavHFKXCbpi |
-| A fight on Thornhollow's road: M7's battle screen over the 3D, the party on the field, 3D dice | `world3d/battle/`, `world3d/fight.js` | https://claude.ai/artifact/NpeXL5Pf4RxNfkQsguTnEK |
+| A fight on Thornhollow's road: M7's battle screen over the 3D, the party on the field, 3D dice; full-detail Briarmaw, thornhound and briarling | `world3d/battle/`, `world3d/fight.js` | https://claude.ai/artifact/NpeXL5Pf4RxNfkQsguTnEK |
 | The Verdant Wilds (Coven's zone 1, borrowed), the small and big maps, the 3D continent | `world3d/` | https://claude.ai/artifact/R3Ecr7e1VVbb9Qi7GXEPpx |
 | The Gear Room: a hero whose outfit is built from M7's gear, in Chris's 47 textures and the four faces; "Beside Briarmaw" and "Sculpted" switches | `prototypes/hero-3d/` | https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL |
 | Briarmaw three ways: code-built, painted, full detail (baked from a sculpt), with a crowd test | `prototypes/foe-hd/` | https://claude.ai/artifact/5iUqJsPw3NGrvun4Ng73eh |
-| Every Act One fight, from M7's own map data (28) | `world3d/battle/` | https://claude.ai/artifact/Q9T8quXCTVgiVUZoMuUaP4 |
+| Every Act One fight, from M7's own map data (28), a Fights list | `world3d/battle/` | https://claude.ai/artifact/Q9T8quXCTVgiVUZoMuUaP4 |
+| The event fights of Acts Two and Three (13: swallows, burrows, the dive, charms, summons, the guest ally, duels, the toll) | `world3d/battle/` | https://claude.ai/artifact/RLrMg73EPUxGCHRaQXfAZS |
 | The briarling, the first foe made with the kit (three ways; its sculpt) | `prototypes/foe-hd/foes/briarling/` | https://claude.ai/artifact/DorMujhAe9d1XNwLGYV4ae · https://claude.ai/artifact/LAjxUMG9Aoj2UPw7DuyHtB |
+| The glowcap (three ways; its sculpt, 841,184 triangles) | `prototypes/foe-hd/foes/glowcap/` | https://claude.ai/artifact/AyUxs7hCGjdzZDNG1jfRnJ · https://claude.ai/artifact/H5yc3TLZDp3Aho9R1nzaCg |
 | The beasts in full detail: the thornhound (phone gallery; laptop page with the sculpt) | `prototypes/foe-hd/pages/beasts/` | https://claude.ai/artifact/64Ukg3yQAAb8DWz69xqvxs · https://claude.ai/artifact/8pCvG7xuqHuCcARiUYa9SX |
 | The walkers in full detail: the Rotwarden and the sapwight | `prototypes/foe-hd/pages/walkers/` | https://claude.ai/artifact/YBLUHaLG3bNdfcjBdeq3aj |
 | The walkers' sculpts, for a laptop | `prototypes/foe-hd/foes/` | https://claude.ai/artifact/JCdvpAPKT781gZiU49jTh2 |
@@ -52,6 +54,10 @@ Where the 3D game stands. Written by the hub only. Last updated November 20, nea
 - **Everyone:** hub commit 77f8eeb has all three first deliveries together (textured heroes, the Sunscorch, the fight)
   and `world3d/build.mjs` with every session's flags (`--herotex`, `--name`, `--out`, `--paint`, `--entry`, `--plugin`).
   Merge it before your next publish.
+
+- **Everyone who builds with `--herotex`:** from hub commit after f657c89, `world3d/build.mjs --herotex=N` leaves the
+  sculpted masters' atlas and the relief tiles whole (11 pictures, about 0.6 MB), so the heroes keep their sculpted
+  detail on a shrunk page.
 
 ## Asks between jobs
 
@@ -80,6 +86,11 @@ Where the 3D game stands. Written by the hub only. Last updated November 20, nea
   (`core.js`, marked "Aethermoor, hub"). Act One with every texture and painting at full size is up as a test:
   https://claude.ai/artifact/HD9GL1Ao4ymzRRodVY2ozm. Once Chris sees it work on his phone, the game and the heavy pages
   can stop shrinking textures.
+
+- **No stretching (Chris, November 21; every model session):** the Rotwarden's arms drag his waist and belt into a web
+  when they spread (`from-chris/2026-11-21-rotwarden-stretch.webp`). Session 8 fixes his weights; session 6 puts a
+  stretch check and weights-by-part into the kit; sessions 7 and Models check theirs; the Fight leaves squash and
+  stretch off the full-detail foes. Rules: `jobs/foes.md`, "No stretching".
 
 ## Next for the hub
 

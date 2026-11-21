@@ -29,7 +29,8 @@ foes/<key>/rig.py        BONES (and weigh, rigid), usually from a template in ki
 kit/make.sh <key>                        # everything: sculpt (light and full levels), sheet, bake, pack, asset
 kit/make.sh <key> sculpt,sheet           # or some steps
 python3.12 kit/py/sculpt.py foes/<key> 1 # one level: 0 light, 1 shape, 2 form, 3 detail, 4 finer
-python3 kit/py/sheet.py foes/<key> 1     # build/compare-1.png (sheet above renders), build/outline-1.png (outlines)
+python3 kit/py/sheet.py foes/<key> 1     # build/compare-1.png (sheet above renders), build/outline-1.png (outlines
+                                         # scaled to fit) and build/outline-abs-1.png (at the sheet's own scale)
 blender -b -P kit/blender/preview.py -- foes/<key> 3 front,side,back,three,head
 node build.mjs --foe=<key>               # dist/<key>.html: three ways (code-built, standee, full detail) + crowd test
 node build.mjs --foe=<key> --page=sculpt # dist/<key>-sculpt.html: the sculpt beside its light model (laptop)
@@ -54,6 +55,11 @@ about 25 MB).
 
 - `crops`: the sheet's front, side and back figures as [x0, x1] in sheet pixels (the sheet checks use them).
 - `bounds`: the box the body is meshed in (sculpt coordinates: x his right, y forward, z up, metres, feet at 0).
+- `uv_scale` {kind: factor}: each kind's share of the picture (shrink small leaves); `flat` [kinds]: stacked leaves or
+  petals get a flat surface and light shading in the bake (cage rays hit their neighbours).
+- `glow` ("0xffa040") and `glowIntensity`: the colour and strength of the glow (default white, 1.3).
+- Roughness and metalness: give `M.add(..., mat=(roughness, metalness))` in sculpt.py and the bake makes an ORM picture
+  (R shading, G roughness, B metal; session 8), which the page uses so plate and gold keep their shine.
 - `light.coat`: the light model's coat (kinds 0-1) in triangles; parts come built light (level 0) and keep their shape;
   `light.kinds` can cap other kinds. Total ≈ coat + parts: aim at the rank's budget.
 - `voxel` (optional) {level: metres} overrides the meshing size per level (small foes want finer).
@@ -64,7 +70,12 @@ about 25 MB).
 - `K.geom`: `Mesh` (vertices with a colour and a **kind**: 0 body/coat, 1 cloth/skin layer, 2 thorn/spike, 3 vine/rope,
   4 plate/band, 5 tusk/tooth, 6 claw, 7 eye/glow, 8 other rigid piece), `tube horn ellipsoid frames resample lay
   sample_surface`.
-- `K.Coat(body_sdf, lo, hi, LV, VOX, tuft_len, flow, bare, style, shape='tuft'|'scale'|'plate')`: a surface of
+- `K.sdf.mc(f, h, lo, hi, band=metres)`: with `band`, exact values only near the surface (session 7's narrow band,
+  about ten times faster on the fine passes).
+- `kit/py/parts.py` (session 8): `Parts` (a body of named parts, each with a look; `label(V)` says which part made each
+  vertex, so colours don't bleed) and `Blobs` (many small spheres as one soft lumpy shape).
+- `K.Coat(body_sdf, lo, hi, LV, VOX, tuft_len, flow, bare, style, shape='tuft'|'lock'|'scale'|'plate')` ('lock': session
+  7's fur, flame-shaped locks with grooves and split tips): a surface of
   overlapping shapes sculpted into the body (topmost wins), the same at every level; gives `full_sdf` (to mesh),
   `place_sdf` (to place parts on: **use it for every part**, so parts sit the same at every level and the bake finds
   them) and `colours(V, bare_colour)`.
@@ -88,7 +99,10 @@ about 25 MB).
 
 - `loader.js`: `ready, makeShared(A, res), makeFoe(shared, moves), cloneFoe(F)`: the Fight's face
   `{ group, plan, height, parts, update(t, step), hit(), act: { lunge, fall }, pose(move, u, t) }`.
-- `moves/quad.js`, `moves/biped.js`: `MOVES, DUR, LUNGE, pose(F, move, u, t, step)` by bone name.
+- `moves/<plan>.js` (quad, biped, sapling, mushroom, serpent, frog, winged): `MOVES, DUR, LUNGE, ALIAS?, pose(F, move,
+  u, t, step)` by bone name. **Every foe answers to the common moves** `idle, walk, bite, strike, swipe, cast, roar,
+  hurt, ko` (the Fight picks by M7's move): `F.pose(move, ...)` plays the plan's own move of that name, or its nearest
+  (`loader.js` `resolveMove`; a plan can map names in `ALIAS`); `F.duration(move)` gives its length.
 - `looks.js`: **one `setBeastLook` for every finished foe**: `register(assets)` each, then
   `setBeastLook(foeLook(buildBeast))`.
 - `viewer.js`: the sculpt viewer page. `pages/kit/`: the three-ways page. A lane's gallery: its own entry and shell in
