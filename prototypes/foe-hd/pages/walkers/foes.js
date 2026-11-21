@@ -167,6 +167,8 @@ const sapwight = {
 // Old Horn: a troll of the high passes, hunched, his club in his left hand (bones l_hand carries it), one great horn
 const oldHorn = {
   key: 'old-horn', name: 'Old Horn', tier: 'Relic-Bearer', act: 'Act Two, the high passes', height: 2.7, weight: 1.6,
+  stiff: 0.6, knees: 0.6,
+  limits: { neck: 0.4, head: 0.5, spine: 0.45, chest: 0.6, l_shin: 0.3, r_shin: 0.3, l_thigh: 0.5, r_thigh: 0.5, l_fore: 0.7, r_fore: 0.7 },
   text: 'A troll of the high passes, grey-green and mossed like a boulder. Cut it and it grows back; the old ones wear the hides of the young.',
   lunge: 'club',
   idle(W, t) {

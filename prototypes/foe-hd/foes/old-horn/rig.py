@@ -5,7 +5,8 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '../
 from rig_biped import biped_bones, weights_biped
 
 HEAD = (-0.05, 0.47, 2.02)
-J = {'hips': (0, -0.02, 1.0), 'spine': (0, 0.06, 1.25), 'chest': (0, 0.10, 1.52), 'neck': (0, 0.20, 1.80),
+J = {'hips': (0, -0.02, 1.0), 'spine': (0, 0.05, 1.16), 'chest': (0, 0.08, 1.33),      # the chest joint low, so his deltoids sit wholly on the chest
+      'neck': (0, 0.20, 1.80),
      'head': (-0.03, 0.36, 1.92), 'head_top': (-0.05, 0.50, 2.25)}
 for s, n in ((1, 'r'), (-1, 'l')):
     J.update({f'{n}_shoulder': (s * 0.50, 0.12, 1.76), f'{n}_elbow': (s * 0.66, 0.14, 1.20), f'{n}_wrist': (s * 0.68, 0.24, 0.80),
@@ -40,7 +41,7 @@ def part(P, kind, idx):
     out = np.full(len(P), -1)
     out[kind == 10] = idx['l_hand']                       # the club, its moss and mushrooms
     # the cape and loincloth (kind 1) blend freely over hips, spine and chest (PIECES keeps them to those)
-    inhead = np.linalg.norm((P - np.array(HEAD)) / [0.42, 0.34, 0.30], axis=1) < 1
+    inhead = np.linalg.norm((P - np.array(HEAD)) / [0.47, 0.37, 0.36], axis=1) < 1       # the head, ears and all
     out[inhead & (kind == 0)] = idx['head']
     return out
 def rigid(kind, P, idx): return RIGID.get(int(kind))

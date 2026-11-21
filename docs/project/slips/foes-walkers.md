@@ -66,8 +66,9 @@ how far each joint really bends, applied after any move), so the Rotwarden's pla
 fold only so far; his knee plates' points were shortened so they don't straddle the knee; his root arm has more
 triangles; the sapwight's neck and elbows bend less.
 
-- **Old Horn** (Act Two, built today) has the same pieces but still stretches where his cape meets his shoulders; he
-  goes on a page only when he passes.
+- **Old Horn** (Act Two, built today): his arms, legs, cape (riding his chest) and loincloth (riding his hips) are pieces
+  of their own, and he has joint limits; his chest joint sits low so his deltoids ride the chest. Still failing the
+  check: big edges up to 2.4 times at his knees, 2.1 at his elbows, 1.7 at his neck. Not on any page until he passes.
 - The laptop sculpt page still shows the earlier sculpts; to be refreshed.
 
 ## The Rotwarden's named moves for the Fight (done)
