@@ -243,6 +243,6 @@ for k_, a in arrays.items():
     blob.append(b); o += len(b)
 open(os.path.join(OUT, 'low.bin'), 'wb').write(b''.join(blob))
 from common import helpers_for
-json.dump({'split': bool(getattr(RIG, 'SPLIT', None)), 'helpers': helpers_for(RIG.BONES, getattr(RIG, 'HELPERS', None)), 'layout': layout, 'bones': bones, 'triangles': int(len(tris)), 'vertices': int(len(pos_b)),
+json.dump({'moves': cfg.get('moves'), 'split': bool(getattr(RIG, 'SPLIT', None)), 'helpers': helpers_for(RIG.BONES, getattr(RIG, 'HELPERS', None)), 'layout': layout, 'bones': bones, 'triangles': int(len(tris)), 'vertices': int(len(pos_b)),
            'sculptTriangles': int(len(h['F'])), 'key': cfg['key'], 'plan': cfg.get('plan'), 'height': cfg.get('height')}, open(os.path.join(OUT, 'low.json'), 'w'), indent=1)
 log('wrote light version:', len(tris), 'triangles,', len(pos_b), 'vertices')
