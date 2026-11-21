@@ -208,6 +208,7 @@ def bind(RIG, P, kind, tris, height, mid, log=print):
                 if mc.sum() > 8: far |= D[m, b] > 1.8 * np.percentile(D[mc, c], 75)
             back = s < -w[b]
             ii = np.flatnonzero(m)[back | far]
+            ii = ii[MASK[ii, par[b]] > 0]                # never to a parent the gates or the mask forbid
             lab[ii] = par[b]
         lab = smooth(lab, 2)
 

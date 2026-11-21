@@ -611,7 +611,8 @@
           shade = 20; break;
         }
         case 'boat': {   // a rowing boat moored on the water (its keel at the water's level), two benches, oars in it
-          const wl = -0.42, Lb = 3.2 * sz, Wb = 1.1 * sz, sg = new THREE.CylinderGeometry(1, 1, 1, 12, 1, true, 0, Math.PI);
+          // (a boat pulled up on a bank sits on the ground)
+          const wl = g > -0.15 ? g + 0.08 : -0.42, Lb = 3.2 * sz, Wb = 1.1 * sz, sg = new THREE.CylinderGeometry(1, 1, 1, 12, 1, true, 0, Math.PI);
           sg.rotateZ(Math.PI / 2); sg.rotateY(Math.PI / 2);   // a half tube, open at the top, along the boat's length
           B.geom('wood', sg, new THREE.Matrix4().compose(new THREE.Vector3(x, wl + 0.32 * sz, z), new THREE.Quaternion().setFromEuler(new THREE.Euler(0, ry, 0)), new THREE.Vector3(Wb / 2, 0.42 * sz, Lb / 2)), [0.78, 0.62, 0.5], [3, 1]); sg.dispose();
           for (const e of [-1, 1]) { const [ex, ez] = L(0, e * Lb / 2); const cg = new THREE.ConeGeometry(Wb / 2, 0.5 * sz, 8, 1, true, 0, Math.PI); cg.rotateX(e * Math.PI / 2); B.geom('wood', cg, new THREE.Matrix4().compose(new THREE.Vector3(ex, wl + 0.32 * sz, ez), new THREE.Quaternion().setFromEuler(new THREE.Euler(0, ry + (e > 0 ? Math.PI : 0), 0)), new THREE.Vector3(1, 0.84, 1)), [0.74, 0.58, 0.46], 1); cg.dispose(); }
