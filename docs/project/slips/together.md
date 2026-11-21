@@ -1,8 +1,35 @@
 # Slip: Together (session 5, branch `job/together`)
 
-Last updated November 20.
+Last updated November 21.
 
 ## Done
+
+## Latest round (November 21): the place map, live Hearthfires, chests, and Act Three
+
+Every game page now has Places' place map (`world3d/m7/minimap.js`), small in the corner and big at a tap, with M7's
+live marks: the people who are there, chests opened or not, Hearthfires lit or cold, and the next goal as a star. It
+hides in fights, talk, menus, screens and the Atlas. Hearthfires burn in a bowl on their pillar (lit or cold by M7's
+state) and unopened chests glint (`game3d/props.js`). All seven pages republished:
+
+| Page | Link | Version | Size |
+|---|---|---|---|
+| Act One | https://claude.ai/artifact/RaeSK5hezqb3qH7jmuM5aj | 7 | 14.9 MB |
+| Act One, full pictures | https://claude.ai/artifact/9rGvzRh4eocZrz4RYPQLz6 | 4 | 7.4 MB + 28 MB of pictures |
+| The Sunscorch | https://claude.ai/artifact/7dPEGKka7t1FyHF5SSLPAo | 3 | 13.8 MB |
+| The Ironspire | https://claude.ai/artifact/6jSwPVzbwwZWmmD6VsQ1sU | 2 | 15.0 MB |
+| The Gloomfen | https://claude.ai/artifact/N2iCRiMardtJNbntUoXYsA | 2 | 14.5 MB |
+| Act Three (new) | https://claude.ai/artifact/U8tPe6ZcZKrYA1o7XJeTjp | 1 | 13.0 MB |
+| Act Three, full pictures (new) | https://claude.ai/artifact/28QkrWfL1YqMUnGLki2s5w | 1 | 4.7 MB + 16 MB of pictures |
+
+- **Act Three** (`--act=act3`, and `--act=act3 --full --files`): the Keep, its hall and galleries, the Hollow Hall, the
+  Ash Stair, the Chained Deep and the Worldforge. "Begin at the Hollow Hall" starts after all of Act Two (level 20).
+  Checked (`game3d/tools/region.mjs act3`, and a second run to the Ash Stair): the Council, the Hollow Hall, all four
+  hollows won, down the Ash Stair, a rest at Under-coal, saved, no page errors.
+- **Full-detail foes, the stretch rule**: only foes whose `stretch.json` passes on every move. Act One's single page
+  carries three (Briarmaw, the briarling, the glowcap) to stay under 16 MB; the full-pictures page carries every one
+  that passes (the boglurcher too). The region pages carry none yet. Session 8's walkers come in by themselves at the
+  next build once they pass.
+
 
 - **Step 1, Act One as one game**: https://claude.ai/artifact/RaeSK5hezqb3qH7jmuM5aj (version 6, 15.6 MB; page `game3d/`, built by
   `node game3d/build.mjs`). On the title: Go on, A new journey (M7's own prologue and name screen), or Bring the party
@@ -59,9 +86,9 @@ Last updated November 20.
 
 - Briarmaw, the spoils and the new creatures as the Fight and Models deliver them (the foes' figures come through
   `game3d/figures.js`, one place to switch).
-- The Ironspire and the Gloomfen, then Act Three, a page each, or one page for everything if the hub's pictures-as-files
-  works on Chris's phone (then the full textures, paintings and every full-detail foe come back too).
-- Chests, signs and Hearthfire stands shown as 3D things (today the painting shows them).
+- Session 8's walkers and more foes as their stretch checks pass (automatic at the next build), then republish.
+- Places' living places as they land.
+- Full-detail foes on the region pages, if they fit (or a full-pictures page for each region).
 
 ## Changed outside my files
 
