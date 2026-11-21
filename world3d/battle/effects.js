@@ -26,6 +26,8 @@ export class Fx {
   constructor(scene) { this.scene = scene; this.list = []; this.speed = 1; this.dropped = []; }
   add(o, dur, step, done) { this.scene.add(o); this.list.push({ o, t: 0, dur, step, done }); return o; } // update() is given the fight's clock, already sped up
   busy() { return this.list.length > 0; }
+  // fn after `sec` of the fight's own clock (held with it in the stills' slow mode, sped up with it at 2x)
+  later(sec, fn) { this.add(new THREE.Group(), Math.max(0.001, sec), () => {}, fn); }
   update(dt, cam) {
     this.list = this.list.filter((e) => {
       e.t += dt; const u = Math.min(1, e.t / e.dur);
@@ -117,9 +119,11 @@ export class Fx {
   // a thorn (a dark barbed spike) flying from `from` to `to`, a little arc, spinning
   thorn(from, to, color = '#3f5a26', dur = 0.32, delay = 0) {
     const grp = new THREE.Group();
-    const spike = new THREE.Mesh(new THREE.ConeGeometry(0.035, 0.32, 5), new THREE.MeshStandardMaterial({ color: col(color), roughness: 0.7 }));
+    const spike = new THREE.Mesh(new THREE.ConeGeometry(0.075, 0.6, 6), new THREE.MeshStandardMaterial({ color: col(color), roughness: 0.7 }));
     spike.rotation.x = Math.PI / 2; grp.add(spike);
-    const tip = new THREE.Mesh(new THREE.ConeGeometry(0.015, 0.08, 4), glowMat('#d8f0a0', 0.9)); tip.rotation.x = Math.PI / 2; tip.position.z = 0.18; grp.add(tip);
+    const tip = new THREE.Mesh(new THREE.ConeGeometry(0.035, 0.16, 5), glowMat('#e8ffb0', 0.95)); tip.rotation.x = Math.PI / 2; tip.position.z = 0.34; grp.add(tip);
+    // a faint pale streak behind it, so it reads in flight on any floor
+    const trail = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.005, 0.9, 5, 1, true), glowMat('#e8f0c0', 0.35)); trail.rotation.x = Math.PI / 2; trail.position.z = -0.7; grp.add(trail);
     const d = to.clone().sub(from), lift = Math.min(1.2, d.length() * 0.18), q = new THREE.Vector3();
     const at = (u, out) => out.copy(from).addScaledVector(d, u).setY(from.y + d.y * u + Math.sin(u * Math.PI) * lift);
     grp.visible = false;
@@ -131,17 +135,41 @@ export class Fx {
 
   // roots bursting up out of the ground round `at`, curling, holding a moment and sinking back
   roots(at, color = '#5a3a1e', n = 6, dur = 1.6) {
+    // thick roots tearing up through the floor round `at`: heavy and dark at the base, tapering to pale tips that catch
+    // the light, with clods of earth and a puff of dust thrown up where they break the ground (read on a brown floor)
     const grp = new THREE.Group(); grp.position.copy(at);
-    const m = new THREE.MeshStandardMaterial({ color: col(color), roughness: 0.9 });
-    const parts = [];
+    const base = col(color), tip = col('#cdb38a');
+    const m = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.75, emissive: col('#3a2a14'), emissiveIntensity: 0.35 });
+    const SEG = 14, RAD = 7;
     for (let i = 0; i < n; i++) {
-      const a = i / n * TAU + Math.random() * 0.4, r = 0.35 + Math.random() * 0.15;
-      const pts = []; for (let k = 0; k <= 6; k++) { const t = k / 6; pts.push(new THREE.Vector3(Math.cos(a) * r * (1 - t * 0.6), t * (0.9 + Math.random() * 0.3), Math.sin(a) * r * (1 - t * 0.6)).add(new THREE.Vector3(Math.cos(a + 1.6) * t * t * 0.25, 0, Math.sin(a + 1.6) * t * t * 0.25))); }
-      const geo = new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 12, 0.035, 5, false);
-      const mesh = new THREE.Mesh(geo, m); grp.add(mesh); parts.push(mesh);
+      const a = i / n * TAU + Math.random() * 0.4, r = 0.32 + Math.random() * 0.2, h = 1.0 + Math.random() * 0.45;
+      const pts = []; for (let k = 0; k <= 6; k++) { const t = k / 6; pts.push(new THREE.Vector3(Math.cos(a) * r * (1 - t * 0.55), t * h, Math.sin(a) * r * (1 - t * 0.55)).add(new THREE.Vector3(Math.cos(a + 1.6) * t * t * 0.3, 0, Math.sin(a + 1.6) * t * t * 0.3))); }
+      const curve = new THREE.CatmullRomCurve3(pts), geo = new THREE.TubeGeometry(curve, SEG, 0.11, RAD, false);
+      // taper each ring towards the tip, and colour it from the dark base to the pale tip
+      const P = geo.attributes.position, cols = new Float32Array(P.count * 3), c = new THREE.Color(), ctr = new THREE.Vector3(), v = new THREE.Vector3();
+      for (let ring = 0; ring <= SEG; ring++) {
+        const u = ring / SEG, w = Math.max(0.08, (1 - u) ** 0.8); curve.getPointAt(u, ctr); c.copy(base).lerp(tip, u ** 2.4);
+        for (let j = 0; j <= RAD; j++) { const ix = ring * (RAD + 1) + j; v.fromBufferAttribute(P, ix).sub(ctr).multiplyScalar(w).add(ctr); P.setXYZ(ix, v.x, v.y, v.z); cols.set([c.r, c.g, c.b], ix * 3); }
+      }
+      geo.setAttribute('color', new THREE.BufferAttribute(cols, 3)); geo.computeVertexNormals();
+      grp.add(new THREE.Mesh(geo, m));
     }
-    this.add(grp, dur, (u) => { const up = Math.min(1, u / 0.18), down = u > 0.75 ? (u - 0.75) / 0.25 : 0; grp.scale.set(1, Math.max(0.01, up * (1 - down)), 1); });
-    this.sparks(at.clone().setY(at.y + 0.1), '#8a6a44', 12, { spread: 0.8, up: 0.6 });
+    // the broken ground: a dark crack ring under them
+    const crackM = new THREE.MeshBasicMaterial({ color: col('#2a1a0c'), transparent: true, opacity: 0.7, depthWrite: false });
+    const crack = new THREE.Mesh(new THREE.RingGeometry(0.15, 0.62, 20), crackM); crack.rotation.x = -Math.PI / 2; crack.position.y = 0.03; grp.add(crack);
+    this.add(grp, dur, (u) => { const up = Math.min(1, u / 0.18), down = u > 0.75 ? (u - 0.75) / 0.25 : 0; for (const o of grp.children) if (o !== crack) o.scale.set(1, Math.max(0.01, (1 - (1 - up) ** 2) * (1 - down)), 1); crackM.opacity = 0.7 * (1 - down); });
+    // clods of earth thrown up and falling back
+    for (let k = 0; k < 7; k++) {
+      const clod = new THREE.Mesh(new THREE.IcosahedronGeometry(0.05 + Math.random() * 0.05, 0), new THREE.MeshStandardMaterial({ color: col('#4a3420'), roughness: 1 }));
+      const a = Math.random() * TAU, sp = 0.8 + Math.random() * 1.2, vy = 2.2 + Math.random() * 1.6, o = at.clone().setY(at.y + 0.05);
+      clod.position.copy(o);
+      this.add(clod, 0.7, (u) => { const t = u * 0.7; clod.position.set(o.x + Math.cos(a) * sp * t, o.y + Math.max(0, vy * t - 4.9 * t * t), o.z + Math.sin(a) * sp * t); clod.rotation.x += 0.2; clod.rotation.z += 0.15; });
+    }
+    // a puff of dust rolling out low
+    const dm = new THREE.SpriteMaterial({ map: dot(), color: col('#b49a72'), transparent: true, depthWrite: false, opacity: 0.6 });
+    const dust = new THREE.Sprite(dm); dust.position.copy(at).setY(at.y + 0.3);
+    this.add(dust, 0.9, (u) => { dust.scale.setScalar(0.6 + u * 1.8); dust.position.y = at.y + 0.3 + u * 0.35; dm.opacity = 0.6 * (1 - u) ** 1.5; });
+    this.sparks(at.clone().setY(at.y + 0.1), '#c8a878', 12, { spread: 0.8, up: 0.6 });
   }
 
   // bramble knitting over a body: green vines winding up round it, then a glow
