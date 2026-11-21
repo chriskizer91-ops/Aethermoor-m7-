@@ -18,14 +18,14 @@ async function playDialogue(pick = /Leave|Not yet|Go|Farewell|Done/i) {
   return false;
 }
 // whatever is up: a talk, a fight's card, a message, the after-fight screen, a card reveal
-async function settle({ fight = true, rest = false, max = 400 } = {}) {
+async function settle({ fight = true, rest = false, max = 400, pick } = {}) {
   let fightT0 = 0;
   for (let i = 0; i < max; i++) {
     const s = await state();
     // a fight runs as long as it runs (a hard one takes many minutes headless): wait it out, up to 45 minutes
     if (s && s.fighting) { if (!fightT0) fightT0 = Date.now(); if (Date.now() - fightT0 < 2700000) i--; await page.waitForTimeout(800); continue; }
     fightT0 = 0;
-    if (await page.$('.ov-dialogue')) { await playDialogue(); continue; }
+    if (await page.$('.ov-dialogue')) { await playDialogue(pick); continue; }
     if (await page.$('.ov-reveal .cont')) { await page.click('.ov-reveal .cont').catch(() => {}); await page.waitForTimeout(300); continue; }
     if (await page.$('.ov-prefight')) {
       if (fight) { log('a fight: Fight'); await page.click('.pf-fight').catch(() => {}); await page.waitForTimeout(600); continue; }
@@ -50,9 +50,9 @@ async function settle({ fight = true, rest = false, max = 400 } = {}) {
 }
 // walk to (x, y) on this map (or next to it): the engine's own path, the leader set down a tile at a time and the
 // page's frame left to take each step; anything that comes up on the way is settled, and the path found again
-async function walkTo(x, y, { adjacent = false, map = null, fight = true, each = null } = {}) {
+async function walkTo(x, y, { adjacent = false, map = null, fight = true, each = null, pick } = {}) {
   for (let tries = 0; tries < 30; tries++) {
-    await settle({ fight });
+    await settle({ fight, pick });
     const s = await state();
     if (map && s.map !== map) return s;
     if ((s.x === x && s.y === y) || (adjacent && Math.abs(s.x - x) + Math.abs(s.y - y) === 1)) return s;
@@ -61,7 +61,7 @@ async function walkTo(x, y, { adjacent = false, map = null, fight = true, each =
     if (!p || !p.length) {
       const q = await E(([x, y]) => window.__g3.world.path(x, y, true), [x, y]);
       if (q && q.length) {
-        await walkTo(q[q.length - 1][0], q[q.length - 1][1], { map: s.map, fight, each });
+        await walkTo(q[q.length - 1][0], q[q.length - 1][1], { map: s.map, fight, each, pick });
         await E(([x, y]) => window.__g3.world.nudge(x, y), [x, y]);
         await page.waitForTimeout(1500);
         continue;
@@ -72,8 +72,8 @@ async function walkTo(x, y, { adjacent = false, map = null, fight = true, each =
       const g = await E(() => window.__g3.world.nearestGuard());
       log('no path to', x, y, 'from', s.x, s.y, g ? '- fighting the guard ' + g.id : '- no guard to fight');
       if (!g) { await page.waitForTimeout(500); continue; }
-      await useThing(g.id, { fight });
-      await settle({ fight });
+      await useThing(g.id, { fight, pick });
+      await settle({ fight, pick });
       log('  the fight with', g.id, 'ended:', await E(() => window.__g3.lastResult));
       if (each) await each();
       continue;
