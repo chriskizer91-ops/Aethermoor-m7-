@@ -2,6 +2,15 @@
 
 Written by the hub. His newer word beats anything older, here or anywhere in the repo.
 
+## November 21
+
+- **No model may stretch when it moves.** Chris, on his phone, of the Rotwarden's "Blacken the Sap" (walkers page):
+  "when they move their arms they stretch themselves" (to every session doing 3D models). His picture:
+  `from-chris/2026-11-21-rotwarden-stretch.webp`: as the arms spread, his waist, belt and the straps across his middle
+  are dragged out sideways into a web after them. The cause is the skin weights: his arms hang beside his hips at rest,
+  so automatic weights gave hip, belt and strap points to the arm bones. Every foe and hero is checked for it on every
+  move, by eye and by a stretch check in the kit (`jobs/foes.md`).
+
 ## November 20
 
 - **Full-detail sculpts: aim at about 500,000 to 1 million triangles**, "to get the amount of detail that you need. It

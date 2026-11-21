@@ -221,7 +221,7 @@
       groundGrid = { H, nx, nz, x0, z0, dx, dz };
       const h = (i, j) => H[Math.min(nz, Math.max(0, j)) * (nx + 1) + Math.min(nx, Math.max(0, i))];
       // one patch every 32 cells each way; normals from the heights round each corner, so patches meet without a seam
-      const PC = 32;
+      const PC = place.groundPatch || 32;   // (Aethermoor, Places) a place may ask for bigger ground patches (fewer draws on a phone)
       for (let pj = 0; pj < nz; pj += PC) for (let pi = 0; pi < nx; pi += PC) {
         const ni = Math.min(PC, nx - pi), nj = Math.min(PC, nz - pj), pos = [], nor = [], col = [], uv = [], idx = [];
         for (let j = 0; j <= nj; j++) for (let i = 0; i <= ni; i++) {
@@ -244,18 +244,25 @@
 
     // ---- the water: a grid over each lake or river, at its level (a river's falls are where its level drops) ----
     const waterMeshes = [];
+    // (Aethermoor, Places) place.waterMerge: every pool alike in one mesh (one draw), each pool still its own for the ground and walking
+    let WBM = null;
     for (const w of WATER) {
       const cell = 0.8;
       const bx0 = Math.max(WX0, w.b[0]), bx1 = Math.min(WX1, w.b[2]), by0 = Math.max(WY0, w.b[1]), by1 = Math.min(WY1, w.b[3]);
       const sx = cell / M.SX, sy = cell / M.SZ;
-      const WB2 = W3D.Builder();
+      const WB2 = place.waterMerge ? (WBM = WBM || W3D.Builder()) : W3D.Builder();
       for (let py = by0; py < by1; py += sy) for (let px = bx0; px < bx1; px += sx) {
         const inside = [[px, py], [px + sx, py], [px, py + sy], [px + sx, py + sy], [px + sx / 2, py + sy / 2]].some(([a, b]) => inPoly(w.poly, a, b) || edgeDist(w.poly, a, b) < 14);
         if (!inside) continue;
         const ya = w.level(py), yb = w.level(py + sy), xa = X(px), xb = X(px + sx), za = Z(py), zb = Z(py + sy);
         WB2.quad('w', [xa, yb, zb], [xb, yb, zb], [xb, ya, za], [xa, ya, za], [xa, zb, xb, za]);
       }
+      if (place.waterMerge) continue;
       const mesh = WB2.build({ w: W3D.waterMat(U, { water: T(w.tex), rep: w.rep, flow: w.flow, tint: w.tint, emis: w.emis, paint: w.paint && PK ? T(w.paint) : null, paintK: PK, paintMix: w.paintMix /* (Aethermoor, Places) */ }) }).w;
+      if (mesh) { mesh.name = 'water'; waterMeshes.push(mesh); scene.add(mesh); }
+    }
+    if (WBM && WATER.length) {
+      const w = WATER[0], mesh = WBM.build({ w: W3D.waterMat(U, { water: T(w.tex), rep: w.rep, flow: w.flow, tint: w.tint, emis: w.emis, paint: w.paint && PK ? T(w.paint) : null, paintK: PK, paintMix: w.paintMix }) }).w;
       if (mesh) { mesh.name = 'water'; waterMeshes.push(mesh); scene.add(mesh); }
     }
 

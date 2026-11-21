@@ -49,7 +49,7 @@
   1024 px; the page is 14.6 MB. `?foes=hd` starts there.
 - On phones the three who follow the leader are Models' lite heroes (two draws each).
 
-## Step 3 (in progress)
+## Step 3
 
 - **Every Act One fight**: https://claude.ai/artifact/Q9T8quXCTVgiVUZoMuUaP4 (14.2 MB). The **Fights** button lists all
   28 of Act One's fights, each from M7's own map data (where the foes stand, which way they face, the party's level);
@@ -64,7 +64,55 @@
 - **The Legend Strike close-up** (`?surge=100`): the camera cuts in on the hero; the foes' plates step aside.
 - **Phone frame rate**: each figure's pieces on one joint with one material are drawn as one; a phone fight is 152
   draws (was 278).
-- **Headless proof** (`battle/check-all.mjs`, with the test-only `?fast=1`): results below as they come.
+- **Fights across Aethermoor**: https://claude.ai/artifact/RLrMg73EPUxGCHRaQXfAZS (14.9 MB): the Acts Two and Three
+  fights that show the rest of M7's tricks (Fights list, `?enc=`).
+- **Headless proof** (`battle/check-all.mjs`, Auto, test-only `?fast=1`): **all 28 Act One fights and 13 more** played
+  to their end with no page errors (wins and losses are M7's own Auto at the region's level). Each event seen on a
+  real fight:
+
+  | M7 event or status | Seen in |
+  |---|---|
+  | swallow (held: "Held under", "In the river") | the Rime-Abbot, the Blackwater Leviathan |
+  | burrowing / the Leviathan's dive | Kharzul / the Blackwater Leviathan |
+  | charm | the Wisp-Queen, the Lantern-Mother |
+  | summons / Twinned split | Briarmaw, the druids' circle, the Rotwarden, the Rime-Abbot / the road's pack with `?omen=twinned` |
+  | a guest ally | Tamsin against the Unsmith (also his Stolen Arts, Unmade) |
+  | a duel | Tamsin's duel in the Eldergrove (lost: M7's yield) |
+  | the toll | the road with `?toll=1` ("the toll is due", the foe loses a turn) |
+  | Hexed, Rotting / Burning, Bleeding | the bog-hags of Grue Hollow / almost every fight |
+  | phases, disarms, escapes, revives, Legend Strikes | Briarmaw, Kharzul, the Rotwarden, Old Snag and others |
+  | the cameras indoors | the Great Hall, Mosswatch's stair and lantern room, the Heartroot (fight and spoils) |
+
+- **Full detail is the foe kit's** (`prototypes/foe-hd/kit/js/looks.js` `foeLook`): every finished foe shows in full
+  detail (Briarmaw, the thornhound, the briarling on the fight page; the rest stay sculpted). The build plugin carries
+  the foes named in `FIGHT_HD` (default briarmaw) at their phone size; every `three` import is one copy.
+- **Living faces** (Models' `rig.faceCtl`): effort on a strike or spell, a wince when hit, eyes shut while fallen, a
+  cheer on victory, worried at a quarter health or less.
+- Build the fight page: `FIGHT_HD=briarmaw,thornhound,briarling node build.mjs --page=m7-fight
+  --places=thornhollow,briarmaw-den --tex=768 --herotex=256 --entry=fight.js --plugin=battle/swap.mjs` (12.0 MB).
+- Not proven by Auto: the Sand Wyrm's and the Thunder-Roc's swallows (their charge never landed in those runs).
+
+## Step 4
+
+- **Full-detail foes fight with their own moves** (the kit's `pose(move, u, t, step)` by plan): M7's move picks it (a
+  spell, call or cry: roar or cast; claws and blades: swipe or swing; crushing blows: slam; else the plan's lunge), a
+  new phase plays the roar or cast, a beaten foe plays its fall and lies there before sinking away. **Timed to the
+  dice**: the foe winds up and closes in, holds at the top of the move until the blow lands (the hero's hurt) or a miss
+  is plain, then finishes it and goes back.
+- **Charges that land** (`?land=1`, a test switch): the party's Auto uses plain attacks only (they never stagger), so a
+  charge plays out. Both swallows proven: "Pip is swallowed by The Sand Wyrm and loses the turn"; the Thunder-Roc's
+  Carry Off swallows too (headless, the events page).
+- **The phone's frame rate**, six full-detail foes and the party at phone settings (`?pack=6&foes=hd&quality=phone`,
+  `battle/check-perf.mjs`, renderer.info): **61 draws, 248 thousand triangles** (was 99 draws, 268 thousand). Each
+  full-detail foe is one draw (thornhound 20k triangles, briarling 17k); the party 8 draws (the leader now fights as a
+  lite figure on phones, 2 draws instead of 40); the other 47 draws are Thornhollow itself (the place's engine, Places').
+- **FIGHT_HD**: briarmaw, thornhound, briarling, glowcap on the fight and Act One pages. The Rotwarden and the
+  sapwight join once they're in the kit's standard form.
+- **The kit's common moves** (d70f6fe): the pick is by name only (cast, roar on a new phase, swipe, strike, bite; hurt,
+  ko), each move's length from the foe's own `duration()`. **No squash or lean on full-detail foes** (Chris, November
+  21: no model may stretch): their own moves carry the hit and the lunge; the code-built and painted ones keep theirs.
+- Published to the same links: the fight page, Act One (15.6 million bytes at 400 px world textures, with the full-detail foes; its
+  painted look carries the three most-met beasts), and the events page.
 
 ## For Together: starting a fight from outside
 

@@ -4,7 +4,9 @@ import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 const here = path.dirname(fileURLToPath(import.meta.url));
-const res = await build({ entryPoints: [path.join(here, 'main.js')], bundle: true, format: 'iife', target: 'es2020', write: false, minify: true, legalComments: 'none' });
+// Briarmaw's light model and pictures (prototypes/foe-hd, session 6's kit) come in for the side-by-side
+const res = await build({ entryPoints: [path.join(here, 'main.js')], bundle: true, format: 'iife', target: 'es2020', write: false, minify: true, legalComments: 'none',
+  loader: { '.bin': 'binary', '.webp': 'dataurl' }, nodePaths: [path.join(here, 'node_modules')] });
 const js = res.outputFiles[0].text.replace(/<\/script/gi, '<\\/script');
 const body = (await readFile(path.join(here, 'shell.html'), 'utf8')).replace('/*SCRIPT*/', () => js);
 await mkdir(path.join(here, 'dist'), { recursive: true });

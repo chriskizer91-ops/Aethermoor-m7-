@@ -30,18 +30,21 @@ import { heroGear } from '../game/src/ui/battle/sprites.js';
 import { arena, foeFigure, setBeastLook } from './battle/arena.js';
 import { standeeLook } from '../prototypes/bestiary/standee.js';
 import { buildBeast } from '../prototypes/bestiary/beasts.js';
-import { ready as hdReady, makeShared, briarmawLook } from '../prototypes/foe-hd/page/briarmaw.js';
-import { A as HD_ASSETS } from 'fight-briarmaw-assets';
+import { ready as hdReady } from '../prototypes/foe-hd/kit/js/loader.js';
+import { register as hdRegister, foeLook as hdFoeLook } from '../prototypes/foe-hd/kit/js/looks.js';
+import { FOES as HD_FOES } from 'fight-foe-assets';
 import { runFight } from './battle/run.js';
 import { openParty } from './battle/party-room.js';
 
 const Q = new URLSearchParams(location.search);
 // the two fights: where, who waits there (at which tiles), M7's battle for it, and the party's level for it
+// ?pack=6: six on the road (three thornhounds, three briarlings), to measure a crowded fight on a phone
+const ROAD_SET = () => Q.get('pack') === '6' ? [...PATROLS.thornhollow[1], PATROLS.thornhollow[1][0], PATROLS.thornhollow[1][0], PATROLS.thornhollow[1][1]] : PATROLS.thornhollow[Q.get('pack') === '0' ? 0 : 1];
 const SCENES = {
   road: { place: 'm7-thornhollow', name: 'Thornhollow', anchor: 'from-road', level: 4, near: 'A pack on the road!', again: 'Another pack comes down the road',
-    hint: 'walk up the road', foes: () => PATROLS.thornhollow[Q.get('pack') === '0' ? 0 : 1].map((s) => s.family),
-    at: [[12, 14.2], [11.2, 13.6], [12.9, 13.5]], trigger: 5.2,
-    battle: (game, keys) => startBattle(game, { patrol: { spawns: PATROLS.thornhollow[Q.get('pack') === '0' ? 0 : 1].map((sp, i) => escalateSpawn({ ...sp, level: Number(Q.get('lose')) ? 12 : 4, ...(Q.get('omen') ? { omens: [Q.get('omen')] } : {}) }, game.progress.waking, `fight3d#${i}`)), where: 'Thornhollow', backdrop: 'thornhollow' } }) },
+    hint: 'walk up the road', foes: () => ROAD_SET().map((s) => s.family),
+    at: [[12, 14.2], [11.2, 13.6], [12.9, 13.5], [10.6, 14.4], [13.4, 14.3], [12, 13.2]], trigger: 5.2,
+    battle: (game, keys) => startBattle(game, { patrol: { spawns: ROAD_SET().map((sp, i) => escalateSpawn({ ...sp, level: Number(Q.get('lose')) ? 12 : 4, ...(Q.get('omen') ? { omens: [Q.get('omen')] } : {}) }, game.progress.waking, `fight3d#${i}`)), where: 'Thornhollow', backdrop: 'thornhollow' } }) },
 };
 // any of M7's placed fights (step 3), from M7's own data: the map it is on (its 3D place), where the foes stand and which
 // way they face (the map's encounter entity), the party's level (the strongest spawn's, one more for a lair)
@@ -59,11 +62,12 @@ function encScene(id) {
     battle: (game) => startBattle(game, { nodeId: id }) };
 }
 SCENES.den = encScene('briarmaw-den');
-// the beasts' look: '3d' (sculpted), 'cutout' (Chris's painted standees) or 'hd' (Briarmaw in full detail, session 6)
+// the beasts' look: '3d' (sculpted), 'cutout' (Chris's painted standees) or 'hd' (every finished full-detail foe of the foe
+// kit, sessions 6-8; the rest as sculpted)
 const LOOKS = ['3d', 'cutout', 'hd'];
 let look = LOOKS.includes(Q.get('foes')) ? Q.get('foes') : '3d', hdLook = null;
 async function useLook(k) {
-  if (k === 'hd' && !hdLook) { await hdReady(); hdLook = briarmawLook(makeShared(HD_ASSETS, 1024), buildBeast); }
+  if (k === 'hd' && !hdLook) { await hdReady(); for (const A of HD_FOES) hdRegister(A, { res: Number(Object.keys(A.tex)[0]) }); hdLook = hdFoeLook(buildBeast); }
   setBeastLook(k === 'cutout' ? standeeLook : k === 'hd' ? hdLook : null);
 }
 let SC = Q.get('enc') && encScene(Q.get('enc')) || SCENES[Q.get('fight') === 'briarmaw' ? 'den' : 'road'];
@@ -75,6 +79,8 @@ window.addEventListener('DOMContentLoaded', () => { main().catch((e) => { consol
 async function main() {
   const $ = (id) => document.getElementById(id);
   const H = window.M7_HEROES, PL = window.W3D_PLACES, W3D = window.W3D;
+  // a page without Thornhollow starts on the first fight whose place it carries
+  if (!PL[SC.place]) SC = encScene(Object.keys(ENC_AT).find((id) => PL['m7-' + ENC_AT[id].map.id])) || SC;
   // a phone (a touch screen with no mouse) gets the lighter heroes and foes; ?quality=phone|high forces either (as the walk does)
   const QP = (location.search.match(/[?&]quality=(high|phone)/) || [])[1];
   const PHONE = QP ? QP === 'phone' : matchMedia('(pointer: coarse)').matches && !matchMedia('(any-pointer: fine)').matches;
@@ -186,7 +192,10 @@ async function main() {
     // the spot: where the leader stands, facing the pack
     const L = leader.root.position.clone(), c = pack.figs.reduce((a, F) => a.add(F.pos), new window.THREE.Vector3()).multiplyScalar(1 / pack.figs.length);
     const yaw = Math.atan2(c.x - L.x, c.z - L.z);
-    const heroes = { warden: leader }; for (const f of followers) heroes[f.id] = f;
+    // on a phone the leader fights as a lite figure (two draws, not forty) standing in for the walking one
+    let stand = null;
+    if (PHONE) { stand = get('warden', 'lite'); stand.root.position.copy(leader.root.position); stand.root.rotation.copy(leader.root.rotation); W.P.scene.add(stand.root); leader.root.visible = false; }
+    const heroes = { warden: stand || leader }; for (const f of followers) heroes[f.id] = f;
     for (const F of pack.figs) F.pos.copy(F.root.position);
     let resP;
     for (const [id] of H.HEROES) worn[id] = gearKey(id);
@@ -202,6 +211,8 @@ async function main() {
     await spoils(done);
     window.__fight.spoiled = (window.__fight.spoiled || 0) + 1;
     await end();
+    // the stand-in (or whoever the spoils re-dressed in its place) leaves; the walking leader comes back
+    if (stand) { const fw = arena.heroes.get('warden')?.A; for (const r of [stand.root, fw?.root]) if (r && r !== leader.root) W.P.scene.remove(r); leader.root.visible = true; }
     pack = null; fighting = false;
     W.setWho('pip'); W.setWho('warden'); leader = W3D.witch('warden'); setFollowers();
     if (result === 'defeat') {
@@ -273,7 +284,7 @@ async function main() {
     look = LOOKS[(LOOKS.indexOf(look) + 1) % LOOKS.length]; await useLook(look); looks();
     if (pack) for (const F of pack.figs) W.P.scene.remove(F.root);
     pack = null; spawnPack();
-    toast({ '3d': 'The foes as 3D models', cutout: 'The foes as Chris painted them', hd: SC === SCENES.den ? 'Briarmaw in full detail' : 'Full detail: Briarmaw, in his den' }[look]);
+    toast({ '3d': 'The foes as 3D models', cutout: 'The foes as Chris painted them', hd: `In full detail: ${HD_FOES.map((A) => A.key).join(', ') || 'none on this page'}` }[look]);
   });
   looks();
   $('scenebtn').addEventListener('click', () => { drawList(); list.classList.toggle('on'); });

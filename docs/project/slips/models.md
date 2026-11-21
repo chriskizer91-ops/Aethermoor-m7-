@@ -156,6 +156,63 @@ https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL
 - For the Fight and Together: nothing to do; a figure that moves through the world (its group or root moving) swings
   by itself, and a figure standing on the spot sways only with its own pose.
 
+**Sculpted heroes, side by side with the full-detail Briarmaw** (November 21). Gear Room, **Beside Briarmaw** and
+**Sculpted** on or off: https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL
+- The foes are sculpted once and baked onto one fixed model. The heroes can't be: every piece is built in code from the
+  item's own numbers and can be switched. So the sculpting goes into each *kind* of piece, and every item of that kind
+  gets it:
+  - **Relief tiles per surface** (`textures/relief.py`, 10 tiles of 256 px, 232 KB): metal hammer dents and
+    scratches, leather creases and pebbling, hide wrinkles and pores, cloth weave and wrinkles, wood carved grain along
+    the haft, stone chips, bone growth rings and pits, horn ridges, hair strands, skin pores. Each holds a height (lit
+    like a normal map) and a cavity (darkens the bottom of each crease or dent, the occlusion a sculpt bake gives).
+    They are laid on in 3D (triplanar) at their own scale, over the grain picture from Chris's pack, so any piece of any
+    shape gets them with no unwrapping.
+  - **Sculpted shapes**: the head has a nose, brow, eye sockets, cheekbones, lips and chin pushed out of the skull
+    (lined up with each face's painted features); hems and capes fold more deeply (the cape has 24 columns, 40 at High,
+    up from 14); loose hair grows in grooved locks (not under headgear, where the grooves would come through).
+- Kept: High, Light and Lite with the same pieces and draws (Wren: 48 pieces High, 40 Light, 2 Lite; no new draws), the
+  faces and their expressions, the swing, and every item switchable. Triangles: Wren High 143k to 156k, Light 34.5k
+  to 36.7k, Lite 15.1k to 15.9k. Each surface does three more texture reads per pixel.
+- Briarmaw stands beside her at his true size (session 6's light model and pictures from `prototypes/foe-hd/`, loaded
+  through their kit; idling with their moves). He is 50k triangles from a 983k sculpt; Wren at High is 156k.
+- Honest comparison: Briarmaw's surface comes from a real sculpt, so up close he is richer. The heroes are now
+  crisper (creases, folds, dents, a shaped face) but read as clean storybook figures more than sculpts. The next step,
+  if wanted: sculpt a high-detail master of each body part and item kind (a head, a tunic, a boot, a kettle hat...)
+  and bake a normal and occlusion map per kind, fitted to the code-built piece.
+- `SCULPT.on` (model.js) and `MACRO_ON.on` (kit.js) turn it off; the **Sculpted** button does both.
+
+**Sculpted masters per piece kind, baked: Wren's starter kit** (November 21). Gear Room, **Beside Briarmaw**, **The
+sculpt** (the full-detail sculpt itself) and **Sculpted** on or off: https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL
+- How it keeps every item switchable: each *kind* of piece has one sculpted master, made in the piece's own surface
+  coordinates (round it and along it, the way the code builds every piece of that kind). The master fits any boot, any
+  trouser leg, any kettle hat, whatever its size, colour or material. `masters/sculpt.py` makes them; `fitMaster(geo,
+  kind)` (kit.js) fits a piece to its master.
+- The eleven masters so far (Wren's starter kit): torso (drape, side seams, hemmed neck and waist), skirt (folds
+  opening to the hem, a stitched hem, gathers under the belt), sleeve and forearm (elbow wrinkles, the seam under the
+  arm, a stitched cuff), trousers (knee, seat and ankle wrinkles, seams), boot (a turned top, ankle creases, a seam up
+  the back), foot (a stitched toe cap, the flex, the welt), belt (stitched edges, the holes by the buckle), tabard
+  (drape, an embroidered border, a hem), cape (long folds, gathered at the shoulders, hems) and kettle hat (hammered
+  dents, scratches, the band and the rolled lip).
+- **The sculpt (the asset you can look at):** "The sculpt" in the Gear Room cuts Wren's real pieces into fine
+  triangles and raises them by their masters: **908,000 triangles** for the whole hero (Chris: 500k to 1M), made in
+  about 0.35 s. The masters themselves are kept as 16-bit height pictures (`masters/src/*.png`, 1024 px each).
+- **The bake (what the game uses):** each master's slopes (a normal map) and occlusion (dark in the creases), 256 px a
+  kind, in one shared 1024 px picture (`masters/atlas.webp`, **218 KB**, about 290 KB inside a page). It sits on the
+  pieces' existing materials, so there are **no new materials and no new draws**: Wren 48 pieces and 218 draws at High,
+  40 and 100 at Light, 2 and 24 at Lite, as before. Triangles in the game: unchanged by the masters (Wren High 144k).
+  Five cells are free for the next kinds (helm, hood, gloves, robe, mantle).
+- What it adds to a page: the atlas 290 KB plus the relief tiles 316 KB (the earlier step), about 0.6 MB. The sculpt
+  view's heights (`masters/heights.js`, 210 KB) are only in the Gear Room. **For the hub:** `--herotex=256` shrinks
+  every hero picture, the atlas too (its cells would drop to 64 px, so the detail softens). If the Act One page needs
+  `--herotex`, a flag that leaves `masters/atlas` at full size would keep it (or the `--files` way).
+- Stays: every item switchable, the faces and expressions, the swing, the storybook shape. Lite (2 draws) doesn't carry
+  the masters; Light and High do. The stretching check: nothing stretches (every piece rigid on one node; Lite weights
+  one node per vertex).
+- Briarmaw beside her, honestly: closer now. The cloth folds, seams, creases and dents read at a glance, but his
+  sculpt is still deeper and busier, and he has his own painted colour map. Next: masters for the remaining kinds
+  (helm, hood, coif, gloves, robe, mantle, plate, the shield's face and the weapons' grips), then the people foes and
+  townsfolk, who share them all.
+
 ## Next
 
 - Chris chose full detail for the beasts (November 20): sessions 6 to 8 build them (`docs/project/jobs/foes.md`;
@@ -196,4 +253,9 @@ https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL
 - Gear Room builds and loads headless with no errors (Chromium, SwiftShader); close looks at the four faces, the party,
   and every weapon class (sword, axe, hammer, mace, spear, staff, bow, dagger) and a shield.
 - `world3d`: `node build.mjs --page=m7-places --places=keep,thornhollow --tex=768` builds (9.6 MB).
-- Not checked: frame rate on a real phone.
+- Sculpted heroes: the item audit again (458 items, 0 flags, after keeping grooved hair out from under hats); Bestiary
+  builds (11.2 MB); the Gear Room on a 390 px phone has no horizontal scroll.
+- Sculpted masters: item audit again 458 items, 0 flags; the sculpt view builds 908k triangles headless with no
+  errors; draws and pieces counted at High, Light and Lite (unchanged); Bestiary builds (11.5 MB); 390 px phone, no
+  horizontal scroll.
+- Not checked: frame rate on a real phone (the sculpt view's million triangles is for a laptop).

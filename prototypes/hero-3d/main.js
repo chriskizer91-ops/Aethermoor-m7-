@@ -16,7 +16,17 @@ import { MAT } from '../../game/src/art/forge.js';
 import { generateItem, relicItem } from '../../game/src/rules/loot.js';
 import { RELICS } from '../../game/src/data/relics.js';
 import { createRng } from '../../game/src/core/rng.js';
-import { buildHero, setPose, glowColor, SWING_ON } from './model.js';
+import { buildHero, setPose, glowColor, SWING_ON, SCULPT } from './model.js';
+import { MACRO_ON, MASTER_ON } from './kit.js';
+import { loadHeights, sculptify, unsculpt } from './masters/sculpt-view.js';
+import { ready as foeReady, makeShared, makeFoe } from '../foe-hd/kit/js/loader.js';
+import * as QUAD from '../foe-hd/kit/js/moves/quad.js';
+import bmMeta from '../foe-hd/foes/briarmaw/assets/light.json';
+import bmBin from '../foe-hd/foes/briarmaw/assets/light.bin';
+import bmColor from '../foe-hd/foes/briarmaw/assets/color-1024.webp';
+import bmNormal from '../foe-hd/foes/briarmaw/assets/normal-1024.webp';
+import bmAo from '../foe-hd/foes/briarmaw/assets/ao-1024.webp';
+import bmEmit from '../foe-hd/foes/briarmaw/assets/emit-256.webp';
 import { Q, TEXTURES } from './kit.js';
 import { auditList, gearFor, checkBuilt, HERO_NAMES } from './audit.js';
 
@@ -135,6 +145,7 @@ function rebuild() {
   else if (fx.motes) { const asp = Object.values(ASPECT_LOOK).find(a => a.glow === fx.motes); moteMat.uniforms.color.value.copy(glowColor(fx.motes)); moteMat.uniforms.dir.value = asp?.mote === 'fall' ? -1 : 1; moteMat.uniforms.on.value = fx.best && RARITY_LOOK[fx.best].tier >= 3 ? 0.9 : 0.45; }
   else moteMat.uniforms.on.value = 0;
   trailMat.color.copy(glow || new THREE.Color(0xffe2b0));
+  if (S.sculptView) showSculpt();
   drawPanel();
   if (S.look !== 'whole') lookAt(S.look === 'offhand' && !hero.rig.offhand ? 'whole' : S.look === 'weapon' && !hero.rig.weapon ? 'whole' : S.look);
 }
@@ -346,6 +357,7 @@ function loop() {
     }
     for (const g of hero.fx.glows) if (g.obj?.material && g.obj.material.emissiveIntensity !== undefined && MAT) g.obj.material.emissiveIntensity = 1.3 + Math.sin(t * 3 + g.power * 5) * 0.3;
   }
+  if (bm && S.beside) bm.update(t, 0);
   runeCircle.material.opacity = (runeCircle.userData.on || 0) * (0.75 + 0.25 * Math.sin(t * 2));
   runeCircle.rotation.z = t * 0.2;
   moteMat.uniforms.time.value = t;
@@ -425,6 +437,37 @@ $('b-audit-back').onclick = () => { $('auditPanel').hidden = true; $('gearPanel'
 window.__audit = { thumbs(from, to) { return window.__audit.list().slice(from, to).map(e => ({ key: e.key, label: e.label, sub: e.sub, img: auditOne(e, true).img })); }, list: () => (AUD.list ||= auditList()), run(from = 0, to = 1e9) { const L = window.__audit.list().slice(from, to); return L.map(e => ({ key: e.key, hero: e.hero, flags: auditOne(e, false).flags })).filter(r => r.flags.length); } };
 // the cost of what swings: setPose n times with and without it (ms per call)
 window.__swingCost = (n = 2000) => { const rig = hero.rig, time = on => { SWING_ON.on = on; const t0 = performance.now(); for (let i = 0; i < n; i++) setPose(rig, 'walk', i / 60, i * 0.12); return (performance.now() - t0) / n; }; const off = time(false), on = time(true); SWING_ON.on = true; return { pieces: rig.danglers.length, off: +off.toFixed(4), on: +on.toFixed(4) }; };
+/* ------------------------------------------------------------------ beside Briarmaw (November 20) */
+// The full-detail Briarmaw (session 6's sculpt baked onto his light model, prototypes/foe-hd) stands beside the hero at
+// his true size, to judge the hero's detail against him; Sculpted on/off shows the hero before and after.
+let bm = null;
+async function besideBriarmaw(on) {
+  if (on && !bm) { await foeReady(); const shared = makeShared({ key: 'briarmaw', lightMeta: bmMeta, lightBin: bmBin, tex: { 1024: { color: bmColor, normal: bmNormal } }, ao: bmAo, emit: bmEmit }, 1024); bm = makeFoe(shared, QUAD); }
+  if (!bm) return;
+  if (on) { scene.add(bm.group); const k = 1.22 / 1.72; bm.group.scale.setScalar(k); bm.group.position.set(1.35, 0, -0.75); bm.group.rotation.y = -1.05; S.goal = { c: new THREE.Vector3(0.85, 0.5, -0.35), dist: 5.2 }; }
+  else scene.remove(bm.group);
+}
+S.beside = false;
+$('b-beside').onclick = async () => { S.beside = !S.beside; $('b-beside').setAttribute('aria-pressed', S.beside); $('b-beside').textContent = S.beside ? 'Beside Briarmaw ✓' : 'Beside Briarmaw'; if (S.beside && S.party) setParty(false);
+  if (S.beside) { S.gears.warden = starterKit('warden'); setHero('warden'); }  // Wren in her starter kit, as asked
+  await besideBriarmaw(S.beside); };
+$('b-sculpt').onclick = () => { SCULPT.on = MACRO_ON.on = MASTER_ON.on = !SCULPT.on; $('b-sculpt').setAttribute('aria-pressed', SCULPT.on); $('b-sculpt').textContent = SCULPT.on ? 'Sculpted ✓' : 'Sculpted'; rebuild(); };
+/* ------------------------------------------------------------------ the sculpt (November 21) */
+// Sculpt: the hero's pieces cut fine and raised by their kinds' masters (masters/sculpt.py), the full-detail shape the
+// game's bake comes from (about a million triangles: for looking at, not for the game)
+S.sculptView = false;
+async function showSculpt() {
+  unsculpt(); await loadHeights();
+  const t0 = performance.now(), r = sculptify(hero.group, 900000);
+  S.tris = 0; for (const h of [hero, ...Object.values(others)]) h.group.traverse(o => { if (o.isMesh) { const g = o.geometry; S.tris += (g.index ? g.index.count : g.attributes.position.count) / 3; } });
+  S.sculptInfo = { ...r, ms: Math.round(performance.now() - t0) };
+}
+$('b-sculptview').onclick = async () => {
+  S.sculptView = !S.sculptView; $('b-sculptview').setAttribute('aria-pressed', S.sculptView); $('b-sculptview').textContent = S.sculptView ? 'The sculpt ✓' : 'The sculpt';
+  if (S.sculptView) { if (S.detail !== 'high') { S.detail = 'high'; applyDetail(); } if (!SCULPT.on) $('b-sculpt').click(); rebuild(); }
+  else { unsculpt(); rebuild(); }
+};
+window.__flags = { SCULPT, MACRO_ON, MASTER_ON };
 window.__gear = { renderer, S, rebuild, setHero, rollFor, nextRelic, lookAt: w => lookAt(w), get hero() { return hero; }, camera, controls };
 applyDetail();
 setHero('warden');

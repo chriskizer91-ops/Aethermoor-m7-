@@ -11,7 +11,7 @@ import * as THREE from 'three';
 import { MAT } from '../../game/src/art/forge.js';
 import { HERO_ART } from '../../game/src/art/hero-looks.js';
 import { itemArt, lookFor, RARITY_LOOK, ASPECT_LOOK, SLOTS, rarityTier } from '../../game/src/art/item-looks.js';
-import { V, lerp, smooth, clamp01, loft, ellipse, tube, curve, lathe, wedge, plate, blade, mat, glowColor, isEmit, sRGB, KIND, Q, sph, tor, cone, ico, bake, etchMaterial, stitchGeo, add, gem, rngOf, ring, FACES, TEXTURES, mergeGeometries } from './kit.js';
+import { V, lerp, smooth, clamp01, loft, ellipse, tube, curve, lathe, wedge, plate, blade, mat, glowColor, isEmit, sRGB, KIND, Q, sph, tor, cone, ico, bake, etchMaterial, stitchGeo, add, gem, rngOf, ring, FACES, TEXTURES, mergeGeometries, fitMaster, MASTER_ON } from './kit.js';
 import { buildWeapon, buildOffhand } from './weapons.js';
 
 export { glowColor };
@@ -321,6 +321,35 @@ function swing(rig, t) {
   }
 }
 
+
+/* ------------------------------------------------------------------ sculpted detail (November 20) */
+// The code-built figures sculpted, so they stand beside the full-detail foes: the head shaped (a nose, a brow, eye
+// sockets, cheekbones, lips and a chin, placed from where each face's own eyes and mouth are, so it fits the picture),
+// cloth in deeper folds, hair in grooved locks, metal and leather with a second, larger scale of relief (dents, creases),
+// rolled rims. SCULPT.on = false gives the figures as they were, to compare.
+export const SCULPT = { on: true };
+// the head's relief for a face: unit-sphere x, y on its front -> how far the surface comes out (in head radii)
+function faceRelief(marks, k = 1) {
+  const toXY = ([cu, row]) => { const th = row / 512 * Math.PI, ph = cu / 1024 * TAU; return [-Math.cos(ph) * Math.sin(th), Math.cos(th)]; };
+  const eye = marks.eyes ? toXY(marks.eyes[1]) : [0.33, -0.05], mouth = toXY(marks.mouth);
+  const ey = eye[1], ex = Math.abs(eye[0]), my = mouth[1], nt = ey + (my - ey) * 0.62, g = (a, b) => Math.exp(-(a * a + b * b)), sq = v => v * v;
+  return (x, y) => {
+    const ax = Math.abs(x);
+    let d = 0;
+    // the nose: from the bridge between the eyes to its tip, wider toward the tip, then back in under it
+    const t = clamp01((ey + 0.02 - y) / (ey + 0.02 - nt)), under = y < nt ? Math.exp(-sq((nt - y) / 0.045)) : 1;
+    d += (0.018 + 0.1 * t * t) * under * Math.exp(-sq(x / (0.06 + 0.06 * t)));
+    // the brow, the sockets under it, the cheekbones
+    d += 0.035 * Math.exp(-sq((y - (ey + 0.17)) / 0.065)) * (1 - smooth((ax - 0.55) / 0.18)) * (1 - 0.35 * Math.exp(-sq(x / 0.08)));
+    d -= 0.032 * g((ax - ex) / 0.15, (y - ey) / 0.09);
+    d += 0.032 * g((ax - ex - 0.06) / 0.13, (y - (ey - 0.19)) / 0.1);
+    // the lips, the line between them, the chin
+    d += 0.028 * g(x / 0.17, (y - my) / 0.055) - 0.012 * g(x / 0.15, (y - my) / 0.014);
+    d += 0.036 * g(x / 0.2, (y - (my - 0.18)) / 0.08);
+    return d * k;
+  };
+}
+
 /* ------------------------------------------------------------------ small helpers */
 const strHash = str => { let h = 2166136261; for (const ch of String(str)) h = Math.imul(h ^ ch.charCodeAt(0), 16777619); return h >>> 0; };
 
@@ -350,13 +379,13 @@ export function buildHero(heroKey, gear, o = {}) {
     const R = S.legR;
     const legPath = [V(0, 0.02 * u, 0), V(0, kneeY * 0.5, 0.004 * u), V(0, kneeY, 0.008 * u), V(0, (kneeY + ank) * 0.5, 0), V(0, ank, -0.004 * u)];
     const legRad = t => { const thigh = lerp(R * 1.05, R * 0.68, smooth(t / 0.5)), calf = t > 0.5 ? R * 0.68 + Math.sin(clamp01((t - 0.55) / 0.45) * Math.PI) * R * 0.12 - smooth((t - 0.75) / 0.25) * R * 0.22 : thigh; return [calf, calf * 0.95]; };
-    add(tube(curve(legPath, 16), legRad, { n: 14, capA: false }), mat(robe ? body.mat : H.pants || 'pants'), leg);
+    add(fitMaster(tube(curve(legPath, 16), legRad, { n: 14, capA: false }), 'trousers'), mat(robe ? body.mat : H.pants || 'pants'), leg);
     // the boot: a shaft up the calf and a foot with a heel, toe and sole
     const bootKey = F ? F.mat : H.boots || (robe ? 'leather' : 'leatherDark'), bm = mat(bootKey);
     const top = (S.bootY - S.legTop), gnd = -S.legTop, br = R * 0.92;
-    add(tube([V(0, top, 0.002 * u), V(0, lerp(top, ank, 0.5), 0), V(0, ank, -0.004 * u), V(0, gnd + 0.05 * u, -0.006 * u)], t => [br * (1.02 - t * 0.16), br * (0.98 - t * 0.14)], { n: 14, capA: false, capB: false }), bm, leg);
+    add(fitMaster(tube([V(0, top, 0.002 * u), V(0, lerp(top, ank, 0.5), 0), V(0, ank, -0.004 * u), V(0, gnd + 0.05 * u, -0.006 * u)], t => [br * (1.02 - t * 0.16), br * (0.98 - t * 0.14)], { n: 14, capA: false, capB: false }), 'boot'), bm, leg);
     const fl = 0.24 * u * S.foot, fw = br * 1.05;
-    add(tube(curve([V(0, gnd + 0.045 * u, -0.05 * u), V(0, gnd + 0.05 * u, 0), V(0, gnd + 0.035 * u, fl * 0.55), V(0, gnd + 0.025 * u, fl * 0.85)], 12), t => [0.048 * u * (1 - t * 0.45), fw * (1 - smooth((t - 0.75) / 0.25) * 0.45)], { n: 14, up: V(0, 1, 0), shape: a => (Math.cos(a) < 0 ? 0.75 : 1) }), bm, leg);
+    add(fitMaster(tube(curve([V(0, gnd + 0.045 * u, -0.05 * u), V(0, gnd + 0.05 * u, 0), V(0, gnd + 0.035 * u, fl * 0.55), V(0, gnd + 0.025 * u, fl * 0.85)], 12), t => [0.048 * u * (1 - t * 0.45), fw * (1 - smooth((t - 0.75) / 0.25) * 0.45)], { n: 14, up: V(0, 1, 0), shape: a => (Math.cos(a) < 0 ? 0.75 : 1) }), 'foot'), bm, leg);
     add(new THREE.BoxGeometry(fw * 2.05, 0.016 * u, fl * 1.06), mat('leatherDark'), leg, 0, gnd + 0.008 * u, fl * 0.33);
     if (F?.fold) add(tube(ellipse(V(0, top - 0.01 * u, 0), V(1, 0, 0), V(0, 0, 1), br * 1.18, br * 1.14, 20), 0.018 * u, { closed: true, n: 8 }), mat(F.trim || F.mat), leg);
     else if (F?.trim) add(tube(ellipse(V(0, top, 0), V(1, 0, 0), V(0, 0, 1), br * 1.04, br * 1.0, 20), 0.007 * u, { closed: true, n: 6 }), mat(F.trim), leg);
@@ -367,7 +396,7 @@ export function buildHero(heroKey, gear, o = {}) {
   const chest = new THREE.Group(); root.add(chest); rig.chest = chest;
   const skirt = new THREE.Group(); root.add(skirt); rig.skirt = skirt;
   const neckTop = S.neckY + 0.03 * u;
-  add(torsoLoft(S, S.hipY - 0.04 * u, neckTop, 0, { steps: 12 }), mat(robe ? body.mat : tunicKey), chest);
+  add(fitMaster(torsoLoft(S, S.hipY - 0.04 * u, neckTop, 0, { steps: 12 }), 'torso'), mat(robe ? body.mat : tunicKey), chest);
   const torsoMat = body ? mat(body.mat, { as: kind === 'mail' ? (body.scale ? 'scale' : 'mail') : null, ...(kind === 'leather' && TEXTURES.on ? { tex: body.studs ? 'mail-brigandine' : 'leather-stitched' } : {}) }) : null;
   const hemY = robe ? 0.02 * u : kind === 'mail' ? S.hemY + 0.02 * u : kind === 'leather' ? S.hemY + 0.08 * u : S.hemY + 0.05 * u;
   // the skirt of whatever is worn below the belt: a mail skirt, a jerkin's tail, a tunic, a robe to the floor
@@ -377,15 +406,15 @@ export function buildHero(heroKey, gear, o = {}) {
     const steps = 10, y0 = S.waistY, rings = [];
     for (let i = 0; i <= steps; i++) {
       const t = i / steps, y = lerp(y0, hemY, t), yt = Math.max(y, S.keys[0][0]);
-      const [w, d] = torsoAt(S, yt), fl = robe ? t * t * 0.17 * u + t * 0.03 * u : t * (kind === 'mail' ? 0.03 : 0.02) * u, fold = robe ? t * 0.05 : t * 0.02;
+      const [w, d] = torsoAt(S, yt), fl = robe ? t * t * 0.17 * u + t * 0.03 * u : t * (kind === 'mail' ? 0.03 : 0.02) * u, fold = (robe ? t * 0.05 : t * 0.02) * (SCULPT.on && kind !== 'mail' ? 1.9 : 1);
       rings.push(ellipse(V(0, y, 0), V(1, 0, 0), V(0, 0, 1), w + 0.012 * u + fl, w * d + 0.012 * u + fl * 0.85, 32, a => squarish(a) * (1 + fold * Math.cos(a * 9))));
     }
-    add(loft(rings), hemMat, skirt);
+    add(fitMaster(loft(rings), 'skirt'), hemMat, skirt);
     if (body?.trim || robe) { const r = rings[rings.length - 1]; add(tube(r.map(p => p.clone().add(V(0, 0.004 * u, 0))), 0.008 * u, { closed: true, n: 6 }), mat(body?.trim || 'gold'), skirt); }
   }
   // the garment on the chest
   if (kind === 'mail' || kind === 'leather') {
-    add(torsoLoft(S, S.waistY - 0.02 * u, neckTop - 0.01 * u, kind === 'mail' ? 0.012 * u : 0.009 * u, { steps: 10 }), torsoMat, chest);
+    add(fitMaster(torsoLoft(S, S.waistY - 0.02 * u, neckTop - 0.01 * u, kind === 'mail' ? 0.012 * u : 0.009 * u, { steps: 10 }), 'torso'), torsoMat, chest);
     if (body.trim) add(tube(torsoRing(S, neckTop - 0.015 * u, 0.014 * u, 24), 0.007 * u, { closed: true, n: 6 }), mat(body.trim), chest);
   }
   if (kind === 'leather') {
@@ -406,7 +435,7 @@ export function buildHero(heroKey, gear, o = {}) {
   }
   if (body?.belt || kind === 'leather' || kind === 'mail' || robe) {
     const by = S.waistY - 0.005 * u, bk = robe ? (body.sash || body.trim || 'leather') : body?.belt || 'leatherDark';
-    add(loft([torsoRing(S, by + 0.018 * u, 0.02 * u, 32), torsoRing(S, by - 0.018 * u, 0.022 * u, 32)]), mat(bk, { side: true }), chest);
+    add(fitMaster(loft([torsoRing(S, by + 0.018 * u, 0.02 * u, 32), torsoRing(S, by - 0.018 * u, 0.022 * u, 32)]), 'belt'), mat(bk, { side: true }), chest);
     const [w, d] = torsoAt(S, by);
     if (!robe) { const bkl = new THREE.Group(); bkl.position.set(0, by, w * d + 0.024 * u); chest.add(bkl); add(tube(ellipse(V(), V(1, 0, 0), V(0, 1, 0), 0.022 * u, 0.02 * u, 16), 0.0045 * u, { closed: true, n: 6 }), mat(H.buckle || 'bronze'), bkl); add(new THREE.BoxGeometry(0.004 * u, 0.034 * u, 0.006 * u), mat(H.buckle || 'bronze'), bkl); }
     if (kind === 'leather') { const pz = w * d; add(tube([V(w * 0.7, by - 0.02 * u, pz * 0.7), V(w * 0.72, by - 0.08 * u, pz * 0.75)], [0.035 * u, 0.018 * u], { n: 10 }), mat(body.belt || 'leatherDark'), chest); }
@@ -426,7 +455,7 @@ export function buildHero(heroKey, gear, o = {}) {
   // the tabard of the Hearthwarden: a cloth panel hanging down front and back over the armour
   if (H.tabard && !robe) for (const s of [1, -1]) {
     const pts = []; for (let i = 0; i <= 12; i++) { const y = lerp(S.shY - 0.03 * u, hemY + 0.04 * u, i / 12), yt = Math.max(y, S.keys[0][0]), [w, d] = torsoAt(S, yt); const off = kind === 'plate' ? 0.045 : kind === 'mail' ? 0.022 : 0.016; pts.push(V(0, y, s * (w * d + off * u + (y < S.waistY ? (S.waistY - y) * 0.12 : 0)))); }
-    add(tube(pts, t => [0.0035 * u, lerp(0.06, 0.078, t) * u * 1], { n: 8, up: V(0, 0, 1) }), mat(H.tabard, { side: true }), chest);
+    add(fitMaster(tube(pts, t => [0.0035 * u, lerp(0.06, 0.078, t) * u * 1], { n: 8, up: V(0, 0, 1) }), 'tabard'), mat(H.tabard, { side: true }), chest);
   }
 
   /* ---- arms and hands */
@@ -437,12 +466,12 @@ export function buildHero(heroKey, gear, o = {}) {
     const sh = new THREE.Group(); sh.position.set(side * S.shX, S.shY, 0); root.add(sh);
     const ar = S.armR;
     const up = [V(0, 0.02 * u, 0), V(0, -S.upper * 0.5, 0.004 * u), V(0, -S.upper, 0)];
-    add(tube(curve(up, 10), t => [lerp(ar * 1.25, ar * 0.85, t) + Math.sin(t * Math.PI) * ar * 0.12, lerp(ar * 1.2, ar * 0.85, t)], { n: 12 }), mat(kind === 'mail' || kind === 'plate' ? 'steel' : sleeveKey, kind === 'mail' || kind === 'plate' ? { as: 'mail' } : {}), sh);
+    add(fitMaster(tube(curve(up, 10), t => [lerp(ar * 1.25, ar * 0.85, t) + Math.sin(t * Math.PI) * ar * 0.12, lerp(ar * 1.2, ar * 0.85, t)], { n: 12 }), 'sleeve'), mat(kind === 'mail' || kind === 'plate' ? 'steel' : sleeveKey, kind === 'mail' || kind === 'plate' ? { as: 'mail' } : {}), sh);
     add(sph(ar * 1.35, 16, 12), mat(kind === 'mail' || kind === 'plate' ? 'steel' : sleeveKey, kind === 'mail' || kind === 'plate' ? { as: 'mail' } : {}), sh, -side * ar * 0.25, 0.01 * u, 0).scale.set(1, 1.05, 0.95);
     const elbow = new THREE.Group(); elbow.position.y = -S.upper; sh.add(elbow);
     const fore = [V(0, 0, 0), V(0, -S.fore * 0.5, 0.003 * u), V(0, -S.fore, 0)];
     const foreRad = t => { const r = lerp(ar * 0.9, ar * 0.62, t) + Math.sin(clamp01(t / 0.6) * Math.PI) * ar * 0.1; return [r, r * 0.88]; };
-    add(tube(curve(fore, 10), foreRad, { n: 12 }), mat(robe ? body.mat : sleeveKey), elbow);
+    add(fitMaster(tube(curve(fore, 10), foreRad, { n: 12 }), 'forearm'), mat(robe ? body.mat : sleeveKey), elbow);
     if (robe) add(tube([V(0, -S.fore * 0.25, 0), V(0, -S.fore * 0.8, 0.01 * u), V(0, -S.fore * 1.05, 0.02 * u)], t => [lerp(ar * 1.1, ar * 1.7, t * t), lerp(ar * 1.1, ar * 1.6, t * t)], { n: 16, capA: false, capB: false }), mat(body.mat, { side: true }), elbow);
     if (kind === 'plate') { add(tube([V(0, -S.fore * 0.15, 0), V(0, -S.fore * 0.9, 0)], t => [lerp(ar * 1.05, ar * 0.8, t), lerp(ar * 1.0, ar * 0.76, t)], { n: 12 }), torsoMat, elbow); add(sph(ar * 0.95, 12, 8), torsoMat, elbow); }
     const hand = new THREE.Group(); hand.position.y = -S.fore; elbow.add(hand);
@@ -467,7 +496,9 @@ export function buildHero(heroKey, gear, o = {}) {
   { const P0 = (MAT[H.skin] || MAT.skin).pal, sk = faceName ? FACES[faceName].skin : P0[3].map((v, i) => v + (P0[4][i] - v) * 0.35);
     rig.faceCtl = faceRig(faceM, faceMarksOf(faceName, S.chibi), new THREE.Color().setRGB(sk[0] / 255, sk[1] / 255, sk[2] / 255, THREE.SRGBColorSpace), !!H.shade || (blind && !faceName)); }
   const skull = sph(r, 64, 40);
-  { const p = skull.attributes.position; for (let i = 0; i < p.count; i++) { let x = p.getX(i), y = p.getY(i), z = p.getZ(i); const low = clamp01(-y / r); const k = 1 - low * low * 0.3 * (z > 0 ? 1 : 0.6); x *= k * 0.94; z *= (z > 0 ? 1 - low * 0.05 : 1.04); if (z > 0) z += low * low * r * 0.08 * (1 - Math.abs(x) / r); y *= 1.06; p.setXYZ(i, x, y, z); } skull.computeVertexNormals(); }
+  const relief = SCULPT.on ? faceRelief(faceMarksOf(faceName, S.chibi), S.chibi ? 0.6 : 1) : null;
+  { const p = skull.attributes.position; for (let i = 0; i < p.count; i++) { let x = p.getX(i), y = p.getY(i), z = p.getZ(i);
+    if (relief) { const ux = x / r, uy = y / r, uz = z / r; if (uz > 0) { const d = relief(ux, uy) * uz; x += ux * d * r * 0.3; y += uy * d * r * 0.3; z += d * r; } } const low = clamp01(-y / r); const k = 1 - low * low * 0.3 * (z > 0 ? 1 : 0.6); x *= k * 0.94; z *= (z > 0 ? 1 - low * 0.05 : 1.04); if (z > 0) z += low * low * r * 0.08 * (1 - Math.abs(x) / r); y *= 1.06; p.setXYZ(i, x, y, z); } skull.computeVertexNormals(); }
   add(skull, faceM, head);
   for (const s of [-1, 1]) {
     if (H.ears === 'long') { const e = add(tube(curve([V(s * r * 0.86, -r * 0.05, -r * 0.1), V(s * r * 1.2, r * 0.18, -r * 0.25), V(s * r * 1.45, r * 0.42, -r * 0.42)]), t => [lerp(r * 0.16, 0.001, t), lerp(r * 0.06, 0.001, t)], { n: 8 }), skinM, head); }
@@ -492,16 +523,16 @@ export function buildHero(heroKey, gear, o = {}) {
   }
   if (H.cloak && !robe) {
     const cape = new THREE.Group(); cape.position.set(0, S.shY - 0.02 * u, 0); root.add(cape); rig.cape = cape;
-    const rows = 12, cols = 14, rings = [], [w0, d0] = torsoAt(S, S.shY - 0.04 * u), drop = S.shY - 0.18 * u;
+    const rows = 12, cols = SCULPT.on ? (Q.d > 1 ? 40 : 24) : 14, rings = [], [w0, d0] = torsoAt(S, S.shY - 0.04 * u), drop = S.shY - 0.18 * u;
     for (let i = 0; i <= rows; i++) {
       const t = i / rows, y = -drop * t, row = [];
-      for (let j = 0; j <= cols; j++) { const a = lerp(-1, 1, j / cols), wide = lerp(w0 + 0.02 * u, w0 + 0.12 * u, t); const x = a * wide, behind = -(Math.sqrt(Math.max(0, 1 - a * a * 0.85)) * (w0 * d0 + 0.04 * u)) - t * 0.08 * u; row.push(V(x, y, behind + Math.sin(a * 7 + 1) * 0.012 * u * t)); }
+      for (let j = 0; j <= cols; j++) { const a = lerp(-1, 1, j / cols), wide = lerp(w0 + 0.02 * u, w0 + 0.12 * u, t), deep = SCULPT.on ? (Math.sin(a * 9 + 0.7) * 0.022 + Math.sin(a * 17 + t * 3) * 0.008) * u * t * t : 0; const x = a * wide, behind = -(Math.sqrt(Math.max(0, 1 - a * a * 0.85)) * (w0 * d0 + 0.04 * u)) - t * 0.08 * u; row.push(V(x, y, behind + Math.sin(a * 7 + 1) * 0.012 * u * t + deep)); }
       rings.push(row);
     }
     // two halves, hinged, so the hem swings further than the shoulders
-    add(loft(rings.slice(0, 7), { closed: false }), mat(H.cloak, { side: true }), cape);
+    add(fitMaster(loft(rings.slice(0, 7), { closed: false }), 'cape', { v0: 0, v1: 0.5 }), mat(H.cloak, { side: true }), cape);
     const mid = rings[6].reduce((a, p) => a.add(p), V()).multiplyScalar(1 / rings[6].length), capeLow = new THREE.Group(); capeLow.position.copy(mid); cape.add(capeLow); rig.capeLow = capeLow;
-    add(loft(rings.slice(5).map(row => row.map(p => p.clone().sub(mid))), { closed: false }), mat(H.cloak, { side: true }), capeLow); // one row of overlap hides the hinge
+    add(fitMaster(loft(rings.slice(5).map(row => row.map(p => p.clone().sub(mid))), { closed: false }), 'cape', { v0: 5 / 12, v1: 1 }), mat(H.cloak, { side: true }), capeLow); // one row of overlap hides the hinge
     rig.danglers.push({ node: cape, posed: true, x: [0, 1.25], z: [-0.4, 0.4], k: 22, damp: 0.3, drag: 3, acc: 0.6 }, { node: capeLow, x: [-0.05, 0.6], z: [-0.3, 0.3], k: 30, damp: 0.3, drag: 1.5, acc: 0.4 });
     add(tube(curve([V(-w0 * 0.85, 0.01 * u, 0.02 * u), V(0, -0.02 * u, w0 * d0 + 0.03 * u), V(w0 * 0.85, 0.01 * u, 0.02 * u)], 12), 0.007 * u, { n: 6 }), mat(H.cloak), cape);
   }
@@ -857,7 +888,8 @@ function buildHair(head, H, r, covers, look, seed) {
   const hm = mat(H.hairMat, { side: true }), rnd = rngOf(seed);
   const onSkull = (lat, lon, k = 1.04) => V(Math.sin(lon) * Math.cos(lat) * r * k * 0.95, Math.sin(lat) * r * k * 1.06, Math.cos(lon) * Math.cos(lat) * r * k);
   const thin = Q.d > 1 ? 1.32 : 1;
-  const lock = (pts, w0, d0, up, n = 12) => add(tube(curve(pts, n), t => [lerp(w0, r * 0.02, t * t) / thin, lerp(d0, r * 0.012, t)], { n: 8, up }), hm, head);
+  const groove = SCULPT.on && !covers ? (a => 1 + 0.16 * Math.cos(a * 4)) : null; // strands in clumps: a lock grooved along its length (not under headgear: the grooves would come through it)
+  const lock = (pts, w0, d0, up, n = 12) => add(tube(curve(pts, n), t => [lerp(w0, r * 0.02, t * t) / thin, lerp(d0, r * 0.012, t)], { n: groove ? 12 : 8, up, shape: groove }), hm, head);
   const hood = look === 'hood' || look === 'coif', helm = look === 'helm', kettle = look === 'kettle';
   const long = style === 'long', tail = style === 'pony' || style === 'braid';
   if (!covers) {
@@ -915,7 +947,7 @@ function buildHeadgear(head, root, HL, art, r, S, u, fx) {
   const T = (y, k = 1.13) => tube(ellipse(V(0, y, 0), V(1, 0, 0), V(0, 0, 1), r * k * 0.97, r * k, 40), 0.008 * u, { closed: true, n: 6 });
   if (look === 'kettle') {
     const m = mat(metalKey, { side: true });
-    add(lathe([[0, r * 1.2], [r * 0.45, r * 1.15], [r * 0.82, r * 0.98], [r * 1.06, r * 0.62], [r * 1.12, r * 0.28], [r * 1.14, r * 0.2], [r * 1.5, r * 0.12], [r * 1.78, r * 0.0], [r * 1.82, -r * 0.03], [r * 1.76, -r * 0.01], [r * 1.12, r * 0.13]], { n: 40, sx: 0.97 }), m, head);
+    add(fitMaster(lathe([[0, r * 1.2], [r * 0.45, r * 1.15], [r * 0.82, r * 0.98], [r * 1.06, r * 0.62], [r * 1.12, r * 0.28], [r * 1.14, r * 0.2], [r * 1.5, r * 0.12], [r * 1.78, r * 0.0], [r * 1.82, -r * 0.03], [r * 1.76, -r * 0.01], [r * 1.12, r * 0.13]], { n: 40, sx: 0.97 }), 'kettle'), m, head);
     add(tube(curve([V(0, r * 0.3, r * 1.13), V(0, r * 1.2, 0), V(0, r * 0.3, -r * 1.13)], 20), [r * 0.04, r * 0.07], { n: 6, up: V(1, 0, 0) }), mat(metalKey), head);
     if (trim) add(T(r * 0.24, 1.15), trim, head);
     for (let i = 0; i < 12; i++) { const a = i / 12 * TAU; add(sph(0.0045 * u, 6, 4), mat(HL.trim || metalKey), head, Math.sin(a) * r * 1.1, r * 0.34, Math.cos(a) * r * 1.13); }

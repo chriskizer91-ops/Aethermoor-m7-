@@ -202,7 +202,7 @@
       ground: Object.assign({ cob: 'shared_cobbles_town', grass: 'shared_grass_meadow', dirt: 'shared_dirt_track', pave: 'wick_bridge_paving', rep: [2.6, 3.6, 3.6, 2.4], paint: 'm7_paint', paintGain: 0.62 }, LOOK ? Object.assign({ rock: LOOK.rock[0], rockTint: LOOK.rock[1], rockRep: 4 }, LOOK.ground) : {}),
       surfaces: { stone: KEEP ? 'keep_wall_hearthstone' : 'shared_stone_wall_rough', dry: 'shared_drystone', timber: 'wick_wall_timber_plaster', planks: 'shared_boardwalk_planks', roof: 'shared_roof_shingle',
         wood: 'shared_boardwalk_planks', deck: 'shared_boardwalk_planks', pave: 'wick_bridge_paving', soil: 'shared_dirt_track', rock: 'thorn_rock_mossy', leaves: 'wick_leaf_canopy', bark: 'shared_bark_oak', ...(LOOK ? LOOK.surfaces : {}) },
-      textures, extraMats, paintOn: { keys: ['deck', 'rock'], paint: 'm7_paint', mix: 0.75 },
+      textures, extraMats, waterMerge: true, paintOn: { keys: ['deck', 'rock'], paint: 'm7_paint', mix: 0.75 },
       // the M7 places are by day in the 2D game: their leaves a little lighter than the borrowed night woods
       tints: Object.assign({ leaves: 0xf0fff4, bough: 0xc4d6c4, boughFir: 0xb0c4bc, bush: 0xf0fff0 }, KEEP ? { stone: 0x9c9ca8 } : {}, LOOK ? LOOK.tints : {}),
       ground_h: ground, walk_h: ground,
@@ -220,7 +220,8 @@
     const ALL = place.extraTrees || [];
     Object.defineProperty(place, 'extraTrees', { configurable: true, enumerable: true, get() { return G.W3D && W3D.quality === 'phone' ? phoneTrees(ALL, d) : ALL; } });
     Object.defineProperty(place, 'lightTrees', { configurable: true, enumerable: true, get() { return G.W3D && W3D.quality === 'phone'; } });
-    Object.defineProperty(place, 'treePatch', { configurable: true, enumerable: true, get() { return G.W3D && W3D.quality === 'phone' ? 33 : 22; } });
+    Object.defineProperty(place, 'groundPatch', { configurable: true, enumerable: true, get() { return G.W3D && W3D.quality === 'phone' ? 64 : 32; } });
+    Object.defineProperty(place, 'treePatch', { configurable: true, enumerable: true, get() { return G.W3D && W3D.quality === 'phone' ? 48 : 22; } });
     return place;
   }
   const PHONE_TREES = new Map();

@@ -50,6 +50,34 @@ turning in 3D.
   start any of them.
 - **The Legend Strike** as a close-up moment, and the phone frame rate (fewer draws in a fight).
 
+**Step 4 (from November 21, after step 3):**
+- **The full-detail foes fight with their own moves.** The foe kit's look (`prototypes/foe-hd/kit/js/loader.js`) has
+  `act.lunge`, `act.fall`, `hit()` and `pose(move, u, t, step)`, and each body plan names its moves (`MOVES`, `DUR`,
+  `LUNGE` in `prototypes/foe-hd/kit/js/moves/<plan>.js`: roar, swipe, bite, cast and so on). Today the fight calls only
+  `hit()` and leans the whole body. Drive the rest: the move picked from M7's move (a bite, a claw, a spell; a roar at
+  a new phase; the fall when it's beaten), timed so the blow lands when the dice say. If a plan lacks a move you need,
+  ask session 6 in your slip (the kit is theirs).
+- **The two swallows Auto never landed** (the Sand Wyrm, the Thunder-Roc): a switch that makes the charge land, and
+  both proven.
+- **The phone frame rate in a fight**: six full-detail foes and the party at phone settings; count draws and triangles
+  (`renderer.info`) and bring them down where they're high. Put the numbers in your slip.
+- **Every finished foe on your pages as it lands** (`FIGHT_HD`): the glowcap now; the Rotwarden and the sapwight once
+  session 8 saves them in the kit's standard form (the hub has asked).
+
+**Step 5 (from November 21, after step 4): the Champions' own moves.**
+- Every named move of a Champion and a Relic-Bearer (`game/src/data/foes.js`: Briarmaw's Maul, Thorn Volley, Call the
+  Briars, Fang Rake, Bramble Wall, Rootquake, Devour, Thornstorm; the Rotwarden's; and so on) gets its own moment in
+  3D, built from M7's own words for it: the model's move, an effect that shows what the text says (thorns flying like
+  arrows, the den floor heaving and roots taking hold of the heroes, bramble knitting over its hide, the thorn-crown
+  pulsing as a briarling tears up out of the ground), and a camera for the big ones, as the Legend Strike has.
+- A table in your files keyed by foe and move id: `{ move, effect, camera }`. The move comes from the foe's plan
+  through the kit (`F.pose`); where a foe has its own move of that name (session 8's walkers name theirs for M7's
+  moves: Rootlash, Grasping Roots, Bark Hide, Blacken the Sap, Devour), play that. Ask the foe's lane in your slip for
+  any move it lacks.
+- Act One's Champions first (Briarmaw, the Rotwarden, then the others in the order they're met as their full-detail
+  models land), proven by headless runs that play each move at least once.
+- No squash or stretch on the full-detail foes (Chris, November 21).
+
 ## Your files
 
 - Yours: `world3d/battle/**` (new), `world3d/fight.js` (new, the page), `world3d/coven/pages/m7-fight.html` (new),

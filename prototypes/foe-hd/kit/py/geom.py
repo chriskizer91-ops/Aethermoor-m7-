@@ -7,11 +7,15 @@
 import numpy as np
 
 class Mesh:
-    def __init__(s): s.V, s.F, s.C, s.K = [], [], [], []; s.n = 0
-    def add(s, V, F, col, kind):
+    def __init__(s): s.V, s.F, s.C, s.K, s.R = [], [], [], [], []; s.n = 0; s.has_mat = False
+    def add(s, V, F, col, kind, mat=None):
+        """mat: (roughness, metalness), one pair or one per vertex (default (0.8, 0): matte); any given -> an ORM picture"""
         V = np.asarray(V, np.float32); F = np.asarray(F, np.int64)
         col = np.broadcast_to(np.asarray(col, np.float32), (len(V), 3))
-        s.V.append(V); s.F.append(F + s.n); s.C.append(col); s.K.append(np.full(len(V), kind, np.uint8)); s.n += len(V)
+        if mat is not None: s.has_mat = True
+        R = np.broadcast_to(np.asarray(mat if mat is not None else (0.8, 0.0), np.float32), (len(V), 2))
+        s.V.append(V); s.F.append(F + s.n); s.C.append(col); s.K.append(np.full(len(V), kind, np.uint8)); s.R.append(R); s.n += len(V)
+    def mats(s): return np.concatenate(s.R) if s.has_mat else None
     def arrays(s):
         return (np.concatenate(s.V), np.concatenate(s.F).astype(np.int32), np.concatenate(s.C), np.concatenate(s.K))
 

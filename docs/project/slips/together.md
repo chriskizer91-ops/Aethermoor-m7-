@@ -4,7 +4,7 @@ Last updated November 20.
 
 ## Done
 
-- **Step 1, Act One as one game**: https://claude.ai/artifact/RaeSK5hezqb3qH7jmuM5aj (version 4, 15.1 MB; page `game3d/`, built by
+- **Step 1, Act One as one game**: https://claude.ai/artifact/RaeSK5hezqb3qH7jmuM5aj (version 5, 15.6 MB; page `game3d/`, built by
   `node game3d/build.mjs`). On the title: Go on, A new journey (M7's own prologue and name screen), or Bring the party
   from the 2D game (M7's save, read only).
   - Walking with M7's world engine underneath: each time the leader crosses into a new 2 m tile, one step in
@@ -21,7 +21,8 @@ Last updated November 20.
     field (`keep: true`): the drops lie as chests where the foes fell, M7's own after-fight screen plays over it, and
     equipping from a card re-dresses that hero there and then. A defeat wakes the party at the Hearthfire.
   - The foes' look (`game3d/figures.js`, `?foes=`): `hd` (the default) is full detail where a foe has one (session 6's
-    kit: Briarmaw so far, built from `prototypes/foe-hd/foes/<key>/` by `game3d/foes-hd.mjs`) and the sculpted beasts for
+    kit: Briarmaw; session 8's phone Rotwarden and sapwight; built from `prototypes/foe-hd/foes/<key>/` by
+    `game3d/foes-hd.mjs`) and the sculpted beasts for
     the rest; `hd-cutout` falls back to Chris's painted cut-outs; `3d` and `cutout` are the others alone. Each new
     finished foe comes in by itself at the next build.
   - The Party (menu, Hearthfire) is the Fight's party room: M7's Party screen with the hero turning in 3D.
@@ -32,11 +33,19 @@ Last updated November 20.
   - Own save key `aethermoor.save.3d` (and `.bak`, `aethermoor.settings.3d`); M7's `aethermoor.save.m7` is only read
     (Chris's open call 10, the suggestion, easy to switch off: one button on the title).
 
+- **The Sunscorch** (Act Two's first region): https://claude.ai/artifact/7dPEGKka7t1FyHF5SSLPAo (13.3 MB; `node game3d/build.mjs
+  --act=sunscorch`). The Keep, its Great Hall and all ten Sunscorch places. Pages can't share a save, so its title offers
+  "Begin at the Sunscorch" (the journey as Act One leaves it, made by M7's rules: both Brands of the Wilds, the Council
+  sat, level 8, at the Keep's south-east gate) or "Bring a journey by its save code" (copy it on the Act One page,
+  Settings; paste it here). Checked (`game3d/tools/sunscorch.mjs`, 6 of 6, no page errors): the gate opens onto the Sun
+  Road, the road's toll fight won, Sandspire, a rest at its Hearthfire, saved.
+
 ## Next
 
 - Briarmaw, the spoils and the new creatures as the Fight and Models deliver them (the foes' figures come through
   `game3d/figures.js`, one place to switch).
-- Acts Two and Three: a page per region or act from the 47 other places (the 16 MB limit).
+- The Ironspire and the Gloomfen, then Act Three, a page each, or one page for everything if the hub's pictures-as-files
+  works on Chris's phone (then the full textures, paintings and every full-detail foe come back too).
 - Chests, signs and Hearthfire stands shown as 3D things (today the painting shows them).
 
 ## Changed outside my files
@@ -67,6 +76,9 @@ Last updated November 20.
   (Briarmaw's Brand won, the party at level 10 in the Heartroot's depths): "Go on", the Rotwarden fought in 3D and won,
   the second Brand, Act One complete, back up the roots, the Last Green Coal's Hearthfire home to the Great Hall, the
   Council sits, saved with both Brands, the menu's Party with the hero in 3D, and back. (17 minutes headless.)
+- Version 5: the end-of-Act-One run again, 11 of 11, no page errors, with the Rotwarden in full detail (session 8's
+  phone version). To fit the three full-detail foes, Act One's page has the heroes' textures at 192 px and the
+  paintings at 0.4 (15.6 MB); the hub's pictures-as-files would bring the full sizes back.
 - Version 4: Briarmaw's den played in the game (`game3d/tools/den.mjs`): the den, his card, his fight in 3D with him
   in full detail, no page errors. To fit him (about 2 MB), the places' textures are at 400 px and the paintings at half
   size; M7's 2D Atlas screen is left off (the 3D Atlas replaced it).

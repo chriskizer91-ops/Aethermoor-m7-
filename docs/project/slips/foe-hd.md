@@ -46,9 +46,18 @@ shown side by side with the code-built model and a cut-out of Chris's sheet.
   Kit fixes from it: pages and viewer scale with the foe's height; parts are placed on a surface that is exactly the
   same at every level (fixes missed bakes on small foes).
 
+- **Glowcap** (November 21): three ways, https://claude.ai/artifact/AyUxs7hCGjdzZDNG1jfRnJ (11.4 MB); its sculpt,
+  https://claude.ai/artifact/H5yc3TLZDp3Aho9R1nzaCg. Sculpt 841,184 triangles (asset `glowcap-sculpt.glb`, 3.4 MB):
+  the warty cap with its rim rolled under, glowing gills as real radial ridges, the face, a layered leaf collar, the
+  folded fibrous body with knobs, leaf arms, boots. Light model 17,284. Moves `kit/js/moves/mushroom.js` (bob, waddle,
+  spores, headbutt, hit, fall).
+- **Kit**: the bake now bakes coat and parts into separate pictures and joins them by an exact mask of the parts'
+  islands (no more specks of glow or black bleeding across); Briarmaw and the briarling re-baked and republished
+  (same links). Rig templates and first moves for serpent, frog and winged (session 7 asked).
+
 ## Next
 
-1. My lane: (briarling done) glowcap, boglurcher, the willows, the sparks, rockling, Mother Anvil, the wraiths.
+1. My lane: (briarling, glowcap done) boglurcher, the willows, the sparks, rockling, Mother Anvil, the wraiths.
 2. Briarmaw's moves smoothed (weights round the shoulders and hips, a fuller walk), a hit flash.
 2. The face closer still to the sheet; the coat's brown zones placed as the sheet paints them.
 3. Done: pass 3, the sculpt's own page, the heavier brow and golden fangs, the rump and tail as the sheet shows.
