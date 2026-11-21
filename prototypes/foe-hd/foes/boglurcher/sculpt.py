@@ -23,7 +23,7 @@ def build(K):
     smin, smax, ell, cap, fbm, mix, sstep, vnoise = S.smin, S.smax, S.ell, S.cap, S.fbm, S.mix, S.sstep, S.vnoise
     M = K.Mesh()
     MUD = np.array([0.11, 0.07, 0.045]); MUD2 = np.array([0.30, 0.20, 0.11]); WET = np.array([0.07, 0.045, 0.03])
-    MOSS = np.array([0.32, 0.40, 0.11]); MOSS2 = np.array([0.60, 0.62, 0.20]); MOSSD = np.array([0.13, 0.19, 0.05])
+    MOSS = np.array([0.36, 0.38, 0.13]); MOSS2 = np.array([0.58, 0.56, 0.22]); MOSSD = np.array([0.17, 0.19, 0.07])   # olive, as the sheet
     STONE = np.array([0.36, 0.29, 0.22]); STALK = np.array([0.30, 0.36, 0.14]); HEAD = np.array([0.40, 0.23, 0.11])
     SPR = np.array([0.32, 0.50, 0.12]); AMBER = np.array([1.0, 0.62, 0.12])
     rr = np.random.default_rng(73)
@@ -81,8 +81,9 @@ def build(K):
         """the height the moss hangs down to, round the mound: strands of different lengths"""
         th = np.arctan2(P[:, 1], P[:, 0])
         n = fbm(np.stack([np.cos(th) * 2, np.sin(th) * 2, P[:, 2] * 0], 1), 3.0, 2)
-        strands = (np.maximum(0, np.sin(th * 13 + 4 * n)) ** 3 * 0.13 + np.maximum(0, np.sin(th * 29 + 7 * n)) ** 6 * 0.11
-                   + np.maximum(0, np.sin(th * 53 + 11 * n)) ** 10 * 0.12 + np.maximum(0, np.sin(th * 83 + 5 * n)) ** 14 * 0.08)
+        # broad drapes (the sheet's), each ending in a few ragged points
+        strands = (np.maximum(0, np.sin(th * 9 + 4 * n)) ** 1.5 * 0.15 + np.maximum(0, np.sin(th * 17 + 6 * n)) ** 2 * 0.07
+                   + np.maximum(0, np.sin(th * 41 + 9 * n)) ** 4 * 0.035)
         front = np.exp(-((th - math.pi / 2) / 0.9) ** 2)                          # less over the eyes, more each side
         return 0.47 - strands - 0.06 * n + 0.06 * front * np.exp(-((th - 1.95) / 0.35) ** 2) * 3
     thick = max(0.007, VOX * 1.25)
