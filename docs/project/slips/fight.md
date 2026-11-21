@@ -92,6 +92,28 @@
   --places=thornhollow,briarmaw-den --tex=768 --herotex=256 --entry=fight.js --plugin=battle/swap.mjs` (12.0 MB).
 - Not proven by Auto: the Sand Wyrm's and the Thunder-Roc's swallows (their charge never landed in those runs).
 
+## Step 4
+
+- **Full-detail foes fight with their own moves** (the kit's `pose(move, u, t, step)` by plan): M7's move picks it (a
+  spell, call or cry: roar or cast; claws and blades: swipe or swing; crushing blows: slam; else the plan's lunge), a
+  new phase plays the roar or cast, a beaten foe plays its fall and lies there before sinking away. **Timed to the
+  dice**: the foe winds up and closes in, holds at the top of the move until the blow lands (the hero's hurt) or a miss
+  is plain, then finishes it and goes back.
+- **Charges that land** (`?land=1`, a test switch): the party's Auto uses plain attacks only (they never stagger), so a
+  charge plays out. Both swallows proven: "Pip is swallowed by The Sand Wyrm and loses the turn"; the Thunder-Roc's
+  Carry Off swallows too (headless, the events page).
+- **The phone's frame rate**, six full-detail foes and the party at phone settings (`?pack=6&foes=hd&quality=phone`,
+  `battle/check-perf.mjs`, renderer.info): **61 draws, 248 thousand triangles** (was 99 draws, 268 thousand). Each
+  full-detail foe is one draw (thornhound 20k triangles, briarling 17k); the party 8 draws (the leader now fights as a
+  lite figure on phones, 2 draws instead of 40); the other 47 draws are Thornhollow itself (the place's engine, Places').
+- **FIGHT_HD**: briarmaw, thornhound, briarling, glowcap on the fight and Act One pages. The Rotwarden and the
+  sapwight join once they're in the kit's standard form.
+- **The kit's common moves** (d70f6fe): the pick is by name only (cast, roar on a new phase, swipe, strike, bite; hurt,
+  ko), each move's length from the foe's own `duration()`. **No squash or lean on full-detail foes** (Chris, November
+  21: no model may stretch): their own moves carry the hit and the lunge; the code-built and painted ones keep theirs.
+- Published to the same links: the fight page, Act One (15.6 million bytes at 400 px world textures, with the full-detail foes; its
+  painted look carries the three most-met beasts), and the events page.
+
 ## For Together: starting a fight from outside
 
 `world3d/battle/run.js` exports one function. It pauses the walk, swings the camera round, plays M7's battle screen

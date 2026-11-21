@@ -9,7 +9,7 @@ const p = await b.newPage({ viewport: { width: +W, height: +H }, deviceScaleFact
 const errs = [];
 p.on('pageerror', (e) => errs.push('pageerror: ' + e.message));
 p.on('console', (m) => { if (m.type() === 'error' || m.type() === 'warning') errs.push(m.type() + ': ' + m.text()); });
-await p.goto('file://' + path.resolve(file) + '?' + q);
+await p.goto((/^https?:/.test(file) ? file : 'file://' + path.resolve(file)) + '?' + q);
 await p.waitForFunction(() => window.__ready || window.__err, null, { timeout: 240000 }).catch(() => console.log('timeout'));
 console.log('err', await p.evaluate(() => window.__err));
 for (const [i, ms] of [2500, 6000].entries()) { await p.waitForTimeout(ms); await p.screenshot({ path: path.join(out, 'a' + i + '.png') }); }
