@@ -23,6 +23,10 @@ const here = path.dirname(fileURLToPath(import.meta.url)), ROOT = path.join(here
 const GAME = path.join(ROOT, 'game/src');
 const { LEGEND } = await import(pathToFileURL(path.join(GAME, 'data/tiles.js')));
 const { MAPS } = await import(pathToFileURL(path.join(GAME, 'data/maps/index.js')));
+// (Places, the place map) names for the marks on the map: people's names and roles, who keeps a shop, Hearthfires' names
+const { NPCS } = await import(pathToFileURL(path.join(GAME, 'data/npcs.js')));
+const { SHOPS } = await import(pathToFileURL(path.join(GAME, 'data/shops.js')));
+const { ENCOUNTERS } = await import(pathToFileURL(path.join(GAME, 'data/encounters.js')));
 const TX = 50, TY = 40, PAD = 9;
 const cl0 = (v, a, b) => Math.max(a, Math.min(b, v));
 // (Places, step 3) each Act One place's light, as the 2D game has it: by day, unless it's indoors, underground or in deep
@@ -384,7 +388,7 @@ out.save(sys.argv[2],quality=80,method=6)`, webp, roofFile, JSON.stringify(roofJ
     if (e.kind === 'light' || e.kind === 'hearthfire') lamps.push({ at: [x, y], kind: 'pillar', h: 1.1 });
     // (Places, step 4) the map's own things, each as itself (m7-kit.js things): a signpost, a notice board, a chest, a relic's
     // pedestal, a table, a bell frame. Gates and locks open and close with the story, so the game shows those
-    else if (['chest', 'sign', 'board', 'pedestal', 'table', 'bellframe'].includes(e.kind)) things.push([x, y, e.kind, ({ s: 0, n: Math.PI, e: Math.PI / 2, w: -Math.PI / 2 })[e.face] ?? 0]);
+    else if (['chest', 'sign', 'board', 'pedestal', 'table', 'bellframe'].includes(e.kind)) things.push([x, y, e.kind, ({ s: 0, n: Math.PI, e: Math.PI / 2, w: -Math.PI / 2 })[e.face] ?? 0, e.id]);
   }
 
   // ---- where the party starts, the ways out, and the people standing about (shown later; kept for the page) ----
@@ -403,6 +407,11 @@ out.save(sys.argv[2],quality=80,method=6)`, webp, roofFile, JSON.stringify(roofJ
     return { rect: r.map(Math.round), label: names[e.to] || e.to, to: e.to, anchor: e.anchor };
   });
   const people = (map.entities || []).filter((e) => e.kind === 'npc' && e.at).map((e) => ({ id: e.id, npc: e.npc, at: [(e.at[0] + 0.5) * TX, (e.at[1] + 0.5) * TY], face: FACE[e.face] ?? 0 }));
+  // (Places, the place map) each person's name, role and shop; the doors and stairs; the Hearthfires, named
+  for (const p of people) { const n = NPCS[p.npc]; if (n) { p.name = n.name; if (n.role) p.role = n.role; } if (SHOPS[p.npc]) p.shop = SHOPS[p.npc].name; }
+  const doors = [], stairs = [];
+  for (let j = 0; j < h; j++) for (let i = 0; i < w; i++) { const c = rows[j][i]; if (c === '+') doors.push([(i + 0.5) * TX, (j + 0.5) * TY]); else if (c === 's' && !(i > 0 && rows[j][i - 1] === 's') && !(j > 0 && rows[j - 1][i] === 's')) stairs.push([(i + 0.5) * TX, (j + 0.5) * TY]); }
+  const hearthfires = (map.entities || []).filter((e) => e.kind === 'hearthfire').map((e) => ({ id: e.id, name: (ENCOUNTERS[e.id] && ENCOUNTERS[e.id].name) || 'Hearthfire', at: [(e.at[0] + 0.5) * TX, (e.at[1] + 0.5) * TY], cold: !!e.cold || undefined }));
 
   const place = {
     id: 'm7-' + id, m7: id, name: map.name, region, biome: map.biome, interior, dark: !!map.dark || undefined,
@@ -410,7 +419,8 @@ out.save(sys.argv[2],quality=80,method=6)`, webp, roofFile, JSON.stringify(roofJ
     painting: `art/m7/${id}.webp`, roofPainting: roofJobs.length ? `art/m7/${id}-roofs.webp` : undefined, standin: paint.standin || undefined, artIn: paint.artIn, extent: [-PAD * TX, -PAD * TY, (w + PAD) * TX, (h + PAD) * TY],
     start: first.at, startFace: first.face, anchors, exits, people,
     water: water.map((p) => ({ poly: p })), decks, buildings, walls: segs, towers, torches, lamps, props, flowers, extraTrees, lawns, groundPatches,
-    fence: GLOOM || undefined, things,
+    fence: GLOOM || undefined, things, stairs, hearthfires,
+    doors: doors.concat(buildings.flatMap((b) => (b.doors || []).map((dr) => [Math.round(dr.x), b.fp[3] + 6]))).filter((p, i, a) => a.findIndex((q) => Math.abs(q[0] - p[0]) < 30 && Math.abs(q[1] - p[1]) < 30) === i),
     light: LIGHT[id] || (!ACT2 ? (interior ? 'indoor' : 'day') : undefined),
     tileH: rows.map((r, j) => [...r].map((c, i) => c === 'x' && !(GLOOM && !interior) ? 3 : c === 'w' ? 2 : WET[j][i] ? 1 : ACT2 && MASSC.includes(c) ? 4 : 0).join('')),
   };

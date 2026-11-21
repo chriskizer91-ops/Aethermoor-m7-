@@ -146,6 +146,43 @@
 - Not yet: waterfalls' spray, banners and cloth swaying (they'd need their own shader), fish leaping.
 - Checks: `m7/check-life.mjs` (what comes alive in each place, stills mid-flight), `m7/probe-life.mjs` (the cost).
 
+### The place map (November 21)
+
+Chris: "a mini map for a more detailed map than the Atlas continent map, a mini map that gives you orientation for
+where you are in a location." On all five place pages, every M7 map.
+
+- **Small map**, top left (124 to 150 px, rounded): the place's own painting round the party (the whole place when it
+  is small; it stays over the painting at the edges), the party's mark with an arrow for the way the leader faces and a
+  faint cone for where the camera looks, the ways out at its edge, N (north stays up). Tap it for the big map.
+- **Big map**: the place's name and region (and "indoors"), the whole painting with the ways out named for where they
+  lead ("To Mossfall"), doors, stairs, people named (a shopkeeper as "Nell · Nell's Store", in green), chests (closed
+  gold, opened grey), Hearthfires (lit orange, cold grey, named), the goal star when the game passes one, the party's
+  arrow, a key. Back (44 px) closes it; the walker pauses while it is open. Fits 360 px wide.
+- A 2D canvas over the 3D, redrawn about 7 times a second on a timer, nothing added to the 3D (no extra draws).
+- `m7/convert.mjs` now gives each place's people their name, role and shop, and each place its `doors`, `stairs` and
+  `hearthfires` (`[{ id, name, at, cold }]`); chests keep their ids in `things`. All 60 maps re-converted, 124 ways
+  out still check with 0 problems; anchors, exits, people and walk boxes unchanged.
+- Check: `m7/check-map.mjs <page> <out> <ids>` (phone size, opens and closes the big map, stills of both).
+
+**For Together**, `world3d/m7/minimap.js` (load it before the page script):
+
+```js
+const map = M7_MINIMAP.create({ root, W, place }) // root: element to sit in; W: the walker (W3D.walk); place: W3D_PLACES['m7-<id>']
+map.setPlace(place)                // after W.switchTo(...)
+map.set({                          // each optional; live marks from the game
+  people: ['npc-id', ...],         // who is in the place now (default: everyone in its data)
+  chests: { chestId: true },       // opened chests (drawn open)
+  goal: { at: [px, py], label } | null, // the story's next goal in this place, in painting px (tile = 50 x 40)
+  kindled: ['hearthfire-id', ...], // lit Hearthfires (others drawn cold)
+})
+map.open(true | false)             // the big map (pauses W while open)
+map.hide(true | false)             // hide both: fights, talk, the Atlas
+map.isOpen, map.hidden, map.redraw(), map.destroy()
+```
+
+Chest ids are the `id` in a place's `things` (`[x, y, 'chest', face, id]`), Hearthfire ids are `hearthfires[].id`,
+people are `people[].id` (the game's NPC ids).
+
 ## Next
 
 - Waiting for the hub.
