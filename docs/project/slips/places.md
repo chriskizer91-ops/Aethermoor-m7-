@@ -126,6 +126,26 @@
   model (it builds at 17.3 MB with today's heroes, which is the hub's to trim, e.g. `--herotex=256`).
 - Measured with `m7/probe.mjs` (`m7/measure.sh` runs every page); close-up stills with `m7/near.mjs`.
 
+### Step 4 (November 21): the places come alive
+
+- `world3d/m7/life.js` adds to every place, each kind ONE draw animated wholly on the graphics card from the world's
+  clock: flickering **flames** on every lantern, lamp and Hearthfire; **smoke** from every chimney; **sparks** from
+  coals and molten metal; **weather** round the camera (leaves drifting down in the woods, dust blowing over the
+  Sunscorch, snow on the Ironspire's heights, mist low over the Gloomfen, ash and embers in the Hearth Below, dust
+  motes indoors); **rings** spreading on still water; **birds** wheeling high by day (vultures over the Sunscorch,
+  crows over the fen); **butterflies** over the flowers by day; **moths** round the lanterns at night and indoors.
+  **Trees sway** in the wind (engine: `place.wind`, core.js WIND, in the vertex shader: no extra draws). A phone
+  gets about half the particles.
+- The kit records where the flames, chimney tops and embers are as it builds a place (`__fx`).
+- Cost, phone detail, headless (draws without -> with; frame time is SwiftShader software rendering, so only the
+  comparison means anything): the Keep 30 -> 35, Thornhollow 45 -> 49, the Thornway 54 -> 60, Mossfall 50 -> 56, the
+  Heartroot 21 -> 24; frame time unchanged within the noise (e.g. the Thornway 509 -> 498 ms, Mossfall 339 -> 343).
+  The regions: Sandspire 29 -> 33, the Dust Trail 24 -> 28, the Frost Road 18 -> 21, Ironhold 22 -> 25, Bogmire
+  34 -> 39, Willowmurk 54 -> 59, the Worldforge 25 -> 27. Frame time again within the noise, except a few per cent
+  where the dust or snow fills the view (Sandspire 316 -> 338 ms, the Frost Road 278 -> 294 ms headless).
+- Not yet: waterfalls' spray, banners and cloth swaying (they'd need their own shader), fish leaping.
+- Checks: `m7/check-life.mjs` (what comes alive in each place, stills mid-flight), `m7/probe-life.mjs` (the cost).
+
 ## Next
 
 - Waiting for the hub.

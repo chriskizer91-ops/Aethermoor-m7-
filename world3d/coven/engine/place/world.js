@@ -129,14 +129,15 @@
     const BUSH = { green: pick('shared_bush_round'), flower: pick('shared_bush_flowering') };
     // (the pictures are painted lit; in the night here they want to sit as dark as the leaves they replace: BOUGH_TINT)
     const BOUGH_TINT = { shared_bough_oak: 0x8fa39c, shared_bough_birch: 0xa8b4a4, shared_bough_fir: 0x7f9494, shared_bough_fir_snow: 0xa9b2c4, shared_bough_thorn: 0xb4a8b8, shared_bush_round: 0x97aaa0, shared_bush_flowering: 0xa6b4ac };
-    const boughMat = (id, cut, tint) => m({ map: T(id), alphaTest: 0.38, side: DS, noflip: true, cut, shade: 0.5, tint: tint != null ? tint : BOUGH_TINT[id] });
+    const WIND = place.wind || 0;   // (Aethermoor, Places) the trees sway (core.js WIND)
+    const boughMat = (id, cut, tint) => m({ map: T(id), alphaTest: 0.38, side: DS, noflip: true, cut, shade: 0.5, tint: tint != null ? tint : BOUGH_TINT[id], wind: WIND });
     if (BUSH.green) MAT.bushGreen = boughMat(BUSH.green, true);
     if (BUSH.flower) MAT.bushFlower = boughMat(BUSH.flower, true);
     const TREE_MAT = (cut) => {
       const o = {
-        leaves: m({ map: ST('leaves'), rep: 1, tint: TINT.leaves, cut, shade: 0.55 }),
-        firs: m({ map: T(SURF.firs || SURF.leaves), rep: 1, tint: TINT.firs, cut, shade: 0.55 }),
-        bark: m({ map: ST('bark'), rep: 1, tint: TINT.bark, cut, shade: 0.6 }),
+        leaves: m({ map: ST('leaves'), rep: 1, tint: TINT.leaves, cut, shade: 0.55, wind: WIND }),
+        firs: m({ map: T(SURF.firs || SURF.leaves), rep: 1, tint: TINT.firs, cut, shade: 0.55, wind: WIND }),
+        bark: m({ map: ST('bark'), rep: 1, tint: TINT.bark, cut, shade: 0.6, wind: WIND }),
       };
       if (BOUGH.leaf) o.bough = boughMat(BOUGH.leaf, cut, place.tints && place.tints.bough);
       if (BOUGH.fir) o.boughFir = boughMat(BOUGH.fir, cut, place.tints && place.tints.boughFir);
