@@ -75,6 +75,9 @@
   },
   "rig": "rig.py",
   "blurb": "The willow-wight is a willow that pulled up its roots and walked: a ridged bark trunk on splayed root feet, a scowling face with glowing yellow-green eyes that weep, two branch arms (bluebells in its left hand), and a great crown of hanging willow fronds, every leaf sculpted.",
-  "next": "its moves smoothed.",
-  "pages": {}
+  "next": "its fronds denser and clumpier, as the sheet paints them; its moves smoothed.",
+  "pages": {
+    "three": "https://claude.ai/artifact/LoiEBTvYXJuM7nKijvueHH",
+    "sculpt": "https://claude.ai/artifact/2aJ9QPBwtbvnfsEY3H3phj"
+  }
 }

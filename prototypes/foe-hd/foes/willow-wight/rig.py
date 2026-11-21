@@ -48,6 +48,7 @@ _parts_cache = {}
 def mask(P, idx):
     """an arm piece takes only its own arm's bones; nothing else ever takes an arm bone"""
     M = np.ones((len(P), len(idx)))
+    M[:, idx['crown']] = 0.0                                                    # the crown is its fronds only (part())
     for s in ARMS:
         for n in ARM[s]: M[:, idx[n]] = 0.0
     piece = _parts_cache.get('piece'); arms = _parts_cache.get('arms', {})
@@ -57,3 +58,4 @@ def mask(P, idx):
             M[m] = 0.0
             for n in ARM[s]: M[m, idx[n]] = 1.0
     return M
+BANDS = {f'{s}_{p}': (0.06, 0.16) for s in ('r', 'l') for p in ('fore', 'hand')}     # the elbows and wrists bend over a few cm
