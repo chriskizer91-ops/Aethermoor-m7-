@@ -56,7 +56,7 @@ export const quad = {
       // a snap: head down and forward, jaw open, shut as he lands
       const go = seg(u, 0, 0.4), snap = seg(u, 0.42, 0.52), back = 1 - seg(u, 0.6, 1);
       rx(b, 'neck', 0.4 * go * back); rx(b, 'head', -0.25 * go * back);
-      rx(b, 'jaw', 0.75 * go * (1 - snap) * back);
+      rx(b, 'jaw', 0.5 * go * (1 - snap) * back);
       rx(b, 'hips', 0.05 * go * back); B.position.z = 0.22 * H * go * back;
       rx(b, 'fl_upper', -0.25 * go * back); rx(b, 'fr_upper', -0.25 * go * back);
       rz(b, 'ear_l', -0.4 * go * back); rz(b, 'ear_r', 0.4 * go * back);    // ears back
@@ -70,7 +70,7 @@ export const quad = {
       crouch(b, low); B.position.y = -0.14 * H * low + 0.32 * H * leap;
       B.position.z = 0.75 * H * leap * (1 - land) + 0.1 * H * low;
       rx(b, 'neck', 0.25 * low - 0.2 * leap); rx(b, 'head', -0.1 * low + 0.1 * leap + tremble);
-      rx(b, 'jaw', 0.8 * leap);
+      rx(b, 'jaw', 0.5 * leap);
       // in the air: forelegs reach forward, hind legs kick back
       for (const k of ['fl', 'fr']) { rx(b, k + '_upper', -0.7 * leap); rx(b, k + '_lower', 0.25 * leap); }
       for (const k of ['bl', 'br']) { rx(b, k + '_upper', 0.9 * leap); rx(b, k + '_foot', 0.4 * leap); }
@@ -83,7 +83,7 @@ export const quad = {
       const up = seg(u, 0, 0.25), hold = 1 - seg(u, 0.8, 1), k = up * hold, quaver = Math.sin(u * 40) * 0.03 * k;
       rx(b, 'hips', -0.18 * k); rx(b, 'spine', -0.08 * k); rx(b, 'chest', -0.1 * k);
       rx(b, 'neck', -0.5 * k); rx(b, 'head', -0.55 * k + quaver);
-      rx(b, 'jaw', 0.42 * k + quaver);
+      rx(b, 'jaw', 0.32 * k + quaver);
       for (const l of ['bl', 'br']) { rx(b, l + '_upper', -0.25 * k); rx(b, l + '_lower', 0.45 * k); rx(b, l + '_foot', -0.25 * k); }
       for (const l of ['fl', 'fr']) rx(b, l + '_upper', 0.12 * k);
       B.position.y = -0.04 * H * k;

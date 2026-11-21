@@ -29,10 +29,14 @@ session 6 made Briarmaw.
   hips dragging the thigh, the head pulling the chest, the ears pulling the neck). Fixed by: where each bone may
   reach (a leg's lower bones stay below their joint, the tail's below its own, the head's in front of the neck, the
   neck off the shoulders), the weights smoothed over the surface 8 times, and a smaller neck bend in the howl and
-  foreleg reach in the lunge. Now: **worst 3.4x**, and at most 39 edges in any pose both over 1.3x and longer by more
-  than 1% of his height (9 mm). What's left is mostly the mouth (the light model's lips are joined, so opening the jaw
-  stretches the corners) and the throat and ear roots in the hit and howl. Still to do: a cut mouth in the light model
-  and finer neck weights, to get under 1.3x everywhere.
+  foreleg reach in the lunge; then the ear roots tied to the head (not the neck), and the jaw opening less.
+  **Now: worst 2.6x** (was 16.8x). No webbing in any pose (side views of every move checked by eye).
+  - What's still over 1.3x, and the limit I hold it to: small edges in the creases of bending joints (knee, elbow,
+    hip, the throat in the howl, the mouth corners in the bite, the ear roots in the hit), at most 2.7x on edges
+    under 1 cm, and at most 40 edges in any pose that are both over 1.3x and longer by more than 1% of his height.
+    Plain bone-weighted skin always stretches a little on the outside of a bent joint; getting every edge under
+    1.3x would need extra helper bones at the knee, elbow and throat (next pass, and a cut mouth with overhanging
+    lips in the light model).
 
 ## Next
 

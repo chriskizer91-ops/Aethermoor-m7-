@@ -100,12 +100,13 @@ def mask(P):
         if n in ('tail2', 'tail3', 'tail4'):
             M[:, i] = ramp(-0.50 - P[:, 1], 0, 0.03) * ramp(hd[2] + 0.04 - z, 0, 0.03)   # the hanging tail, below its joint
         if n in ('ear_l', 'ear_r'):
-            M[:, i] = ramp(z, 0.715, 0.745) * ramp(np.sign(hd[0]) * x, 0.01, 0.025)
+            M[:, i] = ramp(z, 0.72, 0.77) * ramp(np.sign(hd[0]) * x, 0.01, 0.025)
             continue
         if n in ('head', 'jaw', 'ear_l', 'ear_r'):
-            M[:, i] = ramp(sx_, 1135, 1165)
+            M[:, i] = np.maximum(ramp(sx_, 1110, 1150), ramp(z, 0.70, 0.73))   # the head, and all round the ear roots
+
         if n == 'neck':
-            M[:, i] = ramp(sx_, 1020, 1060) * ramp(430 - sy_, 0, 30)
+            M[:, i] = ramp(sx_, 1020, 1060) * ramp(430 - sy_, 0, 30) * ramp(0.73 - z, 0, 0.04)   # not up into the ears
     return M
 
 def rigid_root(P, kind):

@@ -70,7 +70,6 @@ def head_sdf(P):
         e = flat_cap(P, a, b, 38 * S, 2 * S, thin, 0.36)
         cup = flat_cap(P, a + thin.astype(np.float32) * 0.011 + np.array([0, 0, 0.014], np.float32), b + thin.astype(np.float32) * 0.006 - np.array([0, 0, 0.02], np.float32), 24 * S, 1 * S, thin, 0.18)
         h = smin(h, smax(e, -cup, 0.004), 0.012)
-    mouth = cap(P, p(0, 1250, 276), p(0, 1318, 288), 1.3 * S, 1.3 * S, scale=(4.2, 1, 1))
     return h
 
 def body_sdf(P):
