@@ -83,3 +83,6 @@ waist, belt and straps dragged out into a web after the spread arms). Rules for 
   stretches the outside of a bent joint a little; and no bone may be scaled or slid. Run it on every foe already made
   and on each new one before it is handed in, and look at the worst frame by eye: nothing may visibly web or pull.
   Helper bones at knees, elbows and throats (to keep a joint's volume) are a later pass, in the kit, for every lane.
+- **Only a foe that passes goes into the game** (hub, November 21). The Fight's and Together's pages show a foe in full
+  detail only once its stretch check passes on every move (`stretch.json` in its folder says so); until then it keeps
+  its stand-in look there. Passing now: Briarmaw, the briarling, the glowcap.
