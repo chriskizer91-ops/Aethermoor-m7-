@@ -29,6 +29,8 @@ import bmAo from '../foe-hd/foes/briarmaw/assets/ao-1024.webp';
 import bmEmit from '../foe-hd/foes/briarmaw/assets/emit-256.webp';
 import { Q, TEXTURES } from './kit.js';
 import { auditList, gearFor, checkBuilt, HERO_NAMES } from './audit.js';
+import { FOE_ART, foeLooks } from '../../game/src/art/foes.js';
+import { buildPerson, PEOPLE } from './people.js';
 
 const HEROES = [{ id: 'warden', name: 'Wren' }, { id: 'pip', name: 'Pip' }, { id: 'bryn', name: 'Bryn' }, { id: 'alondra', name: 'Alondra' }];
 const SLOT_NAME = { weapon: 'Weapon', offhand: 'Off hand', head: 'Head', body: 'Body', hands: 'Hands', feet: 'Feet', amulet: 'Amulet', ring: 'Ring' };
@@ -469,8 +471,11 @@ $('b-sculptview').onclick = async () => {
 };
 window.__addLog = ADD_LOG;
 window.__build = (e) => { const keepQ = Q.d; Q.d = 2; try { return buildHero(e.hero, gearFor(e), {}); } finally { Q.d = keepQ; } };
+// everyone else built by the same builder: the people foes (art/foes.js) and the townsfolk (people.js)
+const FOE_PEOPLE = Object.keys(FOE_ART).filter(k => FOE_ART[k].kind === 'humanoid');
+window.__people = { foes: FOE_PEOPLE, npcs: PEOPLE, foe: k => { const { H, gear } = foeLooks(k, {}); return buildHero('warden', {}, { H, looks: gear }); }, npc: id => buildPerson(id) };
 window.__flags = { SCULPT, MACRO_ON, MASTER_ON };
-window.__gear = { renderer, S, rebuild, setHero, rollFor, nextRelic, lookAt: w => lookAt(w), get hero() { return hero; }, camera, controls };
+window.__gear = { renderer, scene, S, rebuild, setHero, rollFor, nextRelic, lookAt: w => lookAt(w), get hero() { return hero; }, camera, controls };
 applyDetail();
 setHero('warden');
 resize();

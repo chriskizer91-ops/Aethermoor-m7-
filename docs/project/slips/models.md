@@ -246,6 +246,13 @@ script adds up the bare area by the line of code that made it.
 - The atlas: 4 x 8 cells of 256 px, 1024 x 2048, 464 KB, in `masters/pack.js`. One cell free. Still no new
   materials or draws (Wren 48 pieces, 218 / 100 / 24). Item audit: 458 items, 0 flags.
 
+**The townsfolk and people foes wear the masters** (November 21). They are built by the heroes' builder, so they
+share every kind. The same coverage check over the 39 people foes and the townsfolk: **92%** of their surface wears a
+master. More than half of the rest is boot soles (never seen); the scarves, aprons and head wraps (and the wraps' and
+turbans' bands) are now fitted too (braid, tabard). Side by side with Wren (cutpurse, ash-wight, Hollow Brundar,
+Fenwick, Durra): the same folds, seams, dents and grain at the same scale. The Gear Room can now build any of them
+(\`window.__people\`); a picker for Chris comes with step 4.
+
 ## Next
 
 - Chris chose full detail for the beasts (November 20): sessions 6 to 8 build them (`docs/project/jobs/foes.md`;
