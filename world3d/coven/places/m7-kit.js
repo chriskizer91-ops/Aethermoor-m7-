@@ -31,6 +31,13 @@
     keep_wall_hearthstone: "./../texture-packs/aeth-web/keep_wall_hearthstone.webp",
     keep_roof_slate: "./../texture-packs/aeth-web/keep_roof_slate.webp",
     keep_banner_red: "./../texture-packs/aeth-web/keep_banner_red.webp",
+    // (Places, step 5) the set dressing: Coven's barrel, crate, canvas and produce pictures (Chris's)
+    shared_barrel_side: "./../texture-packs/made-web/shared_barrel_side.webp",
+    shared_awning_stripes: "./../texture-packs/made-web/shared_awning_stripes.webp",
+    shared_crate_side: "./../texture-packs/made-web/shared_crate_side.webp",
+    shared_market_produce: "./../texture-packs/made-web/shared_market_produce.webp",
+    camp_tent_canvas: "./../texture-packs/made-web/camp_tent_canvas.webp",
+    shared_plaster_plain: "./../texture-packs/made-web/shared_plaster_plain.webp",
   };
   // (Places, November 20) Acts Two and Three: Chris's regional textures come in each place's own file (d.texFiles), so a
   // page carries only its own region's
@@ -183,6 +190,14 @@
     extraMats.glowF = { emis: 0x66ffcc, lit: 0, tint: 0x66ffcc, cut: false };
     extraMats.glowI = { emis: 0xc070ff, lit: 0, tint: 0xc070ff, cut: false };
     extraMats.paper = { tint: 0xeee2c4, shade: 0.4, cut: false };   // (Places) notices, a map on a table
+    // (step 5) the set dressing's own surfaces
+    // (the dressing's beams and planks share the place's own wood, its awnings the engine's striped cloth: no extra draws)
+    extraMats.dSack = { tex: 'camp_tent_canvas', rep: 1.5, tint: 0xd0c8b8, shade: 0.5, side: 'double' };
+    extraMats.dHay = { tex: 'shared_roof_thatch', rep: 1.2, tint: 0xfff0b0, shade: 0.35 };
+    extraMats.dFood = { tex: 'shared_market_produce', rep: 1, tint: 0xffffff, shade: 0.35 };
+    extraMats.dLog = { tex: 'shared_bark_oak', rep: 1.2, tint: 0xd8c8b8, shade: 0.5 };
+    extraMats.dClay = { tex: 'shared_plaster_plain', rep: 1, tint: 0xc88860, shade: 0.4 };
+    extraMats.dCoal = { emis: 0xff7a30, lit: 0, tint: 0xff8a40, cut: false };
     extraMats.banner = { tex: 'keep_banner_red', rep: 1, tint: 0x9a9090, side: 'double', shade: 0.3, cloth: true, wind: d.interior ? 0.05 : 0.12 };   // (step 4) they sway
     // the Keep's own stone (Hearthstone Keep, the Great Hall and the Keep's galleries)
     const KEEP = d.biome === 'keep';
@@ -300,6 +315,7 @@
     for (const [px, py, s] of d.cliffs || []) { const x = X(px), z = Z(py), g = gh(px, py); rock(RK, x, g - 0.2, z, s); rock(RK, x + (R() - 0.5) * 1.2, g + s * 0.5, z + (R() - 0.5) * 1.2, s * 0.7); }
     if (lookOf(d)) regional(K, d, R, rod, rock);
     things(K, d, R);
+    dress(K, d, R, rod);
     chimneys(K, d, R);
     // a root wall: an earth bank with thick roots twisting up out of it and over into the next tile
     for (const [px, py] of d.roots || []) {
@@ -487,6 +503,133 @@
       B.box('stone', X(px), g + wh, Z(py), 0.62, top - g - wh, 0.62, 0, [0.82, 0.8, 0.84]);
       B.box('stone', X(px), top, Z(py), 0.74, 0.14, 0.74, 0, [0.7, 0.68, 0.72], { solid: false });
       if (d.__fx) d.__fx.smoke.push([X(px), top + 0.2, Z(py)]);
+    }
+  }
+
+  // ---- (Places, step 5) the set dressing: the small things the painting draws, stood up in 3D (m7/dressing.mjs ->
+  // d.dress: { k, at: [px, py], face: radians, s: size, to: [px, py] for a fence, solid: false on a walkable tile, so
+  // walking stays exactly M7's tiles). All of it goes into the place's builder: one draw per material, however many ----
+  function dress(K, d, R, rod) {
+    const { B, X, Z, gh } = K, NS = { solid: false }, HAVE = K.have || (() => false);
+    const sph = (k, x, y, z, sx, sy, sz, ry) => { const g = new THREE.SphereGeometry(1, 9, 6); B.geom(k, g, new THREE.Matrix4().compose(new THREE.Vector3(x, y, z), new THREE.Quaternion().setFromEuler(new THREE.Euler(0, ry || 0, 0)), new THREE.Vector3(sx, sy, sz)), null, [2, 1]); g.dispose(); };
+    const log = (k, x, y, z, r, L, ry) => { const g = new THREE.CylinderGeometry(r, r, L, 9); g.rotateZ(Math.PI / 2); B.geom(k, g, new THREE.Matrix4().compose(new THREE.Vector3(x, y, z), new THREE.Quaternion().setFromEuler(new THREE.Euler(0, ry, 0)), new THREE.Vector3(1, 1, 1)), null, [r * 6, L]); g.dispose(); };
+    const wheel = (x, y, z, r, ry) => { const g = new THREE.CylinderGeometry(r, r, 0.09, 12); g.rotateX(Math.PI / 2); B.geom('wood', g, new THREE.Matrix4().compose(new THREE.Vector3(x, y, z), new THREE.Quaternion().setFromEuler(new THREE.Euler(0, ry, 0)), new THREE.Vector3(1, 1, 1)), [0.7, 0.6, 0.5], [r * 2, r * 2]); g.dispose(); };
+    for (const it of d.dress || []) {
+      const [px, py] = it.at, x = X(px), z = Z(py), g = gh(px, py), sz = it.s || 1;
+      // the face: a direction in the painting (0 = toward the bottom of the painting), turned into the world's
+      const fa = it.face || 0, wdx = X(px + Math.sin(fa) * 10) - x, wdz = Z(py + Math.cos(fa) * 10) - z, ry = Math.atan2(wdx, wdz);
+      const c = Math.cos(ry), sn = Math.sin(ry), L = (lx, lz) => [x + lx * c + lz * sn, z - lx * sn + lz * c];   // local (across, forward) -> world
+      const was = B.solid; if (it.solid === false) B.solid = false;
+      const bk = HAVE('shared_barrel_side') ? 'barrel' : 'wood', ck = HAVE('shared_crate_side') ? 'crate' : 'wood';
+      const barrel = (bx, bz, h) => { B.cyl(bk, bx, g, bz, 0.33, 0.33, h || 0.9, 14, [1, 1, 1], [1, 1], true); const ns = B.solid; B.solid = false; B.cyl('wood', bx, g + (h || 0.9) - 0.06, bz, 0.315, 0.315, 0.03, 14, [0.8, 0.62, 0.5]); B.solid = ns; };
+      const crate = (bx, by, bz, w, r) => B.box(ck, bx, by, bz, w, w * 0.85, w, r, [1, 1, 1], { fit: ck === 'crate' });
+      let shade = 16;
+      switch (it.k) {
+        case 'barrel': barrel(x, z); break;
+        case 'barrels': { const P = [[-0.36, -0.2], [0.36, -0.2], [0, 0.42]]; for (const [a, b] of P.slice(0, sz >= 1 ? 3 : 2)) { const [bx, bz] = L(a, b); barrel(bx, bz, 0.84 + R() * 0.1); } shade = 24; break; }
+        case 'crate': crate(x, g, z, 0.8 * sz, ry + (R() - 0.5) * 0.3); break;
+        case 'crates': { const [ax, az] = L(-0.42, 0), [bx, bz] = L(0.42, 0.05); crate(ax, g, az, 0.8, ry + 0.1); crate(bx, g, bz, 0.75, ry - 0.15); const ns = B.solid; B.solid = false; crate((ax + bx) / 2, g + 0.66, (az + bz) / 2, 0.62, ry + 0.3); B.solid = ns; shade = 24; break; }
+        case 'sacks': { for (let i = 0; i < 3; i++) { const [sx, sz2] = L((i - 1) * 0.42, (R() - 0.5) * 0.2); sph('dSack', sx, g + 0.3, sz2, 0.27, 0.36, 0.24, ry + (R() - 0.5)); } shade = 20; break; }
+        case 'cart': {   // a two-wheeled handcart: its bed, sides, shafts forward, a load of produce or sacks
+          const lift = 0.5;
+          B.box('wood', x, g + lift, z, 1.1, 0.1, 1.7, ry, [0.9, 0.82, 0.74]);
+          for (const s2 of [-1, 1]) { const [sx, sz2] = L(s2 * 0.53, 0); B.box('wood', sx, g + lift + 0.1, sz2, 0.06, 0.32, 1.7, ry, [0.86, 0.78, 0.7], NS); const [wx, wz] = L(s2 * 0.62, -0.15); wheel(wx, g + 0.42, wz, 0.42, ry + Math.PI / 2); }
+          for (const s2 of [-0.3, 0.3]) { const [ax, az] = L(s2, 0.8), [bx, bz] = L(s2 * 0.8, 1.9); rod('wood', [ax, g + lift + 0.05, az], [bx, g + 0.25, bz], 0.04, 0.035); }
+          const [lx, lz] = L(0, -0.1); if (it.load === 'sacks') for (let i = 0; i < 3; i++) sph('dSack', lx + (R() - 0.5) * 0.5, g + lift + 0.3, lz + (i - 1) * 0.45, 0.24, 0.24, 0.3, ry); else B.box('dFood', lx, g + lift + 0.1, lz, 0.9, 0.25, 1.3, ry, null, NS);
+          shade = 30; break;
+        }
+        case 'stall': {   // a market stall: four posts, a counter of produce, a striped awning sloping to the front
+          const W = 2.4 * sz, D = 1.4;
+          for (const [a, b] of [[-W / 2 + 0.08, -D / 2 + 0.08], [W / 2 - 0.08, -D / 2 + 0.08], [-W / 2 + 0.08, D / 2 - 0.08], [W / 2 - 0.08, D / 2 - 0.08]]) { const [sx, sz2] = L(a, b); B.box('wood', sx, g, sz2, 0.1, b < 0 ? 2.45 : 2.1, 0.1, ry, null, NS); }
+          const [cx, cz] = L(0, 0.25); B.box('wood', cx, g, cz, W - 0.2, 0.85, 0.7, ry, [0.9, 0.84, 0.76]);
+          B.box('dFood', cx, g + 0.85, cz, W - 0.3, 0.12, 0.62, ry, null, NS);
+          const A = L(-W / 2 - 0.1, -D / 2 - 0.05), Bq = L(W / 2 + 0.1, -D / 2 - 0.05), C = L(W / 2 + 0.1, D / 2 + 0.25), Dq = L(-W / 2 - 0.1, D / 2 + 0.25);
+          B.quad('cloth', [Dq[0], g + 2.0, Dq[1]], [C[0], g + 2.0, C[1]], [Bq[0], g + 2.5, Bq[1]], [A[0], g + 2.5, A[1]], [0, 0, Math.round(W / 0.6), 1]);
+          B.quad('cloth', [Dq[0], g + 1.75, Dq[1]], [C[0], g + 1.75, C[1]], [C[0], g + 2.0, C[1]], [Dq[0], g + 2.0, Dq[1]], [0, 0, Math.round(W / 0.6), 0.25]);
+          shade = 34; break;
+        }
+        case 'well': {   // a round stone well, a little roof on two posts, a bucket on the rope
+          const n = 10, r = 0.8; for (let i = 0; i < n; i++) { const a = i / n * Math.PI * 2, bx = x + Math.cos(a) * r, bz = z + Math.sin(a) * r; B.box('stone', bx, g, bz, 0.52, 0.85, 0.28, -a + Math.PI / 2, [0.92, 0.9, 0.94]); }
+          B.cyl('stone', x, g + 0.2, z, 0.62, 0.62, 0.05, 12, [0.2, 0.25, 0.3], null, false);
+          for (const s2 of [-1, 1]) { const [sx, sz2] = L(s2 * 0.88, 0); B.box('wood', sx, g, sz2, 0.13, 2.3, 0.13, ry, null, NS); }
+          { const [ax, az] = L(-1.0, 0), [bx, bz] = L(1.0, 0); rod('wood', [ax, g + 2.0, az], [bx, g + 2.0, bz], 0.06, 0.06); }
+          for (const s2 of [-1, 1]) { const A = L(-1.2, 0), Bq = L(1.2, 0), C = L(1.2, s2 * 0.85), Dq = L(-1.2, s2 * 0.85); const top = g + 2.55, lo = g + 2.05; if (s2 > 0) B.quad('wood', [A[0], top, A[1]], [Bq[0], top, Bq[1]], [C[0], lo, C[1]], [Dq[0], lo, Dq[1]], [0, 0, 2.4, 1], [0.8, 0.7, 0.6]); else B.quad('wood', [Bq[0], top, Bq[1]], [A[0], top, A[1]], [Dq[0], lo, Dq[1]], [C[0], lo, C[1]], [0, 0, 2.4, 1], [0.8, 0.7, 0.6]); }
+          B.cyl('wood', x, g + 1.3, z, 0.14, 0.17, 0.26, 8, [0.7, 0.55, 0.45], null, false);
+          shade = 40; break;
+        }
+        case 'fence': case 'pickets': {   // a wooden fence from at to to: posts and two rails (pickets: close boards)
+          const [qx, qy] = it.to, bx = X(qx), bz = Z(qy), dx = bx - x, dz = bz - z, Ln = Math.hypot(dx, dz), fr = Math.atan2(-dz, dx), n = Math.max(1, Math.round(Ln / 1.3));
+          for (let i = 0; i <= n; i++) { const f = i / n; B.box('wood', x + dx * f, gh(px + (qx - px) * f, py + (qy - py) * f) - 0.1, z + dz * f, 0.13, 1.15, 0.13, fr, [0.85, 0.75, 0.65]); }
+          const gm = gh((px + qx) / 2, (py + qy) / 2);
+          if (it.k === 'pickets') { const m = Math.round(Ln / 0.22); for (let i = 0; i < m; i++) { const f = (i + 0.5) / m; B.box('wood', x + dx * f, gm - 0.05, z + dz * f, 0.16, 1.0 + (i % 2) * 0.08, 0.04, fr, [0.86, 0.78, 0.68], NS); } }
+          for (const hh of it.k === 'pickets' ? [0.3, 0.75] : [0.42, 0.85]) B.box('wood', x + dx / 2, gm + hh, z + dz / 2, Ln, 0.09, 0.06, fr, [0.8, 0.7, 0.6], NS);
+          shade = 0; break;
+        }
+        case 'gate': {   // a field gate between two posts
+          for (const s2 of [-1, 1]) { const [sx, sz2] = L(s2 * 1.1, 0); B.box('wood', sx, g - 0.1, sz2, 0.18, 1.45, 0.18, ry); }
+          for (const hh of [0.3, 0.65, 1.0]) { const [mx, mz] = L(0, 0); B.box('wood', mx, g + hh, mz, 2.0, 0.1, 0.05, ry, [0.86, 0.78, 0.68], NS); }
+          shade = 0; break;
+        }
+        case 'bench': if (K.bench) K.bench(x, g, z, ry); shade = 18; break;
+        case 'signpost': {   // a tall post with two pointing boards
+          B.box('wood', x, g - 0.2, z, 0.14, 2.5, 0.14, ry);
+          for (const [hh, a] of [[1.9, 0.5], [1.5, -0.9]]) { const r2 = ry + a, ox = Math.sin(r2 + Math.PI / 2) * 0.32, oz = Math.cos(r2 + Math.PI / 2) * 0.32; B.box('wood', x + ox, g + hh, z + oz, 0.75, 0.2, 0.05, r2, [0.9, 0.8, 0.66], NS); }
+          shade = 8; break;
+        }
+        case 'statue': {   // a robed figure on a plinth
+          B.box('stone', x, g, z, 1.0 * sz, 0.7, 1.0 * sz, ry, [0.9, 0.9, 0.95]);
+          const cg = new THREE.ConeGeometry(0.42 * sz, 1.7 * sz, 10); cg.translate(0, 0.85 * sz, 0); B.geom('stone', cg, new THREE.Matrix4().makeTranslation(x, g + 0.7, z), [0.95, 0.95, 1], 1); cg.dispose();
+          sph('stone', x, g + 0.7 + 1.8 * sz, z, 0.2 * sz, 0.24 * sz, 0.2 * sz, 0);
+          shade = 26; break;
+        }
+        case 'brazier': {   // an iron bowl of coals on three legs, burning
+          for (let i = 0; i < 3; i++) { const a = i / 3 * Math.PI * 2; rod('iron', [x + Math.cos(a) * 0.35, g, z + Math.sin(a) * 0.35], [x + Math.cos(a) * 0.2, g + 0.85, z + Math.sin(a) * 0.2], 0.035, 0.03); }
+          B.cyl('iron', x, g + 0.82, z, 0.22, 0.42, 0.26, 12, [0.6, 0.58, 0.6], null, true);
+          B.cyl('dCoal', x, g + 0.98, z, 0.36, 0.36, 0.05, 10, null, null, false);
+          if (d.__fx) { d.__fx.flames.push([x, g + 1.2, z, 1.6]); d.__fx.sparks.push([x, g + 1.1, z]); }
+          K.lights && K.lights.push([px, py, 120, 1.2, 'forge']); K.halo && K.halo(x, g + 1.3, z, 2.2, [1.0, 0.55, 0.2]);
+          shade = 12; break;
+        }
+        case 'lamppost': { B.box('iron', x, g, z, 0.12, 2.8, 0.12, 0, [0.5, 0.5, 0.55]); B.box('iron', x, g, z, 0.3, 0.3, 0.3, 0, [0.5, 0.5, 0.55]); if (K.lantern) K.lantern(x, g + 2.8, z, [0, 1], 1, 0); shade = 8; break; }
+        case 'hay': { B.box('dHay', x, g, z, 1.2 * sz, 0.6 * sz, 0.7 * sz, ry); if (sz >= 1) { const [hx, hz] = L(0.15, 0.05); const ns = B.solid; B.solid = false; B.box('dHay', hx, g + 0.6, hz, 1.1, 0.55, 0.65, ry + 0.15); B.solid = ns; } shade = 22; break; }
+        case 'haystack': { const cg = new THREE.ConeGeometry(1.2 * sz, 2.0 * sz, 10); cg.translate(0, 1.0 * sz, 0); B.geom('dHay', cg, new THREE.Matrix4().makeTranslation(x, g, z), null, [3, 2]); cg.dispose(); shade = 34; break; }
+        case 'logs': { for (const [a, hh, r] of [[-0.24, 0.2, 0.2], [0.24, 0.2, 0.2], [0, 0.52, 0.19]]) { const [lx, lz] = L(0, a); log('dLog', lx, g + hh, lz, r, 2.0 * sz, ry + Math.PI / 2); } shade = 26; break; }
+        case 'woodpile': { for (let row = 0; row < 3; row++) for (let i = 0; i < 4 - row; i++) { const [lx, lz] = L((i - (3 - row) / 2) * 0.24, 0); log('dLog', lx, g + 0.11 + row * 0.2, lz, 0.11, 0.8, ry); } shade = 18; break; }
+        case 'rock': { const rk = K.rockG ? K.rockG[Math.floor(R() * K.rockG.length)] : null; if (rk) B.geom(lookOf(d) ? 'rockL' : 'rockM', rk, new THREE.Matrix4().compose(new THREE.Vector3(x, g - 0.2 * sz, z), new THREE.Quaternion().setFromEuler(new THREE.Euler(0, R() * 6.28, 0)), new THREE.Vector3(sz, sz * 0.8, sz)), null, 1.2); shade = 20; break; }
+        case 'bush': { for (let i = 0; i < 4; i++) sph('leafBush', x + (R() - 0.5) * 0.7 * sz, g + 0.35 * sz, z + (R() - 0.5) * 0.7 * sz, 0.45 * sz, 0.4 * sz, 0.45 * sz, R() * 6); shade = 22; break; }
+        case 'table': {   // a plank table on four legs (food or a cloth on it)
+          const W = 1.7 * sz, D = 0.9;
+          for (const [a, b] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) { const [lx, lz] = L(a * (W / 2 - 0.12), b * (D / 2 - 0.1)); B.box('wood', lx, g, lz, 0.09, 0.74, 0.09, ry, null, NS); }
+          B.box('wood', x, g + 0.74, z, W, 0.07, D, ry, [0.92, 0.84, 0.74]);
+          if (it.load === 'food') B.box('dFood', x, g + 0.81, z, W * 0.5, 0.08, D * 0.5, ry, null, NS);
+          shade = 22; break;
+        }
+        case 'shelf': {   // a tall shelf against the wall behind it, crocks and boxes on its boards
+          const W = 1.6 * sz, Dp = 0.4;
+          for (const a of [-1, 1]) { const [lx, lz] = L(a * (W / 2 - 0.04), 0); B.box('wood', lx, g, lz, 0.07, 1.95, Dp, ry); }
+          for (const hh of [0.1, 0.62, 1.14, 1.66]) { B.box('wood', x, g + hh, z, W, 0.05, Dp, ry, [0.86, 0.78, 0.68], NS); if (hh < 1.6) for (let i = 0; i < 3; i++) { const [ox, oz] = L((i - 1) * W * 0.3 + (R() - 0.5) * 0.15, 0); if (R() < 0.5) B.cyl('dClay', ox, g + hh + 0.05, oz, 0.1, 0.08, 0.26, 8, null, null, false); else B.box(ck, ox, g + hh + 0.05, oz, 0.26, 0.22, 0.26, ry, [1, 1, 1], Object.assign({ fit: ck === 'crate' }, NS)); } }
+          shade = 20; break;
+        }
+        case 'lowwall': {   // a low, mossy stone wall (a ruin's), a stone or two fallen from it
+          B.box('stone', x, g - 0.1, z, 3.8 * sz, 1.05, 1.0, ry, [0.86, 0.9, 0.82]);
+          B.box('stone', x, g + 0.95, z, 3.9 * sz, 0.14, 1.1, ry, [0.7, 0.8, 0.66], NS);
+          const [fx2, fz2] = L(1.4 * sz, 0.9); B.box('stone', fx2, g, fz2, 0.45, 0.3, 0.4, ry + 0.6, [0.8, 0.84, 0.78], NS);
+          shade = 0; break;
+        }
+        case 'trough': { B.box('wood', x, g, z, 1.7 * sz, 0.5, 0.6, ry, [0.8, 0.7, 0.6]); B.box('glass', x, g + 0.42, z, 1.5 * sz, 0.04, 0.45, ry, [0.4, 0.55, 0.65], NS); shade = 20; break; }
+        case 'jars': { for (let i = 0; i < 3; i++) { const [jx, jz] = L((i - 1) * 0.4, (R() - 0.5) * 0.3), hh = 0.6 + R() * 0.3; B.cyl('dClay', jx, g, jz, 0.18, 0.28, hh * 0.55, 10); B.cyl('dClay', jx, g + hh * 0.55, jz, 0.28, 0.12, hh * 0.45, 10); } shade = 18; break; }
+        case 'anvil': { B.box('wood', x, g, z, 0.5, 0.45, 0.5, ry, [0.6, 0.45, 0.38]); B.box('iron', x, g + 0.45, z, 0.3, 0.2, 0.22, ry); B.box('iron', x, g + 0.65, z, 0.75, 0.16, 0.26, ry); shade = 14; break; }
+        case 'cauldron': { B.cyl('iron', x, g + 0.1, z, 0.3, 0.45, 0.55, 12, [0.4, 0.4, 0.42], null, true); B.cyl('glass', x, g + 0.55, z, 0.4, 0.4, 0.03, 10, [0.5, 0.7, 0.4], null, false); shade = 16; break; }
+        case 'tent': {   // a ridge tent of canvas
+          const W = 2.2 * sz, D = 2.6 * sz, H = 1.9 * sz; const a = L(-W / 2, -D / 2), b = L(W / 2, -D / 2), c2 = L(W / 2, D / 2), e = L(-W / 2, D / 2), t0 = L(0, -D / 2), t1 = L(0, D / 2);
+          B.quad('dSack', [e[0], g, e[1]], [a[0], g, a[1]], [t0[0], g + H, t0[1]], [t1[0], g + H, t1[1]], [0, 0, D, H]);
+          B.quad('dSack', [b[0], g, b[1]], [c2[0], g, c2[1]], [t1[0], g + H, t1[1]], [t0[0], g + H, t0[1]], [0, 0, D, H]);
+          B.tri('dSack', [a[0], g, a[1]], [b[0], g, b[1]], [t0[0], g + H, t0[1]], [[0, 0], [W, 0], [W / 2, H]]);
+          shade = 40; break;
+        }
+      }
+      B.solid = was;
+      if (shade && K.shadeMarks) K.shadeMarks.push(['dot', px, py, shade, 0.72]);
     }
   }
 
