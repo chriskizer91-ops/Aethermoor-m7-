@@ -24,7 +24,7 @@ from PIL import Image
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 N = 1024
-CELLS = 4                    # the atlas: 4 x 4 cells
+COLS, ROWS = 4, 8             # the atlas: 4 across, 8 down
 CELL = 256                   # each kind's bake
 HCELL = 512                  # each kind's height, for the sculpt view
 INSET = 2                    # pixels kept clear round each cell (the code maps the piece inside them)
@@ -44,6 +44,26 @@ KINDS = {
     'tabard':   (8,  0.30, 0.50, 0.0),   # u 0 one face, 0.25 an edge, 0.5 the other face; v 0 the shoulder, 1 the hem
     'cape':     (9,  0.70, 0.75, None),  # u across (0 one edge, 1 the other), v 0 the shoulders, 1 the hem
     'kettle':   (10, 0.95, 0.42, 0.0),   # lathe: u 0 the front; v by height: crown 0, brim .78-.86, lip .86-.9, under 1
+    'helm':     (11, 0.95, 0.50, 0.0),   # lathes: u 0 the front; v by height, crown 0 to chin 1 (the band at .4)
+    'hood':     (12, 0.90, 0.55, 0.0),   # lathes: u 0 the front (the face opening from .15 to .85 round), v crown 0 to neck 1
+    'mantle':   (13, 0.85, 0.12, 0.25),  # a mantle, a pelt, a hood's drape: v 0 the neck, 1 over the shoulders
+    'glove':    (14, 0.11, 0.06, 0.0),   # the hand: v 0 the wrist, 1 the knuckles
+    'finger':   (15, 0.04, 0.05, None),  # a finger or thumb: v 0 the knuckle, 1 the tip
+    'robesleeve': (16, 0.40, 0.20, 0.0), # a robe's open sleeve: v 0 the elbow, 1 the cuff
+    'plate':    (17, 0.80, 0.35, 0.25),  # a breastplate and backplate: v 0 the waist, 1 the shoulders
+    'lame':     (18, 0.85, 0.05, 0.25),  # one lame of plate below the waist: v 0 the top, 1 the bottom
+    'vambrace': (19, 0.20, 0.16, 0.0),   # plate round the forearm or shin: v 0 the top, 1 the bottom
+    'pauldron': (20, 0.60, 0.12, None),  # a shoulder lame (part of a sphere): v 0 the edge, 1 the top
+    'shield':   (21, 0.60, 0.60, None),  # a shield's face, flat: u across, v up (0..1 over the shield's width and height)
+    'grip':     (22, 0.07, 0.10, None),  # a weapon's grip: v 0 the pommel end, 1 the guard
+    'lock':     (23, 0.05, 0.15, None),  # a lock of hair (and the hair's cap): strands run along v
+    'shoulder': (24, 0.35, 0.15, None),  # the ball of the shoulder under a sleeve (a sphere: v 0 below, 1 on top)
+    'haft':     (25, 0.06, 0.60, None),  # a wooden haft, a staff, a bow's limb: v along it
+    'braid':    (26, 0.05, 0.60, None),  # a cloth or leather trim, a cord: u round the cord, v along it
+    'rim':      (27, 0.05, 0.60, None),  # a metal rim, trim, guard or ridge: u round it, v along it
+    'strap':    (28, 0.05, 0.30, None),  # a flat strap (u 0 and .5 its faces, .25 and .75 its edges), a pouch
+    'blade':    (29, 0.08, 0.50, None),  # a blade: u 0 and .5 its edges, .25 and .75 the middle of each face; v to the tip
+    'forged':   (30, 0.15, 0.15, None),  # a forged head (axe, spear, mace, hammer, pommel), laid on flat over it
 }
 rng = np.random.default_rng(21)
 V_, U_ = np.mgrid[0:N, 0:N] / N          # V_ down the rows (v), U_ across (u)
@@ -232,6 +252,133 @@ def sculpt(kind):
                 i, j = int((v0 + np.sin(a) * t / L) * N), int(((u0 + np.cos(a) * t / C) % 1) * N)
                 if 0 <= i < N: sc[i, j] -= 1
         h += P.blur(sc, 0.0006) * 0.0004
+    elif kind == 'helm':
+        crown = V_ < 0.432
+        h = P.dents(90, 0.01, 0.025, 0.0012, 0.02, 0.98, 111)
+        for c in (0.0, 0.5): h += np.exp(-(wrapd(U_, c) * C / 0.008) ** 2) * 0.0035 * crown * ss(0.0, 0.06, V_)  # the comb over the crown
+        h += P.bumps_row(0.405, 18, 0.006, 0.0025) + band(V_, 0.385, 0.425, 0.004) * 0.0012          # the riveted band
+        holes = np.zeros((N, N))
+        for cu in (0.075, 0.1, 0.125, 0.875, 0.9, 0.925):                                          # breaths beside the mouth
+            for cv in np.linspace(0.62, 0.78, 6):
+                du = wrapd(U_, cu) * C; dv = (V_ - cv) * L; holes -= np.exp(-(du * du + dv * dv) / 0.0028 ** 2)
+        h += holes * 0.004 + band(V_, 0.96, 1.01, 0.006) * 0.003                                     # and the rolled bottom
+        h += P.noise(0.06, 0.06, 112) * 0.0005
+    elif kind == 'hood':
+        h = P.folds(0.04, 0.2, 121) * 0.003 * (0.3 + V_)
+        h += P.wrinkles(0.88, 0.05, None, 0.003, 122, 0.03)                                          # bunched at the neck
+        h += P.seam_u(0.0) * 0.0016 * ss(0.0, 0.02, 0.27 - V_) + P.seam_u(0.5) * 0.0016            # over the crown, down the back
+        for e in (0.151, 0.849):                                                                     # the turned hem round the face
+            d = wrapd(U_, e) * C; h += np.exp(-(d / 0.009) ** 2) * 0.003 * (V_ > 0.25)
+            h += (np.sin(P.y / 0.006 * 2 * np.pi) > 0.3) * np.exp(-((d - 0.014) / 0.0016) ** 2) * 0.001 * (V_ > 0.25)
+        h += P.noise(0.004, 0.004, 123) * 0.00025
+    elif kind == 'mantle':
+        h = P.folds(0.03, 0.12, 131) * 0.003 * (0.2 + V_)
+        h += np.sin(U_ * 2 * np.pi * 30) * 0.0015 * (1 - ss(0.0, 0.3, V_))                          # gathered at the neck
+        h += P.welt(0.86, 1.01, 0.0025) + P.stitch_v(0.84) * 0.0018
+        h += P.welt(-0.01, 0.08, 0.0018)
+        h += P.noise(0.004, 0.004, 132) * 0.0003
+    elif kind == 'glove':
+        h = P.wrinkles(0.9, 0.012, None, 0.0018, 141, 0.006)                                         # over the knuckles
+        for c in (0.0, 0.33, 0.66): h += P.seam_u(c, 0.002, 0.004) * 0.0008 * (V_ < 0.8)               # seams down the back
+        h += P.welt(-0.01, 0.12, 0.0012) + P.stitch_v(0.13, 0.004, 0.001) * 0.001                    # the wrist
+        h += P.creases(0.02, 0.02, 142, 2.5) * 0.0005 + P.noise(0.003, 0.003, 143) * 0.0002
+    elif kind == 'finger':
+        h = P.wrinkles(0.3, 0.006, None, 0.0012, 151, 0.004) + P.wrinkles(0.68, 0.005, None, 0.001, 152, 0.0035)
+        h += P.noise(0.003, 0.003, 153) * 0.00015
+    elif kind == 'robesleeve':
+        h = P.folds(0.04, 0.15, 161) * 0.0035 * (0.3 + V_)
+        h += P.creases(0.03, 0.1, 162) * 0.0012
+        cuff = band(V_, 0.8, 0.96, 0.006)                                                            # an embroidered cuff
+        h += cuff * (0.0015 + (np.sin(P.x / 0.012 * 2 * np.pi + np.sin(P.y / 0.01 * 2 * np.pi) * 2) > 0.4) * 0.0008)
+        h += P.welt(0.96, 1.01, 0.0025) + P.noise(0.004, 0.004, 163) * 0.00025
+    elif kind == 'plate':
+        h = P.dents(70, 0.015, 0.04, 0.0012, 0.05, 0.95, 171) + P.dents(60, 0.004, 0.01, 0.0006, 0.05, 0.95, 172)
+        for v0 in (0.06, 0.94): h += P.bumps_row(v0, 28, 0.0045, 0.0022)                             # rivets along both edges
+        h += band(V_, -0.01, 0.025, 0.004) * 0.002 + band(V_, 0.975, 1.01, 0.004) * 0.002
+        sc = np.zeros((N, N)); r = np.random.default_rng(173)
+        for _ in range(60):
+            u0, v0, a, ln = r.uniform(0, 1), r.uniform(0.05, 0.95), r.uniform(0, np.pi), r.uniform(0.01, 0.05)
+            for t in np.linspace(0, ln, 160):
+                i, j = int((v0 + np.sin(a) * t / L) * N), int(((u0 + np.cos(a) * t / C) % 1) * N)
+                if 0 <= i < N: sc[i, j] -= 1
+        h += P.blur(sc, 0.0006) * 0.0004 + P.noise(0.08, 0.08, 174) * 0.0005
+    elif kind == 'lame':
+        h = P.dents(40, 0.008, 0.02, 0.0008, 0.1, 0.9, 181)
+        for cu in (0.0, 0.13, 0.25, 0.37, 0.5):
+            du = wrapd(U_, cu) * C; dv = (V_ - 0.45) * L; h += np.sqrt(np.clip(1 - (du * du + dv * dv) / 0.0045 ** 2, 0, 1)) * 0.0022
+        h += band(V_, 0.85, 1.01, 0.05) * 0.0018 + P.noise(0.06, 0.03, 182) * 0.0003
+    elif kind == 'vambrace':
+        h = P.dents(40, 0.008, 0.02, 0.001, 0.08, 0.92, 191)
+        h += band(V_, -0.01, 0.06, 0.006) * 0.0022 + band(V_, 0.94, 1.01, 0.006) * 0.0022            # rolled ends
+        for v0 in (0.12, 0.88): h += P.bumps_row(v0, 8, 0.004, 0.002, 0.5)
+        h += np.exp(-(wrapd(U_, 0.5) * C / 0.004) ** 2) * -0.0012                                     # the hinge line inside
+        h += P.noise(0.05, 0.05, 192) * 0.0004
+    elif kind == 'pauldron':
+        h = P.dents(50, 0.01, 0.025, 0.001, 0.12, 1.0, 201)
+        h += band(V_, -0.01, 0.07, 0.008) * 0.003 + P.bumps_row(0.14, 12, 0.005, 0.0022)
+        h += P.noise(0.06, 0.06, 202) * 0.0004
+    elif kind == 'shield':
+        k = 6
+        gaps = -np.exp(-((((U_ * k) + 0.5) % 1 - 0.5) / 0.035) ** 2) * 0.0025                     # six boards
+        board = np.floor(U_ * k)
+        grain = sum(P.noise(0.006, 0.12, 211 + int(b)) * (board == b) for b in range(k)) * 0.0006 # each board its own grain
+        h = gaps + grain + P.creases(0.01, 0.1, 217, 2.5) * 0.0005
+        for v0 in (0.3, 0.7):                                                                       # two battens of nails
+            for i in range(14):
+                du = (U_ - (i + 0.5) / 14) * C; dv = (V_ - v0) * L; h += np.sqrt(np.clip(1 - (du * du + dv * dv) / 0.006 ** 2, 0, 1)) * 0.0022
+        rad = np.hypot(U_ - 0.5, V_ - 0.5)
+        h += P.dents(70, 0.006, 0.02, 0.0016, 0, 1, 218) * ss(0.25, 0.48, rad)                     # knocks, more toward the rim
+        h += P.noise(0.004, 0.004, 219) * 0.0002
+    elif kind == 'grip':
+        turns = 6
+        ph = V_ * turns + U_ * 1.0                                                                  # leather wound round it
+        h = -np.exp(-(((ph % 1) - 0.5) * 2 / 0.12) ** 2) * 0.0012 + np.cos(((ph % 1) - 0.5) * np.pi) * 0.0004
+        h += P.noise(0.004, 0.004, 221) * 0.0002
+    elif kind == 'lock':
+        h = P.noise(0.0015, 0.06, 231) * 0.0006 + P.noise(0.005, 0.1, 232) * 0.0009                 # strands, and clumps of them
+        h += -np.abs(P.noise(0.008, 0.2, 233)) * 0.0007                                             # partings between the clumps
+    elif kind == 'shoulder':
+        h = P.folds(0.03, 0.06, 241) * 0.0015 + P.welt(0.25, 0.32, 0.0012) + P.stitch_v(0.33) * 0.0012
+        h += P.noise(0.004, 0.004, 242) * 0.0002
+    elif kind == 'haft':
+        h = P.noise(0.004, 0.15, 251) * 0.0005 + P.creases(0.006, 0.1, 252, 3.0) * 0.0004           # grain, and its splits
+        kn = np.zeros((N, N)); r = np.random.default_rng(253)
+        for _ in range(5):                                                                          # knots
+            cu, cv = r.uniform(0, 1), r.uniform(0.05, 0.95); du = wrapd(U_, cu) * C; dv = (V_ - cv) * L; d = np.sqrt(du * du + dv * dv * 0.3)
+            kn += np.exp(-(d / 0.004) ** 2) * 0.8 - np.exp(-(d / 0.007) ** 2) * 0.3 + np.cos(d / 0.0018 * 2 * np.pi) * np.exp(-(d / 0.01) ** 2) * 0.2
+        h += kn * 0.0006 + P.dents(30, 0.001, 0.003, 0.0004, 0, 1, 254)                             # and knocks
+    elif kind == 'braid':
+        p_ = 0.008
+        a1 = np.cos(2 * np.pi * (U_ * 2 + P.y / p_)); a2 = np.cos(2 * np.pi * (U_ * 2 - P.y / p_ + 0.5))
+        h = np.maximum(a1, a2) * 0.0005 + P.noise(0.002, 0.002, 261) * 0.0001                        # strands plaited over and under
+    elif kind == 'rim':
+        h = P.dents(60, 0.002, 0.006, 0.0005, 0, 1, 271) + P.noise(0.003, 0.1, 272) * 0.00015
+        sc = np.zeros((N, N)); r = np.random.default_rng(273)
+        for _ in range(30):
+            u0, v0, ln = r.uniform(0, 1), r.uniform(0, 1), r.uniform(0.01, 0.05)
+            for t in np.linspace(0, ln, 100):
+                i = int(((v0 + t / L) % 1) * N); j = int(((u0 + r.normal(0, 0.002)) % 1) * N); sc[i % N, j] -= 1
+        h += P.blur(sc, 0.0004) * 0.0002
+    elif kind == 'strap':
+        face = np.cos(U_ * 4 * np.pi) ** 2
+        edge = np.minimum(wrapd(U_, 0.25), wrapd(U_, 0.75))
+        st = (np.sin(P.y / 0.004 * 2 * np.pi) > 0.2) * np.exp(-((edge - 0.08) / 0.012) ** 2)
+        h = st * 0.0004 - np.exp(-((edge - 0.08) / 0.006) ** 2) * 0.00015 + P.creases(0.01, 0.01, 281, 2.5) * 0.0003 * face
+        h += P.noise(0.002, 0.002, 282) * 0.0001
+    elif kind == 'blade':
+        e = np.minimum(wrapd(U_, 0.0), wrapd(U_, 0.5))
+        h = -np.exp(-((e - 0.07) / 0.008) ** 2) * 0.00035                                           # the edge's bevel line
+        h += P.noise(0.0012, 0.15, 291) * 0.00012 * (e > 0.07)                                       # grinding along the blade
+        nk = np.zeros((N, N)); r = np.random.default_rng(292)
+        for _ in range(14):                                                                          # nicks in the edges
+            cu, cv = r.choice([0.0, 0.5]), r.uniform(0.15, 0.9); du = wrapd(U_, cu) * C; dv = (V_ - cv) * L
+            nk -= np.exp(-(du * du + dv * dv) / 0.0025 ** 2)
+        h += nk * 0.0006 + P.dents(25, 0.003, 0.008, 0.00015, 0, 0.35, 293)                          # and hammering near the hilt
+    elif kind == 'forged':
+        h = P.dents(70, 0.004, 0.012, 0.0009, 0, 1, 301) + P.noise(0.03, 0.03, 302) * 0.0003
+        yy, xx = V_ - 0.5, U_ - 0.5; rr = np.hypot(xx, yy)
+        h += np.sin(rr / 0.004 * 2 * np.pi + P.noise(0.02, 0.02, 303) * 2) * 0.00006                 # grinding arcs
+        h += P.dents(30, 0.0015, 0.004, 0.0005, 0, 1, 304)
     return P, h
 
 
@@ -252,8 +399,8 @@ def down(a, n):
 
 def main():
     os.makedirs(os.path.join(HERE, 'src'), exist_ok=True)
-    atlas = np.zeros((CELLS * CELL, CELLS * CELL, 3)); atlas[..., :2] = 0.5; atlas[..., 2] = 1
-    heights = np.full((CELLS * HCELL, CELLS * HCELL), 0.5)
+    atlas = np.zeros((ROWS * CELL, COLS * CELL, 3)); atlas[..., :2] = 0.5; atlas[..., 2] = 1
+    heights = np.full((ROWS * HCELL, COLS * HCELL), 0.5)
     meta = {}
     for kind, (cell, C, L, front) in KINDS.items():
         P, h = sculpt(kind)
@@ -262,7 +409,7 @@ def main():
         gm = float(np.percentile(np.abs(np.concatenate([gu.ravel(), gv.ravel()])), 99.7))
         lo, hi = float(h.min()), float(h.max())
         Image.fromarray(((h - lo) / (hi - lo) * 65535).astype(np.uint16)).save(os.path.join(HERE, 'src', kind + '.png'))
-        cx, cy = cell % CELLS, cell // CELLS
+        cx, cy = cell % COLS, cell // COLS
         inner = CELL - 2 * INSET
         def fit(a, n):  # into the cell's inside, edges repeated into the inset
             img = Image.fromarray(a.astype(np.float32), 'F').resize((n, n), Image.BOX)
@@ -283,9 +430,9 @@ def main():
         open(os.path.join(HERE, name + '.webp'), 'wb').write(d); out[name] = d
         print(f'{name}.webp {len(d) / 1024:.0f} KB')
     js = ('// Made by sculpt.py: the sculpted masters of each kind of piece. Do not edit by hand.\n'
-          f'// ATLAS: {CELLS}x{CELLS} cells of {CELL} px (red, green: slope along u and v, scaled by each kind\'s slope; blue: occlusion).\n'
+          f'// ATLAS: {COLS} x {ROWS} cells of {CELL} px (red, green: slope along u and v, scaled by each kind\'s slope; blue: occlusion).\n'
           f'// HEIGHTS: the same cells at {HCELL} px, each kind\'s height from lo to hi (hero units), for the Sculpt view.\n'
-          f'export const CELLS = {CELLS}, INSET = {INSET / CELL};\n'
+          f'export const COLS = {COLS}, ROWS = {ROWS}, INSET = {INSET / CELL};\n'
           'export const KINDS = ' + json.dumps(meta, separators=(',', ':')) + ';\n'
           'export const ATLAS = "data:image/webp;base64,' + base64.b64encode(out['atlas']).decode() + '";\n')
     open(os.path.join(HERE, 'pack.js'), 'w').write(js)

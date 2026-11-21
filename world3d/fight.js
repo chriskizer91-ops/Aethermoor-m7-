@@ -6,6 +6,7 @@
 //   ?pack=0|1 which of Thornhollow's patrols (M7's PATROLS.thornhollow); ?lose=1 a pack far too strong (to see a defeat)
 //   ?foes=cutout the beasts as Chris's painted standees (Models' prototypes/bestiary/standee.js); the Foes button switches
 //   ?toll=1 Wren wears Hodge's Unfair Toll (M7's toll); ?omen=twinned the road's pack with M7's Twinned omen
+//   ?level=N the party's level (to see a Champion's later phases)
 //   ?surge=100 every hero's Legend Surge full (to see a Legend Strike); ?enc=<id> any M7 fight on this page's places
 //   ?auto=1 the party fights on its own; ?speed=2|4; ?go=1 the fight starts at once (headless checks)
 import './heroes.js';
@@ -298,6 +299,7 @@ async function main() {
 
 // M7's party, levelled for the fight (the road 4, the den 7, as M7's maps are), in their starting gear
 function makeGame(seed, level = 4) {
+  if (Q.get('level')) level = Number(Q.get('level')); // ?level=N: the party at level N (a test switch, to see a long fight through)
   let game = newGame({ name: 'Wren', starter: 'hearthbrand', seed });
   const rng = createRng(`fight3d:${seed}`);
   for (const id of game.party.active) {

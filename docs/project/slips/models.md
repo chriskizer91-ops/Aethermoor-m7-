@@ -213,6 +213,46 @@ sculpt** (the full-detail sculpt itself) and **Sculpted** on or off: https://cla
   (helm, hood, coif, gloves, robe, mantle, plate, the shield's face and the weapons' grips), then the people foes and
   townsfolk, who share them all.
 
+**More masters: helm, hood and coif, mantle, gloves, robe, plate, the shield's face, grips** (November 21). Gear Room,
+same buttons: https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL
+- Twelve more kinds, 23 in all: helm (a comb over the crown, a riveted band, breaths beside the mouth, a rolled edge),
+  hood and coif (seams over the crown and down the back, a turned hem round the face, bunched at the neck), mantle (also
+  a hood's drape and a pelt: gathered at the neck, a stitched hem), glove (knuckle wrinkles, seams, the wrist) and finger
+  (knuckle creases; bare hands too), robe sleeve (deep folds, an embroidered cuff), plate (broad dents, scratches,
+  rivets along both edges), lame (rivets, a rolled edge), vambrace (also greaves: rolled ends, rivets, the hinge line),
+  pauldron (a rolled edge, a ring of rivets), the shield's face (six boards, two battens of nails, knocks toward the rim)
+  and the grip (leather wound round it).
+- The atlas is now 4 x 6 cells of 256 px, 1024 x 1536, **366 KB** (about 490 KB in a page), still one picture in
+  `masters/pack.js`. One cell is free.
+- A piece now carries its master's place in its own attribute (`mUv`), so pieces with a painted picture of their own
+  keep it: the shields' painted faces wear the boards and nails over their paint (`withMaster(material)` in kit.js).
+- Still no new materials or draws (Wren 48 pieces, 218 / 100 / 24 draws at High / Light / Lite). Item audit 458 items,
+  0 flags. The sculpt view: 915,000 triangles. Bestiary builds (11.7 MB).
+- Next: the townsfolk's and people foes' own pieces (scarves, masks, aprons, sashes, wraps, hats, satchels, the foes'
+  looks), which already share every master above.
+
+**Every item sculpted: the masters' audit** (November 21). The Gear Room's debug build
+(`node build.mjs --debug`) logs every piece each of the 458 items adds and whether it wears a master; the coverage
+script adds up the bare area by the line of code that made it.
+- Before: 77% of the items' surface wore a master. Now: **92%**. Nine more kinds made (32 in all): hair lock (and the
+  hair's cap), the shoulder under a sleeve, haft (wood grain, splits, knots, knocks; also staves and bows' limbs),
+  braid (cloth and leather trims, cords, the cape's tie), rim (metal rims, trims, guards, ridges, the shields' rims,
+  metal hafts), strap (boot straps, pouches and their flaps, sashes), blade (the edge's bevel line, grinding along the
+  blade, nicks in the edges, hammering by the hilt), forged (axe, spear, mace and hammer heads, flanges, sockets,
+  pommels, butts: hammer dents and grinding arcs, laid on flat) and the glove's cuff and the hood's tip.
+- What is still bare, and why: the boot soles (a box under the foot, never seen), the fine wire wound round grips, the
+  rivets, gem settings and the amulet chains' links (too small for a master to show). The rest is a few percent of
+  small staff-head and helm details.
+- The atlas: 4 x 8 cells of 256 px, 1024 x 2048, 464 KB, in `masters/pack.js`. One cell free. Still no new
+  materials or draws (Wren 48 pieces, 218 / 100 / 24). Item audit: 458 items, 0 flags.
+
+**The townsfolk and people foes wear the masters** (November 21). They are built by the heroes' builder, so they
+share every kind. The same coverage check over the 39 people foes and the townsfolk: **92%** of their surface wears a
+master. More than half of the rest is boot soles (never seen); the scarves, aprons and head wraps (and the wraps' and
+turbans' bands) are now fitted too (braid, tabard). Side by side with Wren (cutpurse, ash-wight, Hollow Brundar,
+Fenwick, Durra): the same folds, seams, dents and grain at the same scale. The Gear Room can now build any of them
+(\`window.__people\`); a picker for Chris comes with step 4.
+
 ## Next
 
 - Chris chose full detail for the beasts (November 20): sessions 6 to 8 build them (`docs/project/jobs/foes.md`;
