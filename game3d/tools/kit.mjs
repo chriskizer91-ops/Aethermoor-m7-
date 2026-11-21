@@ -19,9 +19,12 @@ async function playDialogue(pick = /Leave|Not yet|Go|Farewell|Done/i) {
 }
 // whatever is up: a talk, a fight's card, a message, the after-fight screen, a card reveal
 async function settle({ fight = true, rest = false, max = 400 } = {}) {
+  let fightT0 = 0;
   for (let i = 0; i < max; i++) {
     const s = await state();
-    if (s && s.fighting) { await page.waitForTimeout(800); continue; }
+    // a fight runs as long as it runs (a hard one takes many minutes headless): wait it out, up to 45 minutes
+    if (s && s.fighting) { if (!fightT0) fightT0 = Date.now(); if (Date.now() - fightT0 < 2700000) i--; await page.waitForTimeout(800); continue; }
+    fightT0 = 0;
     if (await page.$('.ov-dialogue')) { await playDialogue(); continue; }
     if (await page.$('.ov-reveal .cont')) { await page.click('.ov-reveal .cont').catch(() => {}); await page.waitForTimeout(300); continue; }
     if (await page.$('.ov-prefight')) {
