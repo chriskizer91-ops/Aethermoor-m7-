@@ -5,6 +5,19 @@ shown side by side with the code-built model and a cut-out of Chris's sheet.
 
 ## Done
 
+- **The boglurcher** (November 21), in full detail, **passing the stretch check** (worst 1.25x, the slam):
+  - Three ways, with the crowd test: https://claude.ai/artifact/CBt1k8zotiyVb5BCkquENo
+  - The sculpt itself (laptop): https://claude.ai/artifact/UXByzwgQxJTPVX3MRVunir
+  - Sculpt 1,296,288 triangles (saved as `foes/boglurcher/assets/boglurcher-sculpt.glb`, 4.8 MB); light model 19,774.
+  - A slumped heap of clotted mud clods, moss over its top hanging in strands, two amber slit-eyed eyes in dark
+    hollows, stones round its foot, two cattails and a curled sprout; shaped to the sheet (outlines overlap 0.8 at the
+    sheet's own scale).
+  - A new plan in the kit, `mound` (`kit/js/moves/mound.js`): it lurks, oozes, slams (rears and falls on you), grabs
+    (surges along the ground), drags under (sinks, then heaves up), flinches and slumps into the marsh; base, body, top
+    and whatever grows on top. Its moves map the common set (strike → slam, bite and swipe → grab, cast and roar → sink).
+  - Next for it: the moss more olive and its strands broader, as the sheet paints them.
+  - Pages now carry the foe's name in their title (build.mjs).
+
 - **Briarmaw, the briarling and the glowcap pass the stretch check** (every move under 1.3x, checked at 120 frames;
   November 21). Re-weighted by part, no new bake needed (the sculpts didn't change).
   - Briarling: its leafy coat is all ball (the legs are root tubes pushed into it), the leg tubes' hidden tops go with
@@ -104,7 +117,9 @@ shown side by side with the code-built model and a cut-out of Chris's sheet.
    neck bones, a tail-root helper, driven by the loader from a HELPERS table so moves don't change). Also session 7's
    report that bind.py lets some neck weight onto the thornhound's ear root despite its weigh(): weigh gates need
    +1000 (an unseen bone costs 100), and a gate should also stop the bands and smoothing.
-1. My lane, each passing the stretch check before it's handed in: (briarling, glowcap done) boglurcher, the willows, the sparks, rockling, Mother Anvil, the wraiths.
+1. My lane, each passing the stretch check before it's handed in: (briarling, glowcap, boglurcher done) the willows
+   (willow-wight, Grandfather Willow), the sparks (marsh-light, forge-spark), rockling, Mother Anvil. (The wraiths moved
+   to Models, session 3.)
 2. Briarmaw's moves smoothed (weights round the shoulders and hips, a fuller walk), a hit flash.
 2. The face closer still to the sheet; the coat's brown zones placed as the sheet paints them.
 3. Done: pass 3, the sculpt's own page, the heavier brow and golden fangs, the rump and tail as the sheet shows.

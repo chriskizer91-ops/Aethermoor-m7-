@@ -78,6 +78,9 @@
   },
   "rig": "rig.py",
   "blurb": "The boglurcher is a heap of bog with eyes in it: a slumped mound of clotted mud, moss draped over its top and dripping down its sides, two amber eyes in dark hollows, stones round its foot, two cattails and a curled sprout growing out of it.",
-  "next": "its moves smoothed.",
-  "pages": {}
+  "next": "its moss more olive and its hanging strands broader, as the sheet paints them; its moves smoothed.",
+  "pages": {
+    "three": "https://claude.ai/artifact/CBt1k8zotiyVb5BCkquENo",
+    "sculpt": "https://claude.ai/artifact/UXByzwgQxJTPVX3MRVunir"
+  }
 }
