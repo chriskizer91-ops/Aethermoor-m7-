@@ -8,7 +8,7 @@ def p(xo, px, py): return (xo * S, (px - MID) * S, (GROUND - py) * S)
 # triangles in the light version, per kind of part (he is rabble: about 20,000 in all)
 TARGET = {0: 13200, 2: 1500, 3: 700, 4: 3000, 5: 40, 6: 500, 7: 200, 8: 1100}
 CAGE, RAY, AO_DIST = 0.02, 0.06, 0.18
-SMOOTH = 8           # weights smoothed over the surface (no stretching, Chris November 21)
+SMOOTH = 16           # weights smoothed over the surface (no stretching, Chris November 21)
 RIGID = [2, 4, 5, 6, 7, 8]          # thorns, leaves, fangs, claws, eyes and flowers move as one piece each
 UV_SCALE = {0: 1.0, 2: 0.6, 3: 0.4, 4: 0.3, 5: 0.5, 6: 0.4, 7: 0.8, 8: 0.25}   # picture space: the coat first
 
@@ -22,12 +22,14 @@ BONES = [  # name, parent, head, tail
     ('hips', None, p(0, 620, 400), p(0, 800, 385)),
     ('spine', 'hips', p(0, 800, 385), p(0, 960, 370)),
     ('chest', 'spine', p(0, 960, 370), p(0, 1070, 345)),
-    ('neck', 'chest', p(0, 1070, 345), p(0, 1160, 255)),
-    ('head', 'neck', p(0, 1160, 255), p(0, 1330, 262)),
+    ('neck_base', 'chest', p(0, 1070, 345), p(0, 1102, 310)),     # helper: the neck in two (kit, November 21)
+    ('neck', 'neck_base', p(0, 1102, 310), p(0, 1135, 275)),
+    ('head', 'neck', p(0, 1135, 275), p(0, 1330, 262)),
     ('jaw', 'head', p(0, 1212, 282), p(0, 1312, 292)),
     ('ear_l', 'head', p(36, 1165, 198), p(52, 1157, 80)),
     ('ear_r', 'head', p(-36, 1165, 198), p(-52, 1157, 80)),
-    ('tail1', 'hips', p(0, 500, 366), p(0, 458, 428)),
+    ('tail_root', 'hips', p(0, 500, 366), p(0, 487, 385)),        # helper: a quarter of the tail's sway
+    ('tail1', 'tail_root', p(0, 487, 385), p(0, 458, 428)),
     ('tail2', 'tail1', p(0, 458, 428), p(0, 442, 495)),
     ('tail3', 'tail2', p(0, 442, 495), p(0, 444, 555)),
     ('tail4', 'tail3', p(0, 444, 555), p(0, 456, 625)),
@@ -36,9 +38,16 @@ for k, J in LEGS.items():
     J = [p(*j) for j in J]
     par = 'chest' if k[0] == 'f' else 'hips'
     toe = (J[3][0], J[3][1] + 0.06, 0.008)
+    # helper: a shoulder blade over each foreleg, a haunch over each hind leg (half the upper leg's turn)
+    L_ = float(np.linalg.norm(np.subtract(J[0], J[1])))
+    a = J[0]
+    top = (a[0] * 0.75, a[1] - 0.25 * L_, a[2] + 0.5 * L_) if k[0] == 'f' else (a[0] * 0.75, a[1] + 0.15 * L_, a[2] + 0.45 * L_)
+    h = f'{k}_blade' if k[0] == 'f' else f'{k}_haunch'
+    BONES.append((h, par, top, a)); par = h
     BONES += [(f'{k}_upper', par, J[0], J[1]), (f'{k}_lower', f'{k}_upper', J[1], J[2]),
               (f'{k}_foot', f'{k}_lower', J[2], J[3]), (f'{k}_paw', f'{k}_foot', J[3], toe)]
 NAMES = [b[0] for b in BONES]
+def is_helper(n): return n in ('neck_base', 'tail_root') or n.endswith(('_blade', '_haunch'))
 IDX = {n: i for i, n in enumerate(NAMES)}
 
 def seg_dist(P, a, b):
@@ -52,6 +61,7 @@ def weights_at(P):
     x, y, z = P[:, 0], P[:, 1], P[:, 2]
     sx_, sy_ = y / S + MID, GROUND - z / S          # sheet pixels
     for i, b in enumerate(BONES):
+        if is_helper(b[0]): continue
         n = b[0]
         if n[:2] in ('fl', 'fr', 'bl', 'br'):
             front = n[0] == 'f'
@@ -85,7 +95,7 @@ def weights_at(P):
 
 def ramp(x, a, b): return np.clip((x - a) / (b - a), 0, 1)
 
-def mask(P):
+def mask(P, idx=None):
     """where each bone may reach (0..1, with soft edges): a leg's lower bones stay below their own joint, the tail's
     later bones behind the rump, the head's bones in front of the neck, the neck off the shoulders"""
     P = np.asarray(P, np.float32)
@@ -93,10 +103,11 @@ def mask(P):
     sx_, sy_ = P[:, 1] / S + MID, GROUND - z / S
     M = np.ones((len(P), len(BONES)), np.float32)
     for i, (n, par, hd, tl) in enumerate(BONES):
+        if is_helper(n): continue
         if n[:2] in ('fl', 'fr', 'bl', 'br') and not n.endswith('_upper'):
             M[:, i] = ramp(hd[2] + 0.03 - z, 0, 0.03)               # nothing above its joint
         if n.endswith('_upper'):
-            M[:, i] = ramp(0.60 - z, 0, 0.05)                         # the upper leg ends below the back
+            M[:, i] = ramp(0.60 - z, 0, 0.05) * ramp(np.abs(x), 0.02, 0.05)   # below the back, and not the middle of the chest
         if n in ('tail2', 'tail3', 'tail4'):
             M[:, i] = ramp(-0.50 - P[:, 1], 0, 0.03) * ramp(hd[2] + 0.04 - z, 0, 0.03)   # the hanging tail, below its joint
         if n in ('ear_l', 'ear_r'):
@@ -124,11 +135,22 @@ def weigh(D, P, idx):
     P = np.asarray(P, np.float32); x = P[:, 0]; sx_ = P[:, 1] / S + MID
     M = mask(P)
     for i, b in enumerate(BONES):
+        if is_helper(b[0]): continue
         n = b[0]
         if n[:2] in ('fl', 'fr', 'bl', 'br'):
             D[:, i] += np.where(np.sign(x) != np.sign(b[2][0]), 1.0, 0.0)
             D[:, i] += np.where((sx_ > 850) != (n[0] == 'f'), 1.0, 0.0)
-    return D + (M < 0.05) * 1000.0 + (1 - M) * 0.1      # masked out: never (bind adds +100 for unseen bones)
+    # as Briarmaw's rig does (scaled to him): a leg takes nothing above 81% of its shoulder, nothing near the middle
+    # line, nothing farther across than its reach from its own line, nothing above its own top (400 steers the labels)
+    z = P[:, 2]; REACH = {'upper': 0.13, 'lower': 0.14, 'foot': 0.16, 'paw': 0.21}
+    for n, i in idx.items():
+        if n[:2] in ('fl', 'fr', 'bl', 'br') and not is_helper(n):
+            bn = BONES[i]; a2, b2 = np.array(bn[2][:2]), np.array(bn[3][:2]); ab = b2 - a2
+            t = np.clip(((P[:, :2] - a2) @ ab) / max(float(ab @ ab), 1e-9), 0, 1)
+            far = np.linalg.norm(P[:, :2] - (a2 + t[:, None] * ab), axis=1) > REACH[n[3:]]
+            far |= z > max(bn[2][2], bn[3][2]) + 0.04
+            D[:, i] += np.where((z > 0.37) | (np.abs(x) < 0.055) | far, 400.0, 0.0)
+    return D                 # the reach masks go in softly through mask(P, idx), which bind multiplies in at every step
 
 def rigid(kind, P, idx):
     r = rigid_root(P, kind)
@@ -137,7 +159,9 @@ def rigid(kind, P, idx):
 
 # joint bands for the kit's bind: wide, soft blends where big masses turn (thigh into haunch, shoulder into chest,
 # neck into chest), so the turn is spread over many centimetres of skin
-BANDS = {'bl_upper': (0.07, 0.16), 'br_upper': (0.07, 0.16), 'fl_upper': (0.06, 0.14), 'fr_upper': (0.06, 0.14),
-         'neck': (0.06, 0.14), 'head': (0.04, 0.10), 'tail1': (0.04, 0.10), 'spine': (0.08, 0.2), 'chest': (0.08, 0.2),
-         'tail2': (0.04, 0.08), 'bl_lower': (0.05, 0.10), 'br_lower': (0.05, 0.10), 'fl_lower': (0.04, 0.08), 'fr_lower': (0.04, 0.08)}
+BANDS = {k + p: ((0.085, 0.21) if p == '_lower' else (0.03, 0.08) if p in ('_paw', '_foot') else (0.03, 0.12))
+         for k in ('fl', 'fr', 'bl', 'br') for p in ('_upper', '_lower', '_foot', '_paw')}
+BANDS.update({'ear_l': (0.03, 0.06), 'ear_r': (0.03, 0.06)})
+BANDS.update({'bl_lower': (0.12, 0.28), 'br_lower': (0.12, 0.28), 'bl_upper': (0.05, 0.16), 'br_upper': (0.05, 0.16)})   # the hind knee, wider
+SPLIT = [('head', 'jaw')]          # the mouth cut along the lips (the kit's bind), so the jaw opens without dragging the cheeks
 

@@ -300,6 +300,22 @@ of twelve at the fight's detail). Code: `prototypes/wraiths/` (`wraiths.js`, REA
   regular than the painted rags, and the faces simpler. Next: deeper tatters and layered rags, the sheets' embroidery
   and lace patterns, then hand the Fight its build plugin entry.
 
+**The wraiths, second pass** (November 21). Gallery republished: https://claude.ai/artifact/KiYfGSBcUQ6gU4WqVKGojD
+- Rags: hems now tear unevenly (mostly short, now and then a long strip, torn in points rather than a saw) and the
+  tattered ones hang one or two shorter, deeper-torn layers over their robes (the Drowned's coat, the Bell-Ringer, the
+  Choir's cassock, the Cantor, the Choir-Wraith's lower tier, the Rime-Wraith's robe and capelet).
+- Lace and embroidery: two new sculpted masters (35 kinds in all): **lace** (rows of eyelets and little four-eyelet
+  flowers toward a scalloped hem: the Choir's surplice) and **embroid** (vines of raised thread climbing from the hem:
+  the Cantor's cope, the Abbot's cope). The atlas is now 566 KB.
+- Faces closer to the sheets: a face with a brow, nose, cheekbones, sunk sockets, eyes, a mouth and, for the weepers,
+  tear-tracks of light: the Abbess (glowing eyes, blue tears), the Rime-Wraith (dark eyes, open mouth, tears), the
+  Lantern Mother (amber eyes); the Abbess's veil now ends at her belt, as on the sheet.
+- Thinned: the coral crowns lose a branching level at the fight's detail. At Light now: Drowned 12k, Bell-Ringer 13k
+  (was 23k), Drowned Choir 11k, Drowned Cantor 15k (was 28k), Drowned Abbess 14k, Choir-Wraith 16k, Rime-Wraith 13k,
+  Rime-Abbot 10k, Lantern Mother 13k, Mirage-Wisp 3k, Wisp-Queen 10k: **all under the rabble ~20k**. High 9k to 98k.
+- Still to come: the Abbot's braided cowl and layered frosty cope, the Bell-Ringer's heavier draped folds, and more of
+  the sheets' painted pattern (the Abbess's wave-edged tiers, the Choir-Wraith's arched panels).
+
 ## Next
 
 - Chris chose full detail for the beasts (November 20): sessions 6 to 8 build them (`docs/project/jobs/foes.md`;

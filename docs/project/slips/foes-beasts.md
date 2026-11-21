@@ -76,6 +76,21 @@ session 6 made Briarmaw.
   never), as session 6 advised; it barely moves the result, because the bands and smoothing carry the neck back onto
   the ear roots. Waiting on the kit's helper joints and a gate that holds through the bands.
 
+- **With the kit's helper joints** (November 21, hub e6acb48): the thornhound now has shoulder blades, haunches, the
+  neck in two and a tail root (the page drives them with the kit's `applyHelpers` after every pose); his reach masks
+  go in as the kit's soft `mask(P, idx)`; his legs are kept off the body as Briarmaw's rig does (nothing above 81% of
+  the shoulder, nothing near the middle line, nothing beyond each bone's reach); the mouth is cut along the lips
+  (the kit's SPLIT); the head bone starts behind the ears. Kit check now: worst big edge 2.1x (was 2.3x), and far
+  fewer big edges over 1.3x in most moves (bite 15, hit 31, fall 59, idle 2); still FAIL on every move. What's left:
+  the hind knee in the walk and lunge (1.8-2.0x, the most edges), the throat in the howl (2.1x), the ear roots in the
+  bite and hit (1.7-1.9x).
+
+- **One more round on the hind knee** (as the hub asked): a wider knee band took the walk from 132 big edges over
+  1.3x to about 100; the haunch helper's share (tried 0.3, 0.5, 0.65) made little difference; the lunge stays at
+  about 410 (2.0x). Stopped there, as the hub said. The cause, as session 6 found on Briarmaw: his hind legs are
+  sculpted tucked into the haunches, so they can't swing without dragging the body. Next time round: re-pose his hind
+  legs clear of the body in the sculpt and bake again.
+
 ## Next
 
 0. Move onto session 6's shared kit (commit f384b7d / 8f3b6e2 on job/foe-hd) once the hub brings it into its branch; my

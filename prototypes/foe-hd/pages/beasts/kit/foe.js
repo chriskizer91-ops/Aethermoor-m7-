@@ -11,6 +11,7 @@
 import * as THREE from 'three';
 import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
 import { clone as cloneSkinned } from 'three/examples/jsm/utils/SkeletonUtils.js';
+import { applyHelpers } from '../../../kit/js/loader.js';
 
 let decoderReady = null;
 export function ready() { return (decoderReady ??= MeshoptDecoder.ready); }
@@ -81,10 +82,10 @@ function wrap(mesh, bones, moves, o, triangles) {
   group.add(body); body.add(mesh);
   for (const b of Object.values(bones)) b.userData.p0 = b.position.clone();
   const F = { group, body, mesh, bones, plan: o.plan || 'quad', height: o.height || 1, parts: { head: bones.head, tail: bones.tail1 || bones.tail },
-    triangles, moves, opts: o };
+    triangles, moves, opts: o, helpers: o.helpers || [] };
   F.act = { lunge: 0, fall: 0 }; F.hitAt = -9; F.t = 0;
   F.hit = () => { F.hitAt = F.t; };
-  F.pose = (move, u, t, step = 0) => { reset(F); moves.pose(F, move, u, t, step); };
+  F.pose = (move, u, t, step = 0) => { reset(F); moves.pose(F, move, u, t, step); applyHelpers(F); };   // helper joints (kit)
   F.update = (t, step = 0) => {
     F.t = t;
     const fall = F.act.fall || 0, L = F.act.lunge || 0, h = (t - F.hitAt) / 0.9;
@@ -102,7 +103,7 @@ function reset(F) {
 
 export function buildFoe(shared, moves, o = {}) {
   const { mesh, bones } = buildSkinned(shared);
-  return wrap(mesh, bones, moves, o, shared.meta.triangles);
+  return wrap(mesh, bones, moves, { ...o, helpers: shared.meta.helpers }, shared.meta.triangles);
 }
 
 // another copy sharing the geometry, material and pictures (for packs and the crowd)

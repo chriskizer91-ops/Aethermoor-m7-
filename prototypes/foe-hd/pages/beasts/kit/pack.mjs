@@ -34,7 +34,7 @@ const encV = MeshoptEncoder.encodeVertexBuffer(new Uint8Array(vb), n, STRIDE);
 const encI = MeshoptEncoder.encodeIndexBuffer(new Uint8Array(idx.buffer), idx.length, 4);
 await writeFile(`${out}/light.bin`, Buffer.concat([Buffer.from(encV), Buffer.from(encI)]));
 await writeFile(`${out}/light.json`, JSON.stringify({ vertices: n, indices: idx.length, stride: STRIDE, lo, hi, vbytes: encV.length, ibytes: encI.length,
-  bones: meta.bones, triangles: meta.triangles, sculptTriangles: meta.sculptTriangles }));
+  bones: meta.bones, helpers: meta.helpers || [], triangles: meta.triangles, sculptTriangles: meta.sculptTriangles }));
 console.log(`light: ${meta.triangles} triangles, ${n} vertices -> ${((encV.length + encI.length) / 1024).toFixed(0)} KB`);
 
 // ---- the sculpt ----

@@ -124,19 +124,34 @@ export const arena = {
     const clear = (p, q) => { try { return P.sight.hit(p.x, p.y, p.z, q.x, q.y, q.z) > 0.97; } catch (e) { return true; } };
     let pos = null, look = at;
     if (kind === 'close') {
-      const back = V3(-this.dir.x, 0, -this.dir.z), side = V3(this.dir.z, 0, -this.dir.x), r = Math.max(4.5, F.size.h * 3.4 + F.size.d * 1.3);
+      // a charge at one hero: frame the ground between them (the foe crosses it) from a little further back
+      const tg = F.act && !F.act.self && F.act.target && this.heroes.get(F.act.target);
+      if (tg) at.lerp(tg.pos.clone().setY(at.y), 0.4);
+      const back = V3(-this.dir.x, 0, -this.dir.z), side = V3(this.dir.z, 0, -this.dir.x), r = Math.max(4.5, F.size.h * 3.4 + F.size.d * 1.3) * (tg ? 1.35 : 1);
       for (const sd of [1, -1, 0.4, -0.4]) { const p = at.clone().addScaledVector(back, r).addScaledVector(side, sd * r * 0.6); p.y = F.pos.y + F.size.h * 1.1 + 0.9; pos = pos || p; if (clear(p, at)) { pos = p; break; } }
     } else {
-      look = this.center.clone().addScaledVector(this.dir, 2.2).setY(this.center.y + 0.6);
-      pos = this.want.pos.clone().addScaledVector(this.dir, -3.5); pos.y += 3.2;
-      if (!clear(pos, look)) pos = this.want.pos.clone().setY(this.want.pos.y + 2.5);
+      // wide: straight back and a little up along the fight camera's own line, so the party stays at the bottom and the
+      // foes in the stage's open upper part, only more of the field round them
+      const fwd = V3(0, 0, -1).applyQuaternion(this.want.q), up0 = V3(0, 1, 0).applyQuaternion(this.want.q), fc = V3(); let nf = 0;
+      for (const G of this.foes.values()) if (!G.removed) { fc.add(G.home).y += G.size.h * 0.5; nf++; }
+      if (nf) fc.multiplyScalar(1 / nf); else fc.copy(this.want.pos).addScaledVector(fwd, 8);
+      pos = this.want.pos.clone().addScaledVector(fwd, -3).setY(this.want.pos.y + 1.2);
+      if (!clear(pos, fc)) pos = this.want.pos.clone().setY(this.want.pos.y + 1.0);
+      // the foes as high on the screen as in the fight's own view (zooming out alone slides them down to the middle)
+      const v0 = fc.clone().sub(this.want.pos), e0 = Math.atan2(v0.dot(up0), v0.dot(fwd)), rad = (f) => f * Math.PI / 360;
+      const e1 = Math.atan(Math.tan(e0) / Math.tan(rad(this.want.fov)) * Math.tan(rad(this.want.fov + 6)));
+      const qw = new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().lookAt(pos, fc, UP));
+      qw.multiply(new THREE.Quaternion().setFromAxisAngle(V3(1, 0, 0), -e1));
+      this.close = { t: 0, dur, pos, q: qw, fov: this.want.fov + 6 };
+      this.stage?.host.classList.add('f3-close');
+      return;
     }
     // close in: the foe stands in the stage's open upper part, not behind the turn strip across the screen's middle
     // (aimed a little under it: about 8 degrees, so it sits some 190 px above the middle of a phone's 844)
     if (kind === 'close') { look = at.clone(); look.y -= pos.distanceTo(at) * 0.146; }
     const q = new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().lookAt(pos, look, UP));
     this.close = { t: 0, dur, pos, q, fov: kind === 'close' ? 36 : this.want.fov + 6 };
-    if (kind === 'close') this.stage?.host.classList.add('f3-close');
+    this.stage?.host.classList.add('f3-close'); // close or wide: the foes' plates and intents step aside till it ends
   },
   // the Legend Strike close-up (step 3): the camera cuts in low and close on the hero, a little to the side, while they
   // raise the relic and M7's card slams; then back to the fight's camera

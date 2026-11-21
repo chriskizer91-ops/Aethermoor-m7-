@@ -1,19 +1,19 @@
 # The board
 
-Where the 3D game stands. Written by the hub only. Last updated November 21, small hours.
+Where the 3D game stands. Written by the hub only. Last updated November 21, before dawn.
 
 ## The sessions
 
 | # | Job | Session | Branch | State | Latest link |
 |---|---|---|---|---|---|
 | 1 | the hub | `session_01DgbUKb6orvjjc1cMgBGPJK` | `claude/brave-davinci-790efm` | running | (the board) |
-| 2 | The Fight | `session_01DgbUKYR9qmKyBdACUWGViw` | `job/fight` | step 5: the moves table covers every Champion, Relic-Bearer, Council member and the Unsmith (298 moves); Briarmaw's eight proven with stills (`slips/fight-stills/`); next: clearer Rootquake, Thornstorm, the wraiths' moments | https://claude.ai/artifact/Q9T8quXCTVgiVUZoMuUaP4 |
+| 2 | The Fight | `session_01DgbUKYR9qmKyBdACUWGViw` | `job/fight` | step 5: the moves table for all 298 Champion moves; the wraiths fight in full detail; big moments clear the screen; thick roots, clods and dust, thorns that read in flight; next: fresh stills, then the moments hand-made Champion by Champion | https://claude.ai/artifact/Q9T8quXCTVgiVUZoMuUaP4 |
 | 3 | Models | `session_01DgbUKcWh5MEvjHnxzp4HHo` | `job/models` | the eleven wraiths, first pass: shaped to Chris's sheets with their props, rigid (they can't stretch), wraithLook for the Fight, the Abbot's and the Lantern Mother's named moves; next: layered tatters, lace and embroidery, two thinned to budget | https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL |
-| 4 | Places | `session_01DgbUKZVFBfm1dVautXEw5f` | `job/places` | the place map done (Chris's ask): a small map of the place top left, tap for the whole place with named ways out, doors, stairs, people, shops, chests, Hearthfires and a goal star; on all five pages; Act One version 14; next: waterfall spray, banners and cloth, fish | https://claude.ai/artifact/GBxRVSqwMwYUTy1xLNjATA |
-| 5 | Together | `session_01DgbUKbyjzZFe1BXHHxzHBn` | `job/together` | only passing foes in full detail (stretch.json); both Act One links republished; now: the place map in every game page with the game's live marks; then Act Three | https://claude.ai/artifact/RaeSK5hezqb3qH7jmuM5aj |
+| 4 | Places | `session_01DgbUKZVFBfm1dVautXEw5f` | `job/places` | the place map; the places alive (now with waterfall spray, leaping fish, swaying banners); next, step 5: the set dressing in 3D (barrels, carts, stalls, wells, fences, benches...) | https://claude.ai/artifact/GBxRVSqwMwYUTy1xLNjATA |
+| 5 | Together | `session_01DgbUKbyjzZFe1BXHHxzHBn` | `job/together` | the place map in every game page with M7's live marks; Act Three done (single file and full pictures), so every act has its pages; next: the Chained Deep and the Worldforge played to the end, then the chests and signs in 3D | https://claude.ai/artifact/RaeSK5hezqb3qH7jmuM5aj |
 | 6 | One Foe | `session_01DgbUKZCNBFY7zwSzwAXR8y` | `job/foe-hd` | the boglurcher (1.30M sculpt → 19,774, passes the stretch check; a new mound plan); helper joints and holding gates in the kit; next: the willows, the sparks, rockling, Mother Anvil | https://claude.ai/artifact/CBt1k8zotiyVb5BCkquENo |
 | 7 | Foes: beasts | `session_01DgbUKZ4qEpafSazysExsYV` | `job/foes-beasts` | the thornhound down to 2.6× by its own check; next: the kit's check and binding until under 1.3×, then the rotstag, Old Snag, the Mirelord, the rotgrub, the Gloamwing | https://claude.ai/artifact/64Ukg3yQAAb8DWz69xqvxs |
-| 8 | Foes: walkers | `session_01DgbUKcTDUjKDVHw3sPhu7R` | `job/foes-walkers` | the Rotwarden's webbing fixed (Chris's report): arms, legs and head remade as separate pieces, bound by part; no webs by eye; worst stretch 70× → 2.3×, the sapwight 176× → 3×; next: the last few joints under the rule, the kit's standard form, then Old Horn (built, held until his cape passes) | https://claude.ai/artifact/YBLUHaLG3bNdfcjBdeq3aj |
+| 8 | Foes: walkers | `session_01DgbUKcTDUjKDVHw3sPhu7R` | `job/foes-walkers` | the Rotwarden and the sapwight pass the stretch check (worst 1.29× and 1.28×; separate pieces bound by part, joint limits); next: the kit's standard form for the Fight, the Rotwarden's named moves, Old Horn (held until his cape passes) | https://claude.ai/artifact/YBLUHaLG3bNdfcjBdeq3aj |
 
 ## What's built (on the hub's branch)
 
@@ -23,6 +23,7 @@ Where the 3D game stands. Written by the hub only. Last updated November 21, sma
 | **The game, the Ironspire** (begins at the Keep's east postern, where the story reaches it; or bring a journey by its save code) | `game3d/` | https://claude.ai/artifact/6jSwPVzbwwZWmmD6VsQ1sU |
 | **The game, the Gloomfen** (begins at level 15, where the story reaches it) | `game3d/` | https://claude.ai/artifact/N2iCRiMardtJNbntUoXYsA |
 | **The game, Act One with full pictures** (every texture and painting at full size, beside the page as files; the 3D Atlas) | `game3d/` | https://claude.ai/artifact/9rGvzRh4eocZrz4RYPQLz6 |
+| **The game, Act Three** (the Keep's galleries, the Hollow Hall, the Ash Stair, the Chained Deep, the Worldforge; begins at the Hollow Hall at level 20, or by save code) | `game3d/` | https://claude.ai/artifact/U8tPe6ZcZKrYA1o7XJeTjp · full pictures: https://claude.ai/artifact/28QkrWfL1YqMUnGLki2s5w |
 | **The game: Act One playable start to end in 3D** (prologue, walking with M7's rules, fights and spoils, chests, rest, the party room, the Atlas, the Rotwarden, both Brands, the Council; its own save) | `game3d/` | https://claude.ai/artifact/RaeSK5hezqb3qH7jmuM5aj |
 | Act One's 14 places, from M7's own maps and paintings, by day (a Light switch), the party walking as a group | `world3d/m7/` | https://claude.ai/artifact/GBxRVSqwMwYUTy1xLNjATA |
 | The Sunscorch's 10 places, by day, in Chris's desert textures | `world3d/m7/` | https://claude.ai/artifact/Awn5YJ761bD7rPyp4AkEdf |
