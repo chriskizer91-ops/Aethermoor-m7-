@@ -38,7 +38,7 @@ export const quad = {
   pose(F, move, u, t, step) {
     const b = F.bones, B = F.body, br = Math.sin(t * 2.4), H = F.height;
     // breathing under everything: the chest swells, the head bobs, the tail sways, the ears flick now and then
-    if (b.spine) b.spine.scale.set(1 + 0.015 * br, 1 + 0.02 * br, 1);
+    rx(b, 'spine', -0.012 * br); rx(b, 'chest', 0.018 * br);       // breathing as a small turn (bones are never scaled or slid)
     rx(b, 'head', 0.03 * br); ry(b, 'head', 0.14 * Math.sin(t * 0.6));
     tail(b, 0.16 * Math.sin(t * 1.6), 0.02 * br);
     const flick = Math.max(0, Math.sin(t * 0.9) - 0.94) * 8;
