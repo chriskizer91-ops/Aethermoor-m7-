@@ -12,7 +12,7 @@ export const ACT_ONE = ['keep', 'keep-hall', 'hearth-road', 'thornhollow', 'thor
 // a page per act or region (each under 16 MB): --act=act1 (default) or --act=sunscorch (Act Two's first region, with the
 // Keep and its Great Hall to start from)
 export const ACTS = {
-  act1: { places: ACT_ONE, out: 'game3d-act1', name: null, foesHd: null },
+  act1: { places: ACT_ONE, out: 'game3d-act1', name: null, foesHd: null, paint: '0.4', herotex: '192' },   // smaller pictures: room for the full-detail foes
   sunscorch: { title: 'Hearth & Heirloom: the Sunscorch', places: ['keep', 'keep-hall', 'sun-road', 'sandspire', 'dust-trail', 'dusthaven', 'deep-shaft-1', 'deep-shaft-2', 'glass-flats', 'miragewell', 'scorchgate', 'scorchgate-vaults'], out: 'game3d-sunscorch', name: 'Act Two, the Sunscorch', foesHd: 'none' },
 };
 const pass = process.argv.slice(2);
@@ -24,7 +24,7 @@ const args = [
   '--places=' + (has('places') ? pass.find((a) => a.startsWith('--places=')).split('=')[1] : ACT.places.join(',')),
   '--out=' + (has('out') ? pass.find((a) => a.startsWith('--out=')).split('=')[1] : ACT.out),
   ...(ACT.name && !has('name') ? ['--name=' + ACT.name] : []),
-  ...(has('tex') ? [] : ['--tex=400']), ...(has('paint') ? [] : ['--paint=0.5']), ...(has('herotex') ? [] : ['--herotex=256']),
+  ...(has('tex') ? [] : ['--tex=400']), ...(has('paint') ? [] : ['--paint=' + (ACT.paint || '0.5')]), ...(has('herotex') ? [] : ['--herotex=' + (ACT.herotex || '256')]),
   ...pass.filter((a) => !/^--(places|out|act)=/.test(a)),
 ];
 execFileSync('node', args, { cwd: path.join(here, '../world3d'), stdio: 'inherit', env: process.env });
