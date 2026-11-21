@@ -309,11 +309,13 @@ export const arena = {
     // a foe, or (charmed) a friend
     const target = r && r.target && (this.foes.get(r.target) || this.heroByUnit(r.target)) ? r.target : null;
     this.play(h, 'strike', RANGED.has(style) ? 0.7 : 1.15, { style, target, melee: !RANGED.has(style) && !!target });
+    face(h, 'effort', 0.9);
     this.lastAttacker = h.id;
   },
   heroCast(unitId) {
     const h = this.heroByUnit(unitId); if (!h) return;
     const c = this.lastCmd && this.lastCmd.actor === unitId ? this.lastCmd : null;
+    face(h, c?.type === 'item' ? 'neutral' : 'effort', 1.1);
     if (c?.type === 'item') this.play(h, 'item', 0.9);
     else if (c?.type === 'surge') { this.play(h, 'legend', 1.6); this.closeUp(h, 2.4); this.fx.pillar(h.pos.clone(), '#ffcb66', 5); }
     else {
@@ -325,7 +327,7 @@ export const arena = {
   },
   heroHurt(unitId, big) {
     const h = this.heroByUnit(unitId); if (!h) return;
-    if (!h.down) this.play(h, 'hurt', big ? 0.55 : 0.42, { big });
+    if (!h.down) { this.play(h, 'hurt', big ? 0.55 : 0.42, { big }); face(h, 'hurt', 1.0); }
     this.fx.sparks(h.pos.clone().setY(h.pos.y + 1.1), '#ff8a6a', big ? 16 : 9, { spread: 0.7 });
     // the foe going for this hero bites now, as the blow lands
     for (const F of this.foes.values()) if (F.act && F.act.kind === 'attack' && F.act.target === h.id && !F.act.bit) { F.act.bit = true; F.bite = { t: 0, dur: 0.3 }; }
@@ -335,8 +337,11 @@ export const arena = {
     const h = this.heroByUnit(u.id); if (!h) return;
     h.unit = u;
     const down = !!u.ko;
-    if (down && !h.down) { h.down = true; h.fall = { t: 0, dur: 0.6, up: false }; }
-    else if (!down && h.down) { h.down = false; h.fall = { t: 0, dur: 0.7, up: true }; }
+    if (down && !h.down) { h.down = true; h.fall = { t: 0, dur: 0.6, up: false }; face(h, 'asleep'); }
+    else if (!down && h.down) { h.down = false; h.fall = { t: 0, dur: 0.7, up: true }; face(h, 'neutral'); }
+    // worried when low (a quarter of their health or less), back to themselves when healed
+    const low = !down && u.maxHp && u.hp / u.maxHp <= 0.25;
+    if (low !== !!h.low && !down) face(h, low ? 'worried' : 'neutral'); h.low = low;
     h.guard = (u.statuses || []).some((s) => s.id === 'guarding');
     // swallowed (M7's one hold, shown as "Held under", "Led away", "In the river"): gone into the foe in a burst, back in a ring
     const held = (u.statuses || []).some((s) => s.id === 'swallowed');
@@ -364,7 +369,7 @@ export const arena = {
   foeSink(id, down) { const F = this.foes.get(id); if (F) F.sinkTo = down ? 1 : 0; },
   play(h, kind, dur, o = {}) { h.act = { kind, t: 0, dur, ...o, from: h.pos.clone() }; },
   // the party's cheer, or their fall, once the fight is done
-  victory() { for (const h of this.heroes.values()) if (!h.down) { h.forward = false; this.play(h, 'cheer', 2.4); } },
+  victory() { for (const h of this.heroes.values()) if (!h.down) { h.forward = false; this.play(h, 'cheer', 2.4); face(h, 'cheer', 3.5); } },
   busy() {
     if (this.swing || this.close || this.fx?.busy()) return true;
     for (const h of this.heroes.values()) if (h.act || h.fall || h.walk) return true;
@@ -415,6 +420,9 @@ export const arena = {
     this.renderer.render(this.scene, this.cam);
   },
 };
+
+// a hero's face (Models' living faces, prototypes/hero-3d/model.js rig.faceCtl): an expression, for a while or until the next
+function face(h, expr, seconds) { try { h.rig.faceCtl?.set(expr, seconds); } catch (e) { /* a figure without a living face */ } }
 
 // ---- heroes ------------------------------------------------------------------------------------------------------
 function heroFigure(id, A) {
