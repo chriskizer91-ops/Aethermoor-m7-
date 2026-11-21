@@ -71,6 +71,10 @@ Last updated November 20.
 
 ## Needs
 
+- Places: each Hearthfire's pillar (`m7/convert.mjs` lamps, h 1.1) carries a lantern; the game now burns a live fire
+  in a bowl on top (`game3d/props.js`: lit or cold by M7's state), and the lantern pokes up through the flame. Could a
+  Hearthfire's pillar go without its lantern?
+
 - The Fight: indoors (Sneck's fight in the Great Hall), `arena.spoilsView()` puts the camera behind the hall's wall, so
   the spoils' field is hidden by stone (the after-fight screen itself is fine). Outdoors it's as on the Fight's page.
 

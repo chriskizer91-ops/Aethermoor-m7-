@@ -34,6 +34,7 @@ import { openPrefight, openLockPrompt, openHearthMenu, openPauseMenu, openShop, 
 import { playBrandBanner, playCrownwalls, showLetter, playCouncil, showToBeContinued, showRegionCard, hasRegionCard, showOpening, playEnding } from '../game/src/ui/world/story-fx.js';
 import { reliquaryLine } from '../game/src/ui/screens/codex.js';
 import { person, foe, artOf } from './figures.js';
+import { hearth, glint } from './props.js';
 
 // what a hero wears, as M7's game holds it (inventory ids to items); empty slots keep the starting look
 export function gearFor(game, id) {
@@ -146,6 +147,7 @@ export function createWorld(o) {
 
   // ---- people, standing foes and roaming packs, as the engine has them ----
   let standing = new Map();   // entity id -> { fig, e }
+  const props = new Map();    // 'hf:<id>' | 'ch:<id>' -> a live thing (props.js)
   let roamers = new Map();    // roamer id -> { figs: [fig], r, x, z, face }
   function placeFig(fig, x, y, face) {
     const M = Wk.P.M, [px, py] = centre(x, y);
@@ -169,6 +171,22 @@ export function createWorld(o) {
       Wk.P.scene.add(fig.root); standing.set(e.id, { fig, e });
     }
     for (const [id, s] of standing) if (!want.has(id) || !Wk.P.scene.children.includes(s.fig.root)) { Wk.P.scene.remove(s.fig.root); standing.delete(id); }
+    // the live things (props.js): each Hearthfire lit or cold, a glint over every chest not yet opened
+    const keep = new Set();
+    for (const e of here) {
+      const at = e.at || (e.area && [e.area[0], e.area[1]]);
+      if (!at) continue;
+      if (e.kind === 'hearthfire') {
+        const lit = e.state !== 'cold', k = 'hf:' + e.id; keep.add(k);
+        let pr = props.get(k);
+        if (!pr) { pr = hearth(lit); placeFig(pr, at[0], at[1], 's'); Wk.P.scene.add(pr.root); props.set(k, pr); }
+        pr.set(lit);
+      } else if (e.kind === 'chest' && e.state !== 'opened' && !e.hidden) {
+        const k = 'ch:' + e.id; keep.add(k);
+        if (!props.has(k)) { const pr = glint(); placeFig(pr, at[0], at[1], 's'); Wk.P.scene.add(pr.root); props.set(k, pr); }
+      }
+    }
+    for (const [k, pr] of props) if (!keep.has(k) || !Wk.P.scene.children.includes(pr.root)) { Wk.P.scene.remove(pr.root); props.delete(k); }
     syncRoamers(true);
   }
   function syncRoamers(snap) {
@@ -197,6 +215,7 @@ export function createWorld(o) {
   function animate(dt, t) {
     const M = Wk.P.M;
     for (const s of standing.values()) s.fig.update(t, dt, false);
+    for (const pr of props.values()) pr.update(t, dt);
     const L = leader?.root.position;
     for (const R of roamers.values()) {
       const [tx, ty] = centre(R.r.x, R.r.y);
@@ -434,6 +453,7 @@ export function createWorld(o) {
     try { r = W.enterMap(game, target); } catch (err) { console.error(err); return 'stop'; }
     apply(r);
     dropRoamers(); for (const s of standing.values()) Wk?.P.scene.remove(s.fig.root); standing.clear();
+    for (const pr of props.values()) Wk?.P.scene.remove(pr.root); props.clear();
     await showPlace(walk.map, walk.x, walk.y, walk.face, first);
     ctx.audio.music(next.music || 'wilds');
     save();
