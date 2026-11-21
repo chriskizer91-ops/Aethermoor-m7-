@@ -35,17 +35,32 @@ def seg_dist(P, a, b):
     t = np.clip(((P - a) @ ab) / (ab @ ab), 0, 1)
     return np.linalg.norm(P - (a + t[:, None] * ab), axis=1)
 
+def root_radius(z):
+    return np.interp(z, [0.0, 0.2, 0.45, 0.77, 1.08, 1.37, 1.69, 1.9], [0.012, 0.05, 0.085, 0.12, 0.14, 0.155, 0.16, 0.15])
+
+def in_trunk(P):
+    """inside the outline of his trunk and hips (the plates there must never follow an arm or the root)"""
+    x, y, z = P[:, 0], P[:, 1], P[:, 2]
+    q = np.sqrt((x / 0.355) ** 2 + ((y - 0.02) / 0.275) ** 2)
+    return (q < 1.0) & (z > 0.70) & (z < 1.80)
+
 def weights_at(P, kind):
     x, y, z = P[:, 0], P[:, 1], P[:, 2]
     D = np.stack([seg_dist(P, b[2], b[3]) for b in BONES], 1)
     BIG = 5.0
-    near_root = seg_dist(P, ROOT[0], ROOT[1]) * 0 + np.min(np.stack([seg_dist(P, ROOT[i], ROOT[i + 1]) for i in range(len(ROOT) - 1)], 1), 1)
-    on_root = (near_root < np.interp(z, [0, 0.5, 1.0, 1.5, 1.9], [0.06, 0.13, 0.19, 0.2, 0.2])) & (x < -0.28) & (z < 1.62)
+    trunk = in_trunk(P)
+    # the root arm: its own strands (kind 10) always; the body surface only where it is the root's core, outside the trunk
+    near_root = np.min(np.stack([seg_dist(P, ROOT[i], ROOT[i + 1]) for i in range(len(ROOT) - 1)], 1), 1)
+    on_root = (kind == 10) | ((kind == 0) & (near_root < root_radius(z) * 1.1 + 0.06) & ~trunk & (x < -0.25) & (z < 1.62))
+    # the right arm: what lies along it, outside the trunk
+    near_arm = np.min(np.stack([seg_dist(P, SH_R, R_ELB), seg_dist(P, R_ELB, R_WRI), seg_dist(P, R_WRI, (0.48, 0.08, 0.80))], 1), 1)
+    on_arm = (kind == 11) | ((kind == 0) & (near_arm < 0.17) & ~trunk & (x > 0.27))     # kind 3 (body roots) never follow it
     for i, (n, par, hd, tl) in enumerate(BONES):
         if n.startswith('root'): D[:, i] = np.where(on_root, D[:, i], BIG)
-        elif on_root.any(): D[on_root, i] = BIG
-        if n.startswith('r_') and n[2:] in ('upper', 'fore', 'hand'):
-            D[:, i] += np.where(x < 0.27, BIG, 0) + np.where((x < 0.355) & (z > 1.15) & (z < 1.75), BIG, 0) + np.where(z > 1.72, 0.3, 0)
+        else: D[on_root, i] = BIG
+        if not n.startswith('r_') or n[2:] not in ('upper', 'fore', 'hand'): D[kind == 11, i] = BIG
+        if n in ('r_upper', 'r_fore', 'r_hand'):
+            D[:, i] = np.where(on_arm, D[:, i], BIG)
             if n == 'r_upper': D[:, i] *= np.where(z > 1.55, 1.6, 1.0)     # the pauldron stays mostly with the chest
         for s, side in ((1, 'r_'), (-1, 'l_')):
             if n.startswith(side) and n[2:] in ('thigh', 'shin', 'foot'):

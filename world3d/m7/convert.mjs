@@ -211,21 +211,37 @@ async function convert(id) {
   // ---- (Places, step 4) the roofs' colours: each building's footprint in one flat colour, the average of its roof rows
   // (its H tiles) in the painting, blank elsewhere. The roof keeps its own crisp texture and takes only this colour
   // (hub, November 20: the painting stretched over a roof read blurry, and its dormers and gables smeared) ----
-  const roofJobs = rects(BLD).map(([i0, j0, i1, j1]) => {
-    let hEnd = j0; for (let j = j0; j <= j1; j++) if ([...Array(i1 - i0 + 1)].some((_, k) => rows[j][i0 + k] === 'H')) hEnd = j + 1;
-    return [i0, j0, i1 + 1, Math.max(j0 + 1, hEnd), i0, j0, i1 + 1, j1 + 1];
-  });
+  // roofs that touch (a hall and its wings) share one colour: each 4-connected group of H tiles is coloured as a whole
+  const CMP = rows.map((r) => [...r].map(() => -1)), comps = [];
+  for (let j = 0; j < h; j++) for (let i = 0; i < w; i++) {
+    if (rows[j][i] !== 'H' || CMP[j][i] >= 0) continue;
+    const c = comps.length, q = [[i, j]], tiles = []; CMP[j][i] = c;
+    while (q.length) { const [a, b] = q.pop(); tiles.push([a, b]); for (const [da, db] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const x = a + da, y = b + db; if (x >= 0 && y >= 0 && x < w && y < h && rows[y][x] === 'H' && CMP[y][x] < 0) { CMP[y][x] = c; q.push([x, y]); } } }
+    comps.push({ tiles, rects: [] });
+  }
+  for (const [i0, j0, i1, j1] of rects(BLD)) {
+    let c = -1; for (let j = j0; j <= j1 && c < 0; j++) for (let i = i0; i <= i1 && c < 0; i++) if (CMP[j][i] >= 0) c = CMP[j][i];
+    if (c >= 0) comps[c].rects.push([i0, j0, i1 + 1, j1 + 1]);
+  }
+  const roofJobs = comps.filter((c) => c.rects.length);
   const roofFile = path.join(ROOT, 'world3d/coven/art/m7', id + '-roofs.webp');
-  if (roofJobs.length) execFileSync('python3', ['-I', '-c', `import sys,json
+  if (roofJobs.length) execFileSync('python3', ['-I', '-c', `import sys,json,colorsys
 from PIL import Image
 im=Image.open(sys.argv[1]).convert('RGB'); W,H=im.size; w,h=${w},${h}; kx=W/w; ky=H/h
+small=im.resize((w*6,h*6),Image.BOX)
 out=Image.new('RGB',(W,H),(96,92,88))
-for a in json.loads(sys.argv[3]):
-    s=[round(a[0]*kx),round(a[1]*ky),round(a[2]*kx),round(a[3]*ky)]; d=[a[4],a[5],a[6],a[7]]
-    pad=0.3; d=[round((d[0]-pad)*kx),round((d[1]-pad)*ky),round((d[2]+pad)*kx),round((d[3]+pad)*ky)]
-    px=sorted(im.crop(s).resize((24,24),Image.BOX).getdata(),key=lambda q:q[0]*0.3+q[1]*0.55+q[2]*0.15); px=px[len(px)//4:len(px)*9//10]
-    m=[sum(q[k] for q in px)/len(px) for k in range(3)]; g=sum(m)/3; c=tuple(max(0,min(255,round(g+(v-g)*1.35))) for v in m)
-    out.paste(Image.new('RGB',(max(1,d[2]-d[0]),max(1,d[3]-d[1])),c),(d[0],d[1]))
+for cmp in json.loads(sys.argv[3]):
+    px=[small.getpixel((i*6+a,j*6+b)) for i,j in cmp['tiles'] for a in range(6) for b in range(6)]
+    # the roof's own hue: the commonest hue among its middling pixels (not the dark outlines, nor a torch or a lit gable)
+    hs=[(colorsys.rgb_to_hsv(*[v/255 for v in q]),q) for q in px]; mid=[t for t in hs if 0.18<t[0][2]<0.92] or hs
+    bins=[0]*12
+    for (hh,sat,v),q in mid: bins[int(hh*12)%12]+=0.25+sat
+    bb=max(range(12),key=lambda k:bins[k]); keep=[q for (hh,sat,v),q in mid if min((int(hh*12)-bb)%12,(bb-int(hh*12))%12)<=1] or [q for _,q in mid]
+    keep=sorted(keep,key=lambda q:q[0]*0.3+q[1]*0.55+q[2]*0.15); keep=keep[len(keep)//5:len(keep)*9//10] or keep
+    m=[sum(q[k] for q in keep)/len(keep) for k in range(3)]; g=sum(m)/3; c=tuple(max(0,min(255,round(g+(v-g)*1.35))) for v in m)
+    for r in cmp['rects']:
+        pad=0.3; d=[round((r[0]-pad)*kx),round((r[1]-pad)*ky),round((r[2]+pad)*kx),round((r[3]+pad)*ky)]
+        out.paste(Image.new('RGB',(max(1,d[2]-d[0]),max(1,d[3]-d[1])),c),(d[0],d[1]))
 out.save(sys.argv[2],quality=80,method=6)`, webp, roofFile, JSON.stringify(roofJobs)]);
 
   // ---- the walls: runs of # and * that aren't a house's front ----

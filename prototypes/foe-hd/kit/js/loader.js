@@ -59,15 +59,15 @@ export function makeShared(A, res) {
 
 export function buildSkinned(shared) {
   const bones = {}, list = [];
+  // two passes: every bone first, then each joined to its parent (a chain may list a child before its parent)
+  for (const b of shared.meta.bones) { const bone = new THREE.Bone(); bone.name = b.name; bones[b.name] = bone; list.push(bone); }
   for (const b of shared.meta.bones) {
-    const bone = new THREE.Bone(); bone.name = b.name;
-    const h = new THREE.Vector3(...b.head);
+    const bone = bones[b.name], h = new THREE.Vector3(...b.head);
     if (b.parent) { bone.position.copy(h.clone().sub(new THREE.Vector3(...shared.meta.bones.find((x) => x.name === b.parent).head))); bones[b.parent].add(bone); }
     else bone.position.copy(h);
-    bones[b.name] = bone; list.push(bone);
   }
   const mesh = new THREE.SkinnedMesh(shared.geo, shared.mat);
-  mesh.add(bones.hips);
+  for (const b of shared.meta.bones) if (!b.parent) mesh.add(bones[b.name]);     // the root(s), whatever they're called
   mesh.bind(new THREE.Skeleton(list));
   mesh.castShadow = true; mesh.receiveShadow = true; mesh.frustumCulled = false;
   return { mesh, bones };

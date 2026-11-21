@@ -8,7 +8,7 @@ light model that can share the screen with the party, rigged, moving through its
 - **The Rotwarden** (Act One's second Champion): on the gallery page below.
   - Shape model: 159,000 triangles, checked against the sheet's outlines from the front, side and back (the outline
     picture is on the page).
-  - The sculpt: about 1,070,000 triangles. Real plates with cut edges, raised gold rims and rivets; a visored steel helm
+  - The sculpt: 1,064,674 triangles. Real plates with cut edges, raised gold rims and rivets; a visored steel helm
     with its slits, beak and breathing holes; the gold mask on its chain; his left arm one great root of fifteen twisted
     strands with bracket fungi; roots wound through his joints and over his chest and back; moss in cushions of lumps;
     the tree growing out of his helm. No fuzz.
@@ -28,19 +28,33 @@ light model that can share the screen with the party, rigged, moving through its
 ## Links
 
 - The walkers' gallery (the Rotwarden and the sapwight, their sheets, the checks, the moves, five of them walking round
-  the heroes): https://claude.ai/artifact/YBLUHaLG3bNdfcjBdeq3aj (11.1 MB)
+  the heroes): https://claude.ai/artifact/YBLUHaLG3bNdfcjBdeq3aj (12.8 MB, with the phone versions)
 - The sculpts themselves, for a laptop (Chris's newer word: keep each sculpt as something he can look at):
   https://claude.ai/artifact/JCdvpAPKT781gZiU49jTh2 (14.1 MB). The sculpts are kept compressed (meshopt) in
   `prototypes/foe-hd/foes/<key>/sculpt/`: the Rotwarden 5.6 MB (1,067,554 triangles), the sapwight 4.8 MB (900,422).
   Built with `node build.mjs --sculpt` in `pages/walkers/`.
 
+## Fixed (Chris, November 20, on his phone: "the arms are attached to the body in a weird way... they're pulling away")
+
+- When the Rotwarden raised his arm or his root, the plates at his hips and the roots round his waist stretched after
+  them. Now the arm and the root arm only carry what is really theirs: the root's own strands, fungi and moss, the
+  roots wound round the arm, and nothing inside the outline of his body. The loose tendrils that dangled from his hand
+  and by his knee are gone. Republished (gallery version 2, sculpt page updated).
+
+## Phone versions (done)
+
+- Each walker now also has a phone version, baked from the same sculpt with fewer triangles and smaller pictures
+  (`foes/<key>/assets/phone/`, made by `pages/walkers/kit/phone.sh`): the Rotwarden 21,548 triangles and 768 px
+  pictures, **0.81 MB** (full 47,698 and 3.0 MB; Champion target 0.8 MB); the sapwight 10,011 triangles and 512 px,
+  **0.48 MB** (full 19,913 and 1.4 MB; the hub's rabble target is 0.4 MB, the sapwight is a veteran). At play size they
+  look almost the same as the full ones. The gallery shows phones the phone version first, with a button to switch.
+- For the Fight: `registerWalkers(ASSETS, register, { phone: true })` registers the phone versions.
+
 ## Next
 
-1. The Rotwarden: tidy a stray root that hangs loose by his left knee; the tasset closer to the sheet's (a curved plate,
-   not a box); the plates a little more faceted, like the sheet's.
-2. The sapwight: its load is 1.4 MB, over the hub's 0.4 MB for rabble (the light model is 0.55 MB alone): smaller
-   pictures and a lighter mesh for phones.
-3. Then Act Two's walkers: Old Horn and the peak-troll, then the forge's folk.
+1. The Rotwarden: one thin root at his left hip stays behind when the root arm swings; the tasset closer to the
+   sheet's (a curved plate, not a box); the plates a little more faceted, like the sheet's.
+2. Then Act Two's walkers: Old Horn and the peak-troll, then the forge's folk.
 
 ## How it's made (for the other foe sessions)
 
@@ -56,15 +70,20 @@ light model that can share the screen with the party, rigged, moving through its
 
 ## For the Fight
 
-- `prototypes/foe-hd/pages/walkers/walker.js` `walkersLook({ rotwarden: [shared, FOES.rotwarden] }, buildBeast)` is a
-  function for `setBeastLook`: the walkers in full detail, every other foe as before. Each returns `{ group, plan:
-  'biped', height, parts: { head }, update(t, step), hit(), act: { lunge, fall } }` plus `pose(move, u, t)` for its own
-  moves. It needs `await ready()` and `makeWalkerShared(assets)` first (see `pages/walkers/main.js`).
+- The walkers come through the foe kit's one `setBeastLook` function, like every finished foe (hub's ask, November 20):
+  `registerWalkers(ASSETS, register)` from `prototypes/foe-hd/pages/walkers/register.js` registers each with
+  `kit/js/looks.js` together with its own moves, then `setBeastLook(foeLook(buildBeast))` serves Briarmaw, the walkers
+  and the rest. `walkersLook` is gone. Each walker gives `{ group, plan: 'biped', height, parts: { head }, update(t,
+  step), hit(), act: { lunge, fall }, pose(move, u, t) }`; its lunge plays Rootlash (the Rotwarden) or Sap Leech (the
+  sapwight). Checked headless (`tools/kitcheck.mjs`, the gallery with `?kit`): no errors.
+- Until the kit's material reads the walkers' roughness/metal picture (asked of session 6), the Fight draws their plate
+  and gold less shiny, and the sapwight's buds white instead of amber.
 
 ## Asked of session 6
 
-- His kit's shape arrived (foe.json, sculpt.py build(K, LV), rig.py, kit/js loader, moves and looks). I'll move the
-  walkers onto it when it reaches the hub's branch.
+- His kit is merged (hub 04433ed). The walkers are registered with its `looks.js`. Asked of him: the material to read
+  an `orm` picture (roughness G, metal B) and a glow colour; he is folding in the walkers' narrow-band meshing, Parts
+  and the roughness/metal bake. Once those land, the walkers' sculpts move to his `build(K)` and `foe.json` form.
 
 - Sent him what a biped kit wants (sculpt helpers split from Briarmaw's body, sheet checks taking the sheet and crop
   boxes, the bake taking per-kind targets and a per-foe rig, the page loader generic over body plans). The walkers' kit

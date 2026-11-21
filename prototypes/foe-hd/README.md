@@ -78,6 +78,9 @@ about 25 MB).
   head, jaw, tail, fl/fr/bl/br _upper/_lower/_paw.
 - `biped.py` `make(hips, spine, chest, neck, head, arm, leg, jaw, jaw_region, held)`: plus r_/l_ upperarm, forearm,
   hand, thigh, shin, foot (r_ is his right, +x; give the right side, the left mirrors it).
+- `serpent.py` (seg0..segN rooted at the head end, head, jaw), `frog.py` (hips, chest, head, jaw, arms, long back
+  legs), `winged.py` (body, neck, head, jaw?, tail?, r_/l_ wing1-3, legs); moves in `kit/js/moves/<plan>.js` (first
+  passes; the lanes improve them).
 - A rig file gives `BONES`, and may give `weigh(D, P, idx)` (adjust distances) and `rigid(kind, P, idx)` (a bone name
   for a rigid piece, e.g. tusks to the jaw, a weapon to a hand).
 

@@ -405,7 +405,7 @@ for k in range(NS):
     pts = RP[:end] + (np.cos(a[:end])[:, None] * N_[:end] + np.sin(a[:end])[:, None] * B_[:end]) * rad[:end, None]
     rr = RR[:end] * (0.40 + 0.08 * vrng.random()) * (1 - 0.6 * np.linspace(0, 1, end) ** 3)
     V, F = tube(resample(pts, n=end), rr, SIDES + 4)
-    M.add(V, F, strand_col(len(V)), 3, MAT['bark'])
+    M.add(V, F, strand_col(len(V)), 10, MAT['bark'])            # kind 10: the root arm's own strands (they follow its bones)
 # roots from the root arm's head: over the left shoulder, across the chest to the right hip, down the back
 paths = [
     [(-0.22, 0.20, 1.80), (-0.05, 0.26, 1.62), (0.14, 0.26, 1.42), (0.28, 0.22, 1.26), (0.33, 0.16, 1.05)],
@@ -423,8 +423,8 @@ for s in (1, -1):
     vine(spiral(THI[s] + [0, 0, -0.04], KNEE[s] + [0, 0, 0.1], 0.17, 0.9, phase=1.0 + s, rv=0.02), r=0.024)
     vine(spiral(KNEE[s] + [0, 0, -0.08], ANK[s] + [0, 0, 0.06], 0.145, 1.1, phase=2.0 - s, rv=0.02), r=0.022)
     vine(spiral(ANK[s] + [0, 0.05, 0.14], ANK[s] + [0, 0.12, -0.08], 0.16, 0.8, phase=0.5, rv=0.018), r=0.02)
-vine(spiral(SH[1] + [0.03, 0, -0.1], R_ELB, 0.13, 0.8, phase=0.3, rv=0.02), r=0.022)
-vine(spiral(R_ELB + [0, 0, -0.04], R_WRI, 0.12, 1.0, phase=2.3, rv=0.02), r=0.02)
+vine(spiral(SH[1] + [0.03, 0, -0.1], R_ELB, 0.13, 0.8, phase=0.3, rv=0.02), r=0.022, kind=11)     # kind 11: wound round the arm
+vine(spiral(R_ELB + [0, 0, -0.04], R_WRI, 0.12, 1.0, phase=2.3, rv=0.02), r=0.02, kind=11)
 for z0, ph in ((1.27, 0.0), (1.16, 2.0)):
     ang = np.linspace(0, 2 * np.pi * 1.02, 120) + ph
     pts = np.stack([0.34 * np.sin(ang), 0.02 + 0.25 * np.cos(ang), z0 + 0.04 * np.sin(ang * 2 + ph)], 1)
@@ -439,6 +439,10 @@ for i in range(22):
     pts = [p0 + d * u * 0.22 + np.array([math.sin(u * 7 + i), math.cos(u * 5 + i), 0]) * 0.02 for u in np.linspace(0, 1, 8)]
     pts = lay(resample(pts, n=20), 0.008)
     V, F = tube(pts, 0.013 * (1 - 0.6 * np.linspace(0, 1, len(pts))), max(5, SIDES - 2))
+    # a tendril follows what it grows on: the root arm (10), the right arm (11) or the body (3)
+    on_root = np.min(np.linalg.norm(RP - pts[0], axis=1)) < np.interp(pts[0][2], [0, 1.9], [0.06, 0.2]) + 0.04
+    on_arm = (pts[0][0] > 0.36) and (pts[0][2] > 0.8)
+    if on_root or on_arm or pts[:, 2].min() < 0.75: continue      # none on the moving arm and root, none hanging low
     M.add(V, F, strand_col(len(V)), 3, MAT['bark'])
 
 # ---- 11. the tree growing out of his helm ---------------------------------------------------------------------------
