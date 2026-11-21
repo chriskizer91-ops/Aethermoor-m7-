@@ -106,10 +106,12 @@
   `battle/check-perf.mjs`, renderer.info): **61 draws, 248 thousand triangles** (was 99 draws, 268 thousand). Each
   full-detail foe is one draw (thornhound 20k triangles, briarling 17k); the party 8 draws (the leader now fights as a
   lite figure on phones, 2 draws instead of 40); the other 47 draws are Thornhollow itself (the place's engine, Places').
-- **FIGHT_HD**: briarmaw, thornhound, briarling on the fight and Act One pages. The glowcap (One Foe's 5dccc4a) was not
-  yet on the hub's branch when I merged; it joins as soon as it is (`FIGHT_HD=...,glowcap`). The Rotwarden and the
+- **FIGHT_HD**: briarmaw, thornhound, briarling, glowcap on the fight and Act One pages. The Rotwarden and the
   sapwight join once they're in the kit's standard form.
-- Published to the same links: the fight page, Act One (now 15.7 MB at 480 px textures, with the full-detail foes; its
+- **The kit's common moves** (d70f6fe): the pick is by name only (cast, roar on a new phase, swipe, strike, bite; hurt,
+  ko), each move's length from the foe's own `duration()`. **No squash or lean on full-detail foes** (Chris, November
+  21: no model may stretch): their own moves carry the hit and the lunge; the code-built and painted ones keep theirs.
+- Published to the same links: the fight page, Act One (15.6 million bytes at 400 px world textures, with the full-detail foes; its
   painted look carries the three most-met beasts), and the events page.
 
 ## For Together: starting a fight from outside
