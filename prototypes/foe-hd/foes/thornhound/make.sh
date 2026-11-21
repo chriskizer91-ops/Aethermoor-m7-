@@ -14,3 +14,4 @@ node $K/pack.mjs build/bake build/sculpt2 assets
 python3 -c "
 import json; m = json.load(open('assets/light.json')); f = json.load(open('foe.json'))
 f['sculptTriangles'] = m['sculptTriangles']; json.dump(f, open('foe.json', 'w'), indent=1)"
+python3.12 rebind.py "${KIT:-../../kit}"

@@ -1,0 +1,151 @@
+{
+ "key": "thornhound",
+ "limit": 1.3,
+ "parts": {},
+ "frames": 48,
+ "triangles": 20247,
+ "moves": {
+  "idle": {
+   "ok": false,
+   "worst": 1.477,
+   "part": "ear_l",
+   "limit": 1.3,
+   "at": {
+    "u": 0,
+    "t": 3.08,
+    "step": 0
+   },
+   "where": [
+    0.087,
+    0.298,
+    0.768
+   ],
+   "restEdge": 0.0046,
+   "trianglesOver": 2,
+   "framesOver": "28/48",
+   "bones": []
+  },
+  "walk": {
+   "ok": false,
+   "worst": 2.335,
+   "part": "fl_upper",
+   "limit": 1.3,
+   "at": {
+    "u": 0,
+    "t": 2.5,
+    "step": 7.85
+   },
+   "where": [
+    0.034,
+    0.097,
+    0.349
+   ],
+   "restEdge": 0.0071,
+   "trianglesOver": 263,
+   "framesOver": "48/48",
+   "bones": []
+  },
+  "bite": {
+   "ok": false,
+   "worst": 2.062,
+   "part": "chest > neck",
+   "limit": 1.3,
+   "at": {
+    "u": 0.404,
+    "t": 1.7,
+    "step": 0
+   },
+   "where": [
+    0.027,
+    0.122,
+    0.635
+   ],
+   "restEdge": 0.0062,
+   "trianglesOver": 102,
+   "framesOver": "36/48",
+   "bones": []
+  },
+  "lunge": {
+   "ok": false,
+   "worst": 2.71,
+   "part": "fl_upper",
+   "limit": 1.3,
+   "at": {
+    "u": 0.702,
+    "t": 2.84,
+    "step": 0
+   },
+   "where": [
+    0.034,
+    0.097,
+    0.349
+   ],
+   "restEdge": 0.0071,
+   "trianglesOver": 595,
+   "framesOver": "41/48",
+   "bones": []
+  },
+  "howl": {
+   "ok": false,
+   "worst": 2.018,
+   "part": "neck",
+   "limit": 1.3,
+   "at": {
+    "u": 0.277,
+    "t": 2.02,
+    "step": 0
+   },
+   "where": [
+    0.022,
+    0.308,
+    0.485
+   ],
+   "restEdge": 0.0103,
+   "trianglesOver": 243,
+   "framesOver": "39/48",
+   "bones": []
+  },
+  "hurt": {
+   "ok": false,
+   "worst": 1.688,
+   "part": "hips > tail2",
+   "limit": 1.3,
+   "at": {
+    "u": 0.319,
+    "t": 1.59,
+    "step": 0
+   },
+   "where": [
+    -0.013,
+    -0.517,
+    0.352
+   ],
+   "restEdge": 0.006,
+   "trianglesOver": 77,
+   "framesOver": "43/48",
+   "bones": []
+  },
+  "ko": {
+   "ok": false,
+   "worst": 2.334,
+   "part": "chest > neck",
+   "limit": 1.3,
+   "at": {
+    "u": 1,
+    "t": 3.7,
+    "step": 0
+   },
+   "where": [
+    0.027,
+    0.122,
+    0.635
+   ],
+   "restEdge": 0.0062,
+   "trianglesOver": 198,
+   "framesOver": "43/48",
+   "bones": []
+  }
+ },
+ "ok": false,
+ "worstMove": "lunge"
+}

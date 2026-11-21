@@ -38,6 +38,16 @@ session 6 made Briarmaw.
     1.3x would need extra helper bones at the knee, elbow and throat (next pass, and a cut mouth with overhanging
     lips in the light model).
 
+- **The kit's stretch check and binding (November 21):** the thornhound is now weighted with session 6's
+  `kit/rigs/bind.py` (`foes/thornhound/rebind.py`, my reach masks passed in as its `weigh()`, wide joint bands, the
+  leaves rigid), his tail hung clear of the haunches, the garland started behind the neck, breathing a small turn, and
+  every move's big bends made gentler. The kit's `stretch.mjs` (48 frames a move) still fails every move: worst 2.7x
+  (lunge, the shoulder), walk 2.3x, bite 2.1x, howl 2.0x, hit 1.7x, fall 2.3x, idle 1.5x (two triangles at an ear
+  root). The stretched patches are small (knee, shoulder, throat, tail root; the pictures are in
+  `foes/thornhound/build/stretch/`), and no move shows a web by eye. To get under 1.3x the rig needs more joints where
+  big masses turn (a shoulder blade, a thigh-to-haunch helper, two neck bones); that's the next pass, before more
+  bending is taken out of his moves.
+
 ## Next
 
 0. Move onto session 6's shared kit (commit f384b7d / 8f3b6e2 on job/foe-hd) once the hub brings it into its branch; my
