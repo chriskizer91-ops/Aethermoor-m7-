@@ -8,6 +8,7 @@ def p(xo, px, py): return (xo * S, (px - MID) * S, (GROUND - py) * S)
 # triangles in the light version, per kind of part (he is rabble: about 20,000 in all)
 TARGET = {0: 13200, 2: 1500, 3: 700, 4: 3000, 5: 40, 6: 500, 7: 200, 8: 1100}
 CAGE, RAY, AO_DIST = 0.02, 0.06, 0.18
+SMOOTH = 8           # weights smoothed over the surface (no stretching, Chris November 21)
 RIGID = [2, 4, 5, 6, 7, 8]          # thorns, leaves, fangs, claws, eyes and flowers move as one piece each
 UV_SCALE = {0: 1.0, 2: 0.6, 3: 0.4, 4: 0.3, 5: 0.5, 6: 0.4, 7: 0.8, 8: 0.25}   # picture space: the coat first
 
@@ -55,10 +56,12 @@ def weights_at(P):
         if n[:2] in ('fl', 'fr', 'bl', 'br'):
             front = n[0] == 'f'
             top = 470 if front else 470           # above this (sheet px) it's body, not leg
-            D[:, i] *= np.where(sy_ < top - 60, 3.0, np.where(sy_ < top, 1.6, 1.0))
+            if not n.endswith('_upper'): D[:, i] *= np.where(sy_ < top - 60, 3.0, np.where(sy_ < top, 1.6, 1.0))
             side = np.sign(b[2][0])
             D[:, i] += np.where(np.sign(x) != side, 1.0, 0.0)
             D[:, i] += np.where((sx_ > 850) != front, 1.0, 0.0)
+            # the chest and belly between the legs stay with the body: a leg only takes what's on its own side
+            D[:, i] += np.where((np.abs(x) < 25 * S) & (sy_ < 600), 0.05, 0.0)
         if n == 'jaw': D[:, i] += 10
         if n.startswith('ear'):
             side = np.sign(b[2][0])
@@ -66,15 +69,44 @@ def weights_at(P):
             D[:, i] = np.where(ear, D[:, i] * 0.3, D[:, i] + 1.0)
         if n.startswith('tail'):
             D[:, i] = np.where(sx_ < 515, D[:, i] * 0.7, D[:, i] * 3.0)
+        if n == 'neck':      # the neck stops at the shoulders: nothing below the throat or behind the withers
+            D[:, i] += np.where((sy_ > 400) | (sx_ < 1040), 0.5, 0.0)
+        if n == 'chest':
+            D[:, i] += np.where(sy_ > 560, 0.3, 0.0)
         if n == 'head':
             D[:, i] *= np.where(sx_ > 1185, 0.6, 1.0)
     # the jaw: below the mouth line, at the front of the face
     jaw = (sx_ > 1225) & (sy_ > 278 + (sx_ - 1252) * 0.18) & (sy_ < 330) & (np.abs(x) < 34 * S)
     D[jaw, IDX['jaw']] = 0.0
-    W = 1.0 / np.maximum(D, 0.004) ** 4
+    W = 1.0 / np.maximum(D, 0.004) ** 4 * mask(P) + 1e-12
     top = np.argsort(-W, 1)[:, :4]
     Wt = np.take_along_axis(W, top, 1); Wt /= Wt.sum(1, keepdims=True)
     return top.astype(np.uint16), Wt.astype(np.float32)
+
+def ramp(x, a, b): return np.clip((x - a) / (b - a), 0, 1)
+
+def mask(P):
+    """where each bone may reach (0..1, with soft edges): a leg's lower bones stay below their own joint, the tail's
+    later bones behind the rump, the head's bones in front of the neck, the neck off the shoulders"""
+    P = np.asarray(P, np.float32)
+    x, z = P[:, 0], P[:, 2]
+    sx_, sy_ = P[:, 1] / S + MID, GROUND - z / S
+    M = np.ones((len(P), len(BONES)), np.float32)
+    for i, (n, par, hd, tl) in enumerate(BONES):
+        if n[:2] in ('fl', 'fr', 'bl', 'br') and not n.endswith('_upper'):
+            M[:, i] = ramp(hd[2] + 0.03 - z, 0, 0.03)               # nothing above its joint
+        if n.endswith('_upper'):
+            M[:, i] = ramp(0.60 - z, 0, 0.05)                         # the upper leg ends below the back
+        if n in ('tail2', 'tail3', 'tail4'):
+            M[:, i] = ramp(-0.50 - P[:, 1], 0, 0.03) * ramp(hd[2] + 0.04 - z, 0, 0.03)   # the hanging tail, below its joint
+        if n in ('ear_l', 'ear_r'):
+            M[:, i] = ramp(z, 0.715, 0.745) * ramp(np.sign(hd[0]) * x, 0.01, 0.025)
+            continue
+        if n in ('head', 'jaw', 'ear_l', 'ear_r'):
+            M[:, i] = ramp(sx_, 1135, 1165)
+        if n == 'neck':
+            M[:, i] = ramp(sx_, 1020, 1060) * ramp(430 - sy_, 0, 30)
+    return M
 
 def rigid_root(P, kind):
     """where a rigid part hangs from: its point nearest the body (or a bone by name)"""

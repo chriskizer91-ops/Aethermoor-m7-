@@ -85,6 +85,20 @@ if (HEROTEX) {
   found.forEach((u, i) => { heroes = heroes.split(u).join('data:image/webp;base64,' + readFileSync(path.join(tmp, 's' + i + '.webp')).toString('base64')); });
   console.log(`heroes' textures at ${HEROTEX} px: ${found.length} pictures (${keep.size} sculpt pictures kept whole), ${((before - heroes.length) / 1048576).toFixed(1)} MB lighter`);
 }
+// --files (hub, November 21): the pictures inside the heroes' bundle too (the heroes' textures and faces, the sculpted
+// masters, the full-detail foes' pictures) go beside the page as files f/h<n>.<ext>, so a heavy page can keep them
+// whole. Each is a picture address like any other, so the code that loads them is unchanged; tiny ones stay inline.
+if (FILES) {
+  const dir = path.join(here, '.cache', 'bundle-files', (OUT || PAGE_ID) + (TEX ? '-' + TEX : '')); mkdirSync(dir, { recursive: true });
+  const found = [...new Set(heroes.match(/data:image\/(?:webp|png|jpeg);base64,[A-Za-z0-9+/=]+/g) || [])].filter((u) => u.length > 16384);
+  const before = heroes.length;
+  found.forEach((u, i) => {
+    const ext = u.slice(11, u.indexOf(';')).replace('jpeg', 'jpg'), pub = `f/h${i}.${ext}`, src = path.join(dir, `h${i}.${ext}`);
+    writeFileSync(src, Buffer.from(u.split(',')[1], 'base64')); fileList.push([pub, src]);
+    heroes = heroes.split(u).join(pub);
+  });
+  console.log(`the heroes' bundle: ${found.length} pictures beside the page as files (${((before - heroes.length) / 1048576).toFixed(1)} MB)`);
+}
 let html = readFileSync(PAGE, 'utf8');
 if (NAME) html = html.replace(/Act One/g, () => NAME.replace(/&/g, '&amp;'));
 html = html.replace('<!--M7PLACES-->', () => M7.map((id) => `<script src="${PLACES_SRC}/m7-${id}.js"></script>`).join('\n'));

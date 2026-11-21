@@ -357,7 +357,7 @@ export const arena = {
     const self = !it.target || it.target === id || !h;
     F.act = { kind: 'attack', t: 0, target: h ? h.id : null, bit: false, bitT: null, self, kmove: kitMove(F, it.move || it.name || '', self) };
   },
-  foeHurt(id, big) { const F = this.foes.get(id); if (F && !F.ko) { F.hurt = { t: 0, dur: big ? 0.5 : 0.36 }; F.fig.beast?.hit?.(); } },
+  foeHurt(id, big) { const F = this.foes.get(id); if (F && !F.ko) { F.hurt = { t: 0, dur: F.fig.beast?.pose ? Math.min(0.9, kitDur(F, 'hurt')) : big ? 0.5 : 0.36 }; F.fig.beast?.hit?.(); } },
   foeKo(id) { const F = this.foes.get(id); if (!F) return; F.ko = { t: 0, dur: 0.6 }; F.act = null; },
   foeGone(id, kind) { const F = this.foes.get(id); if (!F) return; F.gone = { t: 0, dur: 0.8, kind }; F.act = null; },
   foeRevive(id) { const F = this.foes.get(id); if (!F) return; F.ko = null; F.gone = null; F.removed = false; F.root.visible = true; F.sinkOut = 0; },
@@ -366,7 +366,7 @@ export const arena = {
     const F = this.foes.get(id); if (!F || !unit) return;
     F.aura?.set(unit.statuses);
     const ph = unit.phase || 1;
-    if (ph > (F.phase || 1)) { F.phase = ph; F.growTo = 1 + 0.08 * (ph - 1); this.fx.ring(F.pos.clone(), '#b4d65a', 3.5, 0.9); const k = kitMove(F, 'roar', true); if (F.fig.beast?.pose && k) F.kpose = { name: k, t: 0, dur: KIT_DUR[k] || 1.6 }; else F.hurt = { t: 0, dur: 0.6 }; }
+    if (ph > (F.phase || 1)) { F.phase = ph; F.growTo = 1 + 0.08 * (ph - 1); this.fx.ring(F.pos.clone(), '#b4d65a', 3.5, 0.9); const k = kitMove(F, 'roar', true); if (k) F.kpose = { name: k, t: 0, dur: kitDur(F, k) }; else F.hurt = { t: 0, dur: 0.6 }; }
   },
   foeSink(id, down) { const F = this.foes.get(id); if (F) F.sinkTo = down ? 1 : 0; },
   play(h, kind, dur, o = {}) { h.act = { kind, t: 0, dur, ...o, from: h.pos.clone() }; },
@@ -583,6 +583,9 @@ function stepFoe(ar, F, d, t, heroCenter) {
   let df = face - F.face; df = Math.atan2(Math.sin(df), Math.cos(df)); F.face += df * Math.min(1, d * 8);
   F.side.set(Math.cos(F.face), 0, -Math.sin(F.face));
   const o = poseFoe(F, move, mu, t + F.ph);
+  // a full-detail foe is never squashed, leaned or rolled whole (Chris, November 21: no model may stretch); its own moves
+  // carry the hit and the lunge. Only rise (a flier's hover) and the step forward stay.
+  if (F.fig.beast?.pose) { o.sq = 1; o.lean = 0; o.roll = 0; }
   const down = (F.sink * 0.78 + F.sinkOut * 1.05 + (F.rising != null ? 1 - F.rising : 0)) * F.size.h;
   if (F.growTo && Math.abs(F.grow - F.growTo) > 1e-3) { F.grow += (F.growTo - F.grow) * Math.min(1, d * 3); F.root.scale.setScalar(F.baseScale * F.grow); }
   F.root.position.copy(F.pos); F.root.position.y += o.rise - down; F.root.rotation.set(0, F.face, 0);
@@ -597,7 +600,7 @@ function stepFoe(ar, F, d, t, heroCenter) {
     if (F.kpose) { F.kpose.t += d; if (F.kpose.t >= F.kpose.dur) F.kpose = null; }
     let km = null, ku = 0;
     if (B.pose) {
-      if (F.ko) { km = 'ko'; ku = Math.min(1, F.ko.t / (KIT_DUR.ko || 2)); }
+      if (F.ko) { km = 'ko'; ku = Math.min(1, F.ko.t / kitDur(F, 'ko')); }
       else if (F.hurt) { km = 'hurt'; ku = F.hurt.t / F.hurt.dur; }
       else if (F.kpose) { km = F.kpose.name; ku = F.kpose.t / F.kpose.dur; }
       else if (F.act && F.act.kmove) { km = F.act.kmove; ku = F.act.ku || 0; }
@@ -608,18 +611,20 @@ function stepFoe(ar, F, d, t, heroCenter) {
   F.root.visible = true;
 }
 
-// A full-detail foe's own move for M7's move (the foe kit's moves by plan, prototypes/foe-hd/kit/js/moves/<plan>.js):
-// a spell, a call or a cry its roar or cast; claws and blades its swipe or swing; a crushing blow its slam; else its lunge
-const KIT_MOVES = { quad: { cast: 'roar', claw: 'swipe', slam: 'swipe', lunge: 'bite' }, biped: { cast: 'cast', claw: 'swing', slam: 'slam', lunge: 'swing' },
-  sapling: { cast: 'hop', claw: 'bite', slam: 'hop', lunge: 'bite' }, serpent: { lunge: 'strike' }, frog: { lunge: 'bite' }, winged: { lunge: 'dive' } };
-const KIT_DUR = { roar: 2.2, swipe: 1.4, bite: 1.1, swing: 1.2, slam: 1.5, cast: 1.6, hop: 0.9, strike: 1.1, dive: 1.2, hurt: 0.9, ko: 2.2 };
+// A full-detail foe's own move for M7's move. The foe kit answers to one move set (idle, walk, bite, strike, swipe, cast,
+// roar, hurt, ko), each plan playing its own move of that name or its nearest (kit/js/loader.js resolveMove), so the
+// pick needs no plan: a spell, a call or a cry casts (a new phase roars); claws and blades swipe; a crushing blow
+// strikes; anything else bites
 function kitMove(F, move, self) {
   if (!F.fig.beast?.pose) return null;
-  const M = KIT_MOVES[F.fig.beast.plan || F.plan] || KIT_MOVES.quad, m = String(move).toLowerCase();
-  const kind = self || /call|cry|howl|roar|sing|hymn|cast|spell|hex|graft|seed|spit|curse|summon|hush|lure|beguile/.test(m) ? 'cast'
-    : /claw|swipe|rake|maul|slash|cut|lash|whip|scythe|thorn/.test(m) ? 'claw' : /slam|stomp|crush|hammer|smash|bash|charge|gore|butt/.test(m) ? 'slam' : 'lunge';
-  return M[kind] || M.lunge;
+  const m = String(move).toLowerCase();
+  if (m === 'roar') return 'roar';
+  if (self || /call|cry|howl|roar|sing|hymn|cast|spell|hex|graft|seed|spit|curse|summon|hush|lure|beguile|spore/.test(m)) return 'cast';
+  if (/claw|swipe|rake|maul|slash|cut|lash|whip|scythe|thorn/.test(m)) return 'swipe';
+  if (/slam|stomp|crush|hammer|smash|bash|charge|gore|butt/.test(m)) return 'strike';
+  return 'bite';
 }
+const kitDur = (F, m) => { try { return F.fig.beast.duration?.(m) || 1.2; } catch (e) { return 1.2; } };
 
 // ---- soft shadows under everyone ---------------------------------------------------------------------------------
 function makeBlobs(scene, n) {
