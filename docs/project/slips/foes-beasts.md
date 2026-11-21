@@ -70,6 +70,12 @@ session 6 made Briarmaw.
   The moves need nothing new: a helper reads its child's turn in pose() (the kit's loader could do it after every
   pose, e.g. `HELPERS = { fl_blade: ['fl_upper', 0.5], ... }`).
 
+- **The kit's stretch check with the one rule** (hub 7cc2a1d, run from the kit on the hub's branch): breathing passes;
+  walk, bite, lunge, howl, hit and fall fail on big edges (the top of the shoulder in the walk and lunge, 2.3x; the
+  throat in the howl and fall; the ear roots in the bite and hit, 1.6-1.7x). The weigh() gate is now +1000 (a hard
+  never), as session 6 advised; it barely moves the result, because the bands and smoothing carry the neck back onto
+  the ear roots. Waiting on the kit's helper joints and a gate that holds through the bands.
+
 ## Next
 
 0. Move onto session 6's shared kit (commit f384b7d / 8f3b6e2 on job/foe-hd) once the hub brings it into its branch; my
