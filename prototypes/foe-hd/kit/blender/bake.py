@@ -9,8 +9,9 @@
 #    sculpt's parts only with a short reach (bake.reach), so thin pieces never pick up a neighbour. Surface (tangent-
 #    space normal map), shading in the folds (ambient occlusion), colour (diffuse colour) and glow (emission, kind 7).
 #    This Blender has no denoiser: denoising stays off, or every bake cancels.
-# 4. The rig from rig.py (BONES, weigh, rigid; templates in kit/rigs/), four weights a vertex; rigid kinds (2, 5, 6, 7,
-#    8) move as one with the bone where they meet the body.
+# 4. The rig from rig.py (BONES, and weigh, rigid, part, BANDS; templates in kit/rigs/), weighted BY PART
+#    (kit/rigs/bind.py): each point follows its own part's bone, blended only in a narrow band at its joints; rigid
+#    kinds (2, 5, 6, 7, 8) move as one with one bone. Then run kit/tools/stretch.mjs (no edge may grow past 1.3x).
 # 5. Written for three.js (+Z forward, Y up): build/bake/low.json and low.bin, and the bakes as PNGs.
 import sys, os, math, json, importlib.util, numpy as np, bpy
 sys.path.insert(0, os.path.dirname(__file__))
@@ -32,7 +33,7 @@ def log(*a): print('[bake]', *a, flush=True)
 spec = importlib.util.spec_from_file_location('foe_rig', os.path.join(FOE, cfg.get('rig', 'rig.py')))
 RIG = importlib.util.module_from_spec(spec); spec.loader.exec_module(RIG)
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'rigs'))
-from common import distances, four
+from bind import bind
 
 blib.clear()
 sc = bpy.context.scene
@@ -193,10 +194,6 @@ if FLAT:
 BONES = RIG.BONES
 names = [b[0] for b in BONES]
 idx = {n: i for i, n in enumerate(names)}
-def weights_at(P):
-    D = distances(BONES, P)
-    if hasattr(RIG, 'weigh'): D = RIG.weigh(D, P, idx)
-    return four(D)
 
 # read the light mesh back per corner (UV seams split vertices), in sculpt coordinates
 me = lo.data
@@ -220,24 +217,11 @@ tris = inv.reshape(-1, 3)           # every polygon is a triangle (made so above
 pos_s = pos_b.copy(); pos_s[:, 0] *= -1; pos_s[:, 1] *= -1
 def to3(A): return np.column_stack([A[:, 0], A[:, 2], -A[:, 1]]).astype(np.float32)
 kind = KL[vi]
-J, W = weights_at(pos_s)
-# rigid parts: each thorn, tusk, tooth, claw and eye moves as one, with the weights where it meets the body
-ncomp, comp = connected_components(coo_matrix((np.ones(len(FL) * 3), (np.repeat(FL[:, 0], 3), FL[:, [0, 1, 2]].ravel())),
-                                              shape=(len(VL), len(VL))), directed=False)
-comp_v = comp[vi]
-for c in np.unique(comp_v[np.isin(kind, [2, 5, 6, 7, 8])]):
-    m = comp_v == c
-    P = pos_s[m]
-    # its root: the end nearest the body's middle line
-    lo_, hi_ = np.array(cfg['bounds'][0]), np.array(cfg['bounds'][1])
-    mid = (lo_ + hi_) / 2
-    ctr = np.array([0, np.clip(P[:, 1].mean(), lo_[1] * 0.7, hi_[1] * 0.7), mid[2]])
-    r = np.argmin(np.linalg.norm(P - ctr, axis=1))
-    jr, wr = weights_at(P[r:r + 1])
-    bone = RIG.rigid(int(kind[m][0]), P, idx) if hasattr(RIG, 'rigid') else None   # e.g. tusks grow from the jaw
-    if bone:
-        jr = np.array([[idx[bone], 0, 0, 0]], np.uint16); wr = np.array([[1, 0, 0, 0]], np.float32)
-    J[m] = jr; W[m] = wr
+# weights by part (kit/rigs/bind.py): each point follows its own part, blended only in a narrow band at its joints
+J, W, _, keep = bind(RIG, pos_s, kind, tris, float(cfg.get('height', 1.7)),
+               (np.array(cfg['bounds'][0]) + np.array(cfg['bounds'][1])) / 2, log)
+tris0 = tris.copy()                 # the cut triangles (where limbs touch) draw nothing; index0 keeps them for rebind
+tris = tris.copy(); tris[~keep] = tris[~keep][:, :1]
 
 bones = []
 for n, par, hd, tl in BONES:
@@ -250,6 +234,7 @@ arrays = {
     'tangent': np.column_stack([to3(tan_b), sgn]).astype(np.float32),
     'uv': np.column_stack([uvs[:, 0], 1 - uvs[:, 1]]).astype(np.float32),   # three flips v for images
     'skinIndex': J.astype(np.float32), 'skinWeight': W, 'index': tris.astype(np.uint32),
+    'kind': kind.astype(np.float32), 'index0': tris0.astype(np.uint32),      # kept so kit/tools/rebind.py can weight it again without baking
 }
 layout, blob, o = {}, [], 0
 for k_, a in arrays.items():

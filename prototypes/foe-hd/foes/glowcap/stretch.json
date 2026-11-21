@@ -1,0 +1,131 @@
+{
+ "key": "glowcap",
+ "limit": 1.3,
+ "parts": {},
+ "frames": 48,
+ "triangles": 17284,
+ "moves": {
+  "idle": {
+   "ok": false,
+   "worst": 1.539,
+   "part": "hips > l_arm",
+   "limit": 1.3,
+   "at": {
+    "u": 0,
+    "t": 3.58,
+    "step": 0
+   },
+   "where": [
+    -0.166,
+    -0.056,
+    0.146
+   ],
+   "restEdge": 0.0077,
+   "trianglesOver": 24,
+   "framesOver": "32/48",
+   "bones": []
+  },
+  "walk": {
+   "ok": false,
+   "worst": 2.375,
+   "part": "hips",
+   "limit": 1.3,
+   "at": {
+    "u": 0,
+    "t": 1.5,
+    "step": 4.71
+   },
+   "where": [
+    0.173,
+    -0.034,
+    0.133
+   ],
+   "restEdge": 0.0025,
+   "trianglesOver": 478,
+   "framesOver": "46/48",
+   "bones": []
+  },
+  "spores": {
+   "ok": false,
+   "worst": 5.79,
+   "part": "hips > l_arm",
+   "limit": 1.3,
+   "at": {
+    "u": 0.362,
+    "t": 1.88,
+    "step": 0
+   },
+   "where": [
+    -0.166,
+    -0.056,
+    0.146
+   ],
+   "restEdge": 0.0077,
+   "trianglesOver": 648,
+   "framesOver": "48/48",
+   "bones": []
+  },
+  "bump": {
+   "ok": false,
+   "worst": 3.286,
+   "part": "hips",
+   "limit": 1.3,
+   "at": {
+    "u": 0.298,
+    "t": 1.6,
+    "step": 0
+   },
+   "where": [
+    -0.005,
+    -0.132,
+    0.135
+   ],
+   "restEdge": 0.0029,
+   "trianglesOver": 277,
+   "framesOver": "32/48",
+   "bones": []
+  },
+  "hurt": {
+   "ok": false,
+   "worst": 3.541,
+   "part": "hips > l_arm",
+   "limit": 1.3,
+   "at": {
+    "u": 0.319,
+    "t": 1.56,
+    "step": 0
+   },
+   "where": [
+    -0.166,
+    -0.056,
+    0.146
+   ],
+   "restEdge": 0.0077,
+   "trianglesOver": 642,
+   "framesOver": "26/48",
+   "bones": []
+  },
+  "ko": {
+   "ok": false,
+   "worst": 5.589,
+   "part": "hips > l_arm",
+   "limit": 1.3,
+   "at": {
+    "u": 1,
+    "t": 3.1,
+    "step": 0
+   },
+   "where": [
+    -0.166,
+    -0.056,
+    0.146
+   ],
+   "restEdge": 0.0077,
+   "trianglesOver": 652,
+   "framesOver": "28/48",
+   "bones": []
+  }
+ },
+ "ok": false,
+ "worstMove": "spores"
+}

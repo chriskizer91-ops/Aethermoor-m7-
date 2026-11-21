@@ -5,6 +5,31 @@ shown side by side with the code-built model and a cut-out of Chris's sheet.
 
 ## Done
 
+- **No stretching (Chris, November 21), in the kit:**
+  - **The stretch check**, `node kit/tools/stretch.mjs foes/<key>`: every move at 48 frames, skinned as three.js does,
+    fails past 1.3x on any edge or on a scaled or slid bone; names the worst move, frame, place and the two parts the
+    edge joins; draws the worst frame of each move (`build/stretch/<move>.png`). Results in `foes/<key>/stretch.json`.
+  - **Weights by part**, `kit/rigs/bind.py`, now the bake's only way of weighting (and `kit/tools/rebind.py` to weight
+    again without baking). Each point follows one part; blending only in a band at its own joints; a bone may claim a
+    point only if the line between them runs inside the body; touching limbs are cut apart; the weights are smoothed
+    along the skin. Rig files may add `part`, `TRUNK`, `BANDS`, `SMOOTH` (README, "No stretching").
+  - **Bones turn, never scale**: the kit's moves breathe and squash by turning bones now (quad, biped, sapling,
+    mushroom, frog). The briarling pitches as a whole (hips) instead of bending its ball in the middle.
+  - **Results** (worst edge growth, old weights then new, same moves; limit 1.3):
+
+    | foe | idle | walk | attacks | hurt | fall |
+    |---|---|---|---|---|---|
+    | Briarmaw | 4.5 -> 2.1 | 26.9 -> 5.3 | roar 8.9 -> 3.3, swipe 42.9 -> 14.0, bite 10.5 -> 3.9 | 9.2 -> 4.2 | 20.8 -> 5.1 |
+    | Briarling | 8.4 -> 1.4 | 21.1 -> 3.0 | hop 26.4 -> 4.0, lunge 26.7 -> 4.0 | 33.7 -> 3.0 | 39.6 -> 5.1 |
+    | Glowcap | 4.7 -> 1.5 | 10.3 -> 2.4 | spores 26.5 -> 5.8, bump 4.7 -> 3.3 | 16.0 -> 3.5 | 25.8 -> 5.6 |
+
+    The web-like stretches between parts (the Rotwarden kind: belly between the legs, the ball top dragged by the
+    sprout, a leaf-arm pulling the hip) are gone. **All three still fail**: what is left sits where a limb meets a
+    big body under a large swing: Briarmaw's leg tops in the walk and swipe and his cheeks when the jaw opens, the
+    briarling's leg tops and the foot of its sprout, the glowcap's leaf-arms and boots. Next for each: smaller swings
+    at those joints and wider bands, and in the sculpts, limbs that don't touch (the glowcap's boots, its arms on its
+    hips).
+
 - **The full-detail one (pass 3), published November 20:**
   - Three ways, with the crowd test: https://claude.ai/artifact/5iUqJsPw3NGrvun4Ng73eh (version 3, 14.2 MB).
     Chris saw the crowd (six of him with the four heroes) at 144 frames a second on his machine.
@@ -57,7 +82,8 @@ shown side by side with the code-built model and a cut-out of Chris's sheet.
 
 ## Next
 
-1. My lane: (briarling, glowcap done) boglurcher, the willows, the sparks, rockling, Mother Anvil, the wraiths.
+1. Bring Briarmaw, the briarling and the glowcap under 1.3 in every move (above), then my lane: (briarling, glowcap
+   done) boglurcher, the willows, the sparks, rockling, Mother Anvil, the wraiths.
 2. Briarmaw's moves smoothed (weights round the shoulders and hips, a fuller walk), a hit flash.
 2. The face closer still to the sheet; the coat's brown zones placed as the sheet paints them.
 3. Done: pass 3, the sculpt's own page, the heavier brow and golden fangs, the rump and tail as the sheet shows.
@@ -97,6 +123,8 @@ shown side by side with the code-built model and a cut-out of Chris's sheet.
 - `prototypes/foe-hd/assets/` (Briarmaw's `light.json/bin`, pictures): forwarding copies of `foes/briarmaw/assets/`,
   for the Fight's plugin, until it moves onto `kit/js/looks.js`.
 - The kit's file layout and `foe.json` fields (sessions 7 and 8 build on them): changes are announced to them first.
+- `kit/blender/bake.py` now returns its weights from `kit/rigs/bind.py` (by part) and writes two more arrays into
+  `build/bake/low.bin` (`kind`, `index0`); `pack.mjs` reads only what it read before.
 
 ## Changed outside my files
 

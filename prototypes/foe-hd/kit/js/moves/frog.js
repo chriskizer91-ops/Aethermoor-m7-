@@ -14,7 +14,7 @@ function hop(B, b, h) {
 export function pose(B, move, u, t, step = 0) {
   reset(B);
   const b = new Proxy(B.bones, { get: (o, k) => o[k] || NOOP }), br = Math.sin(t * 3);
-  b.jaw.rotation.x = 0.02 + 0.02 * br; b.chest.scale.set(1 + 0.03 * br, 1, 1 + 0.02 * br);
+  b.jaw.rotation.x = 0.02 + 0.02 * br; b.chest.rotation.x = -0.02 * br;     // breathing (bones turn, never scale)
   if (move === 'idle') return;
   if (move === 'walk') { const ph = (step / (2 * Math.PI)) % 1, air = bump(ph); hop(B, b, air); B.body.position.y = 0.2 * air * (B.height || 1); B.body.position.z = 0.1 * air; return; }
   if (move === 'bite') {
