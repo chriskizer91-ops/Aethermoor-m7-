@@ -29,12 +29,16 @@ export class Fx {
   // fn after `sec` of the fight's own clock (held with it in the stills' slow mode, sped up with it at 2x)
   later(sec, fn) { this.add(new THREE.Group(), Math.max(0.001, sec), () => {}, fn); }
   update(dt, cam) {
-    this.list = this.list.filter((e) => {
+    // effects started during this pass (a later() firing, a step adding more) land in a fresh list and are kept: they
+    // used to be added to the scene but lost from the list, and stood there frozen (November 23)
+    const cur = this.list, keep = [], dones = []; this.list = [];
+    for (const e of cur) {
       e.t += dt; const u = Math.min(1, e.t / e.dur);
       e.step(u, dt, cam);
-      if (u >= 1) { if (!e.keep) this.scene.remove(e.o); if (e.done) e.done(); if (!e.keep) dispose(e.o); return false; }
-      return true;
-    });
+      if (u >= 1) { if (!e.keep) this.scene.remove(e.o); if (e.done) dones.push(e.done); if (!e.keep) dispose(e.o); } else keep.push(e);
+    }
+    this.list = keep.concat(this.list);
+    for (const d of dones) d();
     for (const d of this.dropped) d.glint(dt);
   }
   clear() { for (const e of this.list) { this.scene.remove(e.o); dispose(e.o); } this.list = []; for (const d of this.dropped) { this.scene.remove(d.o); dispose(d.o); } this.dropped = []; }
