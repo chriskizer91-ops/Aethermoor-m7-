@@ -61,4 +61,4 @@ BANDS = {'r_upper': (0.001, 0.001), 'l_upper': (0.001, 0.001), 'r_thigh': (0.001
          'r_shin': (0.12, 0.32), 'l_shin': (0.12, 0.32),
          'r_fore': (0.16, 0.34), 'l_fore': (0.16, 0.34),
          'spine': (0.14, 0.45), 'chest': (0.14, 0.45), 'neck': (0.12, 0.35), 'head': (0.001, 0.001),
-         'r_foot': (0.06, 0.18), 'l_foot': (0.06, 0.18)}      # the ankle's blend kept to the ankle (a broad foot's band reached the knee)
+         'r_foot': (0.09, 0.22), 'l_foot': (0.09, 0.22)}      # the ankle's blend kept to the ankle (a broad foot's band reached the knee)

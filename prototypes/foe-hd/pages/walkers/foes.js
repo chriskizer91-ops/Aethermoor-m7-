@@ -225,7 +225,7 @@ const oldHorn = {
 const peakTroll = {
   key: 'peak-troll', name: 'Peak-Troll', tier: 'Veteran', act: 'Act Two, the high passes', height: 2.2, weight: 1.5,
   stiff: 0.6, knees: 0.6,
-  limits: { ...oldHorn.limits },
+  limits: { ...oldHorn.limits, spine: 0.22, chest: 0.26 },       // his moss mantle is all of a piece down his back: his spine bends less
   text: 'A troll of the high passes, grey-green and mossed like a boulder. Cut it and it grows back.',
   lunge: 'club',
   idle: oldHorn.idle,
