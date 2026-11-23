@@ -752,8 +752,9 @@ function kitMove(F, move, self) {
 // else the first of the kit's common set
 const COMMON_MOVES = ['bite', 'strike', 'swipe', 'cast', 'roar'];
 function ownMove(F, want) {
-  const list = Array.isArray(want) ? want : [want], own = F.fig.beast?.moves?.MOVES || [];
-  return list.find((m) => own.some(([k]) => k === m)) || list.find((m) => COMMON_MOVES.includes(m)) || null;
+  const list = Array.isArray(want) ? want : [want], own = F.fig.beast?.moves?.MOVES || [], alias = F.fig.beast?.moves?.ALIAS || {};
+  // a foe's own move, by its id or by a name its set answers to (ALIAS: Briarmaw's 'maul' is his swipe)
+  return list.find((m) => own.some(([k]) => k === m) || (alias[m] && own.some(([k]) => k === alias[m]))) || list.find((m) => COMMON_MOVES.includes(m)) || null;
 }
 const kitDur = (F, m) => { try { return F.fig.beast.duration?.(m) || 1.2; } catch (e) { return 1.2; } };
 

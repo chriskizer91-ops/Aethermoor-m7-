@@ -20,39 +20,39 @@ const feet = (h) => nearer(h, h.pos.clone().setY(h.pos.y + 0.02), 0.4);
 export const MOMENTS = {
   // ---- Briarmaw, Act One's Champion (his den) ----
   'briarmaw:maul': { // "Bark-clad claws the size of shovels."
-    move: 'swipe',
+    move: ['maul', 'swipe'],
     land: (c) => { for (const h of c.heroes) { c.fx.slash(chest(h), c.ar.cam, '#d8c090', true); c.fx.sparks(chest(h), '#c9a878', 16); } },
   },
   'briarmaw:thorn-volley': { // "It shakes, and thorns fly like arrows."
-    move: 'roar',
+    move: ['thorn-volley', 'roar'],
     start: (c) => { const from = head(c); c.all.forEach((h, i) => { for (let k = 0; k < 3; k++) c.fx.thorn(from.clone().add(rand(0.4)), chest(h).add(rand(0.25)), '#3f5a26', 0.34, 0.35 + i * 0.06 + k * 0.08); }); },
     land: (c) => { for (const h of c.all) c.fx.sparks(chest(h), '#8ad872', 8); },
   },
   'briarmaw:call-the-briars': { // "The thorn-crown pulses and a Briarling tears up out of the floor."
-    move: 'roar', camera: 'close',
+    move: ['call-the-briars', 'roar'], camera: 'close',
     start: (c) => { c.fx.pulse(head(c), '#8ad872', 2.2, 1.0); c.fx.ring(c.F.pos.clone(), '#8ad872', 2.5, 0.9); },
     land: (c) => { c.fx.pulse(head(c), '#c8ff90', 1.6, 0.6); },
   },
   'briarmaw:fang-rake': { // "The great fang opens you up: Bleeding."
-    move: 'bite',
+    move: ['fang-rake', 'bite'],
     land: (c) => { for (const h of c.heroes) { c.fx.slash(chest(h), c.ar.cam, '#ff5040', true); c.fx.sparks(chest(h), '#e0402e', 22, { spread: 0.9 }); } },
   },
   'briarmaw:bramble-wall': { // "Bramble knits over its hide: Warded."
-    move: 'cast',
+    move: ['bramble-wall', 'cast'],
     land: (c) => { c.fx.vines(c.F.pos.clone(), c.F.size.h * 1.1, Math.max(0.6, c.F.size.d * 0.45), '#3f7a2a', 1.4); },
   },
   'briarmaw:rootquake': { // "The den floor heaves: ... and you are Rooted."
-    move: 'strike', camera: 'wide',
+    move: ['rootquake', 'strike'], camera: 'wide',
     start: (c) => { c.shake(2); c.fx.ring(c.F.pos.clone(), '#a07a48', 6, 1.1); },
     land: (c) => { c.shake(3); for (const h of c.all) c.fx.roots(feet(h), '#5a3a1e', 6, 1.8); },
   },
   'briarmaw:devour': { // "It opens its whole bramble-maw, charging."
-    move: 'bite', camera: 'close',
+    move: ['devour', 'bite'], camera: 'close',
     start: (c) => { c.fx.pulse(head(c), '#5a7a2a', 1.4, 0.9); },
     land: (c) => { for (const h of c.heroes) { c.fx.slash(chest(h), c.ar.cam, '#7a1a10', true); c.fx.sparks(chest(h), '#5a1a10', 30, { spread: 1.2 }); } c.shake(2); },
   },
   'briarmaw:thornstorm': { // "A storm of thorns: everyone Bleeds."
-    move: 'roar', camera: 'wide',
+    move: ['thornstorm', 'roar'], camera: 'wide',
     start: (c) => { c.fx.pulse(head(c), '#8ad872', 2.6, 1.2); for (const h of c.all) for (let k = 0; k < 6; k++) { const to = chest(h).add(rand(0.5)); c.fx.thorn(to.clone().add(rand(1.5)).setY(to.y + 4 + Math.random() * 2), to, '#2f4a1e', 0.4, 0.3 + Math.random() * 0.6); } },
     land: (c) => { for (const h of c.all) c.fx.sparks(chest(h), '#e0402e', 12); },
   },
