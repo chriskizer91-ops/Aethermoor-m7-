@@ -55,9 +55,24 @@ light model that can share the screen with the party, rigged, moving through its
   - Not yet like the sheet: the moss on his shoulders is bulkier and rounder than the sheet's, and his hands are fists
     where the sheet has big open fingers (Old Horn's too).
 
+- **The unmade** (Act Three veteran): on its own page (Act Three) below.
+  - The sculpt: 817,238 triangles. A thin man of grey-brown husk strips wound round and round (the sapwight's wound
+    strips, as husk), torn through in holes everywhere to the dark violet nothing inside; a ragged tunic to its knees,
+    holed, with a torn hem; a thick cowl about its neck; its head wrapped too, a dark mask with two violet eyes; violet
+    shards of light in a crack in its chest; its feet wrapped into blunt ends; and in its left hand the ghost of its
+    relic, a six-sided violet crystal rod with heavy ends.
+  - Light model 22,754 triangles at 1024 px; phone version at 512 px, 0.56 MB.
+  - Moves: Breathe, Walk, Empty Grip (its empty hand comes out and closes on you), Phantom Art (it raises the relic it
+    no longer holds and swings it down), Grey Touch (a slow reach, its head tilting as if listening), Husk (it goes
+    slack and folds in on itself, then draws itself up), Hit, Fall. Passes the stretch check, full and phone.
+  - New for it: the page now tints each walker's glow with its own colour (light.json `glow`, written by
+    `kit/standard.py` for the page and the phone version), so its eyes are violet, not amber; the walkers' binder takes
+    session 6's `WELD_SAME_KIND` switch.
+
 ## Links
 
 - Act Two (Old Horn and the peak-troll): https://claude.ai/artifact/PosCApXURcQF2S8qyicNaY (13.8 MB)
+- Act Three (the unmade): https://claude.ai/artifact/1fd2Ko7CSdQQD6hL2fKZcW (7.9 MB)
 
 - The walkers' gallery (the Rotwarden and the sapwight, their sheets, the checks, the moves, five of them walking round
   the heroes): https://claude.ai/artifact/YBLUHaLG3bNdfcjBdeq3aj (12.8 MB, with the phone versions)
@@ -126,7 +141,8 @@ plan 'walker' and height; foe.json), written by `pages/walkers/kit/standard.py` 
 
 1. The Rotwarden: one thin root at his left hip stays behind when the root arm swings; the tasset closer to the
    sheet's (a curved plate, not a box); the plates a little more faceted, like the sheet's.
-2. Then unmade (the peak-troll is done). (Iron-sentinel, the Sentinel-Captain,
+2. My lane is built: the Rotwarden, the sapwight, Old Horn, the peak-troll and the unmade. Next: the laptop sculpt page
+   refreshed with all five, and whatever Chris says on his phone. (Iron-sentinel, the Sentinel-Captain,
    the Ashen Warden and the Unsmith moved to Models on November 21; cinder-thrall, the Journeyman, forgeborn,
    forge-warden, thrall-overseer and bellows on November 23.)
 
