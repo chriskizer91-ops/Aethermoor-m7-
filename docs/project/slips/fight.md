@@ -88,8 +88,11 @@
   the foes named in `FIGHT_HD` (default briarmaw) at their phone size; every `three` import is one copy.
 - **Living faces** (Models' `rig.faceCtl`): effort on a strike or spell, a wince when hit, eyes shut while fallen, a
   cheer on victory, worried at a quarter health or less.
-- Build the fight page: `FIGHT_HD=briarmaw,briarling,glowcap node build.mjs --page=m7-fight
-  --places=thornhollow,briarmaw-den --tex=768 --herotex=256 --entry=fight.js --plugin=battle/swap.mjs` (12.0 MB).
+- Build the fight page: `FIGHT_HD=briarmaw,briarling,glowcap,rotwarden,sapwight node build.mjs --page=m7-fight
+  --places=thornhollow,briarmaw-den,heartroot-1,heartroot-2 --tex=768 --herotex=256 --entry=fight.js --plugin=battle/swap.mjs`
+  (15.3 MB). Act One: `FIGHT_HD=briarmaw,briarling,glowcap,boglurcher FIGHT_STANDEES=thornhound ... --out=fight-act1
+  --places=<its 13> --tex=352`. Act Two: `FIGHT_HD=willow-wight FIGHT_STANDEES=none ... --out=fight-act2
+  --places=scorchgate-vaults,harrows-forge,frostmere-below,tidal-flats,mothers-hollow,willowmurk --tex=512`.
 - Not proven by Auto: the Sand Wyrm's and the Thunder-Roc's swallows (their charge never landed in those runs).
 
 ## Step 4
@@ -146,6 +149,26 @@
   light, hex, song, slash, maw, dig, dive) and its camera (close for a charge or a summoning, wide for a blow at
   everyone). They play on whatever model stands in today; each full-detail model picks up its moves the day it lands.
   Hand-made moments (Briarmaw's, the Rotwarden's) win over the made ones.
+- **Hand-made moments, 119 so far** (champions.js MOMENTS; the made ones fill the rest):
+  - Act One, all twelve big foes: Briarmaw, the Rotwarden (on his own named moves, full detail), Haskett, Mags,
+    the Mirelord, Hollis, Dun, the Hollowed Sergeant, the Thornmother, Gloamwing, the Rotstag, Old Snag.
+  - Act Two's six Champions: the Ashen Warden, Kharzul, Mother Anvil, the Rime-Abbot and the Lantern Mother (Models'
+    wraiths, their own moves), the Blackwater Leviathan. Kharzul's place (the Glass Heart) isn't built in 3D yet.
+  - Effects added for them: smoke, splash, caltrops, a chalk mark over a hero's head, a lash (tapering to a glistening
+    bulb, curving and whipping, coiling round the one it catches), a flare overhead, flames.
+- **`battle/check-moments.mjs`** plays every move of a fight's big foe on the real arena with the clock held, four
+  stills each (bursting out, half a second in, landing, a moment after); `ONLY=<move ids>` for a few. Every Act One
+  move: a moment, no errors.
+- **Seen and fixed from the stills**: plates and intents step aside for every named move (in place too); charge
+  close-ups from the side, high, over open floor; a blow on a hero drawn a little in front of them (the camera stands
+  behind the party); trees between the fight's camera and the field thin away as on the walk.
+- **Spoils camera indoors** (Together): over the room's own floor; checked in the Great Hall, Mosswatch (stair and
+  lantern room) and the Heartroot (two fights) by `battle/check-spoils-view.mjs`: every one sees all four heroes.
+- **Pages**: the fight page now carries Act One's two Champions (Briarmaw's den, the Heartroot: Rotwarden and sapwight
+  in full detail) and Thornhollow's road; Act One at 352 px world textures (with the boglurcher); a new Act Two page
+  (the Champions' places and Willowmurk, the willow-wight in full detail): link below once published.
+- Known weak: Longshot's close-up can sit in a bush (the sight test doesn't see foliage); effects on heroes are small
+  at phone size.
 - **For the foe lanes (sessions 6, 7, 8): the own-move names the table asks for**, M7's move ids (each falls back to
   a common move until the foe has it):
   - Haskett (`bandit/poacher`): `hack`, `shield-bash`, `dirty-trick`, `heavy-swing`, `second-wind`, `longshot`
