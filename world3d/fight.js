@@ -67,14 +67,21 @@ const SCENES = {
 const FACE = { n: [0, -1], s: [0, 1], e: [1, 0], w: [-1, 0] };
 const ENC_AT = {};
 for (const m of Object.values(MAPS)) for (const e of m.entities || []) if (e.kind === 'encounter' && ENCOUNTERS[e.enc]) ENC_AT[e.enc] = { map: m, e };
+// where the party comes in, for a fight whose spot from M7's facing isn't open ground in 3D (agreed with Places):
+// the Thunder-Roc's eyrie: 4.5 tiles east of the nest is inside the crevasse, so the party stands on the plateau's east
+// lip where the crossing comes in, facing the nest
+const START = { 'roc-eyrie': [6.3, 15] };
 function encScene(id) {
   const { map, e } = ENC_AT[id] || {}; if (!map) return null;
-  const E = ENCOUNTERS[id], f = FACE[e.face || 's'], sp = E.spawns || [], n = Math.max(1, sp.length);
+  const E = ENCOUNTERS[id], sp = E.spawns || [], n = Math.max(1, sp.length);
+  let f = FACE[e.face || 's'];
+  if (START[id]) { const d = [START[id][0] - e.at[0], START[id][1] - e.at[1]], L = Math.hypot(...d); f = [d[0] / L, d[1] / L]; }
+  const st = START[id] || [e.at[0] + f[0] * 4.5, e.at[1] + f[1] * 4.5];
   const across = (i) => (i - (n - 1) / 2) * 0.9;
   return { id, enc: true, place: 'm7-' + map.id, name: E.name, where: map.name, level: Math.max(1, ...sp.map((s) => s.level || 1)) + (e.mode === 'lair' ? 1 : 0),
     near: E.name, again: `${E.name}: back for another go`, hint: 'walk up to them', trigger: 5.5,
     foes: () => sp.map((s) => s.family), at: sp.map((_, i) => [e.at[0] + across(i) * Math.abs(f[1]), e.at[1] + across(i) * Math.abs(f[0])]),
-    start: [e.at[0] + f[0] * 4.5, e.at[1] + f[1] * 4.5], face: Math.atan2(-f[0], -f[1]),
+    start: st, face: Math.atan2(-f[0], -f[1]),
     battle: (game) => startBattle(game, { nodeId: id }) };
 }
 SCENES.den = encScene('briarmaw-den');
