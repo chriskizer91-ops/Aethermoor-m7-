@@ -150,12 +150,27 @@ session 6 made Briarmaw.
     painted onto the top of his belly.
   - Second pass, later: his eyes come out paler gold than the sheet's, and the warts could be bolder.
 
+- **The rotgrub** (November 23), Act One rabble of the eldest trees' roots: in the gallery (same link), its sculpt on
+  its own laptop page: https://claude.ai/artifact/BA2mMoUK8nRjE6T4XcopKr.
+  - Sculpted from Chris's sheet: 0.35 m tall and 0.9 m long, eight fat cream rings creased where they meet, smudged
+    tan and flecked brown, the orange ringed tail tip, a tan head capsule with four hooked mandibles and two palps round
+    a dark mouth, and four pairs of short pale legs with dark hooked claws. Outline overlap: front 0.73, side 0.86,
+    back 0.70.
+  - **911,444 triangles** in the sculpt, baked onto a light model of **15,984 triangles** (rabble size), on the kit's
+    serpent chain (eight segments and the head; the claws and mandibles are rigid pieces).
+  - Its moves: breathe (the rings swell and shift), crawl, Latch (it rears and throws itself on), Ichor Spit,
+    Burrow (it noses down and sinks), hit, fall (it curls and rolls over). A pack of five crawls round the heroes.
+  - **The kit's stretch check passes**: worst big edge 1.30x. It is small, so nearly every edge counts as big (over
+    3.5 mm); its bends are kept small, and the front legs moved back under the last ring, off the head's joint.
+  - My page loader now builds any bone order (the serpent chain lists the tail first).
+  - Second pass, later: the brown flecks are smaller than on the sheet.
+
 ## Next
 
 0. Move onto session 6's shared kit (commit f384b7d / 8f3b6e2 on job/foe-hd) once the hub brings it into its branch; my
    kit folder then goes, and the thornhound is rebuilt on it.
 
-1. The rotgrub and the rime-wolf, each passing the kit's stretch check (the Gloamwing, lamp-moth and
+1. The rime-wolf, each passing the kit's stretch check (the Gloamwing, lamp-moth and
    Thunder-Roc went to Models, November 23). Then the thornhound's hind legs re-posed clear of the body and baked again.
 2. The thornhound, pass two: the fur still reads a little like bark from far off; softer locks, the face's markings
    (the pale brows, the tan cheeks), teeth for the open-mouth moves, and the phone size down to about 0.4 MB
