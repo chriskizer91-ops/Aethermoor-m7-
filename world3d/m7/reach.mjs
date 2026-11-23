@@ -49,8 +49,8 @@ for (const id of ids) {
   const lost = [], split = [];
   for (const [name, area] of things) { if (!near(any, area)) lost.push(name); else if (!near(main, area)) split.push(name); }
   // walkable ground in M7 the 3D walk cannot reach (counted in tiles): tiles M7 walks and the 3D floods miss
-  let open3d = 0, cut = 0; for (let tj = 0; tj < map.h; tj++) for (let ti = 0; ti < map.w; ti++) { const has = tileHit(Uint8Array.from(g.s, (c) => c === '1'), ti, tj); if (has) { open3d++; if (!tileHit(any, ti, tj)) cut++; } }
-  report[id] = { lost, split, unreachedTiles: cut, walkTiles: open3d, ways: comps.length };
+  let open3d = 0, cut = 0; const cutAt = []; for (let tj = 0; tj < map.h; tj++) for (let ti = 0; ti < map.w; ti++) { const has = tileHit(Uint8Array.from(g.s, (c) => c === '1'), ti, tj); if (has) { open3d++; if (!tileHit(any, ti, tj)) { cut++; cutAt.push([ti, tj, map.rows[tj][ti]]); } } }
+  report[id] = { lost, split, unreachedTiles: cut, cutAt, walkTiles: open3d, ways: comps.length };
   console.log(`${id}: ${lost.length ? 'CAN\'T REACH ' + lost.join('; ') : 'everything reached'}${split.length ? ' | only from another way in: ' + split.join('; ') : ''} | ${cut} of ${open3d} walkable tiles cut off`);
 }
 writeFileSync(path.join(out, 'reach.json'), JSON.stringify(report, null, 1));
