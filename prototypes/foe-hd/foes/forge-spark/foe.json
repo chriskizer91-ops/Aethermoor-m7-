@@ -5,15 +5,83 @@
   "rank": "rabble",
   "height": 0.5,
   "sheet": "art-in/3d/sheets/sheet-forge-spark.webp",
-  "crops": [[60, 560], [660, 1060], [1220, 1720]],
-  "bounds": [[-0.22, -0.16, -0.01], [0.22, 0.16, 0.5]],
-  "voxel": {"0": 0.005, "1": 0.0035, "2": 0.002, "3": 0.0011},
-  "view": {"center": [0, 0, 0.24], "width": 0.62, "head": [0, 0.05, 0.25], "headWidth": 0.3},
-  "light": {"level": 0, "coat": 7000},
-  "sculpt": {"level": 3},
-  "bake": {"res": 1024, "phone": 512, "ao": 32, "reach": {"coat": [0.01, 0.025], "parts": [0.004, 0.01]}},
+  "crops": [
+    [
+      60,
+      560
+    ],
+    [
+      660,
+      1060
+    ],
+    [
+      1220,
+      1720
+    ]
+  ],
+  "bounds": [
+    [
+      -0.22,
+      -0.16,
+      -0.01
+    ],
+    [
+      0.22,
+      0.16,
+      0.5
+    ]
+  ],
+  "voxel": {
+    "0": 0.005,
+    "1": 0.0035,
+    "2": 0.002,
+    "3": 0.0014
+  },
+  "view": {
+    "center": [
+      0,
+      0,
+      0.24
+    ],
+    "width": 0.62,
+    "head": [
+      0,
+      0.05,
+      0.25
+    ],
+    "headWidth": 0.3
+  },
+  "light": {
+    "level": 0,
+    "coat": 6000,
+    "kinds": {
+      "4": 2500,
+      "8": 3500
+    }
+  },
+  "sculpt": {
+    "level": 3
+  },
+  "bake": {
+    "res": 1024,
+    "phone": 512,
+    "ao": 32,
+    "reach": {
+      "coat": [
+        0.01,
+        0.025
+      ],
+      "parts": [
+        0.004,
+        0.01
+      ]
+    }
+  },
   "rig": "rig.py",
   "blurb": "The forge-spark is a living cinder in a cage of slag: a ball of glowing ember held in rusted iron bands, light pouring from the slits in front, a crown of jagged slag with a flame and sparks above it, two lumps of molten slag floating at its sides for fists, and a molten ring under it.",
-  "next": "its moves smoothed.",
-  "pages": {}
+  "next": "a hotter glow through the cracks at night.",
+  "pages": {
+    "three": "https://claude.ai/artifact/7sjTb3ubzrCxJJZ189YZBW",
+    "sculpt": "https://claude.ai/artifact/M7NGzTZXnqPTVEHXtDeQUr"
+  }
 }
