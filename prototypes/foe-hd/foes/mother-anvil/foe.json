@@ -79,6 +79,9 @@
   },
   "rig": "rig.py",
   "blurb": "Mother Anvil is the biggest anvil of the forge, stood up on four iron legs: dark riveted iron, her top flared and her horn pointing forward, her heart a fire behind iron grates between copper bands, four short legs armoured in plates with clawed feet, and on her top a hinged iron arm holding a great hammer with brass bands and a golden star on each face.",
-  "next": "her moves smoothed.",
-  "pages": {}
+  "next": "the horn's faceted boss standing out more in front, her plates chipped like the sheet's, the heart brighter.",
+  "pages": {
+    "three": "https://claude.ai/artifact/GpnVAt4gcTybB3w9weeZsp",
+    "sculpt": "https://claude.ai/artifact/RkoYTSqzxA4rLktCJT2cJy"
+  }
 }

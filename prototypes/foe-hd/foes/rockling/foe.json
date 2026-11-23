@@ -75,6 +75,9 @@
   },
   "rig": "rig.py",
   "blurb": "The rockling is a heap of scree that stood up: dark blue-grey stones chipped into flat faces, a round boulder for a head with two pale stones for eyes, a body of boulders with pebbles packed between them, a big stone at each side for a fist and two flat stones for feet.",
-  "next": "its moves smoothed.",
-  "pages": {}
+  "next": "its stones' faces sharper, its eyes set deeper as the sheet paints them.",
+  "pages": {
+    "three": "https://claude.ai/artifact/K5G7NXT5biU4Yyp8aGAfiF",
+    "sculpt": "https://claude.ai/artifact/QPkgvXNDUmWtG2yupQaPYP"
+  }
 }
