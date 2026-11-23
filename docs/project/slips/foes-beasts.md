@@ -129,12 +129,33 @@ session 6 made Briarmaw.
     at the neck rather than rolling, since a roll swings the jowls a long way.
   - Second pass, later: the flank stripes are fainter than on the sheet.
 
+- **Gorrow the Mire-King** (the Mirelord, November 23), the Relic-Bearer of the Mire: in the gallery (same link), his
+  sculpt on its own laptop page: https://claude.ai/artifact/JoZFMxoY43AwUToDw7HBJj.
+  - Sculpted from Chris's sheet: a great squat toad 1.1 m to the top of his head (1.55 m to the cattails) and 1.6 m
+    across; warty green skin with ragged orange blotches round dark olive middles, a pale sagging belly in soft folds,
+    big gold eyes under heavy lids, a wide mouth, short arms with long spread fingers, the hind legs folded to his sides
+    with long toes forward, and the crown: three reeds twisted into a ring, green blades, five cattails and the Mire
+    Pearl at its front. About four fifths of each outline overlaps the sheet's (front 0.78, side 0.82, back 0.80).
+  - **951,258 triangles** in the sculpt, baked onto a light model of **26,526 triangles**, on the kit's frog rig.
+  - His moves: breathe (the throat), hop, Belly-Flop (he heaves up and lands on everyone), Drag Under (a lunge, mouth
+    open), Wallow (he settles into the mire and sways), Undertow (he rears up and croaks), hit, fall.
+  - **The kit's stretch check passes**: worst big edge 1.26x, no webbing by eye. What it took: each hand (fingers and
+    all) pinned to the hand bone with the kit's `part()` (the binder's clean-up was giving the fingertips back to the
+    chest); the arms kept off the belly and the thigh; small arm moves (his wrists sit against his belly); and the jaw
+    hung from the chest, not the head. **For session 6:** the kit cuts a split jaw free of every part two joints away,
+    and a toad's jaw runs on into its belly, so with the jaw under the head a slit opened across his throat (the green
+    band you might have seen). Under the chest it blends into the throat, and his moves turn the jaw with the head. A
+    rig option for "the jaw's other neighbours" would let the jaw stay under the head.
+  - Also: he has no fur, so his bake reaches only 2 cm (`bake.reach` in foe.json); at 6 cm his overhanging head was
+    painted onto the top of his belly.
+  - Second pass, later: his eyes come out paler gold than the sheet's, and the warts could be bolder.
+
 ## Next
 
 0. Move onto session 6's shared kit (commit f384b7d / 8f3b6e2 on job/foe-hd) once the hub brings it into its branch; my
    kit folder then goes, and the thornhound is rebuilt on it.
 
-1. The Mirelord, the rotgrub and the rime-wolf, each passing the kit's stretch check (the Gloamwing, lamp-moth and
+1. The rotgrub and the rime-wolf, each passing the kit's stretch check (the Gloamwing, lamp-moth and
    Thunder-Roc went to Models, November 23). Then the thornhound's hind legs re-posed clear of the body and baked again.
 2. The thornhound, pass two: the fur still reads a little like bark from far off; softer locks, the face's markings
    (the pale brows, the tan cheeks), teeth for the open-mouth moves, and the phone size down to about 0.4 MB
