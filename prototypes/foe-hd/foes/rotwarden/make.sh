@@ -18,3 +18,4 @@ python3 $W/textures.py build/bake assets $RES
 node $W/pack.mjs build/bake "" assets
 python3 $K/info.py build/high-1.npz build/high-$PASS.npz $PASS assets $RES
 ls -la assets
+python3 $K/standard.py . rotwarden "The Rotwarden" 2.5 2048 1024 champion

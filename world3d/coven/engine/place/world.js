@@ -654,7 +654,7 @@
       } else if (l.kind === 'pillar') {
         const ph = l.h || 1.45;
         B.box('stone', x, y - 0.3, z, 0.62, ph + 0.3, 0.62, 0, [0.95, 0.93, 0.98]); B.box('stone', x, y + ph, z, 0.76, 0.14, 0.76, 0, [0.8, 0.78, 0.84]);
-        lantern(x, y + ph + 0.17, z, null, 1.05);
+        if (!l.noLantern) lantern(x, y + ph + 0.17, z, null, 1.05);   // (Aethermoor, Places) a Hearthfire's pillar: its fire is the game's own
         lights.push([l.at[0], l.at[1] - 6, 140, 1.15, 'warm']);
       } else {
         const hh = l.h || (l.short ? 1.9 : 3.0);
@@ -769,6 +769,7 @@
       // that building's own starts, so a wall carried on in extra matches it (s0: metres along from that wall's start);
       // K.wear[buildingId]: the wall keys that house wears ({ stone, timber, planks, gable }), for the same reason
       const K = { B, M, X, Z, gh, walkH, terrain, R, TAU, lantern, bench, addBlock, circlePx, lights, halos, shadeMarks, lamps3d, ico, rockG: rockShapes, far: farB,
+        mats: MAT, scene,   // (Aethermoor, Places) for things kept out of the merge (a chest whose lid opens)
         layWall: (k, len, y0, y1, lay, s0) => { const q = layWall(k, len, y0, y1, lay || newLay()); if (s0 && !q.n) { q.uv[0] += s0; q.uv[2] += s0; } return q.uv; }, lays: LAYS, newLay, wear: WEAR, have: HAVE,
         light: (px, py, r, s, kind) => lights.push([px, py, r, s, kind || 'warm']),
         halo: (x, y, z, size, rgb) => halos.push([x, y, z, size, rgb[0], rgb[1], rgb[2]]),

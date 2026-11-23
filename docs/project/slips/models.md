@@ -316,6 +316,18 @@ of twelve at the fight's detail). Code: `prototypes/wraiths/` (`wraiths.js`, REA
 - Still to come: the Abbot's braided cowl and layered frosty cope, the Bell-Ringer's heavier draped folds, and more of
   the sheets' painted pattern (the Abbess's wave-edged tiers, the Choir-Wraith's arched panels).
 
+**The wraiths, third pass** (November 21). Gallery republished: https://claude.ai/artifact/KiYfGSBcUQ6gU4WqVKGojD
+- The Rime-Abbot: a braided cowl (plaits of two twisted strands round the face and back over the crown), and a frosty
+  capelet over the cope to the elbows, scalloped, embroidered, edged in rime and hung with tassels; icicles at the
+  cope's hem.
+- The Bell-Ringer: heavier drapes (broad deep folds over the small ones, the robe wider at the hem).
+- The Abbess: wave-edged tiers, each hem rolled in pale sea-foam cloth, in soft waves as on the sheet.
+- The Choir-Wraith: arched panels (each tier's hem cut in twelve arches, a seam down to where two arches meet, studs
+  along each tier).
+- At Light (the fight's detail): Drowned 12k, Bell-Ringer 13k, Choir 11k, Cantor 15k, Abbess 16k, Choir-Wraith 18k,
+  Rime-Wraith 13k, Rime-Abbot 19k (a Champion), Lantern Mother 13k, Mirage-Wisp 3k, Wisp-Queen 10k: all under 20k.
+  Same look shape and moves for the Fight.
+
 ## Next
 
 - Chris chose full detail for the beasts (November 20): sessions 6 to 8 build them (`docs/project/jobs/foes.md`;

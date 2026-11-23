@@ -189,6 +189,40 @@ map.isOpen, map.hidden, map.redraw(), map.destroy()
 Chest ids are the `id` in a place's `things` (`[x, y, 'chest', face, id]`), Hearthfire ids are `hearthfires[].id`,
 people are `people[].id` (the game's NPC ids).
 
+### Step 5 (November 21): the set dressing in 3D
+
+- **The kit** (`m7-kit.js` `dress`): barrel, barrels, crate, crates, sacks, cart, stall, well, fence, pickets, gate,
+  bench, signpost, statue, brazier (burning, with a light), lamppost, hay, haystack, logs, woodpile, rock, bush, table,
+  shelf, trough, jars, anvil, cauldron, tent, lowwall, boat. Built in code like the buildings, all into the place's own
+  builder, so each material is one draw however many things use it. Beams and planks share the place's wood, awnings
+  the engine's striped cloth; new pictures only for barrels, crates, sacks/tents (canvas), hay (thatch), produce and
+  clay (Coven's made-web pack, Chris's). The painting is darkened under each thing as its shadow.
+- **Where**: `m7/dressing.mjs` (Act One, by hand) and `m7/dress/<region>.json` (the regions), read off each painting on
+  its tile grid (`m7/grid.py` draws it, `m7/rows.mjs` prints the tiles, `m7/mark.py` draws a list back on to check).
+  `convert.mjs` writes them as place data `dress: [{ k, at, face, s, to, solid }]`.
+- **Walking unchanged**: a thing on a walkable tile never blocks (`solid: false`), so walking stays exactly M7's tiles.
+  A stall, or a thing marked `replace`, takes the place of the map's little building under it (Thornhollow's two
+  stalls and Fawnrest's three low walls were tiny roofed houses).
+- **Act One**: its paintings are drawn tile by tile, so nearly every rock, bush, wall and ruin is a tile and was 3D
+  already. Loose things: Thornhollow (two market stalls, forge barrels, stones), the Keep (courtyard well, smithy anvil,
+  crates and barrels), Fawnrest (three low walls, spray on its little waterfall). The Great Hall and the three galleries
+  are bare floors and carpets; the Hearth Below's four are stand-ins drawn from tiles.
+- Phone draws before -> after (`m7/probe.mjs --phone`): Thornhollow 49 -> 52, the Keep 37 -> 39, Fawnrest 44 -> 44.
+- **The regions** (lists in `m7/dress/*.json`, read off the paintings and checked on them with `m7/mark.py`):
+  the Gloomfen 127 things (Bogmire 35: barrels at every house, four striped stalls on the plaza, crates, jars, six
+  boats; Willowmurk 20; the Tidal Flats 16; the Long Boardwalk 12; Misthollow 11 with its fountain as a well), the
+  Sunscorch 19 (the Glass Flats' five awning stalls and two tents, Dusthaven's four tents, the Sun Road's two stalls,
+  all on the map's little roofs, which they replace), the Ironspire 36 (loose boulders and rubble; its anvils, crates,
+  barrels, sledges and ice are already its tiles' things). Act Three: the galleries are bare and the Hearth Below's
+  four are stand-ins, so nothing. A thing on a roof tile is left out unless it replaces that building.
+- Phone draws before -> after: Bogmire 40 -> 44, Willowmurk 60 -> 61, the Tidal Flats 40 -> 38, Misthollow 49 -> 49,
+  Dusthaven 30 -> 29, the Sun Road 36 -> 34 (the little houses a stall or tent replaces were draws too), the Glass Flats
+  26 -> 32 overall but its place alone 17 -> 17.
+- **For Together**: each chest is its own group with a lid hinged at the back, `M7_CHESTS[chestId] = { group, lid,
+  isOpen, open(on, now) }` and `M7_SETCHEST(chestId, on, now)` (now = true: at once). A Hearthfire's pillar has no
+  lantern (`lamps[i].noLantern`; game3d/props.js burns the fire on it). Engine `world.js` (additive, marked): the
+  pillar's lantern skipped for those, and `K.mats`, `K.scene` handed to a place's extras.
+
 ## Next
 
 - Waiting for the hub.

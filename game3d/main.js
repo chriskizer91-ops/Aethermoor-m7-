@@ -35,11 +35,16 @@ import { HEARTHS } from '../game/src/data/world.js';
 import { arena } from '../world3d/battle/arena.js';
 import { runFight } from '../world3d/battle/run.js';
 import { loadLive, hasLive, saveLive, backupLive, clearLive, readM7, loadSettings, saveSettings } from './save.js';
+import { importCode } from './save-codes.js';
 import { createWorld, gearFor } from './walk.js';
 import { setFoeLook, LOOKS, hdFoes } from './figures.js';
 import { openParty } from '../world3d/battle/party-room.js';
 
 const Q = new URLSearchParams(location.search);
+// Open call 10 (questions.md), the hub's suggestion until Chris decides: a journey from the 2D game can begin here, by M7's own save code (AETH6, from
+// its Settings) or, where the browser shares its storage, from M7's save itself. Only ever read; M7's key is never
+// written. To switch it off, set this to false (or open a page with ?m7=0).
+const CARRY_M7 = true && Q.get('m7') !== '0';
 window.__g3 = window.__g3 || {};
 window.addEventListener('DOMContentLoaded', () => { main().catch((e) => { console.error(e); window.__err = String(e && e.stack || e); const m = document.getElementById('loadmsg'); if (m) m.textContent = 'Something went wrong: ' + e.message; }); });
 
@@ -232,10 +237,34 @@ async function main() {
     } else if (live) b('Go on', `${live.party.roster[live.party.active[0]]?.name || 'The party'} · day ${live.progress.flags.day || 1}`, () => { game = live; held = false; begin(); }, 'primary');
     if (start) {
       b(start.label, start.sub, () => { backupLive(); game = journeyAt(start); held = false; saveLive(game); begin(); }, live ? '' : 'primary');
-      b('Bring a journey by its save code', 'From the Act One page: Menu, Settings, copy the code; paste it here in Settings', () => { T.hidden = true; go('settings', { from: 'title' }); });
     } else b('A new journey', 'The prologue, then the Great Hall', () => { T.hidden = true; go('newgame', {}); }, live ? '' : 'primary');
-    if (m7) b('Bring the party from the 2D game', `Your M7 save, read only: ${m7.party.roster[m7.party.active[0]]?.name || 'the party'}, day ${m7.progress.flags.day || 1}. The 2D game's save is never changed.`, () => { backupLive(); game = structuredClone(m7); held = true; begin(); });
+    if (CARRY_M7 && m7) b('Bring the party from the 2D game', `Your M7 save, read only: ${m7.party.roster[m7.party.active[0]]?.name || 'the party'}, day ${m7.progress.flags.day || 1}. The 2D game's save is never changed.`, () => { backupLive(); game = structuredClone(m7); held = true; begin(); });
+    if (CARRY_M7 || start) b('Bring a journey by its save code', CARRY_M7 ? 'From the 2D game (Settings, Save code) or another 3D page (Menu, Settings): its party, gear and levels' : 'From another 3D page: Menu, Settings, copy the code', () => codeBox(box, begin));
     window.__ready = true;
+  }
+
+  // the title's code box: paste an AETH code (M7's own format: the 2D game's or a 3D page's), read by M7's importCode and
+  // migrate, kept under the 3D game's own key (the 3D save there before is backed up first)
+  function codeBox(box, begin) {
+    const el = (tag, cls, txt) => { const n = document.createElement(tag); if (cls) n.className = cls; if (txt) n.textContent = txt; return n; };
+    const wrap = el('div', 'g3-code');
+    const lab = el('label', '', 'Paste the save code (it starts with AETH)');
+    const ta = el('textarea'); ta.rows = 4; ta.spellcheck = false; ta.autocapitalize = 'off'; ta.setAttribute('aria-label', 'Save code');
+    lab.append(ta);
+    const err = el('p', 'g3-code-err'); err.setAttribute('role', 'alert');
+    const go2 = el('button', 'g3-big primary', 'Bring this journey');
+    const back = el('button', 'g3-big', 'Back');
+    go2.onclick = () => {
+      let g = null;
+      try { g = importCode(ta.value, migrate); } catch (e) { err.textContent = e.message || 'That code could not be read.'; return; }
+      backupLive(); game = g; held = false; saveLive(game);
+      toast(`${g.party.roster[g.party.active[0]]?.name || 'The party'} is here, day ${g.progress.flags.day || 1}.`);
+      begin();
+    };
+    back.onclick = () => title();
+    wrap.append(lab, err, go2, back);
+    box.replaceChildren(wrap);
+    ta.focus();
   }
 
   // a journey where a region's page begins, made by M7's own rules: the party levelled, the earlier Brands won and the

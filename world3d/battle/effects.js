@@ -98,6 +98,92 @@ export class Fx {
     this.add(grp, dur, (u) => { at(u, grp.position); at(Math.min(1, u + 0.02), q); if (q.distanceToSquared(grp.position) > 1e-8) grp.lookAt(q); p.copy(grp.position); });
   }
 
+  // a cloud of smoke puffs rolling out round `at` (a smoke-pot, a powder flash, a mire's breath)
+  smoke(at, color = '#8a8478', n = 8, r = 1.2, dur = 1.6) {
+    for (let i = 0; i < n; i++) {
+      const m = new THREE.SpriteMaterial({ map: dot(), color: col(color), transparent: true, depthWrite: false, opacity: 0 });
+      const sp = new THREE.Sprite(m), a = Math.random() * TAU, d = r * (0.3 + Math.random() * 0.7), o = at.clone();
+      const to = new THREE.Vector3(Math.cos(a) * d, 0.4 + Math.random() * 0.8, Math.sin(a) * d), s0 = 0.5 + Math.random() * 0.4, dl = Math.random() * 0.25;
+      this.add(sp, dur, (u) => { const k = Math.max(0, (u - dl) / (1 - dl)); sp.position.copy(o).addScaledVector(to, 1 - (1 - k) ** 2); sp.scale.setScalar(s0 + k * 1.6); m.opacity = 0.75 * Math.sin(Math.min(1, k * 1.3) * Math.PI) ** 0.7; });
+    }
+  }
+
+  // water thrown up at `at`: a ring on the surface and drops arcing out and falling back
+  splash(at, color = '#8ad0e8', n = 22, h = 1.6) {
+    this.ring(at, color, 1.6, 0.7, 0.06);
+    const m = new THREE.MeshBasicMaterial({ color: col(color), transparent: true, opacity: 0.85, depthWrite: false });
+    for (let i = 0; i < n; i++) {
+      const drop = new THREE.Mesh(new THREE.SphereGeometry(0.04 + Math.random() * 0.04, 6, 4), m);
+      const a = Math.random() * TAU, sp = 0.6 + Math.random() * 1.4, vy = h * (1.6 + Math.random() * 1.6), o = at.clone();
+      this.add(drop, 0.8, (u) => { const t = u * 0.8; drop.position.set(o.x + Math.cos(a) * sp * t, o.y + Math.max(0, vy * t - 6 * t * t), o.z + Math.sin(a) * sp * t); });
+    }
+  }
+
+  // small iron burrs (caltrops) skittering out over the ground round `at`, and lying there a while
+  scatter(at, color = '#5a5a60', n = 12, r = 1.1, dur = 2.2) {
+    const m = new THREE.MeshStandardMaterial({ color: col(color), metalness: 0.7, roughness: 0.45 });
+    for (let i = 0; i < n; i++) {
+      const b = new THREE.Mesh(new THREE.TetrahedronGeometry(0.07, 0), m), a = Math.random() * TAU, d = r * Math.sqrt(Math.random()), o = at.clone();
+      const to = new THREE.Vector3(Math.cos(a) * d, 0, Math.sin(a) * d), spin = (Math.random() - 0.5) * 20;
+      this.add(b, dur, (u) => { const k = Math.min(1, u * dur / 0.35); b.position.copy(o).addScaledVector(to, 1 - (1 - k) ** 2); b.position.y = o.y + 0.05 + Math.sin(k * Math.PI) * 0.25; b.rotation.set(k * spin, k * spin * 0.7, 0); b.scale.setScalar(u > 0.85 ? (1 - u) / 0.15 : 1); });
+    }
+  }
+
+  // a mark chalked over a hero's head (Marked, a tally, a curse): a glowing cross drawn in, hanging, then fading
+  mark(at, color = '#f0e6c8', size = 0.32, dur = 1.6) {
+    const grp = new THREE.Group(); grp.position.copy(at); const m = glowMat(color, 0.95);
+    for (const r of [Math.PI / 4, -Math.PI / 4]) { const bar = new THREE.Mesh(new THREE.PlaneGeometry(size, size * 0.16), m); bar.rotation.z = r; grp.add(bar); }
+    const ringM = glowMat(color, 0.6), ring = new THREE.Mesh(new THREE.RingGeometry(size * 0.62, size * 0.72, 28), ringM); grp.add(ring);
+    this.add(grp, dur, (u, dt, cam) => { if (cam) grp.quaternion.copy(cam.quaternion); const k = Math.min(1, u / 0.15); grp.scale.setScalar(0.4 + k * 0.6); grp.position.y = at.y + u * 0.15; m.opacity = 0.95 * (u > 0.7 ? (1 - u) / 0.3 : 1); ringM.opacity = m.opacity * 0.6; });
+  }
+
+  // something long shot out from `from` to `to` and pulled back (a tongue, a rope, a whip, a vine): thick at the root,
+  // tapering to a bulb at the tip, glistening; it curves and whips as it flies, and with { wrap: true } it coils round
+  // the one it catches before it pulls back
+  lash(from, to, color = '#a04a50', thick = 0.07, dur = 0.7, { wrap = false, bulb = true, gloss = true } = {}) {
+    const m = new THREE.MeshPhysicalMaterial({ color: col(color), roughness: gloss ? 0.22 : 0.7, clearcoat: gloss ? 1 : 0, clearcoatRoughness: 0.15, sheen: 0 });
+    const grp = new THREE.Group(), SEG = 22, RAD = 8;
+    const d = to.clone().sub(from), L = d.length(), dir = d.clone().normalize();
+    const side = new THREE.Vector3().crossVectors(dir, new THREE.Vector3(0, 1, 0)); if (side.lengthSq() < 1e-6) side.set(1, 0, 0); side.normalize();
+    const up = new THREE.Vector3().crossVectors(side, dir).normalize(), phase = Math.random() * TAU;
+    let mesh = null;
+    const tip = bulb ? new THREE.Mesh(new THREE.SphereGeometry(thick * 1.7, 12, 10), m) : null; if (tip) grp.add(tip);
+    // the coil round the caught one: a ring of the same flesh that tightens
+    const coil = wrap ? new THREE.Mesh(new THREE.TorusGeometry(0.42, thick * 0.75, 8, 28), m) : null; if (coil) { coil.rotation.x = Math.PI / 2; coil.position.copy(to); coil.visible = false; grp.add(coil); }
+    const pts = Array.from({ length: 9 }, () => new THREE.Vector3());
+    const shape = (k, t) => {
+      // out along the line to fraction k of the way, a soft arc up and a sideways whip that settles as it reaches
+      for (let i = 0; i < pts.length; i++) {
+        const u = i / (pts.length - 1), s = u * k, wob = Math.sin(u * Math.PI) * (1 - k * 0.7);
+        pts[i].copy(from).addScaledVector(d, s).addScaledVector(up, Math.sin(s * Math.PI) * L * 0.08)
+          .addScaledVector(side, Math.sin(u * 5 + t * 18 + phase) * 0.18 * wob * L * 0.25);
+      }
+      return new THREE.CatmullRomCurve3(pts);
+    };
+    const build = (curve) => {
+      const geo = new THREE.TubeGeometry(curve, SEG, thick, RAD, false), P = geo.attributes.position, c = new THREE.Vector3(), v = new THREE.Vector3();
+      for (let ring = 0; ring <= SEG; ring++) { const u = ring / SEG, w = 1 - u * 0.62; curve.getPointAt(u, c); for (let j = 0; j <= RAD; j++) { const ix = ring * (RAD + 1) + j; v.fromBufferAttribute(P, ix).sub(c).multiplyScalar(w).add(c); P.setXYZ(ix, v.x, v.y, v.z); } }
+      geo.computeVertexNormals(); return geo;
+    };
+    this.add(grp, dur, (u) => {
+      const k = u < 0.35 ? 1 - (1 - u / 0.35) ** 2 : u < 0.65 ? 1 : 1 - ((u - 0.65) / 0.35) ** 2;
+      const curve = shape(Math.max(0.02, k), u * dur);
+      if (mesh) { grp.remove(mesh); mesh.geometry.dispose(); }
+      mesh = new THREE.Mesh(build(curve), m); grp.add(mesh);
+      if (tip) curve.getPointAt(1, tip.position);
+      if (coil) { const caught = u >= 0.33 && u < 0.7; coil.visible = caught; if (caught) { const c = (u - 0.33) / 0.37; coil.scale.setScalar(1.25 - Math.min(1, c * 2.5) * 0.4); coil.position.copy(to); } }
+    }, () => { if (mesh) mesh.geometry.dispose(); });
+  }
+
+  // a flare bursting overhead at `at` and lighting the field (a signal lantern, a seal blazing): a bright core, rays of
+  // sparks and a light that floods everything for a moment
+  flare(at, color = '#ffd27a', size = 2.4, dur = 1.0) {
+    this.pulse(at, color, size, dur);
+    this.sparks(at, color, 30, { spread: 1.8, up: 0.6 });
+    const light = new THREE.PointLight(col(color), 0, 18, 1.4); light.position.copy(at); 
+    this.add(light, dur, (u) => { light.intensity = 14 * Math.sin(Math.min(1, u * 1.6) * Math.PI); });
+  }
+
   // a ring of light out over the ground at `at`
   ring(at, color = '#ffcb66', r1 = 2, dur = 0.6, y = 0.05) {
     const m = glowMat(color, 0.9);

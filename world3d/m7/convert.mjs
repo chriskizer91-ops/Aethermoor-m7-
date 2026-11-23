@@ -27,13 +27,15 @@ const { MAPS } = await import(pathToFileURL(path.join(GAME, 'data/maps/index.js'
 const { NPCS } = await import(pathToFileURL(path.join(GAME, 'data/npcs.js')));
 const { SHOPS } = await import(pathToFileURL(path.join(GAME, 'data/shops.js')));
 const { ENCOUNTERS } = await import(pathToFileURL(path.join(GAME, 'data/encounters.js')));
+// (step 5) the set dressing read from each painting, per place (m7/dressing.mjs)
+const { DRESS } = await import(pathToFileURL(path.join(here, 'dressing.mjs')));
 const TX = 50, TY = 40, PAD = 9;
 const cl0 = (v, a, b) => Math.max(a, Math.min(b, v));
 // (Places, step 3) each Act One place's light, as the 2D game has it: by day, unless it's indoors, underground or in deep
 // woods. 'day' | 'dusk' | 'night' | 'indoor'. Acts Two and Three take theirs from the region's look (m7-kit.js), unless named here
 // (step 4) waterfalls, as tile columns [x0, x1, yTop, yFoot]: the water drops from yTop and lands in the pool at yFoot
 // [x0, x1, yTop, yFoot, drop?]: drop (metres) for a short cascade over a ledge; without it, from the ground at the top
-const FALLS = { silverfall: [[8, 10, 3, 9]] };   // (the Iron Stair's gully runs inside its cliff, out of sight from the path)
+const FALLS = { silverfall: [[8, 10, 3, 9]], fawnrest: [[2, 3, 14, 16]] };   // (the Iron Stair's gully runs inside its cliff, out of sight from the path)
 const LIGHT = { 'heartroot-1': 'night', 'heartroot-2': 'night', 'briarmaw-den': 'dusk', eldergrove: 'dusk' };
 // (Places) Chris's textures each region's places wear (web copies of art-in/3d/world/), written into each place's file so a
 // page carries only its own region's (the build puts every picture in once)
@@ -388,7 +390,7 @@ out.save(sys.argv[2],quality=80,method=6)`, webp, roofFile, JSON.stringify(roofJ
   // ---- lamps: light entities, hearthfires ----
   for (const e of map.entities || []) {
     if (!e.at) continue; const [x, y] = [(e.at[0] + 0.5) * TX, (e.at[1] + 0.5) * TY];
-    if (e.kind === 'light' || e.kind === 'hearthfire') lamps.push({ at: [x, y], kind: 'pillar', h: 1.1 });
+    if (e.kind === 'light' || e.kind === 'hearthfire') lamps.push({ at: [x, y], kind: 'pillar', h: 1.1, ...(e.kind === 'hearthfire' ? { noLantern: true } : {}) });   // (a Hearthfire's fire is game3d/props.js's)
     // (Places, step 4) the map's own things, each as itself (m7-kit.js things): a signpost, a notice board, a chest, a relic's
     // pedestal, a table, a bell frame. Gates and locks open and close with the story, so the game shows those
     else if (['chest', 'sign', 'board', 'pedestal', 'table', 'bellframe'].includes(e.kind)) things.push([x, y, e.kind, ({ s: 0, n: Math.PI, e: Math.PI / 2, w: -Math.PI / 2 })[e.face] ?? 0, e.id]);
@@ -416,14 +418,34 @@ out.save(sys.argv[2],quality=80,method=6)`, webp, roofFile, JSON.stringify(roofJ
   for (let j = 0; j < h; j++) for (let i = 0; i < w; i++) { const c = rows[j][i]; if (c === '+') doors.push([(i + 0.5) * TX, (j + 0.5) * TY]); else if (c === 's' && !(i > 0 && rows[j][i - 1] === 's') && !(j > 0 && rows[j - 1][i] === 's')) stairs.push([(i + 0.5) * TX, (j + 0.5) * TY]); }
   const hearthfires = (map.entities || []).filter((e) => e.kind === 'hearthfire').map((e) => ({ id: e.id, name: (ENCOUNTERS[e.id] && ENCOUNTERS[e.id].name) || 'Hearthfire', at: [(e.at[0] + 0.5) * TX, (e.at[1] + 0.5) * TY], cold: !!e.cold || undefined }));
 
+  // (step 5) a market stall in the dressing (or any thing marked replace) stands where the map's little roof was: that
+  // small building is left out
+  const STALLS = (DRESS[id] || []).filter((e) => e[0] === 'stall' || (typeof e[e.length - 1] === 'object' && e[e.length - 1].replace)).map((e) => [e[1] * TX, e[2] * TY]);
+  const keptB = buildings.filter((b) => { const [x0, y0, x1, y1] = b.fp; return (x1 - x0) * (y1 - y0) > 4.5 * TX * TY || !STALLS.some(([sx, sy]) => sx > x0 - 60 && sx < x1 + 60 && sy > y0 - 60 && sy < y1 + 60); });
   const place = {
     id: 'm7-' + id, m7: id, name: map.name, region, biome: map.biome, interior, dark: !!map.dark || undefined,
     ...(ACT2 ? { stand, smalls, faces, texFiles: Object.fromEntries((REGION_TEX[region] || []).map(AW)) } : {}), pillars, palisades, cliffs, roots, firsts, glows, size: [w * TX, h * TY], tiles: [w, h],
     painting: `art/m7/${id}.webp`, roofPainting: roofJobs.length ? `art/m7/${id}-roofs.webp` : undefined, standin: paint.standin || undefined, artIn: paint.artIn, extent: [-PAD * TX, -PAD * TY, (w + PAD) * TX, (h + PAD) * TY],
     start: first.at, startFace: first.face, anchors, exits, people,
-    water: water.map((p) => ({ poly: p })), decks, buildings, walls: segs, towers, torches, lamps, props, flowers, extraTrees, lawns, groundPatches,
+    water: water.map((p) => ({ poly: p })), decks, buildings: keptB, walls: segs, towers, torches, lamps, props, flowers, extraTrees, lawns, groundPatches,
     fence: GLOOM || undefined, things, stairs, hearthfires,
-    doors: doors.concat(buildings.flatMap((b) => (b.doors || []).map((dr) => [Math.round(dr.x), b.fp[3] + 6]))).filter((p, i, a) => a.findIndex((q) => Math.abs(q[0] - p[0]) < 30 && Math.abs(q[1] - p[1]) < 30) === i),
+    doors: doors.concat(keptB.flatMap((b) => (b.doors || []).map((dr) => [Math.round(dr.x), b.fp[3] + 6]))).filter((p, i, a) => a.findIndex((q) => Math.abs(q[0] - p[0]) < 30 && Math.abs(q[1] - p[1]) < 30) === i),
+    dress: DRESS[id] ? DRESS[id].filter((e) => {
+      // a thing on a roof tile would stand inside the 3D house: left out, unless it takes that little building's place
+      const o = typeof e[e.length - 1] === 'object' ? e[e.length - 1] : {}, line = e[0] === 'fence' || e[0] === 'pickets';
+      return line || e[0] === 'stall' || o.replace || at(Math.floor(e[1]), Math.floor(e[2])) !== 'H';
+    }).map((e) => {
+      const [k, ...rest] = e, o = typeof rest[rest.length - 1] === 'object' ? rest.pop() : {}, line = k === 'fence' || k === 'pickets';
+      const FACE = { S: 0, E: Math.PI / 2, N: Math.PI, W: -Math.PI / 2 }, f = line ? 0 : rest[2];
+      const out = { k, at: [Math.round(rest[0] * TX), Math.round(rest[1] * TY)] };
+      if (line) out.to = [Math.round(rest[2] * TX), Math.round(rest[3] * TY)];
+      else if (f != null) out.face = +(typeof f === 'string' ? FACE[f] : f * Math.PI / 180).toFixed(3);
+      if (o.s) out.s = o.s; if (o.load) out.load = o.load;
+      // on a walkable tile it never blocks: walking stays exactly M7's tiles
+      const ti = Math.floor(rest[0]), tj = Math.floor(rest[1]);
+      if (line || !solid(at(ti, tj))) out.solid = false;
+      return out;
+    }) : undefined,
     falls: FALLS[id] ? FALLS[id].map(([x0, x1, y0, y1, drop]) => [(x0 + x1 + 1) / 2 * TX, y0 * TY, (y1 + 1) * TY, (x1 - x0 + 1) * TX, drop || 0]) : undefined,
     light: LIGHT[id] || (!ACT2 ? (interior ? 'indoor' : 'day') : undefined),
     tileH: rows.map((r, j) => [...r].map((c, i) => c === 'x' && !(GLOOM && !interior) ? 3 : c === 'w' ? 2 : WET[j][i] ? 1 : ACT2 && MASSC.includes(c) ? 4 : 0).join('')),

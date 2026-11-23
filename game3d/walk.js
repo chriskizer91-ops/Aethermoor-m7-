@@ -150,6 +150,7 @@ export function createWorld(o) {
   // ---- people, standing foes and roaming packs, as the engine has them ----
   let standing = new Map();   // entity id -> { fig, e }
   const props = new Map();    // 'hf:<id>' | 'ch:<id>' -> a live thing (props.js)
+  const lids = new WeakMap();  // a chest's handle (window.M7_CHESTS[id], new with each place built) -> open as last set
   let roamers = new Map();    // roamer id -> { figs: [fig], r, x, z, face }
   function placeFig(fig, x, y, face) {
     const M = Wk.P.M, [px, py] = centre(x, y);
@@ -189,6 +190,18 @@ export function createWorld(o) {
       }
     }
     for (const [k, pr] of props) if (!keep.has(k) || !Wk.P.scene.children.includes(pr.root)) { Wk.P.scene.remove(pr.root); props.delete(k); }
+    // the chests' lids (Places' handles, window.M7_CHESTS, rebuilt with each place): open as M7 says, at once when the
+    // place is first shown, swinging back when a chest is opened in front of you
+    const CH = window.M7_CHESTS || {};
+    for (const e of here) {
+      if (e.kind !== 'chest') continue;
+      const h = CH[e.id], on = e.state === 'opened';
+      if (!h || typeof h.open !== 'function') continue;
+      const was = lids.get(h);
+      if (was === on) continue;
+      try { h.open(on, was === undefined); } catch (err) { console.error(err); }
+      lids.set(h, on);
+    }
     mapMarks(here);
     syncRoamers(true);
   }

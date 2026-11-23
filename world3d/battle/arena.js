@@ -18,7 +18,7 @@ import { FOE_ART, renderFoe, foeLooks } from '../../game/src/art/foes.js';
 import { poseHero, poseFoe, strikeStyle, RANGED, foeMover } from './moves.js';
 import { Fx } from './effects.js';
 import { aura } from './auras.js';
-import { momentFor } from './champions.js';
+import { momentFor, setMomentCam } from './champions.js';
 
 const V3 = (x = 0, y = 0, z = 0) => new THREE.Vector3(x, y, z);
 const UP = V3(0, 1, 0);
@@ -110,6 +110,7 @@ export const arena = {
   },
   // a moment's surroundings: the foe, the effects, the heroes it is aimed at (all of them for a move at everyone)
   momentCtx(F) {
+    setMomentCam(this.cam);
     const all = [...this.heroes.values()].filter((h) => !h.down && !h.held);
     const t = F.act?.target && this.heroes.get(F.act.target);
     return { ar: this, F, fx: this.fx, all, heroes: t ? [t] : all, shake: (n) => this.shake(n) };
@@ -121,14 +122,18 @@ export const arena = {
   momentCam(F, kind, dur = 2.4) {
     if (this.reduced || !this.want) return;
     const at = F.pos.clone().setY(F.pos.y + F.size.h * 0.6), P = this.W.P;
-    const clear = (p, q) => { try { return P.sight.hit(p.x, p.y, p.z, q.x, q.y, q.z) > 0.97; } catch (e) { return true; } };
+    // a clear line to the foe, from over open ground (not inside a wall or a tree the sight test can't see into)
+    const open = (p) => { try { return P.walkable(P.M.px(p.x), P.M.py(p.z)); } catch (e) { return true; } };
+    const clear = (p, q) => { try { return open(p) && P.sight.hit(p.x, p.y, p.z, q.x, q.y, q.z) > 0.97; } catch (e) { return true; } };
     let pos = null, look = at;
     if (kind === 'close') {
       // a charge at one hero: frame the ground between them (the foe crosses it) from a little further back
       const tg = F.act && !F.act.self && F.act.target && this.heroes.get(F.act.target);
       if (tg) at.lerp(tg.pos.clone().setY(at.y), 0.4);
-      const back = V3(-this.dir.x, 0, -this.dir.z), side = V3(this.dir.z, 0, -this.dir.x), r = Math.max(4.5, F.size.h * 3.4 + F.size.d * 1.3) * (tg ? 1.35 : 1);
-      for (const sd of [1, -1, 0.4, -0.4]) { const p = at.clone().addScaledVector(back, r).addScaledVector(side, sd * r * 0.6); p.y = F.pos.y + F.size.h * 1.1 + 0.9; pos = pos || p; if (clear(p, at)) { pos = p; break; } }
+      const back = V3(-this.dir.x, 0, -this.dir.z), side = V3(this.dir.z, 0, -this.dir.x), r = Math.max(4.5, F.size.h * 3.4 + F.size.d * 1.3) * (tg ? 1.5 : 1);
+      // (a charge: well round to the side, so the hero it's aimed at doesn't stand in the way, and high enough that the
+      // ground right under the camera stays out of shot)
+      for (const sd of tg ? [1.7, -1.7, 1.2, -1.2, 1, -1, 0.4, -0.4] : [1, -1, 0.4, -0.4]) { const p = at.clone().addScaledVector(back, r).addScaledVector(side, sd * r * 0.6); p.y = F.pos.y + Math.max(F.size.h * 1.1 + 0.9, tg ? r * 0.85 : 0); pos = pos || p; if (clear(p, at)) { pos = p; break; } }
     } else {
       // wide: straight back and a little up along the fight camera's own line, so the party stays at the bottom and the
       // foes in the stage's open upper part, only more of the field round them
@@ -179,14 +184,20 @@ export const arena = {
     // from the foes' side, or round about, near or far, high or low: the first spot that sees every hero's head
     const P = this.W.P, heads = [...this.heroes.values()].map((h) => h.home.clone().setY(h.home.y + 1.3));
     const clear = (a, b) => { try { return P.sight.hit(a.x, a.y, a.z, b.x, b.y, b.z) > 0.97; } catch (e) { return true; } };
+    // indoors (Together, November 21): the camera stands over the room's own floor, never out past its walls where the
+    // sight test can't see the stone it's behind (the fight's camera does the same since step 3); small rooms get
+    // closer, lower spots to try
+    const open = (p) => { try { return P.walkable(P.M.px(p.x), P.M.py(p.z)); } catch (e) { return true; } };
     let pos = null, bestN = -1, bestPos = null;
-    search: for (const [dist, up] of [[10.5, 3.4], [8, 3.2], [6, 3.6], [4.5, 4.2]]) for (const off of [0, 0.5, -0.5, 1.0, -1.0, 1.6, -1.6]) {
+    search: for (const [dist, up] of [[10.5, 3.4], [8, 3.2], [6, 3.6], [4.5, 4.2], [3.6, 2.8], [2.8, 2.4]]) for (const off of [0, 0.5, -0.5, 1.0, -1.0, 1.6, -1.6, 2.3, -2.3]) {
       const a = this.yaw + off, p = hc.clone().add(V3(Math.sin(a) * dist, up, Math.cos(a) * dist));
+      if (!open(p)) continue;
       const n = heads.filter((h) => clear(p, h)).length;
       if (n > bestN) { bestN = n; bestPos = p; }
       if (n === heads.length) { pos = p; break search; }
     }
-    pos = pos || bestPos;
+    // nowhere on open floor round the front: the fight's own camera, behind the party (it was solved over open ground)
+    pos = pos || bestPos || this.want.pos.clone();
     // look a little below the party, so they stand in the upper part of the screen
     const v = this.renderer.domElement.getBoundingClientRect(), f = (v.height / 2) / Math.tan(fov * Math.PI / 360);
     const off = Math.atan((0.5 - top) * v.height / f), d = aim.clone().sub(pos), L = d.length();
@@ -456,7 +467,7 @@ export const arena = {
       const k = 1 - Math.exp(-dt * (C.t < 0.25 ? 18 : 6));
       this.cam.position.lerp(C.pos, k); this.cam.quaternion.slerp(C.q, k);
       this.cam.fov += (C.fov - this.cam.fov) * k; this.cam.updateProjectionMatrix();
-      if (C.t >= C.dur) { this.close = null; this.stage?.host.classList.remove('f3-close'); }
+      if (C.t >= C.dur) this.close = null;
     } else if (this.want) {
       const k = 1 - Math.exp(-dt * 6);
       this.cam.position.lerp(this.want.pos, k); this.cam.quaternion.slerp(this.want.q, k);
@@ -469,6 +480,9 @@ export const arena = {
     if (nf) foeCenter.multiplyScalar(1 / nf); else foeCenter.copy(this.center).addScaledVector(this.dir, GAP);
     const heroCenter = V3(); for (const h of this.heroes.values()) heroCenter.add(h.home); heroCenter.multiplyScalar(1 / Math.max(1, this.heroes.size));
     for (const h of this.heroes.values()) { stepHero(this, h, d, t, foeCenter); if (h.A.root.visible) placeBlob(this.blobs[bi++], h.pos, 0.9); }
+    // the foes' plates and intents step aside while a Champion's named move plays (in place or with its own camera) or
+    // a close-up or wide camera is on, and come back after (hub, November 21)
+    { const clear = !!this.close || [...this.foes.values()].some((F) => F.act?.moment); if (clear !== this._clear) { this._clear = clear; this.stage?.host.classList.toggle('f3-close', clear); } }
     for (const F of this.foes.values()) { stepFoe(this, F, d, t, heroCenter); if (F.root.visible && !F.sunk) placeBlob(this.blobs[bi++], F.pos, Math.max(0.6, F.size.w * 1.3)); }
     for (; bi < this.blobs.length; bi++) this.blobs[bi].visible = false;
     for (const h of this.heroes.values()) h.aura?.step(d, this.t);
@@ -478,6 +492,10 @@ export const arena = {
     if (this.onIdle) this.onIdle(d, t);
     // ?fast=1 (headless checks only): draw a few times a second, so a slow software browser leaves M7's timers their time
     if (FAST) { this._drawT = (this._drawT || 0) + dt; if (this._drawT < 0.3) return; this._drawT = 0; }
+    // the walk is paused while we fight, so its own thinning of the trees between the camera and the leader stops: the
+    // place's update thins the ones between our camera and the middle of the field instead (a canopy no longer fills the
+    // view in a wood), and keeps its water and lamps moving
+    try { if (this.W?.P?.update) { const mid = heroCenter.clone().lerp(foeCenter, 0.5); mid.y -= 1.0; this.W.P.update(this.t, this.cam, mid); } } catch (e) { /* a place without it */ }
     this.renderer.render(this.scene, this.cam);
   },
 };

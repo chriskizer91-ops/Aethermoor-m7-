@@ -1,18 +1,18 @@
 # The board
 
-Where the 3D game stands. Written by the hub only. Last updated November 21, before dawn.
+Where the 3D game stands. Written by the hub only. Last updated November 21, midday.
 
 ## The sessions
 
 | # | Job | Session | Branch | State | Latest link |
 |---|---|---|---|---|---|
 | 1 | the hub | `session_01DgbUKb6orvjjc1cMgBGPJK` | `claude/brave-davinci-790efm` | running | (the board) |
-| 2 | The Fight | `session_01DgbUKYR9qmKyBdACUWGViw` | `job/fight` | step 5: the moves table for all 298 Champion moves; the wraiths fight in full detail; big moments clear the screen; thick roots, clods and dust, thorns that read in flight; next: fresh stills, then the moments hand-made Champion by Champion | https://claude.ai/artifact/Q9T8quXCTVgiVUZoMuUaP4 |
-| 3 | Models | `session_01DgbUKcWh5MEvjHnxzp4HHo` | `job/models` | the eleven wraiths, first pass: shaped to Chris's sheets with their props, rigid (they can't stretch), wraithLook for the Fight, the Abbot's and the Lantern Mother's named moves; next: layered tatters, lace and embroidery, two thinned to budget | https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL |
-| 4 | Places | `session_01DgbUKZVFBfm1dVautXEw5f` | `job/places` | the place map; the places alive (now with waterfall spray, leaping fish, swaying banners); next, step 5: the set dressing in 3D (barrels, carts, stalls, wells, fences, benches...) | https://claude.ai/artifact/GBxRVSqwMwYUTy1xLNjATA |
+| 2 | The Fight | `session_01DgbUKYR9qmKyBdACUWGViw` | `job/fight` | step 5: Act One's twelve big foes' moments all hand-made and played (the Rotwarden on his own moves, in full detail on the fight page); tongues coil, trees thin in fights, the spoils camera indoors; next: close-up cameras clear of rocks and bushes, then Act Two's Champions on a new page | https://claude.ai/artifact/Q9T8quXCTVgiVUZoMuUaP4 |
+| 3 | Models | `session_01DgbUKcWh5MEvjHnxzp4HHo` | `job/models` | the wraiths' third pass (the Rime-Abbot's cowl and capelet, the Abbess's tiers, the Choir-Wraith's arched panels); next: the armoured walkers and the Unsmith (iron-sentinel, the Sentinel-Captain, the Ashen Warden, the Unsmith; moved from session 8) | https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL |
+| 4 | Places | `session_01DgbUKZVFBfm1dVautXEw5f` | `job/places` | foe lane, the desert and the deep: the sand-skink (1.04M sculpt → 17,516, passes); next: the glass-scorpion and the Glass Matriarch; still owns the places | https://claude.ai/artifact/GBxRVSqwMwYUTy1xLNjATA |
 | 5 | Together | `session_01DgbUKbyjzZFe1BXHHxzHBn` | `job/together` | the place map in every game page with M7's live marks; Act Three done (single file and full pictures), so every act has its pages; next: the Chained Deep and the Worldforge played to the end, then the chests and signs in 3D | https://claude.ai/artifact/RaeSK5hezqb3qH7jmuM5aj |
-| 6 | One Foe | `session_01DgbUKZCNBFY7zwSzwAXR8y` | `job/foe-hd` | the boglurcher (1.30M sculpt → 19,774, passes the stretch check; a new mound plan); helper joints and holding gates in the kit; next: the willows, the sparks, rockling, Mother Anvil | https://claude.ai/artifact/CBt1k8zotiyVb5BCkquENo |
-| 7 | Foes: beasts | `session_01DgbUKZ4qEpafSazysExsYV` | `job/foes-beasts` | the thornhound down to 2.6× by its own check; next: the kit's check and binding until under 1.3×, then the rotstag, Old Snag, the Mirelord, the rotgrub, the Gloamwing | https://claude.ai/artifact/64Ukg3yQAAb8DWz69xqvxs |
+| 6 | One Foe | `session_01DgbUKZCNBFY7zwSzwAXR8y` | `job/foe-hd` | Grandfather Willow (1.4M sculpt → 40,956, passes; the Weeping Bow); the willow-wight; next: the sparks (marsh-light, forge-spark), rockling, Mother Anvil | https://claude.ai/artifact/VVD4hHroTdUSQ2pEZAtaZf |
+| 7 | Foes: beasts | `session_01DgbUKZ4qEpafSazysExsYV` | `job/foes-beasts` | the thornhound's knee needs his hind legs re-posed in the sculpt (he stays on his stand-in); now the rotstag, legs clear of the body from the start; then Old Snag, the Mirelord, rotgrub, the Gloamwing, rime-wolf, lamp-moth, the Thunder-Roc (the desert's and the deep's beasts moved to Places) | https://claude.ai/artifact/64Ukg3yQAAb8DWz69xqvxs |
 | 8 | Foes: walkers | `session_01DgbUKcTDUjKDVHw3sPhu7R` | `job/foes-walkers` | the Rotwarden and the sapwight pass the stretch check (worst 1.29× and 1.28×; separate pieces bound by part, joint limits); next: the kit's standard form for the Fight, the Rotwarden's named moves, Old Horn (held until his cape passes) | https://claude.ai/artifact/YBLUHaLG3bNdfcjBdeq3aj |
 
 ## What's built (on the hub's branch)
@@ -40,6 +40,9 @@ Where the 3D game stands. Written by the hub only. Last updated November 21, bef
 | The briarling, the first foe made with the kit (three ways; its sculpt) | `prototypes/foe-hd/foes/briarling/` | https://claude.ai/artifact/DorMujhAe9d1XNwLGYV4ae · https://claude.ai/artifact/LAjxUMG9Aoj2UPw7DuyHtB |
 | The glowcap (three ways; its sculpt, 841,184 triangles) | `prototypes/foe-hd/foes/glowcap/` | https://claude.ai/artifact/AyUxs7hCGjdzZDNG1jfRnJ · https://claude.ai/artifact/H5yc3TLZDp3Aho9R1nzaCg |
 | The boglurcher (three ways and a crowd; its sculpt, 1,296,288 triangles) | `prototypes/foe-hd/foes/boglurcher/` | https://claude.ai/artifact/CBt1k8zotiyVb5BCkquENo · https://claude.ai/artifact/UXByzwgQxJTPVX3MRVunir |
+| The willow-wight (three ways and a crowd; its sculpt, about 1.25M triangles) | `prototypes/foe-hd/foes/willow-wight/` | https://claude.ai/artifact/LoiEBTvYXJuM7nKijvueHH · https://claude.ai/artifact/2aJ9QPBwtbvnfsEY3H3phj |
+| Grandfather Willow (three ways and a crowd; his sculpt, about 1.4M triangles) | `prototypes/foe-hd/foes/grandfather-willow/` | https://claude.ai/artifact/VVD4hHroTdUSQ2pEZAtaZf · https://claude.ai/artifact/CQZDYsv6DHM5FzXh19ymzC |
+| The desert and the deep in full detail (Places' foe lane): the sand-skink so far (gallery; its sculpt, 1,036,230 triangles) | `prototypes/foe-hd/pages/desert-deep/` | https://claude.ai/artifact/EwHdrinmmvPGCqF48sjdFP · https://claude.ai/artifact/SLHAnYPiHyGVqdXk3y6WfD |
 | The beasts in full detail: the thornhound (phone gallery; laptop page with the sculpt) | `prototypes/foe-hd/pages/beasts/` | https://claude.ai/artifact/64Ukg3yQAAb8DWz69xqvxs · https://claude.ai/artifact/8pCvG7xuqHuCcARiUYa9SX |
 | The walkers in full detail: the Rotwarden and the sapwight | `prototypes/foe-hd/pages/walkers/` | https://claude.ai/artifact/YBLUHaLG3bNdfcjBdeq3aj |
 | The walkers' sculpts, for a laptop | `prototypes/foe-hd/foes/` | https://claude.ai/artifact/JCdvpAPKT781gZiU49jTh2 |
@@ -97,6 +100,9 @@ Where the 3D game stands. Written by the hub only. Last updated November 21, bef
   when they spread (`from-chris/2026-11-21-rotwarden-stretch.webp`). Session 8 fixes his weights; session 6 puts a
   stretch check and weights-by-part into the kit; sessions 7 and Models check theirs; the Fight leaves squash and
   stretch off the full-detail foes. Rules: `jobs/foes.md`, "No stretching".
+
+- **Usage (November 21):** at 05:25 UTC the account hit its 5-hour usage limit; every session stopped until it reset at
+  07:30, and most sat idle until the hub restarted them at about 12:00. Eight sessions at once can reach the limit.
 
 ## Next for the hub
 

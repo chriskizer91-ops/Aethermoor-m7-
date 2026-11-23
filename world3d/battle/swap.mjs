@@ -50,13 +50,32 @@ function foeModule(key, i) {
   return `const b${i} = atob(${JSON.stringify(readFileSync(path.join(dir, 'light.bin')).toString('base64'))}), l${i} = new Uint8Array(b${i}.length); for (let k = 0; k < b${i}.length; k++) l${i}[k] = b${i}.charCodeAt(k);
 const F${i} = { key: ${JSON.stringify(key)}, lightMeta: ${JSON.stringify(meta)}, lightBin: l${i}, tex: { ${res}: { color: ${JSON.stringify(uri(path.join(dir, `color-${res}.webp`)))}, normal: ${JSON.stringify(uri(path.join(dir, `normal-${res}.webp`)))} } }, ao: ${JSON.stringify(uri(path.join(dir, ao)))}, emit: ${JSON.stringify(uri(path.join(dir, emit)))} };`;
 }
+// the stretch rule (hub, November 21; docs/project/jobs/foes.md): only a foe whose stretch check passes on every move
+// (foes/<key>/stretch.json) fights in full detail, whatever FIGHT_HD names
+function passes(key) {
+  const f = path.join(KIT, key, 'stretch.json');
+  if (!existsSync(f)) return false;
+  try { const moves = Object.values(JSON.parse(readFileSync(f, 'utf8')).moves || {}); return moves.length > 0 && moves.every((m) => m.ok === true); } catch (e) { return false; }
+}
+// session 8's walkers (the Rotwarden, the sapwight: plan 'walker', their own bones and moves): their phone version
+// (foes/<key>/assets/phone), shaped as registerWalkers (prototypes/foe-hd/pages/walkers/register.js) takes them
+function walkerModule(key, i) {
+  const dir = path.join(KIT, key, 'assets', 'phone');
+  if (!['light.json', 'light.bin', 'color.webp', 'normal.webp', 'orm.webp'].every((f) => existsSync(path.join(dir, f)))) return null;
+  const meta = JSON.parse(readFileSync(path.join(dir, 'light.json'), 'utf8')), emit = existsSync(path.join(dir, 'emit.webp'));
+  return `const wb${i} = atob(${JSON.stringify(readFileSync(path.join(dir, 'light.bin')).toString('base64'))}), wl${i} = new Uint8Array(wb${i}.length); for (let k = 0; k < wb${i}.length; k++) wl${i}[k] = wb${i}.charCodeAt(k);
+const W${i} = { meta: ${JSON.stringify(meta)}, bin: wl${i}, color: ${JSON.stringify(uri(path.join(dir, 'color.webp')))}, normal: ${JSON.stringify(uri(path.join(dir, 'normal.webp')))}, orm: ${JSON.stringify(uri(path.join(dir, 'orm.webp')))}, emit: ${emit ? JSON.stringify(uri(path.join(dir, 'emit.webp'))) : 'null'}, res: ${meta.res || 1024}, phone: null };`;
+}
 const foeAssets = {
   name: 'aethermoor-fight-foes',
   setup(b) {
     b.onResolve({ filter: /^fight-foe-assets$/ }, () => ({ path: 'fight-foe-assets', namespace: 'fight-hd' }));
     b.onLoad({ filter: /.*/, namespace: 'fight-hd' }, () => {
-      const mods = HD_KEYS.map((k, i) => [i, foeModule(k, i)]).filter(([, m]) => m);
-      return { loader: 'js', contents: mods.map(([, m]) => m).join('\n') + `\nexport const FOES = [${mods.map(([i]) => 'F' + i).join(', ')}];` };
+      const keys = HD_KEYS.filter(passes);
+      const left = HD_KEYS.filter((k) => !passes(k)); if (left.length) console.log(`full detail: ${left.join(', ')} left on their stand-ins (stretch check not passed)`);
+      const walk = keys.map((k, i) => [k, i, walkerModule(k, i)]).filter(([, , m]) => m), walkKeys = new Set(walk.map(([k]) => k));
+      const mods = keys.filter((k) => !walkKeys.has(k)).map((k, i) => [i, foeModule(k, i)]).filter(([, m]) => m);
+      return { loader: 'js', contents: [...mods.map(([, m]) => m), ...walk.map(([, , m]) => m)].join('\n') + `\nexport const FOES = [${mods.map(([i]) => 'F' + i).join(', ')}];\nexport const WALKERS = { ${walk.map(([k, i]) => `${JSON.stringify(k)}: W${i}`).join(', ')} };` };
     });
   },
 };
