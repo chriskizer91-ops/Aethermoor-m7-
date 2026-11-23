@@ -220,5 +220,28 @@ const oldHorn = {
   },
 };
 
-export const FOES = { rotwarden, sapwight, 'old-horn': oldHorn };
+// the peak-troll (session 8, November 23): Old Horn's troll at 0.9 of his size, grey as stone and mossed; his moves are
+// Old Horn's club, pummel and hurl-boulder, and his own Regrow ("The wound closes while you watch: Regenerating.")
+const peakTroll = {
+  key: 'peak-troll', name: 'Peak-Troll', tier: 'Veteran', act: 'Act Two, the high passes', height: 2.2, weight: 1.5,
+  stiff: 0.6, knees: 0.6,
+  limits: { ...oldHorn.limits, spine: 0.22, chest: 0.26 },       // his moss mantle is all of a piece down his back: his spine bends less
+  text: 'A troll of the high passes, grey-green and mossed like a boulder. Cut it and it grows back.',
+  lunge: 'club',
+  idle: oldHorn.idle,
+  moves: {
+    club: oldHorn.moves.club, pummel: oldHorn.moves.pummel, 'hurl-boulder': oldHorn.moves['hurl-boulder'],
+    regrow: { label: 'Regrow', dur: 2.0, pose(W, u, t) {
+      // he hunches over the wound, shudders as it knits, then straightens and rolls his shoulders
+      const b = W.bones, k = seg(u, 0, 0.3) * (1 - seg(u, 0.6, 0.85)), sh = seg(u, 0.2, 0.3) * (1 - seg(u, 0.55, 0.65));
+      crouch(W, 0.35 * k); b.spine.rotation.x = 0.25 * k; b.chest.rotation.x = 0.2 * k; b.head.rotation.x = 0.35 * k;
+      b.r_upper.rotation.x = -0.5 * k; b.r_fore.rotation.x = -0.9 * k; b.r_upper.rotation.z = 0.25 * k;      // a hand pressed to the wound
+      b.chest.rotation.z = 0.04 * Math.sin(u * 70) * sh; W.body.position.x += 0.012 * Math.sin(u * 90) * sh;
+      const roll = seg(u, 0.7, 1) * (1 - seg(u, 0.9, 1));
+      b.chest.rotation.y = 0.12 * Math.sin(u * 18) * roll; b.head.rotation.y += 0.2 * roll;
+    } },
+  },
+};
+
+export const FOES = { rotwarden, sapwight, 'old-horn': oldHorn, 'peak-troll': peakTroll };
 export const COMMON = [['idle', 'Breathe', 0], ['walk', 'Walk', 0], ['hurt', 'Hit', 0.9], ['ko', 'Fall', 2.6]];

@@ -40,9 +40,24 @@ light model that can share the screen with the party, rigged, moving through its
     one surface), turning low at his jaw; his elbow's pivot sits behind the joint; his neck barely bends and his head
     does the turning. The phone version smooths its weights over 4 passes instead of 8 (its edges are longer).
 
+- **The peak-troll** (Act Two veteran): on the Act Two page below, with Old Horn.
+  - Built from Old Horn's troll body at 0.9 of his size (2.2 m to the top of his mantle). The sculpt: 912,536 triangles.
+    Grey stone-coloured hide pebbled and patched with moss; a moss mantle hugging his back and shoulders (the kit's coat
+    of tufts in moss, lichen-grey where it's old), long strands at its ragged hem at his hips, a short cushion on top;
+    boulders bedded into it, mossed over their tops; shelf mushrooms in a cluster on his left shoulder and down his
+    back; a moss skirt; the red thorn vine slung from his right shoulder to his left hip, thorned and weeping red; a big
+    drooping nose, small ears, short tusks, flat toenails; the log club with moss and mushrooms.
+  - Light model 43,606 triangles at 2048 px; phone version 23,800 triangles at 512 px, 0.56 MB (veteran).
+  - Moves: Breathe, Walk, Club, Pummel, Hurl Boulder, Regrow (he hunches over the wound, shudders as it knits, rolls his
+    shoulders), Hit, Fall. Passes the stretch check, full and phone: worst big edge 1.29 times (Hurl Boulder, his back).
+  - What it took beyond Old Horn's: the mantle meets his skin at his seat, so it bends with his whole trunk, not his
+    chest alone; his ankle's blend kept short (a broad foot's band reached his knee); his spine and chest bend less.
+  - Not yet like the sheet: the moss on his shoulders is bulkier and rounder than the sheet's, and his hands are fists
+    where the sheet has big open fingers (Old Horn's too).
+
 ## Links
 
-- Act Two (Old Horn): https://claude.ai/artifact/PosCApXURcQF2S8qyicNaY (9.7 MB)
+- Act Two (Old Horn and the peak-troll): https://claude.ai/artifact/PosCApXURcQF2S8qyicNaY (13.8 MB)
 
 - The walkers' gallery (the Rotwarden and the sapwight, their sheets, the checks, the moves, five of them walking round
   the heroes): https://claude.ai/artifact/YBLUHaLG3bNdfcjBdeq3aj (12.8 MB, with the phone versions)
@@ -111,9 +126,9 @@ plan 'walker' and height; foe.json), written by `pages/walkers/kit/standard.py` 
 
 1. The Rotwarden: one thin root at his left hip stays behind when the root arm swings; the tasset closer to the
    sheet's (a curved plate, not a box); the plates a little more faceted, like the sheet's.
-2. Then the peak-troll (he starts from Old Horn's troll body), cinder-thrall, the Journeyman, forgeborn, bellows,
-   forge-warden, thrall-overseer, unmade. (Iron-sentinel, the Sentinel-Captain, the Ashen Warden and the Unsmith moved
-   to Models, November 21.)
+2. Then unmade (the peak-troll is done). (Iron-sentinel, the Sentinel-Captain,
+   the Ashen Warden and the Unsmith moved to Models on November 21; cinder-thrall, the Journeyman, forgeborn,
+   forge-warden, thrall-overseer and bellows on November 23.)
 
 ## How it's made (for the other foe sessions)
 

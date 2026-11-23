@@ -1,0 +1,64 @@
+# The peak-troll's rig (session 8): Old Horn's (foes/old-horn/rig.py) at 0.9 of his size, as the sculpt is; the club
+# rides his left hand, the tusks his head, the shelf mushrooms his chest, the thorn vine his trunk.
+import os, sys, numpy as np
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../pages/walkers/kit'))
+from rig_biped import biped_bones, weights_biped
+
+HEAD = (-0.05, 0.47, 2.02)
+J = {'hips': (0, -0.02, 1.0), 'spine': (0, 0.05, 1.16), 'chest': (0, 0.08, 1.33),      # the chest joint low, so his deltoids sit wholly on the chest
+      'neck': (0, 0.12, 1.66),                 # the thick neck between his yoke and his jaw
+     'head': (-0.02, 0.30, 1.80),             # the head turns low, at the bottom of his jaw, so it turns whole
+     'head_top': (-0.05, 0.50, 2.25)}
+for s, n in ((1, 'r'), (-1, 'l')):
+    J.update({f'{n}_shoulder': (s * 0.50, 0.12, 1.76), f'{n}_elbow': (s * 0.66, 0.07, 1.20), f'{n}_wrist': (s * 0.68, 0.24, 0.80),
+              f'{n}_hand_tip': (s * 0.68, 0.28, 0.58), f'{n}_hip': (s * 0.29, -0.04, 0.98), f'{n}_knee': (s * 0.37, 0.0, 0.55),
+              f'{n}_ankle': (s * 0.43, -0.07, 0.15), f'{n}_toe': (s * 0.45, 0.28, 0.03)})
+SC = 0.9
+HEAD = tuple(SC * v for v in HEAD)
+J = {k: tuple(SC * v for v in p) for k, p in J.items()}
+BONES = biped_bones(J)
+NAMES = [b[0] for b in BONES]; IDX = {n: i for i, n in enumerate(NAMES)}
+RIGID = {5: 'head', 8: 'chest', 10: 'l_hand'}    # the tusks; the shelf mushrooms; the club (with its moss and mushrooms)
+
+def weights_at(P, kind):
+    J_, W = weights_biped(P, kind, BONES, J, arm_inner=0.44, leg_top=1.05, head_z=None, arm_reach=0.24)
+    # the head: everything in the head's ball (face, ears, jaw) rides it; the cape stays with the chest, not the arms
+    x, y, z = P[:, 0], P[:, 1], P[:, 2]
+    inhead = np.linalg.norm((P - np.array(HEAD)) / [0.42, 0.34, 0.30], axis=1) < 1
+    J_[inhead] = np.array([IDX['head'], 0, 0, 0], np.uint16); W[inhead] = np.array([1, 0, 0, 0], np.float32)
+    # the cape and loincloth (kind 1): chest high up, spine in the middle, hips low; never an arm or a leg
+    cape = kind == 1
+    if cape.any():
+        cz = z[cape]
+        a_ = np.where(cz > 1.55, IDX['chest'], IDX['spine']); b_ = np.where(cz > 1.55, IDX['spine'], IDX['hips'])
+        w = np.where(cz > 1.55, np.clip((cz - 1.55) / 0.4 + 0.5, 0.5, 1.0), np.clip((cz - 0.9) / 0.65, 0.0, 1.0))
+        J_[cape] = np.stack([a_, b_, 0 * a_, 0 * a_], 1).astype(np.uint16)
+        W[cape] = np.stack([w, 1 - w, 0 * w, 0 * w], 1).astype(np.float32)
+    return J_, W
+
+# ---- for weights by part (pages/walkers/kit/bind.py, session 6's) ----------------------------------------------------
+from rig_biped import gate
+TRUNK = ('hips', 'spine', 'chest', 'neck')
+def inhead(P): return (np.linalg.norm((P - np.array(HEAD)) / [0.47, 0.37, 0.36], axis=1) < 1) & (P[:, 2] > 1.80)
+def weigh(D, P, idx, K):
+    D = gate(D, P, idx, 0.44 * SC, 1.05 * SC)
+    for n, i in idx.items():                             # the head (kind 14) is a piece of its own: the head bone only;
+        if n != 'head': D[K == 14, i] += 1000.0          # the body, the cape and the loincloth never take it
+        else: D[K != 14, i] += 1000.0
+    return D
+def part(P, kind, idx):
+    out = np.full(len(P), -1)
+    out[kind == 10] = idx['l_hand']                       # the club, its moss and mushrooms
+    return out
+def rigid(kind, P, idx): return RIGID.get(int(kind))
+
+# the pieces (sculpt.py): each keeps only its own bones
+_ALL = [b[0] for b in BONES]
+_ARMS = [n for n in _ALL if n[2:] in ('upper', 'fore', 'hand')]; _LEGS = [n for n in _ALL if n[2:] in ('thigh', 'shin', 'foot')]
+PIECES = {12: _ARMS, 13: _LEGS, 14: ['head'], 0: [n for n in _ALL if n not in _ARMS + _LEGS + ['head']], 1: ['hips', 'spine', 'chest'], 15: ['hips'],     # the mantle hugs his trunk and meets his skin at his seat: it bends as his trunk does
+          10: ['l_hand'], 5: ['head'], 8: ['chest'], 4: ['hips', 'spine', 'chest']}
+BANDS = {'r_upper': (0.001, 0.001), 'l_upper': (0.001, 0.001), 'r_thigh': (0.001, 0.001), 'l_thigh': (0.001, 0.001),
+         'r_shin': (0.12, 0.32), 'l_shin': (0.12, 0.32),
+         'r_fore': (0.16, 0.34), 'l_fore': (0.16, 0.34),
+         'spine': (0.14, 0.45), 'chest': (0.14, 0.45), 'neck': (0.12, 0.35), 'head': (0.001, 0.001),
+         'r_foot': (0.09, 0.22), 'l_foot': (0.09, 0.22)}      # the ankle's blend kept to the ankle (a broad foot's band reached the knee)
