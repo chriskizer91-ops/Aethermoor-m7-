@@ -91,8 +91,9 @@
 - Build the fight page: `FIGHT_HD=briarmaw,briarling,glowcap,rotwarden,sapwight node build.mjs --page=m7-fight
   --places=thornhollow,briarmaw-den,heartroot-1,heartroot-2 --tex=768 --herotex=256 --entry=fight.js --plugin=battle/swap.mjs`
   (15.3 MB). Act One: `FIGHT_HD=briarmaw,briarling,glowcap,boglurcher FIGHT_STANDEES=thornhound ... --out=fight-act1
-  --places=<its 13> --tex=352`. Act Two: `FIGHT_HD=willow-wight FIGHT_STANDEES=none ... --out=fight-act2
-  --places=scorchgate-vaults,harrows-forge,frostmere-below,tidal-flats,mothers-hollow,willowmurk --tex=512`.
+  --places=<its 13> --tex=352`. Act Two: `FIGHT_HD=willow-wight,grandfather-willow,glass-scorpion,glass-matriarch,sand-skink FIGHT_STANDEES=none ...
+  --out=fight-act2 --places=scorchgate-vaults,harrows-forge,frostmere-below,tidal-flats,mothers-hollow,willowmurk,dust-trail,deep-shaft-2
+  --tex=448`. Events: `FIGHT_HD=marsh-light`.
 - Not proven by Auto: the Sand Wyrm's and the Thunder-Roc's swallows (their charge never landed in those runs).
 
 ## Step 4
@@ -166,7 +167,14 @@
   lantern room) and the Heartroot (two fights) by `battle/check-spoils-view.mjs`: every one sees all four heroes.
 - **Pages**: the fight page now carries Act One's two Champions (Briarmaw's den, the Heartroot: Rotwarden and sapwight
   in full detail) and Thornhollow's road; Act One at 352 px world textures (with the boglurcher); a new Act Two page
-  (the Champions' places and Willowmurk, the willow-wight in full detail): link below once published.
+  (the Champions' places, Willowmurk, the Dust Trail and the Glass Heart; full detail: willow-wight, Grandfather
+  Willow, glass-scorpion, glass matriarch, sand-skink; Models' armoured Ashen Warden and wraiths):
+  https://claude.ai/artifact/AqSBbi7gYeRogHPsq24nAk (15.5 MB, 448 px world textures). Every move of Act Two's six
+  Champions, Grandfather Willow and the Unsmith (events page) proven by check-moments: a moment each, no errors; the
+  armoured, the wraiths, the Unsmith and Grandfather Willow play their own body moves.
+- **Fixed November 23**: an effect started by a delayed one (fx.later) used to stand frozen on the field (dropped from
+  the effects list); the turn strip steps aside during a close-up or wide camera; close-up spots scored by a fan of
+  rays (built things, rock, trees, ground too near).
 - Known weak: Longshot's close-up can sit in a bush (the sight test doesn't see foliage); effects on heroes are small
   at phone size.
 - **For the foe lanes (sessions 6, 7, 8): the own-move names the table asks for**, M7's move ids (each falls back to
