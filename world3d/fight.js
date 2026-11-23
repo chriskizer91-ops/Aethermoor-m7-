@@ -41,6 +41,8 @@ import { FOES as HD_FOES, WALKERS as HD_WALKERS } from 'fight-foe-assets';
 import { registerWalkers } from '../prototypes/foe-hd/pages/walkers/register.js';
 // Models' eleven wraiths (rigid pieces, so they never stretch): first in line for their keys, the kit for the rest
 import { withWraiths } from '../prototypes/wraiths/wraiths.js';
+// Models' armoured walkers and the Unsmith (rigid pieces too): the iron sentinels, their captain, the Ashen Warden
+import { withArmoured } from '../prototypes/armoured/armoured.js';
 import { runFight } from './battle/run.js';
 import { openParty } from './battle/party-room.js';
 
@@ -75,7 +77,7 @@ SCENES.den = encScene('briarmaw-den');
 const LOOKS = ['hd', '3d', 'cutout'];
 let look = LOOKS.includes(Q.get('foes')) ? Q.get('foes') : 'hd', hdLook = null;
 async function useLook(k) {
-  if (k === 'hd' && !hdLook) { await hdReady(); addMoves('scorpion', scorpionMoves); addMoves('lizard', lizardMoves); for (const A of HD_FOES) hdRegister(A, { res: Number(Object.keys(A.tex)[0]) }); registerWalkers(HD_WALKERS, hdRegister); hdLook = withWraiths(hdFoeLook(buildBeast)); }
+  if (k === 'hd' && !hdLook) { await hdReady(); addMoves('scorpion', scorpionMoves); addMoves('lizard', lizardMoves); for (const A of HD_FOES) hdRegister(A, { res: Number(Object.keys(A.tex)[0]) }); registerWalkers(HD_WALKERS, hdRegister); hdLook = withArmoured(withWraiths(hdFoeLook(buildBeast))); }
   setBeastLook(k === 'cutout' ? standeeLook : k === 'hd' ? hdLook : null);
 }
 let SC = Q.get('enc') && encScene(Q.get('enc')) || SCENES[Q.get('fight') === 'briarmaw' ? 'den' : 'road'];
@@ -292,7 +294,7 @@ async function main() {
     look = LOOKS[(LOOKS.indexOf(look) + 1) % LOOKS.length]; await useLook(look); looks();
     if (pack) for (const F of pack.figs) W.P.scene.remove(F.root);
     pack = null; spawnPack();
-    toast({ '3d': 'The foes as 3D models', cutout: 'The foes as Chris painted them', hd: `In full detail: ${[...HD_FOES.map((A) => A.key), ...Object.keys(HD_WALKERS), 'the wraiths'].join(', ')}` }[look]);
+    toast({ '3d': 'The foes as 3D models', cutout: 'The foes as Chris painted them', hd: `In full detail: ${[...HD_FOES.map((A) => A.key), ...Object.keys(HD_WALKERS), 'the wraiths', 'the armoured walkers', 'the Unsmith'].join(', ')}` }[look]);
   });
   looks();
   $('scenebtn').addEventListener('click', () => { drawList(); list.classList.toggle('on'); });
