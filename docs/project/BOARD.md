@@ -1,6 +1,6 @@
 # The board
 
-Where the 3D game stands. Written by the hub only. Last updated November 23, evening.
+Where the 3D game stands. Written by the hub only. Last updated November 23, late evening.
 
 ## The sessions
 
@@ -10,10 +10,10 @@ Where the 3D game stands. Written by the hub only. Last updated November 23, eve
 | 2 | The Fight | `session_01DgbUKYR9qmKyBdACUWGViw` | `job/fight` | 255 hand-made moments, Act Two done throughout (pages for Act Two, the Sunscorch, the Ironspire, the Gloomfen); lively Briarmaw, Kharzul, the Sand Wyrm's swallow; next: Act Three (the Hollow Council, the Unsmith's companions); the eyrie waits on Places | https://claude.ai/artifact/Q9T8quXCTVgiVUZoMuUaP4 |
 | 3 | Models | `session_01DgbUKcWh5MEvjHnxzp4HHo` | `job/models` | the winged, first pass (the lamp-moth, the Gloamwing, the Thunder-Roc; rigid wings and feathers); 24 foes built in all; next: the Thunder-Roc's fluffy body coat and woven cloak | https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL |
 | 4 | Places | `session_01DgbUKZVFBfm1dVautXEw5f` | `job/places` | foe lane done: the sand-skink, the glass-scorpion, the Glass Matriarch, the Sand Wyrm, Kharzul (all pass); next: the Thunder-Roc's eyrie on Highfold with the Fight, then the places' gaps | https://claude.ai/artifact/GBxRVSqwMwYUTy1xLNjATA |
-| 5 | Together | `session_01DgbUKbyjzZFe1BXHHxzHBn` | `job/together` | the place map in every game page with M7's live marks; Act Three done (single file and full pictures), so every act has its pages; next: the Chained Deep and the Worldforge played to the end, then the chests and signs in 3D | https://claude.ai/artifact/RaeSK5hezqb3qH7jmuM5aj |
+| 5 | Together | `session_01DgbUKbyjzZFe1BXHHxzHBn` | `job/together` | all ten game pages rebuilt with every look chained (five single, five full-pictures, one per region); checking the Sand Wyrm fight, Briarmaw's den (3/3) and Rekindle with M7's late-game party before publishing | https://claude.ai/artifact/RaeSK5hezqb3qH7jmuM5aj |
 | 6 | One Foe | `session_01DgbUKZCNBFY7zwSzwAXR8y` | `job/foe-hd` | the Gloomfen's deep beasts done (the mire-leech, the blackwater-gar, Old Jaws, the Blackwater Leviathan) and Briarmaw lively again; next: Briarmaw's head drawn out for head tosses, then the thornhound's re-posed legs (from session 7) | https://claude.ai/artifact/3Px9mipuqrTBB8NFfehbj5 |
 | 7 | Foes: beasts | `session_01DgbUKZ4qEpafSazysExsYV` | `job/foes-beasts` | the Rot-Stag, Old Snag, the Mirelord and the rotgrub (all pass); next and last: the rime-wolf (the thornhound's legs moved to session 6) | https://claude.ai/artifact/64Ukg3yQAAb8DWz69xqvxs |
-| 8 | Foes: walkers | `session_01DgbUKcTDUjKDVHw3sPhu7R` | `job/foes-walkers` | Old Horn and the peak-troll (both pass, phone copies); next and last: unmade | https://claude.ai/artifact/YBLUHaLG3bNdfcjBdeq3aj |
+| 8 | Foes: walkers | `session_01DgbUKcTDUjKDVHw3sPhu7R` | `job/foes-walkers` | Old Horn and the peak-troll (both pass); now the last: unmade (begun: wound husk strips, holes to the violet dark, tunic, cowl, relic) | https://claude.ai/artifact/YBLUHaLG3bNdfcjBdeq3aj |
 
 ## What's built (on the hub's branch)
 
