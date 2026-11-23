@@ -55,9 +55,9 @@ const band = (x, a, b, soft = 0.012) => smooth((x - a + soft) / (2 * soft)) * (1
 // a leaf: a feather, a tuft of fur, a scale. A flat blade along +y, its faces toward +z, curling toward +z at the tip;
 // wid its half-width, round how soon it reaches full width, tipAt where it starts to close. Wears the feather master.
 const LEAVES = new Map();
-function leafGeo(len, wid, { curl = 0.12, thick = 0.12, tipAt = 0.55, round = 0.25, bend = 0, kind = 'feather', point = 0 } = {}) {
-  const id = [len, wid, curl, thick, tipAt, round, bend, kind, point, Q.d].join('|'); if (LEAVES.has(id)) return LEAVES.get(id);
-  const m = Q.d > 1 ? 10 : 6, pts = [];
+function leafGeo(len, wid, { curl = 0.12, thick = 0.12, tipAt = 0.55, round = 0.25, bend = 0, kind = 'feather', point = 0, rings = 6 } = {}) {
+  const id = [len, wid, curl, thick, tipAt, round, bend, kind, point, rings, Q.d].join('|'); if (LEAVES.has(id)) return LEAVES.get(id);
+  const m = Q.d > 1 ? Math.round(rings * 1.7) : rings, pts = [];
   for (let i = 0; i <= m; i++) { const t = i / m; pts.push(V(bend * len * t * t, len * t, curl * len * t * t)); }
   const w = t => { const a = t < round ? 0.3 + 0.7 * Math.sqrt(smooth(t / round)) : 1, b = t > tipAt ? Math.pow(Math.max(0, 1 - ((t - tipAt) / (1 - tipAt)) ** 2), point ? 1 : 0.5) : 1; return wid * a * Math.max(0.05, b); };
   const g = fitMaster(tube(pts, t => [w(t) * thick + 0.0015, w(t)], { n: 6, up: V(0, 0, 1) }), kind);
@@ -75,6 +75,20 @@ function ruff(parent, mats, { n, y, r, len, wid, down = 0.6, out = 1, z0 = 0, sz
     const t = (i + 0.5) / n, a = lerp(a0, a1, t) + (vnoise(i * 3.1, seed, 7) - 0.5) * jitter / n * 6, s = Math.sin(a), c = Math.cos(a);
     const L = len * (0.85 + 0.3 * vnoise(i * 1.7, seed, 9)), p = V(s * r, y, c * r * sz + z0);
     put(leafGeo(Math.round(L * 1000) / 1000, wid, { curl, point }), mats[i % mats.length], parent, p, V(s * out, -down, c * out), V(s, 0.4, c));
+  }
+}
+// a coat of small feathers laid over a lathed body: staggered rows from y0 down to y1, each feather lying along the
+// surface (down the profile's slope), just lifted at its tip, so the rows overlap into one coat rather than tiers
+function coat(parent, mats, rAt, { y0, y1, rows, n, len, wid, a0 = 0, a1 = Math.PI * 2, sz = 1, lift = 0.18, seed = 1, curl = 0.3 }) {
+  for (let r = 0; r < rows; r++) {
+    const y = lerp(y0, y1, r / Math.max(1, rows - 1)), dy = len * 0.6, rr = rAt(y), r2 = rAt(y - dy);
+    for (let i = 0; i < n; i++) {
+      const a = lerp(a0, a1, (i + 0.5 * (r % 2) + 0.25) / n) + (vnoise(i * 2.3, r + seed * 7, 13) - 0.5) * 0.15, s = Math.sin(a), c = Math.cos(a);
+      const out = V(s, 0, c * sz).normalize(), p = V(s * rr * 1.01, y, c * rr * sz * 1.01), q = V(s * r2, y - dy, c * r2 * sz);
+      const d = q.sub(p).normalize().addScaledVector(out, lift);
+      const L = len * (0.85 + 0.3 * vnoise(i * 1.9, r * 3.1, seed));
+      put(leafGeo(Math.round(L * 1000) / 1000, wid, { curl, rings: 4, tipAt: 0.5 }), mats[(i + r) % mats.length], parent, p, d, out);
+    }
   }
 }
 // a tube that is a vein, a cord, a leg: along points
@@ -271,11 +285,9 @@ function roc(G) {
   const prof = [[0, -0.25], [0.14, -0.23], [0.21, -0.12], [0.245, 0.02], [0.25, 0.14], [0.22, 0.27], [0.16, 0.37], [0.11, 0.44], [0, 0.47]];
   add(fitMaster(lathe(prof, { n: 22, sz: 1.05 }), 'plumage'), navy, body);
   const rAt = y => { for (let i = 1; i < prof.length; i++) if (y <= prof[i][1]) { const [r0, y0] = prof[i - 1], [r1, y1] = prof[i]; return lerp(r0, r1, (y - y0) / (y1 - y0)); } return 0.05; };
-  for (let row = 0; row < 7; row++) { const y = 0.33 - row * 0.055, n = 8 - (row > 4 ? 2 : 0); ruff(body, [breast, breast2], { n, y, r: rAt(y) * 0.99, sz: 1.05, len: 0.075, wid: 0.026, down: 4, a0: -0.7 + row * 0.04, a1: 0.7 - row * 0.04, seed: 40 + row, curl: 0.35, jitter: 0.1 }); }
-  ruff(body, [navy, navy2, blue], { n: 16, y: 0.38, r: 0.15, len: 0.18, wid: 0.05, down: 2.4, seed: 50, a0: 0.9, a1: 5.4 });
-  ruff(body, [navy2, navy], { n: 16, y: 0.24, r: 0.22, len: 0.18, wid: 0.055, down: 3, seed: 51, a0: 1.0, a1: 5.3 });
-  ruff(body, [navy, blue, navy2], { n: 16, y: 0.04, r: 0.245, len: 0.18, wid: 0.055, down: 3.2, seed: 52, a0: 1.1, a1: 5.2 });
-  ruff(body, [navy2, navy], { n: 16, y: -0.13, r: 0.21, len: 0.17, wid: 0.055, down: 3.2, seed: 53, a0: 0.6, a1: 5.7 });
+  coat(body, [breast, breast2], rAt, { y0: 0.34, y1: -0.02, rows: 7, n: 8, len: 0.095, wid: 0.033, a0: -0.75, a1: 0.75, sz: 1.05, lift: 0.12, seed: 40 });
+  coat(body, [navy, navy2, blue, navy], rAt, { y0: 0.42, y1: -0.18, rows: 8, n: 12, len: 0.145, wid: 0.052, a0: 0.75, a1: 2 * Math.PI - 0.75, sz: 1.05, lift: 0.15, seed: 50 });
+  coat(body, [navy2, navy], rAt, { y0: 0.0, y1: -0.16, rows: 2, n: 7, len: 0.13, wid: 0.045, a0: -0.8, a1: 0.8, sz: 1.05, lift: 0.15, seed: 55 });
   // the neck and head: a shaggy ruff, a crest of spikes, a hooked gold beak, a pale fierce eye under a heavy brow
   const neck = node(body, 0, 0.42, 0.05); R.neck = neck;
   add(fitMaster(lathe([[0.1, -0.04], [0.09, 0.06], [0.075, 0.14]], { n: 16 }), 'plumage'), navy, neck);
@@ -305,7 +317,8 @@ function roc(G) {
     add(fitMaster(lathe([[0.055, -0.22], [0.075, -0.15], [0.08, -0.05], [0.065, 0.03]], { n: 14 }), 'plumage'), navy, hip);
     for (let row = 0; row < 3; row++) ruff(hip, [navy, navy2, blue], { n: 9, y: -0.03 - row * 0.065, r: 0.07, len: 0.12 + row * 0.02, wid: 0.035, down: 2.8, seed: 70 + row + s * 5, curl: 0.15 });
     const knee = node(hip, 0, -0.22, 0);
-    add(rod([V(0, 0.02, 0), V(0, -0.12, 0.01), V(0, -0.25, 0.02)], t2 => 0.024 - t2 * 0.004, 'lame', 8), gold, knee);
+    add(rod([V(0, -0.015, 0), V(0, -0.12, 0.01), V(0, -0.25, 0.02)], t2 => 0.024 - t2 * 0.004, 'lame', 8), gold, knee);
+    add(fitMaster(sph(0.045, 12, 10), 'plumage'), navy, knee);
     const foot = node(knee, 0, -0.26, 0.02);
     for (const [a, L] of [[-0.5, 0.11], [0, 0.13], [0.5, 0.11], [Math.PI, 0.08]]) {
       const d = V(Math.sin(a), 0, Math.cos(a)), p1 = d.clone().multiplyScalar(L * 0.55).setY(-0.02), p2 = d.clone().multiplyScalar(L).setY(-0.035);
@@ -336,29 +349,51 @@ function birdWing(body, s, M) {
   for (let i = 0; i < 12; i++) { const k = i / 11, th = lerp(-0.05, 0.3, k); put(leafGeo(0.5, 0.055, { curl: -0.03, tipAt: 0.75 }), i % 2 ? M.navy2 : M.navy, el, V(X(a2 * (0.04 + 0.94 * k)), -0.003 * (i % 2), -0.015), V(X(Math.sin(th)), 0, -Math.cos(th)), up); }
   for (let i = 0; i < 5; i++) { const k = i / 4; put(leafGeo(0.42 - 0.06 * (1 - k), 0.055, { curl: -0.03, tipAt: 0.75 }), i % 2 ? M.navy : M.blue, sh, V(X(a1 * (0.3 + 0.68 * k)), -0.003 * (i % 2), -0.02), V(X(-0.12 + 0.1 * k), 0, -1), up); }
   // coverts in rows over the flight feathers' roots; the leading edge in pale sky-blue
-  for (let i = 0; i < 12; i++) { const k = i / 11; put(leafGeo(0.24, 0.05, { curl: -0.05, tipAt: 0.65 }), i % 2 ? M.navy : M.blue, el, V(X(a2 * (0.02 + 0.96 * k)), 0.018, 0.0), V(X(0.12), 0, -1), up); }
-  for (let i = 0; i < 10; i++) { const k = i / 9; put(leafGeo(0.14, 0.045, { curl: -0.05, tipAt: 0.6 }), i % 2 ? M.navy2 : M.navy, el, V(X(a2 * (0.02 + 0.96 * k)), 0.032, 0.02), V(X(0.15), 0, -1), up); }
-  for (let i = 0; i < 8; i++) { const k = i / 7; put(leafGeo(0.22, 0.045, { curl: -0.05, tipAt: 0.65 }), i % 2 ? M.navy : M.blue, wr, V(X(a3 * (0.05 + 0.8 * k)), 0.016, 0.0), V(X(Math.sin(lerp(0.3, 1.0, k))), 0, -Math.cos(lerp(0.3, 1.0, k))), up); }
-  for (let i = 0; i < 6; i++) { const k = i / 5; put(leafGeo(0.2, 0.05, { curl: -0.05, tipAt: 0.65 }), i % 2 ? M.navy2 : M.navy, sh, V(X(a1 * (0.15 + 0.8 * k)), 0.02, 0.0), V(X(-0.05), 0, -1), up); }
-  for (const [n, L, cnt] of [[sh, a1, 7], [el, a2, 8], [wr, a3, 6]]) for (let i = 0; i < cnt; i++) { const k = (i + 0.5) / cnt; put(leafGeo(0.1, 0.035, { curl: -0.1, tipAt: 0.55 }), M.sky, n, V(X(L * k), 0.04, 0.035), V(X(0.35), -0.05, -1), up); }
+  for (let i = 0; i < 12; i++) { const k = i / 11; put(leafGeo(0.24, 0.05, { curl: -0.05, tipAt: 0.65, rings: 4 }), i % 2 ? M.navy : M.blue, el, V(X(a2 * (0.02 + 0.96 * k)), 0.018, 0.0), V(X(0.12), 0, -1), up); }
+  for (let i = 0; i < 10; i++) { const k = i / 9; put(leafGeo(0.14, 0.045, { curl: -0.05, tipAt: 0.6, rings: 4 }), i % 2 ? M.navy2 : M.navy, el, V(X(a2 * (0.02 + 0.96 * k)), 0.032, 0.02), V(X(0.15), 0, -1), up); }
+  for (let i = 0; i < 8; i++) { const k = i / 7; put(leafGeo(0.22, 0.045, { curl: -0.05, tipAt: 0.65, rings: 4 }), i % 2 ? M.navy : M.blue, wr, V(X(a3 * (0.05 + 0.8 * k)), 0.016, 0.0), V(X(Math.sin(lerp(0.3, 1.0, k))), 0, -Math.cos(lerp(0.3, 1.0, k))), up); }
+  for (let i = 0; i < 6; i++) { const k = i / 5; put(leafGeo(0.2, 0.05, { curl: -0.05, tipAt: 0.65, rings: 4 }), i % 2 ? M.navy2 : M.navy, sh, V(X(a1 * (0.15 + 0.8 * k)), 0.02, 0.0), V(X(-0.05), 0, -1), up); }
+  for (const [n, L, cnt] of [[sh, a1, 7], [el, a2, 8], [wr, a3, 6]]) for (let i = 0; i < cnt; i++) { const k = (i + 0.5) / cnt; put(leafGeo(0.1, 0.035, { curl: -0.1, tipAt: 0.55, rings: 4 }), M.sky, n, V(X(L * k), 0.04, 0.035), V(X(0.35), -0.05, -1), up); }
   // sparks: forks of light caught in the pinions
   for (let i = 0; i < 3; i++) { const pts = []; let p = V(X(a3 * (0.3 + 0.3 * i)), 0.02, -0.1 - i * 0.05); for (let k = 0; k < 6; k++) { pts.push(p.clone()); p = p.clone().add(V(X(0.03 + 0.02 * vnoise(i, k, 3)), (vnoise(k, i, 5) - 0.5) * 0.06, -0.05 - 0.03 * vnoise(i, k, 8))); } add(rod(pts, 0.005, 'rim', 4), M.spark, wr); }
   return { sh, el, wr, side: s };
 }
 // the shepherd's cloak, caught on the Roc's talon: long feathers of its own, bound with pale woven bands and beads
-function cloak(foot, M) {
-  const C = node(foot, 0.0, -0.02, 0.1), band = surf('#b4ac9a', { rough: 0.85 }), dark = surf('#283050', { rough: 0.8 });
-  for (let i = 0; i < 9; i++) {
-    const k = i / 8 - 0.5, L = 0.5 - Math.abs(k) * 0.12, p = V(k * 0.16, 0, 0.02 * Math.cos(k * 3)), d = V(k * 0.35, -1, 0.15);
-    put(leafGeo(+L.toFixed(3), 0.05, { curl: 0.08, tipAt: 0.72 }), i % 3 === 0 ? M.blue : i % 2 ? M.navy2 : M.navy, C, p, d, V(0, 0, 1));
-    if (i % 2 === 0) { put(leafGeo(+(L * 0.75).toFixed(3), 0.018, { curl: 0.08, tipAt: 0.9, round: 0.05, thick: 0.3, kind: 'embroid' }), band, C, p.clone().add(V(0, -0.03, 0.012)), d, V(0, 0, 1)); for (let j = 0; j < 4; j++) add(sph(0.006, 6, 4), dark, C, p.x + d.x * (0.08 + j * 0.07) / 1.06, p.y - (0.06 + j * 0.07 * 0.94), p.z + 0.03); }
+// a woven strip: a flat ribbon along +y (face +z), pale with a dark border and a stepped key pattern, by vertex colour
+function ribbon(len, w, seed = 0) {
+  const nx = 6, ny = Q.d > 1 ? 64 : 24, pos = [], col = [], uv = [], idx = [];
+  const pale = Lc('#d8cfb8'), dk = Lc('#1e2440'), mid = Lc('#8a7c62');
+  for (let j = 0; j <= ny; j++) for (let i = 0; i <= nx; i++) {
+    const u = i / nx, v = j / ny, x = (u - 0.5) * w * (1 - 0.3 * v * v), y = v * len, z = 0.08 * len * v * v;
+    pos.push(x, y, z); uv.push(u, v);
+    const a = Math.abs(u - 0.5) * 2, k = (v * len / w * 1.2 + seed * 0.37) % 1, step = (k < 0.5 ? k : 1 - k) * 2;
+    let c = pale; if (a > 0.8) c = dk; else if (a < 0.62 && Math.abs(a / 0.62 - step) < 0.28) c = dk; else if (a > 0.66) c = mid;
+    col.push(...c);
   }
-  for (let j = 0; j < 3; j++) {
+  for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) { const a = j * (nx + 1) + i, b = a + 1, c = a + nx + 1, d = c + 1; idx.push(a, b, c, b, d, c); }
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2));
+  g.setAttribute('color', new THREE.Float32BufferAttribute(col, 3)); g.setIndex(idx); g.computeVertexNormals();
+  return fitMaster(g, 'embroid');
+}
+function cloak(foot, M) {
+  const C = node(foot, 0.0, -0.02, 0.1), band = surf('#b4ac9a', { rough: 0.85 }), dark = surf('#283050', { rough: 0.8 }), strip = surf('#ffffff', { vc: true, rough: 0.85 });
+  for (let i = 0; i < 9; i++) {
+    const k = i / 8 - 0.5, L = 0.52 - Math.abs(k) * 0.12, p = V(k * 0.12, 0, 0.03 * Math.cos(k * 3) - 0.01 * (i % 2)), d = V(k * 0.75, -1, 0.25 - 0.12 * (i % 2));
+    put(leafGeo(+L.toFixed(3), 0.05, { curl: 0.08, tipAt: 0.72 }), i % 3 === 0 ? M.blue : i % 2 ? M.navy2 : M.navy, C, p, d, V(0, 0, 1));
+    if (i % 2 === 0) {
+      // a woven strip down the feather (the sheet's pale bands with a dark key pattern), tasselled at its foot
+      const st = put(ribbon(L * 0.8, 0.026, i), strip, C, p.clone().add(V(0, -0.02, 0.022)), d, V(0, 0, 1));
+      const end = d.clone().normalize().multiplyScalar(L * 0.8 + 0.02).add(st.position);
+      for (const o of [-0.008, 0.008]) add(rod([end.clone().add(V(o, 0.01, 0.002)), end.clone().add(V(o * 1.5, -0.05, 0.004))], 0.003, 'braid', 4), band, C);
+      add(sph(0.008, 8, 6), M.gold, C, end.x, end.y - 0.055, end.z + 0.004);
+    }
+  }
+  for (let j = 0; j < 1; j++) {
     const y = -0.04 - j * 0.07, pts = []; for (let i = 0; i <= 10; i++) { const k = i / 10 - 0.5; pts.push(V(k * 0.24 * (1 + j * 0.25), y - Math.abs(k) * 0.03, 0.05 + 0.02 * Math.cos(k * 3))); }
     add(fitMaster(tube(pts, [0.022 - j * 0.003, 0.006], { n: 6, up: V(0, 1, 0) }), 'embroid'), j === 1 ? dark : band, C);
   }
-  for (const k of [-0.32, -0.12, 0.1, 0.3]) { add(rod([V(k * 0.3, -0.17, 0.06), V(k * 0.32, -0.25, 0.07)], 0.002, 'braid', 4), band, C); add(sph(0.012, 8, 6), M.gold, C, k * 0.32, -0.26, 0.07); }
-  const sp = []; let p = V(-0.08, -0.05, 0.1); for (let k = 0; k < 6; k++) { sp.push(p.clone()); p = p.clone().add(V(0.035, -0.04 + (vnoise(k, 2, 4) - 0.5) * 0.05, 0.01)); } add(rod(sp, 0.004, 'rim', 4), M.spark, C);
+  for (const k of [-0.32, 0.3]) { add(rod([V(k * 0.3, -0.05, 0.06), V(k * 0.32, -0.15, 0.07)], 0.002, 'braid', 4), band, C); add(sph(0.012, 8, 6), M.gold, C, k * 0.32, -0.16, 0.07); }
+  const sp = []; let p = V(-0.08, -0.05, 0.1); for (let k = 0; k < 4; k++) { sp.push(p.clone()); p = p.clone().add(V(0.035, -0.04 + (vnoise(k, 2, 4) - 0.5) * 0.05, 0.01)); } add(rod(sp, 0.004, 'rim', 4), M.spark, C);
   return C;
 }
 
