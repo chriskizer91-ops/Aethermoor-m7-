@@ -1,0 +1,82 @@
+{
+ "key": "glass-scorpion",
+ "name": "Glass Scorpion",
+ "plan": "scorpion",
+ "moves": "scorpion",
+ "rank": "veteran",
+ "height": 0.6,
+ "sheet": "art-in/3d/sheets/sheet-glass-scorpion.webp",
+ "crops": [
+  [
+   30,
+   600
+  ],
+  [
+   640,
+   1520
+  ],
+  [
+   1590,
+   2150
+  ]
+ ],
+ "bounds": [
+  [
+   -0.42,
+   -0.36,
+   -0.01
+  ],
+  [
+   0.42,
+   0.56,
+   0.62
+  ]
+ ],
+ "voxel": {
+  "0": 0.006,
+  "1": 0.004,
+  "2": 0.0026,
+  "3": 0.0016
+ },
+ "view": {
+  "center": [
+   0,
+   0.05,
+   0.3
+  ],
+  "width": 1.1,
+  "head": [
+   0,
+   0.27,
+   0.22
+  ],
+  "headWidth": 0.5
+ },
+ "light": {
+  "level": 0,
+  "coat": 16000
+ },
+ "sculpt": {
+  "level": 3
+ },
+ "bake": {
+  "res": 1024,
+  "phone": 512,
+  "ao": 48,
+  "reach": {
+   "coat": [
+    0.01,
+    0.03
+   ],
+   "parts": [
+    0.006,
+    0.015
+   ]
+  }
+ },
+ "rig": "rig.py",
+ "stretchMoves": "pages/desert-deep/moves/scorpion.js",
+ "blurb": "The glass-scorpion is the size of a dog, 0.6 m to the top of its tail: its shell gone to clouded pale-gold glass in the heat, amber at the edge of every plate, dark amber at the joints. Every plate, tail segment and leg piece is its own hard piece riding its own bone, so nothing on it stretches.",
+ "next": "",
+ "pages": {}
+}
