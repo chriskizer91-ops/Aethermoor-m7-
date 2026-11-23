@@ -6,7 +6,7 @@ cd "$(dirname "$0")"
 PASS=${1:-3}; RES=${2:-2048}; KEY=old-horn
 SHEET=../../../../art-in/3d/sheets/sheet-$KEY.webp; BOXES=0:575,575:1180,1180:1774
 K=../../pages/walkers/kit; W=../../pages/walkers/tools
-TARGETS=0=7000,12=4000,13=5000,1=17000,15=3000,2=900,4=300,5=300,6=700,10=2400
+TARGETS=0=6000,14=3000,12=4000,13=5000,1=17000,15=3000,2=900,4=300,5=300,6=700,10=2400
 python3.12 sculpt.py build 1
 [ "$PASS" != 1 ] && python3.12 sculpt.py build $PASS
 blender -b -P $K/preview.py -- build/high-1.npz build/shape >/dev/null 2>&1

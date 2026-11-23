@@ -205,7 +205,7 @@ const oldHorn = {
       // head down, a lunge, and the horn hooks up
       const b = W.bones, dip = seg(u, 0, 0.35) * (1 - seg(u, 0.4, 0.55)), hook = seg(u, 0.4, 0.55) * (1 - seg(u, 0.75, 1));
       b.neck.rotation.x = 0.5 * dip - 0.45 * hook; b.head.rotation.x += 0.3 * dip - 0.3 * hook;
-      b.chest.rotation.x = 0.3 * dip - 0.1 * hook; W.body.position.z = 0.3 * (dip + hook);
+      b.chest.rotation.x = 0.15 * dip - 0.05 * hook; W.body.position.z = 0.3 * (dip + hook);
       b.r_upper.rotation.z -= 0.3 * dip; b.l_upper.rotation.z += 0.3 * dip;
       crouch(W, 0.35 * dip);
     } },
