@@ -328,6 +328,28 @@ of twelve at the fight's detail). Code: `prototypes/wraiths/` (`wraiths.js`, REA
   Rime-Wraith 13k, Rime-Abbot 19k (a Champion), Lantern Mother 13k, Mirage-Wisp 3k, Wisp-Queen 10k: all under 20k.
   Same look shape and moves for the Fight.
 
+**The ironclad, first pass: the Iron Sentinel, the Sentinel-Captain, the Ashen Warden, the Unsmith** (November 23;
+from session 8's list). Gallery: https://claude.ai/artifact/4WQXpMifD5GWsgCXTP4PVD. Code: `prototypes/armoured/`
+(`armoured.js`, README).
+- The constructs: rounded riveted plate on a stocky walking rig (hips, chest, head, shoulders, elbows, fists, legs with
+  knees), gold bands and rivets, great pauldrons, fists and boots, a glowing core: the Iron Sentinel (castle helm with
+  a burning slit, a gear on its breast, a round bossed shield), the Sentinel-Captain (visored helm with bolted cheeks
+  and a gold plume, a fleur, Ironwall the tall shield), the Ashen Warden (bronze-dark plate, a great helm under the
+  Cinder Crown, the Ashen Aegis with its burning emblem, a sword whose cracks burn, a torn cape of ash, ash rising at
+  its feet). Their shields and swords stay upright in the hand as the arms move.
+- The Unsmith: a person, by the heroes' own builder (face, beard, hands, leather apron, black cloak), with the Unmaking
+  Hammer (cracked with violet fire) and the Worldforge Heart burning in his chest; his face takes effort when the heart
+  flares and winces when hit. Honestly, he reads younger and leaner than Chris's sheet (the builder's face and build):
+  a later pass gives him the wild hair, big beard and broad shoulders.
+- Nothing stretches: every piece rigid on one moving part. For the Fight: `setBeastLook(withArmoured(withWraiths(
+  foeLook(buildBeast))))`; moves: the common set and each one's own, named for M7's (the Sentinel: iron-fist,
+  gate-slam, lock-shields; the Captain: those and ironwall, shield-rush; the Ashen Warden: ash-blade, ember-sweep,
+  ward-of-ash, call-the-watch, command-of-cinders, scorch-the-vault, watch-unbroken; the Unsmith: hammer-blow,
+  ring-the-anvil, unmake, forge-apron, nothing-left, worldfire, hearts-pull, heart-flare).
+- Triangles (High / Light): Iron Sentinel 80k / 25k (veteran ~30k), Sentinel-Captain 82k / 25k, Ashen Warden 94k / 30k
+  (Champion ~50k), the Unsmith 110k / 23k. The sculpts: Ashen Warden 893k, the Unsmith 845k. Gallery 6.9 MB, no
+  horizontal scroll at 390 px, no page errors.
+
 ## Next
 
 - Chris chose full detail for the beasts (November 20): sessions 6 to 8 build them (`docs/project/jobs/foes.md`;

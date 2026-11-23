@@ -621,3 +621,6 @@ export function wraithLook(key, sprite, opts = {}) {
   return buildWraith(key, { detail: opts.detail === 'high' ? 'high' : 'light' });
 }
 export const withWraiths = fallback => (key, sprite, opts) => wraithLook(key, sprite, opts) || fallback(key, sprite, opts);
+
+// the parts and moves, for the other robed and armoured foes built the same way (prototypes/armoured/)
+export { C, cloth, solid, glow, ghost, glowless, robeRings, robe, wsh, hemTrim, ringAt, beads, mist, staff, lantern, SHAPES, env, rise, face };
