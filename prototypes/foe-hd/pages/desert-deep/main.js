@@ -17,11 +17,12 @@ import { ready, makeShared, makeFoe, cloneFoe } from '../../kit/js/loader.js';
 import { PLANS } from '../../kit/js/looks.js';
 import { FOES } from './assets.js';
 import * as lizard from './moves/lizard.js';
+import * as scorpion from './moves/scorpion.js';
 // the desert and the deep (Places' lane, November 21): every finished foe of the lane on one page; the buttons at the top
 // pick which is on the stands (the page reloads with #<key>). Each foe's own moves where the kit's plan isn't enough.
-const OWN_MOVES = { 'sand-skink': lizard };
+const OWN_MOVES = { lizard, scorpion };
 const pick = decodeURIComponent(location.hash.slice(1)), A = FOES.find((f) => f.key === pick) || FOES[FOES.length - 1];
-const KEY = A.lightMeta.key, MV = OWN_MOVES[KEY] || PLANS[A.lightMeta.plan] || PLANS.quad;
+const KEY = A.lightMeta.key, MV = OWN_MOVES[A.lightMeta.moves] || OWN_MOVES[{ 'sand-skink': 'lizard' }[KEY]] || OWN_MOVES[A.lightMeta.plan] || PLANS[A.lightMeta.plan] || PLANS.quad;
 {
   const bar = document.getElementById('foes');
   for (const f of FOES) {
