@@ -675,7 +675,8 @@ function stepFoe(ar, F, d, t, heroCenter) {
       const sw = a.kmove === 'swallow' && (F.fig.beast?.moves?.EVENTS?.swallow || F.fig.beast?.moves?.SWALLOW_AT || F.fig.beast?.SWALLOW_AT);
       const reach = sw && (sw.reach ?? sw.ahead); if (reach) tp.copy(h.pos).addScaledVector(dv, reach);
       // a winged foe's own carry-off, dive or swoop flies it forward itself (Models, November 23): no dash on top
-      const flies = F.fig.beast?.plan === 'winged' && ['carry-off', 'dive', 'swoop'].includes(a.kmove);
+      // a foe rooted in the water (the Leviathan: his coils stay put, his neck reaches) strikes from where it lies
+      const flies = (F.fig.beast?.plan === 'winged' && ['carry-off', 'dive', 'swoop'].includes(a.kmove)) || F.fig.beast?.plan === 'leviathan';
       const go = flies ? 0 : seg(a.t, 0.18, 0.42), ret = a.bit && !flies ? seg(after, 0.35, 0.85) : 0;
       F.pos.copy(F.home).lerp(tp, go * (1 - ret)); F.pos.y = ar.heightAt(F.pos.x, F.pos.z, F.pos.y);
       walking = (go > 0 && go < 1) || (ret > 0 && ret < 1);
