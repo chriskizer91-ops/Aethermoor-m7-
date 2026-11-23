@@ -19,4 +19,4 @@ python3 $W/textures.py build/bake assets $RES
 node $W/pack.mjs build/bake "" assets
 python3 $K/info.py build/high-1.npz build/high-$PASS.npz $PASS assets $RES
 ls -la assets
-python3 $K/standard.py . unmade "The Unmade" 1.8 1024 512 veteran 0xffffff
+python3 $K/standard.py . unmade "The Unmade" 1.8 1024 512 veteran 0xb070ff

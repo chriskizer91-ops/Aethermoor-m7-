@@ -106,6 +106,8 @@ def bind(RIG, P, kind, tris, height, mid, log=print):
 
     # weld the points split at UV seams, and join them by the triangles' edges
     q = np.round(np.asarray(P, np.float64) / (height * 2e-4)).astype(np.int64)
+    if getattr(RIG, 'WELD_SAME_KIND', False):        # (session 6's switch) weld only points of the same kind, so a piece
+        q = np.column_stack([q, np.asarray(kind, np.int64)])   # that merely touches another keeps its own weights
     _, first, wid = np.unique(q, axis=0, return_index=True, return_inverse=True)
     wid = wid.ravel(); nw = len(first)
     Pw = np.asarray(P, np.float64)[first]; Kw = np.asarray(kind)[first]

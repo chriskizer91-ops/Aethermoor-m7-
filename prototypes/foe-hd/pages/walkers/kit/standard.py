@@ -17,8 +17,11 @@ m = Image.open(os.path.join(bake, 'mat.png')).convert('RGB').resize((1024, 1024)
 save(Image.merge('RGB', (ao, r_, g_)), 'orm-1024.webp', 88)
 ep = os.path.join(bake, 'emit.png')
 save(Image.open(ep).convert('RGB').resize((256, 256), Image.LANCZOS) if os.path.exists(ep) else Image.new('RGB', (256, 256)), 'emit-256.webp', 85)
-lj = os.path.join(out, 'light.json'); meta = json.load(open(lj))
-meta.update({'key': key, 'plan': 'walker', 'height': height}); json.dump(meta, open(lj, 'w'))
+for lj in (os.path.join(out, 'light.json'), os.path.join(out, 'phone', 'light.json')):     # the page's and the phone's
+    if not os.path.exists(lj): continue
+    meta = json.load(open(lj)); meta.update({'key': key, 'plan': 'walker', 'height': height})
+    if glow: meta['glow'] = glow                     # the glow's tint (walker.js); amber if none
+    json.dump(meta, open(lj, 'w'))
 cfg = {'key': key, 'name': name, 'plan': 'walker', 'rank': rank, 'height': height,
        'moves': 'pages/walkers/foes.js', 'bake': {'res': res, 'phone': phone}, 'rig': 'rig.py',
        'note': "a walker (session 8): its moves are pages/walkers/foes.js FOES[key] (walker.js movesFor); its own page assets are color.webp, orm.webp and phone/"}

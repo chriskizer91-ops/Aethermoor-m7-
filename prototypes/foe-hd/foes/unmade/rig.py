@@ -27,6 +27,11 @@ def weigh(D, P, idx, K):
     for n, i in idx.items():                             # the head (kind 14) is a piece of its own
         if n != 'head': D[K == 14, i] += 1000.0
         else: D[K != 14, i] += 1000.0
+    z = P[:, 2]                                          # each leg bone only at its own height (the thigh bone starts inside
+    for n, i in idx.items():                             # the pelvis, so the sight test can hide it from the top of the thigh)
+        if n.endswith('_shin'): D[(K == 13) & (z > 0.64), i] += 1000.0
+        if n.endswith('_foot'): D[(K == 13) & (z > 0.22), i] += 1000.0
+        if n.endswith('_thigh'): D[(K == 13) & (z < 0.40), i] += 1000.0
     return D
 def part(P, kind, idx):
     out = np.full(len(P), -1)
@@ -43,5 +48,7 @@ _ARMS = [n for n in _ALL if n[2:] in ('upper', 'fore', 'hand')]; _LEGS = [n for 
 PIECES = {12: _ARMS, 13: _LEGS, 14: ['head'], 0: ['hips', 'spine', 'chest', 'neck'], 15: ['hips'], 10: ['l_hand'], 7: ['head', 'chest']}
 BANDS = {'r_upper': (0.001, 0.001), 'l_upper': (0.001, 0.001), 'r_thigh': (0.001, 0.001), 'l_thigh': (0.001, 0.001),
          'r_shin': (0.10, 0.22), 'l_shin': (0.10, 0.22), 'r_fore': (0.10, 0.20), 'l_fore': (0.10, 0.20),
-         'r_foot': (0.05, 0.13), 'l_foot': (0.05, 0.13), 'r_hand': (0.04, 0.10), 'l_hand': (0.04, 0.10),
+         'r_foot': (0.07, 0.16), 'l_foot': (0.07, 0.16), 'r_hand': (0.04, 0.10), 'l_hand': (0.04, 0.10),
          'spine': (0.12, 0.35), 'chest': (0.12, 0.35), 'neck': (0.10, 0.25), 'head': (0.001, 0.001)}
+SMOOTH = int(os.environ.get('BIND_SMOOTH', 4))                                   # a light model this coarse: smooth over fewer passes, or shin weight creeps up to the hip
+WELD_SAME_KIND = True                        # its legs' tops touch its pelvis: they keep their own weights

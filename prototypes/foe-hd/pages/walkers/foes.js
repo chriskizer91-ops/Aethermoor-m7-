@@ -248,7 +248,7 @@ const peakTroll = {
 const unmade = {
   key: 'unmade', name: 'The Unmade', tier: 'Veteran', act: 'Act Three, the Hearth Below', height: 1.8, weight: 0.7,
   stiff: 0.7, knees: 0.7,
-  limits: { neck: 0.5, head: 0.8, spine: 0.5, chest: 0.5, l_shin: 0.6, r_shin: 0.6, l_fore: 0.7, r_fore: 0.7 },
+  limits: { neck: 0.5, head: 0.8, spine: 0.5, chest: 0.5, l_shin: 0.42, r_shin: 0.42, l_fore: 0.7, r_fore: 0.7 },
   text: 'A relic-bearer the Worldforge unmade: a grey husk still carrying the shape of the thing it held, and still reaching for it.',
   lunge: 'empty-grip',
   idle(W, t) {
