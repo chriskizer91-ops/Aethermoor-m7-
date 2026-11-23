@@ -177,6 +177,12 @@
   glass matriarch, sand-skink). Hand-made moments for its nine Relic-Bearers (the Ash-Wight Captain, Gnash, Rasa, the
   Glass Matriarch, the Wisp-Queen, the Sand Wyrm, Vell, Brask, Tamsin): every move a moment, no errors (check-moments).
   170 hand-made moments in all. Next: the Ironspire's and the Gloomfen's Relic-Bearers, each region its own page.
+- **The Ironspire page**: https://claude.ai/artifact/WhydqjmyNvuGQdrSadEXKD (13.1 MB; Rockslide Pass, Ironhold and its Deeps, the Iron
+  Stair, the Frost Road, Frostmere and Beneath, Highfold, Harrow's Forge). Hand-made moments for its seven Relic-Bearers
+  (the Brigand Warden, the Journeyman and the Sentinel Captain on Models' armoured, Old Horn, the Drowned Abbess, the
+  Ice-Cutter, the Thunder-Roc): every move a moment, no errors. 211 hand-made moments in all.
+  **Known problem**: the Thunder-Roc's eyrie on Highfold: the fight faces a rock wall and the Roc can't be seen (the same
+  on the events page; the fight's own camera finds no clear way to face there). To look into, maybe with Places.
 - **Swallows** (agreed with Places, session 4, for the Sand Wyrm and the Leviathan): their `parts.mouth` and
   `SWALLOW_AT { u, reach }`; the hero shrinks into the mouth at that u and comes back out of it on release; the foe
   stops at `reach`; a `full` idle while a hero is inside, `spit` on release. One Foe (session 6) builds the

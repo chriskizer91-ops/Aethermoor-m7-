@@ -147,7 +147,8 @@ export const arena = {
       if (sc > best) { best = sc; pos = p; }
       if (sc >= 11.9) break;
     }
-    pos = pos || at.clone().addScaledVector(back.clone().applyAxisAngle(UP, turns[0]), span).setY(F.pos.y + F.size.h * 1.1 + 0.9);
+    // nowhere over open floor with a clear line (a crag, a ledge): the fight's own camera, turned to the foe, a little back
+    if (!pos || best < -20) { const fwd0 = V3(0, 0, -1).applyQuaternion(this.want.q); pos = this.want.pos.clone().addScaledVector(fwd0, -1).setY(this.want.pos.y + 0.8); }
     look = at.clone(); look.y -= pos.distanceTo(at) * 0.07;
     const q = new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().lookAt(pos, look, UP));
     this.close = { t: 0, dur, pos, q, fov: kind === 'close' ? 36 : 44 };
