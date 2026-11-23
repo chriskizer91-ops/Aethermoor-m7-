@@ -1,0 +1,86 @@
+{
+ "key": "sand-wyrm",
+ "name": "The Sand Wyrm",
+ "plan": "wyrm",
+ "moves": "wyrm",
+ "rank": "relic-bearer",
+ "height": 1.6,
+ "sheet": "art-in/3d/sheets/sheet-sand-wyrm.webp",
+ "crops": [
+  [
+   20,
+   560
+  ],
+  [
+   650,
+   1520
+  ],
+  [
+   1620,
+   2160
+  ]
+ ],
+ "bounds": [
+  [
+   -0.9,
+   -0.85,
+   -0.34
+  ],
+  [
+   0.9,
+   1.25,
+   1.66
+  ]
+ ],
+ "voxel": {
+  "0": 0.02,
+  "1": 0.012,
+  "2": 0.0075,
+  "3": 0.0056
+ },
+ "view": {
+  "center": [
+   0,
+   0.15,
+   0.8
+  ],
+  "width": 2.6,
+  "head": [
+   0,
+   1.0,
+   1.0
+  ],
+  "headWidth": 1.0
+ },
+ "light": {
+  "level": 0,
+  "coat": 28000
+ },
+ "sculpt": {
+  "level": 3
+ },
+ "bake": {
+  "res": 2048,
+  "phone": 1024,
+  "ao": 48,
+  "reach": {
+   "coat": [
+    0.03,
+    0.1
+   ],
+   "parts": [
+    0.03,
+    0.09
+   ]
+  }
+ },
+ "rig": "rig.py",
+ "stretchMoves": "pages/desert-deep/moves/wyrm.js",
+ "blurb": "The Sand Wyrm swims in the sand under the Dust Trail: 1.6 m of it risen out of a mound of broken rock, arching over so its round mouth looks down at you. Its hide is great rock-like plates overlapping like shingles; a gold scale the size of a door (the wyrmscale) sits in it either side. Its mouth is a ring of glass teeth whose rim opens wide to swallow a hero whole.",
+ "next": "",
+ "pages": {
+  "sculpt": "https://claude.ai/artifact/La6N8h126JumPRLHs7ZyPk",
+  "three": "https://claude.ai/artifact/2r6Q5RAfU9MqqaLsQvH2KF"
+ },
+ "sculptTriangles": 981408
+}

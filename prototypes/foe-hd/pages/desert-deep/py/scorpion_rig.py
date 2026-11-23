@@ -48,13 +48,15 @@ def make(sp):
         # the back (kind 0) is body and head only: nothing else may take it
         return D
     def rigid(kind, P, idx):
+        if kind == 2: return 'body'               # the crystals on the back are the back's, never the tail's
         return bone_of_piece(P)
     def part(P, kind, idx, piece):
         out = np.full(len(P), -1)
         k0 = kind == 0
         out[k0] = idx['body']                    # the back's plates and belly: the body (it bends at the root only)
-        for c in np.unique(piece[~k0]):          # each separate shell piece rides the bone it lies along
-            m = (piece == c) & ~k0
+        out[kind == 2] = idx['body']             # so are the crystals standing out of the plates (the Matriarch, Kharzul)
+        for c in np.unique(piece[~k0 & (kind != 2)]):          # each separate shell piece rides the bone it lies along
+            m = (piece == c) & ~k0 & (kind != 2)
             if m.sum() < 3: continue
             bn = bone_of_piece(P[m])
             if bn: out[m] = idx[bn]

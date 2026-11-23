@@ -350,13 +350,93 @@ from session 8's list). Gallery: https://claude.ai/artifact/4WQXpMifD5GWsgCXTP4P
   (Champion ~50k), the Unsmith 110k / 23k. The sculpts: Ashen Warden 893k, the Unsmith 845k. Gallery 6.9 MB, no
   horizontal scroll at 390 px, no page errors.
 
+**The ironclad, second pass** (November 23). Gallery republished: https://claude.ai/artifact/4WQXpMifD5GWsgCXTP4PVD
+- The Unsmith closer to his sheet: his own sculpted head in place of the builder's painted face (older and heavier:
+  brow, a broad nose, cheekbones, deep-set eyes), bushy copper brows and a moustache, a great beard with gold beads
+  plaited in, wild copper hair swept back over the crown, broad shoulders (a wider chest, the arms set further out,
+  set once as built: nothing scales as he moves) and a heavy ragged mantle torn in layers over his shoulders; the
+  Unmaking Hammer's head made bigger, dark violet stone with its cracks burning.
+- The constructs against their sheets: a new sculpted master, **battered** (36 kinds in all, the atlas full: 578 KB):
+  big and small dents from blows, gouges where blades skidded, fine scratches, patches of soot, on all their plate
+  (chest, hips, arms, legs, helms, pauldrons). The Ashen Warden keeps embers in the seams of its plate; the
+  Sentinel-Captain's plume is now the sheet's great swept crest.
+- Triangles (High / Light): Iron Sentinel 80k / 25k, Sentinel-Captain 85k / 26k, Ashen Warden 99k / 31k, the Unsmith
+  113k / 26k; sculpts about 900k (Warden 898k, Unsmith 915k). Every move poses with no errors; no horizontal scroll.
+
+**The stone and forge constructs, first pass** (November 23; from session 8's list). In the ironclad gallery (now ten):
+https://claude.ai/artifact/4WQXpMifD5GWsgCXTP4PVD
+- Three new sculpted masters (39 kinds; the atlas grown to 4 x 12 cells, still one picture in `masters/pack.js`, 632
+  KB): **brick** (courses of firebrick, mortar, chipped corners, soot), **slag** (lumpy, pitted, deep cracks) and
+  **ashflake** (packed ash in overlapping flakes).
+- The Cinder-Thrall (ash in flakes, a rag over its burning eyes, a coal heart, fire in its cracks), the Thrall-Overseer
+  (slag, a smith's iron mask set in its chest, burning spikes, one lit eye on a bent stalk, glowing ankle cuffs, a
+  loincloth, the hot chain), the Forgeborn (black slag split with fire, a furnace grille in its chest, rock shoulders
+  with lit slits, belt and buckle, a burning crown of flame), the Bellows (a strapped swollen body, a round furnace grate,
+  a brass pipe curling over into the chimney that is its head), Harrow's Journeyman (a person, by the heroes' builder:
+  masked, mantled and cloaked, with the Runestaff and its compass-star and tags) and the Forge-Warden (a kiln of
+  firebrick with a fire-door, an anvil head, a burning chimney with smoke, a bellows at its side, a hammer arm and a
+  fist on jointed iron arms, stubby iron legs). Glowing cracks are rigid lines of fire on each piece, so they move with it.
+- Moves, named for M7's: the Thrall: cinder-fist, ash-in-the-eyes, reform; the Overseer: those and hot-chain,
+  drive-them; the Forgeborn: molten-fist, slag-spit, stoke; the Bellows: those and bellows-blast, blow-sparks; the
+  Journeyman: those and smiths-hammer, temper-kin, rune-fire, white-heat; the Forge-Warden: hammer-arm, bellows-breath,
+  hold-the-bridge, stoke. Same `armouredLook` / `withArmoured` for the Fight.
+- Triangles (High / Light): Cinder-Thrall 18k / 9k (rabble ~20k), Thrall-Overseer 33k / 13k, Forgeborn 21k / 10k,
+  Bellows 18k / 10k, Forge-Warden 31k / 12k (veterans ~30k), the Journeyman 122k / 26k (Relic-Bearer ~40k). Sculpts
+  ~850-910k. Honestly, a first pass: the golems' limbs are still blocky beside the sheets' lumpy rock and shingled ash,
+  the Journeyman reads plainer than his sheet (no fur collar or wild hair yet), the Bellows' harness is simpler.
+
+**The stone and forge constructs, second pass** (November 23). Gallery republished:
+https://claude.ai/artifact/4WQXpMifD5GWsgCXTP4PVD
+- Lumpier rock: every golem's trunk and limbs are pushed in and out with smooth bumps (rock, not boxes), and the slag
+  ones carry boulders on their shoulders and forearms.
+- Shingled ash: the Cinder-Thrall is laid over in rows of overlapping ash flakes, each tilted out at its lower edge, on
+  its chest, hips, arms and legs (a few triangles each; there are hundreds).
+- The Journeyman: a fur collar of tufts laid out and down over his shoulders, and wild dark hair swept back over his head.
+- The Bellows: a fuller harness: straps over each shoulder crossing in a Y down the back, brass rings and buckles where
+  they meet, a brass plate with lit slits on the back, leg straps with buckles, leather shoulder pads.
+- At Light: Cinder-Thrall 15k (rabble ~20k), Thrall-Overseer 13k, Forgeborn 11k, Bellows 14k, Forge-Warden 12k, the
+  Journeyman 30k (Relic-Bearer ~40k). Sculpts about 900k.
+
+**The winged, first pass** (November 23; from session 7's list). A new gallery: https://claude.ai/artifact/CmY9BHJzyVYCYgQtpboqBg
+(`prototypes/winged/`)
+- Three new sculpted masters (42 kinds; still one picture in `masters/pack.js`, 697 KB): **feather** (a quill ridge and
+  angled barbs, a few splits), **mothwing** (rows of tiny overlapping scales and fine veins) and **plumage** (a coat of
+  small overlapping feathers, or a moth's furry scales).
+- The Lamp-Moth: dun and pale-gold wings mottled like the sheet with amber eyespots, a furry thorax and head, big amber
+  eyes, comb antennae, six long legs, and a lamp burning in the last segments of its tail.
+- The Gloamwing: lavender-grey wings with gold eyespots, a pale wavy band, scalloped dark borders; snowy fur; gold
+  plumed antennae; the Dawnbell on braided cords crossed over its chest, knotted in a gold quatrefoil on its back, the
+  bell on its own pendulum with tassels (it always hangs straight down).
+- The Thunder-Roc: storm-blue wings raised like the sheet, three jointed spars with every feather a rigid blade (pale
+  sky-blue leading edge), a pale scalloped breast, a spiky crest, a gold hooked beak and a fierce pale eye, a fan tail,
+  feathered thighs, gold scaled legs, black claws, the shepherd's feather cloak with its woven strips and beads on its
+  left foot, and sparks that flicker in its pinions.
+- Nothing stretches: moth wings are stiff membranes hinged at the root, the abdomen is insect segments, legs are rigid
+  parts; the Roc's wing folds and spreads by its joints.
+- Moves: M7's own (the Lamp-Moth: batter, dust, circle; the Gloamwing: wing-buffet, dreamdust, cocoon, bell-hum; the
+  Roc: talons, wing-gale, carry-off, storm-mantle), flight (hover, swoop, dive, land) and the common ones.
+  `wingedLook` / `withWinged` for the Fight, chained like `withArmoured`. The moths hover on their own.
+- Triangles (High / Light): Lamp-Moth 70k / 21k (rabble ~20k), the Gloamwing 90k / 27k, the Thunder-Roc 124k / 39k
+  (Relic-Bearers ~40k); same draws at both. Sculpts 830k to 980k. Every move poses with no errors; 390 px phone, no
+  horizontal scroll.
+
+**The winged, second pass: the Roc** (November 23). Gallery republished: https://claude.ai/artifact/CmY9BHJzyVYCYgQtpboqBg
+- One fluffy coat: the Roc's body is now laid over in staggered rows of small feathers that lie along its shape (down
+  the body's own slope, lifted a little at the tip), so they overlap into one coat instead of tiers; the pale breast
+  is the same, smaller and scalloped. A feathered knee covers the joint of the raised leg.
+- The cloak: its feathers fan out from the talon like the sheet's, five of them carrying pale woven strips with a dark
+  border and a stepped key pattern (painted on, one rigid strip each), each strip ending in two little tassels and a
+  gold bead; one binding near the top.
+- At Light 38k (Relic-Bearer ~40k); the sculpt about 1.0M. Same draws at High and Light.
+
 ## Next
 
 - Chris chose full detail for the beasts (November 20): sessions 6 to 8 build them (`docs/project/jobs/foes.md`;
   sculpts of 500k to 1M triangles kept as viewable assets, baked to about 50k for the game). This job does no more
   beast reshaping. The sculpted twelve (`sculpt.js`) and the painted standees (`standee.js`, `standeeLook`) stay as
   stand-ins, and `buildBeast` and the Bestiary keep working, until each full-detail foe lands.
-- This job keeps the heroes, the townsfolk and the 39 people foes: next, whatever the hub asks for them.
+- This job keeps the heroes, the townsfolk, the people foes, the wraiths, the ironclad and constructs, and the winged:
+  next, whatever the hub asks for them.
 
 ## Changed outside my files
 

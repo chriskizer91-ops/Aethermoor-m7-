@@ -196,19 +196,19 @@ export const MOMENTS = {
   },
 
   'gloamwing:wing-buffet': { // "Pale wings hit like a door slammed in a gale."
-    move: 'swipe',
+    move: ['wing-buffet', 'swipe'],
     land: (c) => { for (const h of c.heroes) { c.fx.slash(chest(h), c.ar.cam, '#f0ecf8', true); c.fx.smoke(feet(h), '#d8d0c8', 6, 1.0, 0.9); } c.shake(1); },
   },
   'gloamwing:dreamdust': { // "Scales like snow. WIS save or Frightened."
-    move: 'cast',
+    move: ['dreamdust', 'cast'],
     land: (c) => { for (const h of c.heroes) { c.fx.sparks(head1(h).setY(h.pos.y + 2.4), '#f4f0ff', 30, { spread: 0.9, up: -0.8 }); c.fx.mark(head1(h), '#c8a8ff', 0.28, 1.2); } },
   },
   'gloamwing:cocoon': { // "It wraps itself in silk: Regenerating."
-    move: 'cast',
-    land: (c) => { c.fx.vines(c.F.pos.clone(), c.F.size.h * 1.0, Math.max(0.5, c.F.size.w * 0.55), '#f0ece0', 1.5); c.fx.pulse(mid(c), '#8ad872', 1.2, 1.0); },
+    move: ['cocoon', 'cast'],
+    land: (c) => { if (!c.F.fig.beast?.pose) c.fx.vines(c.F.pos.clone(), c.F.size.h * 1.0, Math.max(0.5, c.F.size.w * 0.55), '#f0ece0', 1.5); c.fx.pulse(mid(c), '#8ad872', 1.2, 1.0); }, // (Models' Gloamwing spins its own silk shell)
   },
   'gloamwing:bell-hum': { // "The Dawnbell hums on its thorax: 2d6 radiant to all, and you Stagger."
-    move: 'roar', camera: 'wide',
+    move: ['bell-hum', 'roar'], camera: 'wide',
     start: (c) => { c.fx.pulse(mid(c), '#ffe8a0', 1.6, 1.4); for (let k = 0; k < 3; k++) c.fx.later(k * 0.25, () => c.fx.ring(c.F.pos.clone(), '#ffe8a0', 6, 1.1, 0.06)); },
     land: (c) => { for (const h of c.all) c.fx.sparks(chest(h), '#fff0b0', 14, { spread: 0.8 }); c.shake(1); },
   },
@@ -483,6 +483,156 @@ export const MOMENTS = {
     start: (c) => { c.fx.ring(c.F.pos.clone(), '#4aa0c0', 10, 1.4); },
     land: (c) => { c.shake(2); for (const h of c.all) { c.fx.splash(feet(h), '#6aa0a8', 30, 2.4); c.fx.ring(feet(h), '#4aa0c0', 2, 1.0); } },
   },
+
+  // ---- Act Two's Relic-Bearers: the Sunscorch (hand-made November 23) ----
+  ...TALLY('tallyman/foreman'),
+  'tallyman/foreman:pick': { // "A miner's pick, swung by someone who has swung ten thousand of them."
+    land: (c) => { for (const h of c.heroes) { c.fx.slash(chest(h), c.ar.cam, '#d8d0c0', true); c.fx.sparks(chest(h), '#ffd27a', 14); } c.shake(1); },
+  },
+  'tallyman/foreman:dig-faster': { // "Brask cracks the tally-whip: every digger is Hasted."
+    land: (c) => { const F2 = [...c.ar.foes.values()].find((G) => G !== c.F && !G.removed && !G.ko); if (F2) c.fx.lash(mid(c), F2.pos.clone().setY(F2.pos.y + F2.size.h * 0.6), '#5a3a20', 0.03, 0.5, { bulb: false, gloss: false }); for (const G of c.ar.foes.values()) if (!G.removed && !G.ko) c.fx.sparks(G.pos.clone().setY(G.pos.y + G.size.h * 0.5), '#ffe08a', 10, { spread: 0.5, up: 1.2 }); },
+  },
+  'tallyman/foreman:noon-flare': { // "Brask unshutters the Sunstone Lantern and it is noon underground."
+    camera: 'wide',
+    start: (c) => { c.fx.flare(mid(c), '#fff4c0', 3.2, 1.3); },
+    land: (c) => { for (const h of c.all) { c.fx.flames(feet(h), 0.3, 0.8, 6, 0.6); c.fx.mark(head1(h), '#fff4c0', 0.26, 1.2); } },
+  },
+
+  'smuggler/sharpshooter:cut': { land: (c) => { for (const h of c.heroes) { c.fx.slash(chest(h).setY(h.pos.y + 0.8), c.ar.cam, '#e0e8f0'); c.fx.sparks(chest(h), '#c8d0d8', 8); } } }, // "A smuggler's knife, quick and low."
+  'smuggler/sharpshooter:caltrops': { land: (c) => { for (const h of c.all) c.fx.scatter(feet(h), '#5a5a62', 10, 0.9, 2.0); } }, // "Iron burrs across the path."
+  'smuggler/sharpshooter:bolt': { land: (c) => { c.fx.smoke(c.F.pos.clone().setY(c.F.pos.y + 0.3), '#c8b898', 9, 1.0, 1.4); } }, // "Gone into the reeds."
+  'smuggler/sharpshooter:pin-down': { // "An arrow through your bootlace and into the sand: Rooted."
+    land: (c) => { for (const h of c.heroes) { c.fx.shot(mid(c), feet(h).setY(h.pos.y + 0.1), 'arrow', '#f4e2b8', 0.24); c.fx.later(0.24, () => { c.fx.smoke(feet(h), '#c8b898', 4, 0.5, 0.8); c.fx.ring(feet(h), '#e8d8b0', 0.8, 0.8); }); } },
+  },
+  'smuggler/sharpshooter:singing-shot': { // "Saltglass sings as Vell draws it to the ear, charging: 3d8 storm, and you Stagger."
+    camera: 'close',
+    start: (c) => { c.fx.pulse(mid(c), '#e8f4ff', 0.9, 1.4); for (let k = 0; k < 3; k++) c.fx.later(k * 0.3, () => c.fx.ring(c.F.pos.clone(), '#e8f4ff', 2, 0.9, c.F.size.h * 0.6)); },
+    land: (c) => { for (const h of c.heroes) { c.fx.shot(mid(c), chest(h), 'orb', '#e8f4ff', 0.2); c.fx.later(0.2, () => { c.fx.pillar(feet(h), '#d8e8ff', 3.5); c.fx.sparks(chest(h), '#ffffff', 24, { spread: 1 }); }); } c.shake(2); },
+  },
+
+  'ash-wight/captain:ash-blade': { land: (c) => { for (const h of c.heroes) { c.fx.slash(chest(h), c.ar.cam, '#ffb060', true); c.fx.flames(feet(h), 0.3, 0.8, 7, 0.6); } } }, // "A blade still hot from the fire..."
+  'ash-wight/captain:cinder-grasp': { // "A burnt hand closes on yours and drinks the warmth out of it. It heals."
+    land: (c) => { for (const h of c.heroes) { c.fx.smoke(chest(h), '#4a4440', 5, 0.5, 1.0); c.fx.thorn(chest(h), mid(c), '#ff8a3a', 0.5, 0.2); } c.fx.later(0.6, () => c.fx.pulse(mid(c), '#8ad872', 1.0, 0.8)); },
+  },
+  'ash-wight/captain:ember-breath': { // "It breathes on you, and three hundred years of ember breathe with it."
+    land: (c) => { for (const h of c.heroes) { for (let k = 0; k < 8; k++) c.fx.thorn(head(c), chest(h).add(rand(0.5)), '#ff8a3a', 0.35, k * 0.04); c.fx.later(0.3, () => c.fx.flames(feet(h), 0.45, 1.4, 14, 1.0)); } },
+  },
+  'ash-wight/captain:fall-in': { // "Three hundred years dead and still barking orders: every wight is Warded."
+    land: (c) => { for (const G of c.ar.foes.values()) if (!G.removed && !G.ko) c.fx.ring(G.pos.clone(), '#c8b8a8', Math.max(1, G.size.w), 0.9, G.size.h * 0.5); },
+  },
+  'ash-wight/captain:keyless-turn': { // "He turns the ring that has no key on it, and every lock in Scorchgate answers: 2d6 ember to every hero."
+    camera: 'wide',
+    start: (c) => { c.fx.pulse(mid(c), '#ffb060', 1.0, 1.0); for (let k = 0; k < 3; k++) c.fx.later(k * 0.25, () => c.fx.ring(c.F.pos.clone(), '#ffb060', 5, 1.0, 0.06)); },
+    land: (c) => { for (const h of c.all) c.fx.flames(feet(h), 0.4, 1.3, 12, 1.0); c.shake(1); },
+  },
+
+  ...RAIDER('dune-raider/raider-king'), ...RAIDER('dune-raider/rider'),
+  'dune-raider/raider-king:kings-blow': { // "Whatever is in his hands, he swings it like a door."
+    land: (c) => { c.shake(2); for (const h of c.heroes) { c.fx.slash(chest(h), c.ar.cam, '#ffffff', true); c.fx.sparks(chest(h), '#ffd27a', 26, { spread: 1.2 }); } },
+  },
+  'dune-raider/raider-king:dunefall': { // "Gnash hefts Dunebreaker over his head, charging: the whole dune comes down on every hero, and you Stagger."
+    camera: 'wide',
+    start: (c) => { c.fx.pulse(head(c).setY(c.F.pos.y + c.F.size.h * 1.3), '#ffe0a0', 1.0, 1.2); },
+    land: (c) => { c.shake(3); for (const h of c.all) { c.fx.smoke(feet(h).setY(h.pos.y + 0.6), '#d8b880', 10, 1.2, 1.6); c.fx.sparks(chest(h).setY(h.pos.y + 2.5), '#c8a070', 20, { spread: 1, up: -1 }); } },
+  },
+  'dune-raider/rider:dune-step': { // "Sandwalkers skim the dune and she is behind you before you turn: 2d8 slashing, you Stagger, and Rasa is Hasted."
+    land: (c) => { c.fx.smoke(c.F.home.clone().setY(c.F.home.y + 0.3), '#d8b880', 6, 0.8, 1.0); for (const h of c.heroes) { c.fx.slash(chest(h), c.ar.cam, '#ffe0a0', true); c.fx.smoke(feet(h), '#d8b880', 6, 0.8, 1.0); } },
+  },
+
+  'glass-scorpion/matriarch:pincer': { land: (c) => { for (const h of c.heroes) { c.fx.slash(chest(h), c.ar.cam, '#c8f0ff', true); c.fx.sparks(chest(h), '#e0f8ff', 14); } } }, // "A glass claw closes on you like a vice."
+  'glass-scorpion/matriarch:glass-sting': { land: (c) => { for (const h of c.heroes) { c.fx.thorn(head(c), chest(h), '#c8f0ff', 0.2, 0); c.fx.later(0.2, () => c.fx.sparks(chest(h), '#c01a10', 18)); } } }, // "...snaps off in the wound: Bleeding."
+  'glass-scorpion/matriarch:carapace': { land: (c) => c.fx.ring(c.F.pos.clone(), '#c8f0ff', Math.max(1.4, c.F.size.d * 0.7), 0.9, c.F.size.h * 0.5) }, // "It hunkers down under its glassy shell: Guarding."
+  'glass-scorpion/matriarch:moult': { land: (c) => { c.fx.sparks(mid(c), '#e8fcff', 30, { spread: 1, up: 0.6 }); c.fx.pulse(mid(c), '#8ad872', 1.2, 1.0); } }, // "She splits her cracked shell and steps out of it: Regenerating."
+  'glass-scorpion/matriarch:shell-rain': { // "She shakes the aqueduct, and a season of shed shells comes down on everyone: Bleeding."
+    camera: 'wide',
+    land: (c) => { c.shake(2); for (const h of c.all) for (let k = 0; k < 6; k++) { const to = chest(h).add(rand(0.6)); c.fx.thorn(to.clone().add(rand(1)).setY(to.y + 5), to, '#d8f4ff', 0.45, Math.random() * 0.5); } },
+  },
+
+  'mirage-wisp/queen:cold-touch': { land: (c) => { for (const h of c.heroes) { c.fx.ring(feet(h), '#a8e0ff', 1, 0.9); c.fx.sparks(chest(h), '#e0f4ff', 14, { spread: 0.5 }); } } }, // "A touch like well-water at midnight: Chilled."
+  'mirage-wisp/queen:blink': { start: (c) => { c.fx.pulse(mid(c), '#fff4d0', 1.0, 0.5); }, land: (c) => c.fx.sparks(mid(c), '#fff4d0', 20, { spread: 0.6 }) }, // "It blinks out and back a step to the left..."
+  'mirage-wisp/queen:beguile': { land: (c) => { for (const h of c.heroes) { c.fx.thorn(mid(c), chest(h), '#9ad8ff', 0.7, 0); c.fx.mark(head1(h), '#ff9ad0', 0.3, 1.4); } } }, // "WIS save or Charmed."
+  'mirage-wisp/queen:drink-the-well': { land: (c) => { c.fx.splash(c.F.pos.clone(), '#8ad0e8', 14, 0.8); c.fx.pulse(mid(c), '#8ad872', 1.2, 1.0); } }, // "...2d8 healing."
+  'mirage-wisp/queen:hall-of-mirrors': { // "The Mirage Glass flashes and there are a hundred queens: 2d8 frost to every hero."
+    camera: 'wide',
+    start: (c) => { c.fx.flare(mid(c), '#e8f8ff', 2.0, 0.9); for (let k = 0; k < 6; k++) { const a = k / 6 * Math.PI * 2; c.fx.pulse(c.F.pos.clone().add({ x: Math.cos(a) * 2.5, y: c.F.size.h * 0.6, z: Math.sin(a) * 2.5, isVector3: true }), '#c8f0ff', 0.9, 1.2); } },
+    land: (c) => { for (const h of c.all) { c.fx.ring(feet(h), '#a8e0ff', 1, 1.0); c.fx.sparks(chest(h), '#ffffff', 12, { spread: 0.7 }); } },
+  },
+
+  'sand-wyrm:maw': { // "A mouth like a well, lined with glass teeth."
+    move: ['maw', 'bite'],
+    land: (c) => { for (const h of c.heroes) { c.fx.slash(chest(h), c.ar.cam, '#e8e0d0', true); c.fx.sparks(chest(h), '#c01a10', 22, { spread: 0.9 }); } },
+  },
+  'sand-wyrm:thrash': { // "It thrashes, and the sinkhole walls come down on everyone."
+    move: ['thrash', 'swipe'], camera: 'wide',
+    land: (c) => { c.shake(3); for (const h of c.all) { c.fx.smoke(feet(h).setY(h.pos.y + 0.5), '#d8b880', 8, 1.1, 1.4); c.fx.sparks(chest(h).setY(h.pos.y + 2.4), '#c8a070', 16, { spread: 1, up: -1 }); } },
+  },
+  'sand-wyrm:sand-dive': { // "It pours itself back into the sand, and blows glance off: Guarding."
+    move: ['dive', 'cast'],
+    start: (c) => { c.fx.ring(c.F.pos.clone(), '#d8b880', 3, 0.9); c.fx.smoke(c.F.pos.clone().setY(c.F.pos.y + 0.3), '#d8b880', 12, 1.6, 1.4); },
+  },
+  'sand-wyrm:swallow': { // "The sand opens underneath you. It is charging to swallow you whole."
+    move: ['swallow', 'bite'], camera: 'close',
+    start: (c) => { for (const h of c.heroes) { c.fx.ring(feet(h), '#d8b880', 2.2, 1.2); c.fx.smoke(feet(h), '#d8b880', 8, 1.2, 1.4); } },
+    land: (c) => { c.shake(3); for (const h of c.heroes) c.fx.smoke(feet(h).setY(h.pos.y + 0.6), '#d8b880', 12, 1.4, 1.6); },
+  },
+  'sand-wyrm:scale-grind': { // "It grinds the great scale in its hide against the sinkhole wall: ... the sand has you to the knees (Rooted)."
+    move: ['scale-grind', 'swipe'], camera: 'wide',
+    start: (c) => { c.fx.sparks(mid(c), '#ffd27a', 40, { spread: 1.6, up: 0.6 }); },
+    land: (c) => { for (const h of c.all) { c.fx.smoke(feet(h), '#d8b880', 6, 0.8, 1.6); c.fx.ring(feet(h), '#c8a070', 1.1, 1.4); } },
+  },
+
+  'tamsin:riposte': { land: (c) => { for (const h of c.heroes) { c.fx.slash(chest(h), c.ar.cam, '#ffffff'); c.fx.later(0.12, () => c.fx.slash(chest(h), c.ar.cam, '#ffe8a0', true)); } } }, // "Two cuts, one breath."
+  'tamsin:cheap-shot': { land: (c) => { for (const h of c.heroes) { c.fx.sparks(chest(h), '#ffffff', 10, { spread: 0.4 }); c.fx.mark(head1(h), '#c8a8ff', 0.26, 1.2); } } }, // "A pommel where it hurts. Frightened."
+  'tamsin:showboat': { land: (c) => { c.fx.sparks(head(c), '#ffe08a', 24, { spread: 0.8, up: 1.4 }); c.fx.ring(c.F.pos.clone(), '#ffe08a', 1.4, 0.7); } }, // "She takes a bow mid-fight: Hasted."
+  'tamsin:parry': { land: (c) => c.fx.ring(c.F.pos.clone(), '#e8e8f0', 1.1, 0.8, c.F.size.h * 0.5) }, // "She waits for you to try: Guarding."
+  'tamsin:not-like-this': { land: (c) => { c.fx.pulse(mid(c), '#8ad872', 1.2, 1.0); c.fx.ring(c.F.pos.clone(), '#a8c8ff', 1.2, 0.9, c.F.size.h * 0.5); } }, // "Not like this. She steadies."
+
+  // ---- Act Two's Relic-Bearers: the Ironspire (hand-made November 23) ----
+  'brigand/warden:hack': { land: (c) => { for (const h of c.heroes) { c.fx.slash(chest(h), c.ar.cam, '#e8e0d0', true); c.fx.sparks(chest(h), '#c8b8a0', 12); } } }, // "An army blade..."
+  'brigand/warden:crossbow': { land: (c) => { for (const h of c.heroes) { c.fx.shot(mid(c), chest(h), 'arrow', '#e8e0d0', 0.22); c.fx.later(0.22, () => c.fx.sparks(chest(h), '#c8b8a0', 14)); } } }, // "A Stormwatch crossbow, stolen along with the deserter."
+  'brigand/warden:desert': { land: (c) => { c.fx.smoke(c.F.pos.clone().setY(c.F.pos.y + 0.3), '#a8a098', 8, 1.0, 1.2); c.fx.sparks(c.F.pos.clone().setY(c.F.pos.y + 0.2), '#8a8078', 14, { spread: 1, up: 0.4 }); } }, // "He does it again, down the scree."
+  'brigand/warden:toll-chain': { land: (c) => { for (const h of c.heroes) { c.fx.lash(mid(c), feet(h).setY(h.pos.y + 0.4), '#6a6a72', 0.04, 0.6, { bulb: false, gloss: true }); c.fx.later(0.22, () => { c.fx.sparks(feet(h).setY(h.pos.y + 0.4), '#ffffff', 14); }); } c.shake(1); } }, // "He cracks the toll-chain across your shins."
+  'brigand/warden:gale-step': { // "The Windstep Boots take him up onto the wind and along the whole line: a cut at every hero, and he is Hasted."
+    camera: 'wide',
+    start: (c) => { for (let k = 0; k < 2; k++) c.fx.later(k * 0.2, () => c.fx.ring(c.F.pos.clone(), '#e8f4ff', 2.5, 0.8, 0.3 + k * 0.5)); },
+    land: (c) => { c.all.forEach((h, i) => c.fx.later(i * 0.08, () => { c.fx.slash(chest(h), c.ar.cam, '#e8f4ff', true); c.fx.smoke(feet(h), '#e8f0f8', 4, 0.6, 0.8); })); },
+  },
+
+  'forgeborn/journeyman:molten-fist': { move: ['molten-fist', 'strike'], land: (c) => { for (const h of c.heroes) { c.fx.sparks(chest(h), '#ffb060', 22, { spread: 0.9 }); c.fx.flames(feet(h), 0.35, 1.0, 9, 0.8); } c.shake(1); } }, // "A fist of half-cooled slag."
+  'forgeborn/journeyman:slag-spit': { move: ['slag-spit', 'bite'], land: (c) => { for (const h of c.heroes) { c.fx.shot(head(c), chest(h), 'orb', '#ff8a2a', 0.3); c.fx.later(0.3, () => c.fx.flames(feet(h), 0.4, 1.2, 12, 0.9)); } } }, // "It spits a gob of molten slag."
+  'forgeborn/journeyman:stoke': { move: ['stoke', 'cast'], land: (c) => { c.fx.flare(mid(c), '#fff0c0', 1.4, 0.9); c.fx.flames(c.F.pos.clone(), 0.5, 1.6, 12, 1.0); } }, // "It rakes its own furnace hotter... Hasted."
+  'forgeborn/journeyman:smiths-hammer': { move: ['smiths-hammer', 'strike'], land: (c) => { c.shake(1); for (const h of c.heroes) { c.fx.sparks(chest(h), '#ffd27a', 26, { spread: 1 }); c.fx.ring(feet(h), '#ffb060', 1.2, 0.5); } } }, // "A smith's hammer, swung by a smith."
+  'forgeborn/journeyman:temper-kin': { move: ['temper-kin', 'cast'], land: (c) => { for (const G of c.ar.foes.values()) if (!G.removed && !G.ko) { c.fx.pulse(G.pos.clone().setY(G.pos.y + G.size.h * 0.6), '#ffffff', 0.9, 0.7); c.fx.later(0.25, () => c.fx.ring(G.pos.clone(), '#7ab8ff', Math.max(1, G.size.w), 0.9, G.size.h * 0.5)); } } }, // "...every one of them is Warded."
+  'forgeborn/journeyman:rune-fire': { move: ['rune-fire', 'cast'], camera: 'wide', start: (c) => { for (let k = 0; k < 4; k++) c.fx.later(k * 0.12, () => c.fx.pulse(c.F.pos.clone().setY(c.F.pos.y + 0.4 + k * 0.45), '#ff9a40', 0.6, 0.6)); }, land: (c) => { for (const h of c.all) c.fx.flames(feet(h), 0.45, 1.5, 14, 1.0); } }, // "Harrow's runes flare down the Runestaff."
+  'forgeborn/journeyman:white-heat': { move: ['white-heat', 'strike'], camera: 'close', start: (c) => { c.fx.flames(mid(c), 0.3, 0.8, 10, 1.4); c.fx.pulse(mid(c), '#ffffff', 0.9, 1.4); }, land: (c) => { c.shake(2); for (const h of c.heroes) { c.fx.flare(chest(h), '#fff4d0', 0.9, 0.5); c.fx.flames(feet(h), 0.5, 1.6, 16, 1.0); } } }, // "He thrusts his hammer into the forge-coals until it glows white, charging."
+
+  'iron-sentinel/captain:iron-fist': { move: ['iron-fist', 'strike'], land: (c) => { for (const h of c.heroes) { c.fx.sparks(chest(h), '#ffe0a0', 20, { spread: 0.9 }); c.fx.ring(chest(h), '#c8c8d0', 0.9, 0.4, 0); } c.shake(1); } }, // "A riveted fist, swung like a smith's hammer."
+  'iron-sentinel/captain:gate-slam': { move: ['gate-slam', 'strike'], camera: 'close', land: (c) => { c.shake(3); for (const h of c.heroes) { c.fx.ring(feet(h), '#c8c8d0', 1.8, 0.5); c.fx.smoke(feet(h), '#8a8890', 6, 0.9, 1.0); c.fx.sparks(chest(h), '#ffe0a0', 24, { spread: 1.2 }); } } }, // "It sets its feet and shoulders the gate shut on you."
+  'iron-sentinel/captain:lock-shields': { move: ['lock-shields', 'cast'], land: (c) => { for (const G of c.ar.foes.values()) if (!G.removed && !G.ko) c.fx.ring(G.pos.clone(), '#c8c8d0', Math.max(1, G.size.w), 0.8, G.size.h * 0.45); c.fx.sparks(mid(c), '#ffffff', 12, { spread: 1.2 }); } }, // "...every one of them Guards."
+  'iron-sentinel/captain:ironwall': { move: ['ironwall', 'strike'], land: (c) => { c.shake(2); for (const G of c.ar.foes.values()) if (!G.removed && !G.ko) c.fx.ring(G.pos.clone(), '#a8c8ff', Math.max(1.2, G.size.w), 1.0, G.size.h * 0.5); c.fx.smoke(c.F.pos.clone(), '#8a8890', 8, 1.2, 1.0); } }, // "...brings Ironwall down like a portcullis... every Sentinel is Warded."
+  'iron-sentinel/captain:shield-rush': { move: ['shield-rush', 'strike'], camera: 'close', land: (c) => { c.shake(3); for (const h of c.heroes) { c.fx.sparks(chest(h), '#ffe0a0', 30, { spread: 1.3 }); c.fx.smoke(feet(h), '#8a8890', 6, 0.9, 1.0); } } }, // "Ironwall first and the Captain behind it, charging."
+
+  'peak-troll/old-horn:club': { move: ['club', 'strike'], land: (c) => { c.shake(2); for (const h of c.heroes) { c.fx.sparks(chest(h), '#c8a878', 18, { spread: 1 }); c.fx.smoke(feet(h), '#a8a098', 5, 0.8, 0.9); } } }, // "A pine trunk with the branches knocked off."
+  'peak-troll/old-horn:pummel': { move: ['pummel', 'strike'], land: (c) => { for (const h of c.heroes) { c.fx.ring(chest(h), '#e8e0d0', 0.8, 0.3, 0); c.fx.later(0.18, () => { c.fx.ring(chest(h), '#e8e0d0', 0.8, 0.3, 0); c.fx.sparks(chest(h), '#fff0c0', 14); }); } c.shake(1); } }, // "Both fists, one after the other."
+  'peak-troll/old-horn:hurl-boulder': { move: ['hurl-boulder', 'strike'], camera: 'close', land: (c) => { for (const h of c.heroes) { c.fx.shot(head(c), chest(h), 'orb', '#8a8078', 0.4); c.fx.later(0.4, () => { c.shake(3); c.fx.smoke(feet(h), '#a8a098', 10, 1.2, 1.2); c.fx.sparks(chest(h), '#c8b8a0', 26, { spread: 1.3 }); }); } } }, // "It prises a boulder out of the scree and heaves it overhead."
+  'peak-troll/old-horn:regrow': { move: ['regrow', 'cast'], land: (c) => { c.fx.pulse(mid(c), '#8ad872', 1.4, 1.0); c.fx.sparks(mid(c), '#c8ff90', 18, { spread: 0.6, up: 1 }); } }, // "The wound closes while you watch."
+  'peak-troll/old-horn:horn-toss': { move: ['horn-toss', 'bite'], land: (c) => { c.shake(1); for (const h of c.heroes) { c.fx.slash(chest(h), c.ar.cam, '#e8e0c0', true); c.fx.sparks(chest(h), '#c01a10', 16); } } }, // "He gets his one horn under you and throws."
+  'peak-troll/old-horn:mantle-of-trolls': { move: ['mantle-of-trolls', 'cast'], land: (c) => { c.fx.vines(c.F.pos.clone(), c.F.size.h * 1.0, Math.max(0.5, c.F.size.w * 0.6), '#7a6a50', 1.4); c.fx.pulse(mid(c), '#8ad872', 1.4, 1.0); } }, // "The hides of every troll he ever beat knit over his wounds."
+
+  'rime-wraith/abbess:drowned-grasp': { move: ['drowned-grasp', 'bite'], land: (c) => { for (const h of c.heroes) { c.fx.lash(mid(c), chest(h), '#c8d8e8', 0.05, 0.8, { bulb: false, gloss: true }); c.fx.later(0.3, () => c.fx.ring(feet(h), '#a8e0ff', 1, 1.0)); } } }, // "A hand as cold as the lake-bed closes on yours."
+  'rime-wraith/abbess:dirge': { move: ['dirge', 'cast'], start: (c) => { for (let k = 0; k < 3; k++) c.fx.later(k * 0.3, () => c.fx.ring(c.F.pos.clone(), '#a8d8ff', 5, 1.2, 0.06)); }, land: (c) => { for (const h of c.heroes) c.fx.mark(head1(h), '#c8a8ff', 0.26, 1.2); } }, // "It sings the office for the drowned."
+  'rime-wraith/abbess:pull-under': { move: ['pull-under', 'bite'], camera: 'close', land: (c) => { for (const h of c.heroes) { c.fx.splash(feet(h), '#c8e8f8', 18, 1.0); c.fx.ring(feet(h), '#a8e0ff', 1.4, 1.2); c.fx.sparks(chest(h), '#e0f4ff', 16, { spread: 0.6 }); } } }, // "It reaches up out of the ice for your ankles."
+  'rime-wraith/abbess:last-rites': { move: ['last-rites', 'cast'], land: (c) => { for (const G of c.ar.foes.values()) if (!G.removed && !G.ko) c.fx.pulse(G.pos.clone().setY(G.pos.y + G.size.h * 0.6), '#a8e0ff', 1.0, 1.1); } }, // "...every drowned monk heals 2d6."
+  'rime-wraith/abbess:censer-swing': { move: ['censer-swing', 'swipe'], camera: 'wide', start: (c) => c.fx.smoke(mid(c), '#c8d0d8', 6, 0.8, 1.2), land: (c) => { for (const h of c.all) { c.fx.smoke(chest(h), '#c8d8e0', 5, 0.7, 1.4); c.fx.ring(feet(h), '#a8e0ff', 1, 0.9); } } }, // "The Drowned Censer swings, and the smoke smells of lake-water."
+
+  ...TALLY('tallyman/ice-cutter'),
+  'tallyman/ice-cutter:ice-pick': { land: (c) => { for (const h of c.heroes) { c.fx.thorn(mid(c), chest(h), '#c8e8ff', 0.18, 0); c.fx.later(0.18, () => c.fx.sparks(chest(h), '#e0f4ff', 16, { spread: 0.6 })); } } }, // "A Tallyman ice-pick, for cutting blocks and bargains."
+  'tallyman/ice-cutter:split-the-ice': { camera: 'wide', land: (c) => { c.shake(2); c.fx.ring(c.ar.center.clone().addScaledVector(c.ar.dir, 1.5), '#e0f4ff', 6, 0.9); for (const h of c.all) { c.fx.splash(feet(h), '#c8e8f8', 12, 0.9); c.fx.ring(feet(h), '#a8e0ff', 1, 1.0); } } }, // "The Cutter's Pick bites into the road-ice and the floe splits under the whole line."
+
+  'thunder-roc:talons': { move: ['talons', 'bite'], land: (c) => { for (const h of c.heroes) { c.fx.slash(chest(h), c.ar.cam, '#ffe8a0', true); c.fx.later(0.08, () => c.fx.slash(chest(h), c.ar.cam, '#ffffff')); c.fx.sparks(chest(h), '#c01a10', 14); } } }, // "Talons like a harrow's tines."
+  'thunder-roc:wing-gale': { move: ['wing-gale', 'roar'], camera: 'wide', land: (c) => { c.shake(2); for (const h of c.all) { c.fx.smoke(feet(h).setY(h.pos.y + 0.6), '#f0f4f8', 10, 1.2, 1.4); c.fx.sparks(chest(h), '#ffffff', 16, { spread: 1.2, up: 0.2 }); } } }, // "It beats its wings and the eyrie's snow comes off the crag in a wall."
+  'thunder-roc:carry-off': { move: ['carry-off', 'bite'], camera: 'close', start: (c) => c.fx.flare(head(c), '#fff4d0', 1.6, 0.8), land: (c) => { c.shake(2); for (const h of c.heroes) { c.fx.smoke(feet(h), '#f0f4f8', 8, 1.2, 1.0); c.fx.sparks(chest(h), '#e8f0ff', 20, { spread: 1 }); } } }, // "It drops on you out of the sun, charging."
+  'thunder-roc:storm-mantle': { move: ['storm-mantle', 'roar'], camera: 'wide', start: (c) => { c.fx.sparks(mid(c), '#d8e8ff', 30, { spread: 1.2, up: 0.6 }); }, land: (c) => { c.shake(2); for (const h of c.all) c.fx.pillar(feet(h), '#d8e8ff', 6); } }, // "...lightning runs down the crag: 2d8 storm to every hero."
 };
 // the Tallymen's chiefs (Hollis Fairweight, Dun the Counter) share their moves; only the chiefs have these moments,
 // so the plain tallymen with the same move names keep the kit's
@@ -495,6 +645,15 @@ function TALLY(k) {
     [`${k}:seal-flash`]: { camera: 'wide', start: (c) => c.fx.flare(mid(c), '#fff0b0', 1.6, 0.9), land: (c) => { for (const h of c.all) c.fx.sparks(chest(h), '#ffe8a0', 12, { spread: 0.7 }); } }, // "The stolen Seal blazes. 1d6 radiant, DEX save for half."
     [`${k}:signal-flare`]: { camera: 'wide', start: (c) => { c.fx.shot(mid(c), mid(c).setY(c.F.pos.y + 6), 'orb', '#ff9a40', 0.5); c.fx.later(0.5, () => c.fx.flare(c.ar.center.clone().addScaledVector(c.ar.dir, 2).setY(c.ar.center.y + 6), '#ffb060', 3, 1.2)); }, land: (c) => { for (const h of c.all) { c.fx.sparks(chest(h), '#ff8a3a', 14, { spread: 0.8, up: -0.6 }); c.fx.mark(head1(h), '#ffb060', 0.3, 1.4); } } }, // "The Lantern flares: 2d6 ember to all, and everyone is Marked."
     [`${k}:oath-cut`]: { land: (c) => { for (const h of c.heroes) { c.fx.slash(chest(h), c.ar.cam, '#c8e8ff', true); c.fx.ring(feet(h), '#a8e0ff', 1, 0.9); c.fx.sparks(chest(h), '#e0f4ff', 18, { spread: 0.6, up: 0.4 }); } } }, // "A borrowed oath, badly kept: 2d8 frost and 2 stacks of Chilled."
+  };
+}
+// the dune-raiders' chiefs (Gnash, Rasa) share their moves; only the chiefs have these moments
+function RAIDER(k) {
+  return {
+    [`${k}:scimitar-cut`]: { land: (c) => { for (const h of c.heroes) { c.fx.slash(chest(h), c.ar.cam, '#ffe0a0', true); c.fx.sparks(chest(h), '#ffd27a', 12); } } }, // "A curved blade, drawn and swung in the same breath."
+    [`${k}:sand-in-the-eyes`]: { land: (c) => { for (const h of c.heroes) { c.fx.thorn(mid(c), head1(h), '#d8b880', 0.3, 0); c.fx.later(0.28, () => { c.fx.smoke(head1(h), '#d8b880', 6, 0.5, 1.0); c.fx.mark(head1(h), '#c8a8ff', 0.26, 1.2); }); } } }, // "A fistful of hot sand flung from the saddle."
+    [`${k}:dune-charge`]: { camera: 'close', start: (c) => c.fx.smoke(c.F.pos.clone().setY(c.F.pos.y + 0.3), '#d8b880', 8, 1.0, 1.2), land: (c) => { c.shake(2); for (const h of c.heroes) { c.fx.slash(chest(h), c.ar.cam, '#ffffff', true); c.fx.smoke(feet(h), '#d8b880', 8, 1.0, 1.2); } } }, // "It wheels back up the dune and comes down at you, charging."
+    [`${k}:war-cry`]: { start: (c) => { for (let i = 0; i < 3; i++) c.fx.later(i * 0.22, () => c.fx.ring(c.F.pos.clone(), '#ffe0a0', 5, 1.0, 0.06)); }, land: (c) => { for (const G of c.ar.foes.values()) if (!G.removed && !G.ko) c.fx.sparks(G.pos.clone().setY(G.pos.y + G.size.h * 0.5), '#ffe08a', 10, { spread: 0.5, up: 1.2 }); } }, // "A cry like thunder rolling off the dunes: every raider is Hasted."
   };
 }
 const mid = (c) => c.F.pos.clone().setY(c.F.pos.y + c.F.size.h * 0.6);

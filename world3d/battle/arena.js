@@ -126,48 +126,32 @@ export const arena = {
     const open = (p) => { try { return P.walkable(P.M.px(p.x), P.M.py(p.z)); } catch (e) { return true; } };
     const clear = (p, q) => { try { return open(p) && P.sight.hit(p.x, p.y, p.z, q.x, q.y, q.z) > 0.97; } catch (e) { return true; } };
     let pos = null, look = at;
-    if (kind === 'close') {
-      // a charge at one hero: frame the ground between them (the foe crosses it) from a little further back
-      const tg = F.act && !F.act.self && F.act.target && this.heroes.get(F.act.target);
-      if (tg) at.lerp(tg.pos.clone().setY(at.y), 0.4);
-      const back = V3(-this.dir.x, 0, -this.dir.z), side = V3(this.dir.z, 0, -this.dir.x), r = Math.max(4.5, F.size.h * 3.4 + F.size.d * 1.3) * (tg ? 1.5 : 1);
-      // (a charge: well round to the side, so the hero it's aimed at doesn't stand in the way, and high enough that the
-      // ground right under the camera stays out of shot)
-      // each spot is scored by a fan of rays across the whole view (hub, November 21: one ray to the foe missed the rock
-      // or bush right beside the camera, and ground smeared across the lower half): the clearest view wins
-      let best = -1e9;
-      for (const k of [1, 1.25]) for (const lift of [0, 1.5, 3]) for (const sd of tg ? [1.7, -1.7, 1.2, -1.2, 1, -1, 0.4, -0.4] : [1, -1, 0.4, -0.4, 1.4, -1.4]) {
-        const p = at.clone().addScaledVector(back, r * k).addScaledVector(side, sd * r * k * 0.6); p.y = F.pos.y + Math.max(F.size.h * 1.1 + 0.9, tg ? r * 0.85 : 0) + lift;
-        if (!open(p)) continue;
-        const lk = at.clone(); lk.y -= p.distanceTo(at) * 0.07;
-        const sc = this.viewScore(p, lk, 36, p.distanceTo(at)) + (clear(p, at) ? 0 : -50) - lift * 0.15 - (k - 1);
-        if (sc > best) { best = sc; pos = p; }
-        if (sc >= 11.9) break;
-      }
-      pos = pos || at.clone().addScaledVector(back, r).setY(F.pos.y + F.size.h * 1.1 + 0.9);
-    } else {
-      // wide: straight back and a little up along the fight camera's own line, so the party stays at the bottom and the
-      // foes in the stage's open upper part, only more of the field round them
-      const fwd = V3(0, 0, -1).applyQuaternion(this.want.q), up0 = V3(0, 1, 0).applyQuaternion(this.want.q), fc = V3(); let nf = 0;
-      for (const G of this.foes.values()) if (!G.removed) { fc.add(G.home).y += G.size.h * 0.5; nf++; }
-      if (nf) fc.multiplyScalar(1 / nf); else fc.copy(this.want.pos).addScaledVector(fwd, 8);
-      pos = this.want.pos.clone().addScaledVector(fwd, -3).setY(this.want.pos.y + 1.2);
-      if (!clear(pos, fc)) pos = this.want.pos.clone().setY(this.want.pos.y + 1.0);
-      // the foes as high on the screen as in the fight's own view (zooming out alone slides them down to the middle)
-      const v0 = fc.clone().sub(this.want.pos), e0 = Math.atan2(v0.dot(up0), v0.dot(fwd)), rad = (f) => f * Math.PI / 360;
-      const e1 = Math.atan(Math.tan(e0) / Math.tan(rad(this.want.fov)) * Math.tan(rad(this.want.fov + 6)));
-      const qw = new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().lookAt(pos, fc, UP));
-      qw.multiply(new THREE.Quaternion().setFromAxisAngle(V3(1, 0, 0), -e1));
-      this.close = { t: 0, dur, pos, q: qw, fov: this.want.fov + 6 };
-      this.stage?.host.classList.add('f3-close');
-      return;
+    // a three-quarter view, chosen by a fan of rays across the whole view (hub, November 21: one ray missed the rock or
+    // bush beside the camera): 'close' frames the foe and the one it's aimed at (or just the foe, for a move on itself),
+    // 'wide' the foe and the whole party from further out
+    const hc = V3(); for (const h of this.heroes.values()) hc.add(h.home); hc.multiplyScalar(1 / Math.max(1, this.heroes.size));
+    const tg = F.act && !F.act.self && F.act.target && this.heroes.get(F.act.target);
+    if (kind === 'wide') at.lerp(hc.clone().setY(at.y), 0.45); else if (tg) at.lerp(tg.pos.clone().setY(at.y), 0.4);
+    // the way round from the party's side: a move at one hero is seen nearly side-on to the line between them (the two
+    // side by side, neither hiding the other); a move on itself from three-quarters; a wide one from a little round
+    const back = tg ? F.home.clone().sub(tg.pos).setY(0).normalize().negate() : V3(-this.dir.x, 0, -this.dir.z);
+    const turns = (tg ? [70, -70, 55, -55, 85, -85] : kind === 'wide' ? [30, -30, 15, -15, 45, -45] : [40, -40, 25, -25, 60, -60]).map((a) => a * Math.PI / 180);
+    const span = kind === 'wide' ? Math.max(6, F.pos.distanceTo(hc) * 1.2 + 3) : Math.max(4.5, F.size.h * 3.4 + F.size.d * 1.3) * (tg ? 1.3 : 1);
+    let best = -1e9;
+    for (const k of [1, 1.25]) for (const lift of [0, 1.5, 3]) for (const [ti, th] of turns.entries()) {
+      const p = at.clone().addScaledVector(back.clone().applyAxisAngle(UP, th), span * k);
+      p.y = F.pos.y + Math.max(F.size.h * 1.1 + 0.9, span * (kind === 'wide' ? 0.6 : tg ? 0.5 : 0.3)) + lift;
+      if (!open(p)) continue;
+      const lk = at.clone(); lk.y -= p.distanceTo(at) * 0.07;
+      const sc = this.viewScore(p, lk, kind === 'wide' ? 44 : 36, p.distanceTo(at)) + (clear(p, at) ? 0 : -50) - lift * 0.15 - (k - 1) - ti * 0.08;
+      if (sc > best) { best = sc; pos = p; }
+      if (sc >= 11.9) break;
     }
-    // close in: the foe stands in the stage's open upper part, not behind the turn strip across the screen's middle
-    // (aimed a little under it: about 8 degrees, so it sits some 190 px above the middle of a phone's 844)
-    // (the action a little above the screen's middle: the middle of the 3D view, the party's cards over the bottom)
-    if (kind === 'close') { look = at.clone(); look.y -= pos.distanceTo(at) * 0.07; }
+    // nowhere over open floor with a clear line (a crag, a ledge): the fight's own camera, turned to the foe, a little back
+    if (!pos || best < -20) { const fwd0 = V3(0, 0, -1).applyQuaternion(this.want.q); pos = this.want.pos.clone().addScaledVector(fwd0, -1).setY(this.want.pos.y + 0.8); }
+    look = at.clone(); look.y -= pos.distanceTo(at) * 0.07;
     const q = new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().lookAt(pos, look, UP));
-    this.close = { t: 0, dur, pos, q, fov: kind === 'close' ? 36 : this.want.fov + 6 };
+    this.close = { t: 0, dur, pos, q, fov: kind === 'close' ? 36 : 44 };
     this.stage?.host.classList.add('f3-close'); // close or wide: the foes' plates and intents step aside till it ends
   },
   // how clear a camera at `pos` looking at `look` would see (0 to 12): twelve rays across its view, each counted clear
@@ -434,7 +418,15 @@ export const arena = {
     h.guard = (u.statuses || []).some((s) => s.id === 'guarding');
     // swallowed (M7's one hold, shown as "Held under", "Led away", "In the river"): gone into the foe in a burst, back in a ring
     const held = (u.statuses || []).some((s) => s.id === 'swallowed');
-    if (held !== !!h.held && this.fx) { const p = h.pos.clone().setY(h.pos.y + 1); if (held) this.fx.sparks(p, '#7a5a8a', 22, { spread: 0.8 }); else { this.fx.ring(h.pos.clone(), '#c8f0ff', 1.6, 0.7); this.fx.sparks(p, '#e8f8ff', 18, { spread: 0.7, up: 1.3 }); } }
+    // with a swallower that has a mouth (parts.mouth, agreed with the foe lanes), the hero shrinks into it and comes back out of it
+    if (held !== !!h.held) {
+      const by = held ? [...this.foes.values()].find((G) => !G.removed && (G.act?.target === h.id || G.lastTarget === h.id)) : h.heldBy;
+      const mouth = by?.fig?.beast?.parts?.mouth;
+      if (mouth) { h.gulp = { t: 0, out: !held, at: () => mouth.getWorldPosition(V3()) }; if (!held) this.fx?.sparks(mouth.getWorldPosition(V3()), '#e8f8ff', 18, { spread: 0.7 }); }
+      else if (this.fx) { const p = h.pos.clone().setY(h.pos.y + 1); if (held) this.fx.sparks(p, '#7a5a8a', 22, { spread: 0.8 }); else { this.fx.ring(h.pos.clone(), '#c8f0ff', 1.6, 0.7); this.fx.sparks(p, '#e8f8ff', 18, { spread: 0.7, up: 1.3 }); } }
+      if (!held && by && ownMove(by, 'spit') === 'spit') by.kpose = { name: 'spit', t: 0, dur: kitDur(by, 'spit') };
+      h.heldBy = held ? by : null;
+    }
     h.held = held;
     h.aura?.set(u.statuses);
   },
@@ -446,9 +438,12 @@ export const arena = {
     const self = !it.target || it.target === id || !h;
     // a Champion's or Relic-Bearer's named move has its own moment (champions.js): its body move, effects, a camera
     const M = momentFor(unit?.family || F.key, it.move, unit?.variant || null);
+    if (h) F.lastTarget = h.id;
     F.act = { kind: 'attack', t: 0, target: h ? h.id : null, bit: false, bitT: null, self, moment: M,
       kmove: (M && F.fig.beast?.pose && ownMove(F, M.move)) || kitMove(F, it.move || it.name || '', self) };
-    if (M) { try { M.start?.(this.momentCtx(F)); } catch (e) { console.warn(e); } if (M.camera) this.momentCam(F, M.camera); }
+    // every named move has its camera (hub, November 23): a three-quarter view with the foe large, wide ones taking in the
+    // whole party, the rest the one it's aimed at
+    if (M) { try { M.start?.(this.momentCtx(F)); } catch (e) { console.warn(e); } this.momentCam(F, M.camera === 'wide' ? 'wide' : 'close'); }
     // headless stills only (check-moves --slow): told as a big move begins, so the clock can be held from its first frame
     if (M && this.onMoment) try { this.onMoment(F, unit, it); } catch (e) { console.warn(e); }
   },
@@ -586,6 +581,12 @@ function stepHero(ar, h, d, t, foeCenter) {
   if (h.fall) { h.fall.t += d; const u = ease(h.fall.t / h.fall.dur); tip = h.fall.up ? 1 - u : u; if (h.fall.t >= h.fall.dur) h.fall = null; }
   h.body.rotation.x = -1.42 * tip; h.body.position.y = 0.05 * tip;
   A.root.visible = !h.held;
+  // into a swallower's mouth (shrinking, drawn to it) or back out of it (growing, set down in place)
+  if (h.gulp) {
+    h.gulp.t += d; const u = Math.min(1, h.gulp.t / 0.3), k = h.gulp.out ? 1 - u : u;
+    A.root.position.lerp(h.gulp.at(), k); A.root.scale.setScalar(Math.max(0.05, 1 - k * 0.95)); A.root.visible = k < 0.98;
+    if (u >= 1) { if (h.gulp.out) A.root.scale.setScalar(1); h.gulp = null; }
+  }
   // a hit, a heal, a charm: the figure lit in a colour a moment
   tint(h, d);
 }
@@ -665,8 +666,17 @@ function stepFoe(ar, F, d, t, heroCenter) {
     a.ku = mu;
     if (a.bit && after > 0.9) F.act = null;
     if (h && !a.self) {
-      const tp = h.pos.clone(), dv = F.home.clone().sub(tp).setY(0).normalize(); tp.addScaledVector(dv, 0.8 + F.size.d * 0.5);
-      const go = seg(a.t, 0.18, 0.42), ret = a.bit ? seg(after, 0.35, 0.85) : 0;
+      const tp = h.pos.clone(), dv = F.home.clone().sub(tp).setY(0).normalize(); tp.addScaledVector(dv, 1.0 + F.size.d * 0.6);
+      // a clear step short of the party (hub, November 23): never in among the heroes, so from the camera the two sides
+      // never overlap; its body's back stays in front of the party's front line by about its own reach
+      let front = -1e9; for (const o of ar.heroes.values()) front = Math.max(front, o.home.dot(ar.dir));
+      const minAlong = front + 0.9 + F.size.d * 0.5, along = tp.dot(ar.dir); if (along < minAlong) tp.addScaledVector(ar.dir, minAlong - along);
+      // a swallow: the foe stops with the hero exactly its reach in front of it (moves.EVENTS.swallow.reach, or SWALLOW_AT)
+      const sw = a.kmove === 'swallow' && (F.fig.beast?.moves?.EVENTS?.swallow || F.fig.beast?.moves?.SWALLOW_AT || F.fig.beast?.SWALLOW_AT);
+      if (sw && sw.reach) tp.copy(h.pos).addScaledVector(dv, sw.reach);
+      // a winged foe's own carry-off, dive or swoop flies it forward itself (Models, November 23): no dash on top
+      const flies = F.fig.beast?.plan === 'winged' && ['carry-off', 'dive', 'swoop'].includes(a.kmove);
+      const go = flies ? 0 : seg(a.t, 0.18, 0.42), ret = a.bit && !flies ? seg(after, 0.35, 0.85) : 0;
       F.pos.copy(F.home).lerp(tp, go * (1 - ret)); F.pos.y = ar.heightAt(F.pos.x, F.pos.z, F.pos.y);
       walking = (go > 0 && go < 1) || (ret > 0 && ret < 1);
       face = ret > 0.05 && ret < 1 ? Math.atan2(F.home.x - F.pos.x, F.home.z - F.pos.z) + Math.PI * 0 : Math.atan2(h.pos.x - F.pos.x, h.pos.z - F.pos.z);
@@ -695,7 +705,10 @@ function stepFoe(ar, F, d, t, heroCenter) {
   // a full-detail foe is never squashed, leaned or rolled whole (Chris, November 21: no model may stretch); its own moves
   // carry the hit and the lunge. Only rise (a flier's hover) and the step forward stay.
   if (F.fig.beast?.pose) { o.sq = 1; o.lean = 0; o.roll = 0; }
-  const down = (F.sink * 0.78 + F.sinkOut * 1.05 + (F.rising != null ? 1 - F.rising : 0)) * F.size.h;
+  // a foe whose own dive takes it fully under (moves.SINKS, agreed with the foe lanes) isn't lowered again: hidden once under
+  const ownSink = F.fig.beast?.moves?.SINKS && Object.values(F.fig.beast.moves.SINKS).some(Boolean);
+  if (ownSink && !F.removed) F.root.visible = !(F.sunk && F.sink > 0.95);
+  const down = ((ownSink ? 0 : F.sink * 0.78) + F.sinkOut * 1.05 + (F.rising != null ? 1 - F.rising : 0)) * F.size.h;
   if (F.growTo && Math.abs(F.grow - F.growTo) > 1e-3) { F.grow += (F.growTo - F.grow) * Math.min(1, d * 3); F.root.scale.setScalar(F.baseScale * F.grow); }
   F.root.position.copy(F.pos); F.root.position.y += o.rise - down; F.root.rotation.set(0, F.face, 0);
   F.body.position.z = o.fwd; F.body.rotation.set(o.lean, 0, o.roll); F.body.scale.set(1, o.sq, 1);
@@ -713,6 +726,8 @@ function stepFoe(ar, F, d, t, heroCenter) {
       else if (F.hurt) { km = 'hurt'; ku = F.hurt.t / F.hurt.dur; }
       else if (F.kpose) { km = F.kpose.name; ku = F.kpose.t / F.kpose.dur; }
       else if (F.act && F.act.kmove) { km = F.act.kmove; ku = F.act.ku || 0; }
+      // a swallower with a hero inside: its 'full' idle (jaw shut, a slow swallow) where it has one
+      else if (ownMove(F, 'full') === 'full' && [...ar.heroes.values()].some((o) => o.held && o.heldBy === F)) { km = 'full'; ku = (t * 0.4) % 1; }
     }
     if (km) { B.pose(km, ku, t + F.ph, walking ? F.step : 0); F.body.rotation.set(0, 0, 0); F.body.scale.set(1, 1, 1); F.body.position.z = 0; }
     else B.update(t + F.ph, walking ? F.step : 0);

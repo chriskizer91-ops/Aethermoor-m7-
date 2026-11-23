@@ -1,0 +1,83 @@
+{
+ "key": "rotstag",
+ "name": "The Rot-Stag",
+ "plan": "quad",
+ "rank": "relic-bearer",
+ "height": 2.0,
+ "length": 1.6,
+ "sheet": "art-in/3d/sheets/sheet-rotstag.webp",
+ "crops": [
+  [
+   127,
+   430
+  ],
+  [
+   552,
+   1205
+  ],
+  [
+   1349,
+   1647
+  ]
+ ],
+ "bounds": [
+  [
+   -0.5,
+   -0.82,
+   -0.01
+  ],
+  [
+   0.5,
+   0.82,
+   2.04
+  ]
+ ],
+ "voxel": {
+  "0": 0.011,
+  "1": 0.0095,
+  "2": 0.006,
+  "3": 0.0042
+ },
+ "view": {
+  "center": [
+   0,
+   0,
+   1.0
+  ],
+  "width": 2.3,
+  "head": [
+   0,
+   0.5,
+   1.35
+  ],
+  "headWidth": 0.7
+ },
+ "light": {
+  "level": 0,
+  "coat": 26000
+ },
+ "sculpt": {
+  "level": 3
+ },
+ "bake": {
+  "res": 2048,
+  "phone": 1024,
+  "ao": 48,
+  "reach": {
+   "coat": [
+    0.05,
+    0.14
+   ],
+   "parts": [
+    0.015,
+    0.04
+   ]
+  }
+ },
+ "rig": "rig.py",
+ "moves": "stag",
+ "what": "Act One, Relic-Bearer of Fawnrest, carrying the rotwood circlet. Gore, Trample, Rot Bellow, Antler Charge, Rotwood Crown.",
+ "about": "Once the white stag of Fawnrest. A big shaggy white stag with the Rot eaten into him in dark purple patches, his lower legs gone dark to the hooves; great antlers wound with purple vines and sprouting mushrooms, and the golden rotwood circlet floating round them. 2.0 m to the antler tips.",
+ "sculptTriangles": 618216,
+ "pack": 1
+}

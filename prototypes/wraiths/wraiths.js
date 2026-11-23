@@ -108,13 +108,13 @@ const VOID = new Map();
 function glowless(h) { if (VOID.has(h)) return VOID.get(h); const m = new THREE.MeshStandardMaterial({ color: new THREE.Color(h), roughness: 1 }); m.userData.kind = 'void'; VOID.set(h, m); return m; }
 // a face (the drowned women, the weeping wraith, the lamplighter): a skull with a brow, a nose, cheekbones, sunk eye sockets,
 // eyes (lit or dark), a mouth (shut, or open in a cry) and, if they weep, tear-tracks of light
-function face(head, skin, { r = 0.1, eyes = null, iris = '#0a0e12', mouth = 0, tears = null, gaunt = 0.3 } = {}) {
+function face(head, skin, { r = 0.1, eyes = null, iris = '#0a0e12', mouth = 0, tears = null, gaunt = 0.3, socket = '#0d1418' } = {}) {
   add(sph(r, 28, 20), skin, head, 0, 0, 0.01).scale.set(0.88, 1.12, 0.95);
   add(sph(r * 0.55, 16, 10), skin, head, 0, r * 0.32, r * 0.55).scale.set(1.35, 0.35, 0.7);                       // the brow
   add(sph(r * 0.2, 12, 8), skin, head, 0, -r * 0.08, r * 0.92).scale.set(0.7, 1.4, 0.9);                         // the nose
   for (const s of [-1, 1]) {
-    add(sph(r * 0.28, 12, 8), skin, head, s * r * 0.45, -r * 0.18, r * 0.66).scale.set(1, 0.6, 0.7);                // cheekbones
-    add(sph(r * 0.2, 12, 8), glowless('#0d1418'), head, s * r * 0.36, r * 0.12, r * 0.8).scale.set(1.2, 0.85, 0.5); // the socket
+    add(sph(r * 0.26, 12, 8), skin, head, s * r * 0.42, -r * 0.16, r * 0.62).scale.set(1, 0.55, 0.62);              // cheekbones
+    add(sph(r * 0.2, 12, 8), glowless(socket), head, s * r * 0.36, r * 0.12, r * 0.8).scale.set(1.2, 0.85, 0.5); // the socket
     add(sph(r * 0.1, 10, 8), eyes ? glow(eyes, 2.4) : glowless(iris), head, s * r * 0.36, r * 0.12, r * 0.88);       // the eye
     if (tears) add(fitMaster(tube(curve([V(s * r * 0.38, r * 0.02, r * 0.9), V(s * r * 0.42, -r * 0.3, r * 0.86), V(s * r * 0.44, -r * 0.62, r * 0.76)], 6), r * 0.035, { n: 5 }), 'rim'), glow(tears, 1.4), head);
   }

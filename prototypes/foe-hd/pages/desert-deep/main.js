@@ -18,12 +18,18 @@ import { PLANS } from '../../kit/js/looks.js';
 import { FOES } from './assets.js';
 import * as lizard from './moves/lizard.js';
 import * as scorpion from './moves/scorpion.js';
+import * as wyrm from './moves/wyrm.js';
 // the desert and the deep (Places' lane, November 21): every finished foe of the lane on one page; the buttons at the top
 // pick which is on the stands (the page reloads with #<key>). Each foe's own moves where the kit's plan isn't enough.
-const OWN_MOVES = { lizard, scorpion };
+const OWN_MOVES = { lizard, scorpion, wyrm };
+// the lane's gallery pages (each holds a few foes, under 16 MB): links between them
+const PAGES = [['The sand-skink, the glass-scorpion, the Glass Matriarch', 'https://claude.ai/artifact/EwHdrinmmvPGCqF48sjdFP'],
+  ['The Sand Wyrm and Kharzul', 'https://claude.ai/artifact/2r6Q5RAfU9MqqaLsQvH2KF']];
 const pick = decodeURIComponent(location.hash.slice(1)), A = FOES.find((f) => f.key === pick) || FOES[FOES.length - 1];
 const KEY = A.lightMeta.key, MV = OWN_MOVES[A.lightMeta.moves] || OWN_MOVES[{ 'sand-skink': 'lizard' }[KEY]] || OWN_MOVES[A.lightMeta.plan] || PLANS[A.lightMeta.plan] || PLANS.quad;
 {
+  const pg = document.getElementById('pages');
+  if (pg) for (const [name, url] of PAGES) { if (url.startsWith('PAGE')) continue; const a = document.createElement('a'); a.className = 'btn'; a.href = url; a.target = '_blank'; a.rel = 'noopener'; a.textContent = name; if (FOES.some((f) => name.includes(f.name.replace(/^The /, '')))) a.setAttribute('aria-current', 'page'); pg.appendChild(a); }
   const bar = document.getElementById('foes');
   for (const f of FOES) {
     const b = document.createElement('button'); b.textContent = f.name; b.setAttribute('aria-pressed', f === A);
@@ -116,6 +122,13 @@ function refresh() {
   $('stands').hidden = S.crowd; $('crowdnote').hidden = !S.crowd;
 }
 $('turn').onclick = () => { S.turn = !S.turn; refresh(); };
+// (desert and deep) the full-detail one alone, in the middle, close up: for looking at its moves on a phone
+S.solo = /solo/.test(location.search + location.hash);
+function solo() {
+  stands[0].g.visible = stands[1].g.visible = !S.solo && !S.crowd; stands[2].g.position.x = S.solo ? 0 : SPACING;
+  $('solo').setAttribute('aria-pressed', S.solo); frame();
+}
+$('solo').onclick = () => { S.solo = !S.solo; solo(); };
 $('crowd').onclick = () => {
   S.crowd = !S.crowd;
   if (S.crowd) buildCrowd();
@@ -129,7 +142,7 @@ function frame() {
   if (S.crowd) { const k = Math.max(0.6, SZ); controls.target.set(0, 0.9, 0); const d = (ar < 1 ? 19 : 14) * k; camera.position.set(0, d * 0.5, d); }
   else {
     // all three stands in view: further back on a narrow (phone) screen
-    const need = (SPACING * 2 + 3.4 * SZ) / 2, fov = camera.fov * Math.PI / 180;
+    const need = S.solo ? 1.9 * SZ : (SPACING * 2 + 3.4 * SZ) / 2, fov = camera.fov * Math.PI / 180;
     const dist = Math.max(need / (Math.tan(fov / 2) * ar), 1.3 * SZ / Math.tan(fov / 2)) * 1.04;
     controls.target.set(0, 0.8 * SZ, 0); camera.position.set(0, (1.2 + dist * 0.16) * Math.sqrt(SZ), dist);
   }
@@ -193,7 +206,7 @@ function loop() {
   if (A.next) $('next').innerHTML = '<b>Still to come:</b> ' + A.next.replace(/</g, '&lt;'); else $('next').hidden = true;
   if (A.sculptUrl) $('sculptlink').href = A.sculptUrl; else $('sculptlink').hidden = true;
   document.title = 'Desert and Deep';
-  refresh(); resize();
+  refresh(); resize(); solo();
   if (new URLSearchParams(location.search).has('crowd')) $('crowd').onclick();
   window.__ready = true;
   loop();

@@ -1,6 +1,6 @@
 // Builds the beasts' gallery page into one file: dist/beasts.html (open it) and dist/beasts.artifact.html (publish it).
-//   node build.mjs [--only=thornhound,rotstag] [--out=beasts] [--heroes=0] [--sculpt]   (--sculpt: the laptop page, with each
-//   foe's full sculpt inside; use with --only to stay under 16 MB)
+//   node build.mjs [--only=thornhound,rotstag] [--out=beasts] [--heroes=0] [--sculpt[=key,key]]   (--sculpt: the laptop page; use --only=key too,
+//   with the full sculpt of each foe named (or every foe); two sculpts pass 16 MB, so one page per foe's sculpt)
 // Every foe listed in roster.json whose folder (../../foes/<key>/) has its assets/ made is put in.
 import { build } from 'esbuild';
 import { readFile, writeFile, mkdir, access, stat } from 'node:fs/promises';
@@ -19,8 +19,10 @@ for (const r of roster) {
   if ((only && !only.includes(r.key)) || !(await exists(path.join(dir, 'light.json')))) { foes.push({ ...r, ready: false }); continue; }
   const meta = JSON.parse(await readFile(path.join(here, '../../foes', r.key, 'foe.json'), 'utf8'));
   const files = { lightMeta: 'light.json', lightBin: 'light.bin', color: 'color-1024.webp', normal: 'normal-1024.webp', ao: 'ao-512.webp', cmp: 'cmp.webp' };
+  if (!(await exists(path.join(dir, 'ao-512.webp')))) files.ao = 'ao-1024.webp';      // the kit's pack writes ao-1024
   if (await exists(path.join(dir, 'emit-256.webp'))) files.emit = 'emit-256.webp';
-  if (args.sculpt && await exists(path.join(dir, 'sculpt.bin'))) { files.sculptMeta = 'sculpt.json'; files.sculptBin = 'sculpt.bin'; }
+  const withSculpt = args.sculpt === true || (typeof args.sculpt === 'string' && args.sculpt.split(',').includes(r.key));
+  if (withSculpt && await exists(path.join(dir, 'sculpt.bin'))) { files.sculptMeta = 'sculpt.json'; files.sculptBin = 'sculpt.bin'; }
   let size = 0;
   for (const f of Object.values(files)) if (f !== 'cmp.webp' && !f.startsWith('sculpt')) size += (await stat(path.join(dir, f))).size;
   bytes += size;

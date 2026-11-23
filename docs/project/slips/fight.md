@@ -91,8 +91,9 @@
 - Build the fight page: `FIGHT_HD=briarmaw,briarling,glowcap,rotwarden,sapwight node build.mjs --page=m7-fight
   --places=thornhollow,briarmaw-den,heartroot-1,heartroot-2 --tex=768 --herotex=256 --entry=fight.js --plugin=battle/swap.mjs`
   (15.3 MB). Act One: `FIGHT_HD=briarmaw,briarling,glowcap,boglurcher FIGHT_STANDEES=thornhound ... --out=fight-act1
-  --places=<its 13> --tex=352`. Act Two: `FIGHT_HD=willow-wight FIGHT_STANDEES=none ... --out=fight-act2
-  --places=scorchgate-vaults,harrows-forge,frostmere-below,tidal-flats,mothers-hollow,willowmurk --tex=512`.
+  --places=<its 13> --tex=352`. Act Two: `FIGHT_HD=willow-wight,grandfather-willow,glass-scorpion,glass-matriarch,sand-skink FIGHT_STANDEES=none ...
+  --out=fight-act2 --places=scorchgate-vaults,harrows-forge,frostmere-below,tidal-flats,mothers-hollow,willowmurk,dust-trail,deep-shaft-2
+  --tex=448`. Events: `FIGHT_HD=marsh-light`.
 - Not proven by Auto: the Sand Wyrm's and the Thunder-Roc's swallows (their charge never landed in those runs).
 
 ## Step 4
@@ -166,7 +167,34 @@
   lantern room) and the Heartroot (two fights) by `battle/check-spoils-view.mjs`: every one sees all four heroes.
 - **Pages**: the fight page now carries Act One's two Champions (Briarmaw's den, the Heartroot: Rotwarden and sapwight
   in full detail) and Thornhollow's road; Act One at 352 px world textures (with the boglurcher); a new Act Two page
-  (the Champions' places and Willowmurk, the willow-wight in full detail): link below once published.
+  (the Champions' places, Willowmurk, the Dust Trail and the Glass Heart; full detail: willow-wight, Grandfather
+  Willow, glass-scorpion, glass matriarch, sand-skink; Models' armoured Ashen Warden and wraiths):
+  https://claude.ai/artifact/AqSBbi7gYeRogHPsq24nAk (15.5 MB, 448 px world textures). Every move of Act Two's six
+  Champions, Grandfather Willow and the Unsmith (events page) proven by check-moments: a moment each, no errors; the
+  armoured, the wraiths, the Unsmith and Grandfather Willow play their own body moves.
+- **The Sunscorch page**: https://claude.ai/artifact/TWtn8x7hcGjTMHAUpAWC5M (12.9 MB; Scorchgate and its Vaults, the Glass
+  Flats, the Sun Road, the Dust Trail, the Miragewell, the deep shaft and the Glass Heart; full detail: glass-scorpion,
+  glass matriarch, sand-skink). Hand-made moments for its nine Relic-Bearers (the Ash-Wight Captain, Gnash, Rasa, the
+  Glass Matriarch, the Wisp-Queen, the Sand Wyrm, Vell, Brask, Tamsin): every move a moment, no errors (check-moments).
+  170 hand-made moments in all. Next: the Ironspire's and the Gloomfen's Relic-Bearers, each region its own page.
+- **The Ironspire page**: https://claude.ai/artifact/WhydqjmyNvuGQdrSadEXKD (13.1 MB; Rockslide Pass, Ironhold and its Deeps, the Iron
+  Stair, the Frost Road, Frostmere and Beneath, Highfold, Harrow's Forge). Hand-made moments for its seven Relic-Bearers
+  (the Brigand Warden, the Journeyman and the Sentinel Captain on Models' armoured, Old Horn, the Drowned Abbess, the
+  Ice-Cutter, the Thunder-Roc): every move a moment, no errors. 211 hand-made moments in all.
+  **Known problem**: the Thunder-Roc's eyrie on Highfold: the fight faces a rock wall and the Roc can't be seen (the same
+  on the events page; the fight's own camera finds no clear way to face there). To look into, maybe with Places.
+- **Swallows** (agreed with Places, session 4, for the Sand Wyrm and the Leviathan): their `parts.mouth` and
+  `SWALLOW_AT { u, reach }`; the hero shrinks into the mouth at that u and comes back out of it on release; the foe
+  stops at `reach`; a `full` idle while a hero is inside, `spit` on release. One Foe (session 6) builds the
+  Leviathan and Old Jaws the same way; we agreed one form for both lanes: `moves.EVENTS = { swallow: { gulp, reach } }`
+  (SWALLOW_AT read too), `moves.SINKS = { sound: true }` for a dive that takes the foe fully under by itself (the arena
+  then doesn't lower it, and hides it once under), and parts `mouth`, `head`, `pearl`, `harpoon`.
+  **Built in the arena now** (November 23), ready for when their models land: the reach, the hero into and out of
+  parts.mouth, `full` and `spit`, SINKS. Today's models have no mouth, so they keep the burst; proven headless: the Sand
+  Wyrm's lair with `?land=1`, Pip swallowed, held and let go, the Sand-Dive, no errors.
+- **Fixed November 23**: an effect started by a delayed one (fx.later) used to stand frozen on the field (dropped from
+  the effects list); the turn strip steps aside during a close-up or wide camera; close-up spots scored by a fan of
+  rays (built things, rock, trees, ground too near).
 - Known weak: Longshot's close-up can sit in a bush (the sight test doesn't see foliage); effects on heroes are small
   at phone size.
 - **For the foe lanes (sessions 6, 7, 8): the own-move names the table asks for**, M7's move ids (each falls back to

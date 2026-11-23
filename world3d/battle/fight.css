@@ -36,3 +36,6 @@ body.fighting #world > button, body.fighting #party, body.fighting #toast.hidefi
 #fight .bt-ribbon { transition: opacity .2s; }
 body.f3-cine #fight .bt-ribbon { opacity: 0; pointer-events: none; }
 #fight .bt-foe { transition: opacity .3s; }
+/* the walk's tips and toasts ("Drag on the left to walk up to them") stay out of a fight and its spoils (hub, November
+   23): the page marks the body `fighting` for both, and the toast comes back with the walk */
+body.fighting #toast { visibility: hidden; }

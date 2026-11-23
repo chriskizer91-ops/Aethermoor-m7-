@@ -25,6 +25,9 @@ export const DRESS = {
   ],
   // the low mossy walls of the old shrine (the map's three little roofs, H, are walls in the painting)
   fawnrest: [['lowwall', 3.0, 11.5, 'S', { replace: true }], ['lowwall', 5.0, 13.5, 'S', { replace: true }], ['lowwall', 17.0, 11.5, 'S', { replace: true }]],
+  // the Worldforge (Together, November 23; a stand-in until Chris's batch 4): the furnace mouth glowing in the east wall at
+  // the heart, where the party chooses the ending; the furnace at its prop (32,18); the great anvil at its prop (25,7)
+  worldforge: [['furnacemouth', 30.96, 12.0, 'W', { s: 1.0 }], ['furnace', 32.5, 18.6, 'W', { s: 0.75 }], ['anvil', 25.5, 7.5, 'S', { s: 2.4 }]],
   thornhollow: [
     // the two market stalls on the south street (they replace the map's little roofs)
     ['stall', 8.95, 16.5, 'S', { s: 1.5 }], ['stall', 15.0, 16.5, 'S', { s: 1.5 }],
