@@ -13,7 +13,7 @@ Where the 3D game stands. Written by the hub only. Last updated November 23, lat
 | 5 | Together | `session_01DgbUKbyjzZFe1BXHHxzHBn` | `job/together` | all ten game pages rebuilt with every look chained (five single, five full-pictures, one per region); checking the Sand Wyrm fight, Briarmaw's den (3/3) and Rekindle with M7's late-game party before publishing | https://claude.ai/artifact/RaeSK5hezqb3qH7jmuM5aj |
 | 6 | One Foe | `session_01DgbUKZCNBFY7zwSzwAXR8y` | `job/foe-hd` | the Gloomfen's deep beasts done (the mire-leech, the blackwater-gar, Old Jaws, the Blackwater Leviathan) and Briarmaw lively again; next: Briarmaw's head drawn out for head tosses, then the thornhound's re-posed legs (from session 7) | https://claude.ai/artifact/3Px9mipuqrTBB8NFfehbj5 |
 | 7 | Foes: beasts | `session_01DgbUKZ4qEpafSazysExsYV` | `job/foes-beasts` | the Rot-Stag, Old Snag, the Mirelord and the rotgrub (all pass); next and last: the rime-wolf (the thornhound's legs moved to session 6) | https://claude.ai/artifact/64Ukg3yQAAb8DWz69xqvxs |
-| 8 | Foes: walkers | `session_01DgbUKcTDUjKDVHw3sPhu7R` | `job/foes-walkers` | Old Horn and the peak-troll (both pass); now the last: unmade (begun: wound husk strips, holes to the violet dark, tunic, cowl, relic) | https://claude.ai/artifact/YBLUHaLG3bNdfcjBdeq3aj |
+| 8 | Foes: walkers | `session_01DgbUKcTDUjKDVHw3sPhu7R` | `job/foes-walkers` | every walker built and passing (the Rotwarden, the sapwight, Old Horn, the peak-troll, the unmade); next: the laptop sculpt page with all five, then a second pass against the sheets | https://claude.ai/artifact/YBLUHaLG3bNdfcjBdeq3aj |
 
 ## What's built (on the hub's branch)
 
@@ -56,6 +56,7 @@ Where the 3D game stands. Written by the hub only. Last updated November 23, lat
 | The beasts in full detail: the thornhound, the Rot-Stag, Old Snag, the Mirelord and the rotgrub (phone gallery; a laptop page each with its sculpt) | `prototypes/foe-hd/pages/beasts/` | https://claude.ai/artifact/64Ukg3yQAAb8DWz69xqvxs · thornhound https://claude.ai/artifact/8pCvG7xuqHuCcARiUYa9SX · Rot-Stag https://claude.ai/artifact/CSoGr5Hp53nx94b6c7HQ6B · Old Snag https://claude.ai/artifact/Ps1AmDYiERFwSenm6KvVYx · the Mirelord https://claude.ai/artifact/JoZFMxoY43AwUToDw7HBJj · rotgrub https://claude.ai/artifact/BA2mMoUK8nRjE6T4XcopKr |
 | The walkers in full detail: the Rotwarden and the sapwight | `prototypes/foe-hd/pages/walkers/` | https://claude.ai/artifact/YBLUHaLG3bNdfcjBdeq3aj |
 | The walkers of Act Two: Old Horn and the peak-troll (every move; phone and full) | `prototypes/foe-hd/pages/walkers/` | https://claude.ai/artifact/PosCApXURcQF2S8qyicNaY |
+| The walkers of Act Three: the unmade (every move; phone and full) | `prototypes/foe-hd/pages/walkers/` | https://claude.ai/artifact/1fd2Ko7CSdQQD6hL2fKZcW |
 | The walkers' sculpts, for a laptop | `prototypes/foe-hd/foes/` | https://claude.ai/artifact/JCdvpAPKT781gZiU49jTh2 |
 | Briarmaw's full sculpt (982,634 triangles) beside his light version, for a laptop | `prototypes/foe-hd/` | https://claude.ai/artifact/AVSmLbEu3jz1NVnohgqT9P |
 | The winged: the lamp-moth, the Gloamwing (the Dawnbell), the Thunder-Roc, beside Chris's sheets, every move, their sculpts | `prototypes/winged/` | https://claude.ai/artifact/CmY9BHJzyVYCYgQtpboqBg |
