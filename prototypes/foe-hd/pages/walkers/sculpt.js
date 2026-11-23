@@ -1,12 +1,33 @@
 // The walkers' sculpts themselves, for a laptop (session 8): each full-detail sculpt (500,000 to 1,000,000 triangles)
-// that the light models are baked from, on a turning stand, with Chris's sheet beside it. Decoded with session 6's
-// decodeSculpt (prototypes/foe-hd/page/briarmaw.js).
+// that the light models are baked from, on a turning stand, with Chris's sheet beside it. decodeSculpt below is copied
+// from session 6's (it moved from prototypes/foe-hd/page/briarmaw.js to pages/beasts/kit/foe.js), unchanged.
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
-import { ready, decodeSculpt } from '../../page/briarmaw.js';
+import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
+import { ready } from './walker.js';
 import { FOES } from './foes.js';
 import { SCULPTS } from './assets.js';
+
+// the sculpt itself (export_sculpt.py + pack.mjs), as a plain coloured mesh
+function decodeSculpt(meta, bin) {
+  const n = meta.vertices;
+  const vb = new Uint8Array(n * 12);
+  MeshoptDecoder.decodeVertexBuffer(vb, n, 12, bin.subarray(0, meta.vbytes));
+  const ib = new Uint32Array(meta.indices);
+  MeshoptDecoder.decodeIndexBuffer(new Uint8Array(ib.buffer), meta.indices, 4, bin.subarray(meta.vbytes, meta.vbytes + meta.ibytes));
+  const dv = new DataView(vb.buffer), pos = new Float32Array(n * 3), col = new Uint8Array(n * 3);
+  for (let i = 0; i < n; i++) {
+    for (let a = 0; a < 3; a++) pos[i * 3 + a] = meta.lo[a] + dv.getUint16(i * 12 + a * 2, true) / 65535 * (meta.hi[a] - meta.lo[a]);
+    for (let a = 0; a < 3; a++) col[i * 3 + a] = vb[i * 12 + 8 + a];
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  g.setAttribute('color', new THREE.BufferAttribute(col, 3, true));
+  g.setIndex(new THREE.BufferAttribute(ib, 1));
+  g.computeVertexNormals(); g.computeBoundingSphere();
+  return g;
+}
 
 const $ = (id) => document.getElementById(id);
 const KEYS = Object.keys(SCULPTS);
