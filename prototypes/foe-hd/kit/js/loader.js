@@ -50,9 +50,13 @@ export function makeShared(A, res) {
   const tl = new THREE.TextureLoader();
   const tex = (url, srgb) => { const t = tl.load(url); t.flipY = false; t.colorSpace = srgb ? THREE.SRGBColorSpace : THREE.NoColorSpace; t.anisotropy = 4; return t; };
   const geo = decodeLight(A.lightMeta, A.lightBin);
+  // the glow's colour: the page's own, else light.json "glow" (session 8's kit writes it: 0xb070ff, '#b070ff' or
+  // '0xb070ff'), else white (the baked glow picture carries the colour)
+  const g = A.glow ?? A.lightMeta.glow;
+  const glow = typeof g === 'string' ? (g.startsWith('0x') ? parseInt(g, 16) : g) : (g ?? 0xffffff);
   const mat = new THREE.MeshStandardMaterial({
     map: tex(A.tex[res].color, true), normalMap: tex(A.tex[res].normal, false), aoMap: tex(A.ao, false), aoMapIntensity: 1.0,
-    emissiveMap: tex(A.emit, true), emissive: new THREE.Color(A.glow ?? 0xffffff), emissiveIntensity: A.glowIntensity ?? 1.3,
+    emissiveMap: tex(A.emit, true), emissive: new THREE.Color(glow), emissiveIntensity: A.glowIntensity ?? 1.3,
     roughness: 0.82, metalness: 0,
     side: A.lightMeta.split ? THREE.DoubleSide : THREE.FrontSide,     // a cut mouth shows the inside of the head, not the room behind
   });
