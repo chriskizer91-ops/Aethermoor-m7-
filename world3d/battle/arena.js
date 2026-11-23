@@ -126,48 +126,31 @@ export const arena = {
     const open = (p) => { try { return P.walkable(P.M.px(p.x), P.M.py(p.z)); } catch (e) { return true; } };
     const clear = (p, q) => { try { return open(p) && P.sight.hit(p.x, p.y, p.z, q.x, q.y, q.z) > 0.97; } catch (e) { return true; } };
     let pos = null, look = at;
-    if (kind === 'close') {
-      // a charge at one hero: frame the ground between them (the foe crosses it) from a little further back
-      const tg = F.act && !F.act.self && F.act.target && this.heroes.get(F.act.target);
-      if (tg) at.lerp(tg.pos.clone().setY(at.y), 0.4);
-      const back = V3(-this.dir.x, 0, -this.dir.z), side = V3(this.dir.z, 0, -this.dir.x), r = Math.max(4.5, F.size.h * 3.4 + F.size.d * 1.3) * (tg ? 1.5 : 1);
-      // (a charge: well round to the side, so the hero it's aimed at doesn't stand in the way, and high enough that the
-      // ground right under the camera stays out of shot)
-      // each spot is scored by a fan of rays across the whole view (hub, November 21: one ray to the foe missed the rock
-      // or bush right beside the camera, and ground smeared across the lower half): the clearest view wins
-      let best = -1e9;
-      for (const k of [1, 1.25]) for (const lift of [0, 1.5, 3]) for (const sd of tg ? [1.7, -1.7, 1.2, -1.2, 1, -1, 0.4, -0.4] : [1, -1, 0.4, -0.4, 1.4, -1.4]) {
-        const p = at.clone().addScaledVector(back, r * k).addScaledVector(side, sd * r * k * 0.6); p.y = F.pos.y + Math.max(F.size.h * 1.1 + 0.9, tg ? r * 0.85 : 0) + lift;
-        if (!open(p)) continue;
-        const lk = at.clone(); lk.y -= p.distanceTo(at) * 0.07;
-        const sc = this.viewScore(p, lk, 36, p.distanceTo(at)) + (clear(p, at) ? 0 : -50) - lift * 0.15 - (k - 1);
-        if (sc > best) { best = sc; pos = p; }
-        if (sc >= 11.9) break;
-      }
-      pos = pos || at.clone().addScaledVector(back, r).setY(F.pos.y + F.size.h * 1.1 + 0.9);
-    } else {
-      // wide: straight back and a little up along the fight camera's own line, so the party stays at the bottom and the
-      // foes in the stage's open upper part, only more of the field round them
-      const fwd = V3(0, 0, -1).applyQuaternion(this.want.q), up0 = V3(0, 1, 0).applyQuaternion(this.want.q), fc = V3(); let nf = 0;
-      for (const G of this.foes.values()) if (!G.removed) { fc.add(G.home).y += G.size.h * 0.5; nf++; }
-      if (nf) fc.multiplyScalar(1 / nf); else fc.copy(this.want.pos).addScaledVector(fwd, 8);
-      pos = this.want.pos.clone().addScaledVector(fwd, -3).setY(this.want.pos.y + 1.2);
-      if (!clear(pos, fc)) pos = this.want.pos.clone().setY(this.want.pos.y + 1.0);
-      // the foes as high on the screen as in the fight's own view (zooming out alone slides them down to the middle)
-      const v0 = fc.clone().sub(this.want.pos), e0 = Math.atan2(v0.dot(up0), v0.dot(fwd)), rad = (f) => f * Math.PI / 360;
-      const e1 = Math.atan(Math.tan(e0) / Math.tan(rad(this.want.fov)) * Math.tan(rad(this.want.fov + 6)));
-      const qw = new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().lookAt(pos, fc, UP));
-      qw.multiply(new THREE.Quaternion().setFromAxisAngle(V3(1, 0, 0), -e1));
-      this.close = { t: 0, dur, pos, q: qw, fov: this.want.fov + 6 };
-      this.stage?.host.classList.add('f3-close');
-      return;
+    // a three-quarter view, chosen by a fan of rays across the whole view (hub, November 21: one ray missed the rock or
+    // bush beside the camera): 'close' frames the foe and the one it's aimed at (or just the foe, for a move on itself),
+    // 'wide' the foe and the whole party from further out
+    const hc = V3(); for (const h of this.heroes.values()) hc.add(h.home); hc.multiplyScalar(1 / Math.max(1, this.heroes.size));
+    const tg = F.act && !F.act.self && F.act.target && this.heroes.get(F.act.target);
+    if (kind === 'wide') at.lerp(hc.clone().setY(at.y), 0.45); else if (tg) at.lerp(tg.pos.clone().setY(at.y), 0.4);
+    // the way round from the party's side: a move at one hero is seen nearly side-on to the line between them (the two
+    // side by side, neither hiding the other); a move on itself from three-quarters; a wide one from a little round
+    const back = tg ? F.home.clone().sub(tg.pos).setY(0).normalize().negate() : V3(-this.dir.x, 0, -this.dir.z);
+    const turns = (tg ? [70, -70, 55, -55, 85, -85] : kind === 'wide' ? [30, -30, 15, -15, 45, -45] : [40, -40, 25, -25, 60, -60]).map((a) => a * Math.PI / 180);
+    const span = kind === 'wide' ? Math.max(6, F.pos.distanceTo(hc) * 1.2 + 3) : Math.max(4.5, F.size.h * 3.4 + F.size.d * 1.3) * (tg ? 1.3 : 1);
+    let best = -1e9;
+    for (const k of [1, 1.25]) for (const lift of [0, 1.5, 3]) for (const [ti, th] of turns.entries()) {
+      const p = at.clone().addScaledVector(back.clone().applyAxisAngle(UP, th), span * k);
+      p.y = F.pos.y + Math.max(F.size.h * 1.1 + 0.9, span * (kind === 'wide' ? 0.6 : tg ? 0.5 : 0.3)) + lift;
+      if (!open(p)) continue;
+      const lk = at.clone(); lk.y -= p.distanceTo(at) * 0.07;
+      const sc = this.viewScore(p, lk, kind === 'wide' ? 44 : 36, p.distanceTo(at)) + (clear(p, at) ? 0 : -50) - lift * 0.15 - (k - 1) - ti * 0.08;
+      if (sc > best) { best = sc; pos = p; }
+      if (sc >= 11.9) break;
     }
-    // close in: the foe stands in the stage's open upper part, not behind the turn strip across the screen's middle
-    // (aimed a little under it: about 8 degrees, so it sits some 190 px above the middle of a phone's 844)
-    // (the action a little above the screen's middle: the middle of the 3D view, the party's cards over the bottom)
-    if (kind === 'close') { look = at.clone(); look.y -= pos.distanceTo(at) * 0.07; }
+    pos = pos || at.clone().addScaledVector(back.clone().applyAxisAngle(UP, turns[0]), span).setY(F.pos.y + F.size.h * 1.1 + 0.9);
+    look = at.clone(); look.y -= pos.distanceTo(at) * 0.07;
     const q = new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().lookAt(pos, look, UP));
-    this.close = { t: 0, dur, pos, q, fov: kind === 'close' ? 36 : this.want.fov + 6 };
+    this.close = { t: 0, dur, pos, q, fov: kind === 'close' ? 36 : 44 };
     this.stage?.host.classList.add('f3-close'); // close or wide: the foes' plates and intents step aside till it ends
   },
   // how clear a camera at `pos` looking at `look` would see (0 to 12): twelve rays across its view, each counted clear
@@ -448,7 +431,9 @@ export const arena = {
     const M = momentFor(unit?.family || F.key, it.move, unit?.variant || null);
     F.act = { kind: 'attack', t: 0, target: h ? h.id : null, bit: false, bitT: null, self, moment: M,
       kmove: (M && F.fig.beast?.pose && ownMove(F, M.move)) || kitMove(F, it.move || it.name || '', self) };
-    if (M) { try { M.start?.(this.momentCtx(F)); } catch (e) { console.warn(e); } if (M.camera) this.momentCam(F, M.camera); }
+    // every named move has its camera (hub, November 23): a three-quarter view with the foe large, wide ones taking in the
+    // whole party, the rest the one it's aimed at
+    if (M) { try { M.start?.(this.momentCtx(F)); } catch (e) { console.warn(e); } this.momentCam(F, M.camera === 'wide' ? 'wide' : 'close'); }
     // headless stills only (check-moves --slow): told as a big move begins, so the clock can be held from its first frame
     if (M && this.onMoment) try { this.onMoment(F, unit, it); } catch (e) { console.warn(e); }
   },
@@ -665,7 +650,11 @@ function stepFoe(ar, F, d, t, heroCenter) {
     a.ku = mu;
     if (a.bit && after > 0.9) F.act = null;
     if (h && !a.self) {
-      const tp = h.pos.clone(), dv = F.home.clone().sub(tp).setY(0).normalize(); tp.addScaledVector(dv, 0.8 + F.size.d * 0.5);
+      const tp = h.pos.clone(), dv = F.home.clone().sub(tp).setY(0).normalize(); tp.addScaledVector(dv, 1.0 + F.size.d * 0.6);
+      // a clear step short of the party (hub, November 23): never in among the heroes, so from the camera the two sides
+      // never overlap; its body's back stays in front of the party's front line by about its own reach
+      let front = -1e9; for (const o of ar.heroes.values()) front = Math.max(front, o.home.dot(ar.dir));
+      const minAlong = front + 0.9 + F.size.d * 0.5, along = tp.dot(ar.dir); if (along < minAlong) tp.addScaledVector(ar.dir, minAlong - along);
       const go = seg(a.t, 0.18, 0.42), ret = a.bit ? seg(after, 0.35, 0.85) : 0;
       F.pos.copy(F.home).lerp(tp, go * (1 - ret)); F.pos.y = ar.heightAt(F.pos.x, F.pos.z, F.pos.y);
       walking = (go > 0 && go < 1) || (ret > 0 && ret < 1);
