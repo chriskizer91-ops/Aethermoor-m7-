@@ -20,6 +20,8 @@ def make(C):
     for s, sx in (('r', 1), ('l', -1)):
         y = 0.17 * k; z = float(mid(y) - 0.6 * np.interp(y, Lo['py'], Lo['ph']) * 1.25)
         BONES.append((f'{s}_fin', 'body', (sx * 0.05 * k, y, z), (sx * 0.17 * k, y - 0.12 * k, z - 0.07 * k)))
+    # the back of its throat, for the Fight's swallow (a bone with no skin; +z, its forward, out of the mouth)
+    BONES.append(('mouth', 'head', (0.0, float(MY + 0.01 * k), mz(MY) + 0.005 * k), (0.0, float(MY + 0.1 * k), mz(MY) + 0.005 * k)))
     SPINE = ['t2', 't1', 't0', 'body', 'head']
     ROLE = {}
     def part(P, kind, idx, piece):
@@ -43,6 +45,7 @@ def make(C):
     def mask(P, idx):
         M_ = np.ones((len(P), len(idx))); body = ROLE['now'] == 'body'
         for n in ('jaw', 'r_fin', 'l_fin', 'ground'): M_[body, idx[n]] = 0
+        M_[:, idx['mouth']] = 0
         return M_
     bw = 0.05 * k * C.get('deep', 1.0)                                                # the blend widens with a thicker fish
     return BONES, part, mask, {n: (bw, 0.2 * k * C.get('deep', 1.0)) for n in ('t0', 't1', 't2', 'head')}
