@@ -25,23 +25,8 @@
   "act": 1
  },
  {
-  "key": "gloamwing",
-  "name": "The Gloamwing",
-  "act": 1
- },
- {
   "key": "rime-wolf",
   "name": "Rime Wolf",
-  "act": 2
- },
- {
-  "key": "lamp-moth",
-  "name": "Lamp-Moth",
-  "act": 2
- },
- {
-  "key": "thunder-roc",
-  "name": "The Thunder-Roc",
   "act": 2
  }
 ]

@@ -1,5 +1,5 @@
 // Builds the beasts' gallery page into one file: dist/beasts.html (open it) and dist/beasts.artifact.html (publish it).
-//   node build.mjs [--only=thornhound,rotstag] [--out=beasts] [--heroes=0] [--sculpt[=key,key]]   (--sculpt: the laptop page,
+//   node build.mjs [--only=thornhound,rotstag] [--out=beasts] [--heroes=0] [--sculpt[=key,key]]   (--sculpt: the laptop page; use --only=key too,
 //   with the full sculpt of each foe named (or every foe); two sculpts pass 16 MB, so one page per foe's sculpt)
 // Every foe listed in roster.json whose folder (../../foes/<key>/) has its assets/ made is put in.
 import { build } from 'esbuild';
