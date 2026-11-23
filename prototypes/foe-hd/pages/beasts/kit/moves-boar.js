@@ -30,20 +30,20 @@ export const boar = {
   pose(F, move, u, t, step) {
     const b = F.bones, B = F.body, br = Math.sin(t * 1.4), H = F.height;
     rx(b, 'spine', -0.008 * br); rx(b, 'chest', 0.01 * br);           // breathing: a small turn
-    rx(b, 'neck', 0.02 * br); ry(b, 'head', 0.06 * Math.sin(t * 0.6));
+    rx(b, 'neck', 0.02 * br); ry(b, 'neck', 0.04 * Math.sin(t * 0.6));
     ry(b, 'tail', 0.25 * Math.sin(t * 3.1));                          // the tail flicks
     if (move === 'idle') return;
     if (move === 'walk') {
       gait(b, step);
       B.position.y = 0.01 * H * Math.abs(Math.sin(step));
-      rz(b, 'hips', 0.03 * Math.sin(step)); ry(b, 'head', 0.05 * Math.sin(step));
+      rz(b, 'hips', 0.03 * Math.sin(step)); ry(b, 'neck', 0.02 * Math.sin(step));
       return;
     }
     if (move === 'tusk') {
       // a hooking rip of yellow tusk: head down and in, then a twist up and to the side
       const down = seg(u, 0, 0.35), hook = seg(u, 0.38, 0.55), back = 1 - seg(u, 0.65, 1);
-      rx(b, 'neck', 0.12 * down * back - 0.1 * hook * back); rx(b, 'head', 0.2 * down * back - 0.25 * hook * back);
-      rz(b, 'head', 0.22 * hook * back); ry(b, 'head', 0.15 * hook * back);
+      rx(b, 'neck', 0.08 * down * back - 0.07 * hook * back); rx(b, 'head', 0.12 * down * back - 0.14 * hook * back);
+      rz(b, 'head', 0.04 * hook * back); ry(b, 'neck', 0.035 * hook * back);
       B.position.z = 0.15 * H * down * back;
       rx(b, 'fl_upper', -0.12 * down * back); rx(b, 'fr_upper', -0.12 * down * back);
       rx(b, 'bl_upper', 0.1 * down * back); rx(b, 'br_upper', 0.1 * down * back);
@@ -53,7 +53,7 @@ export const boar = {
       // four hundredweight of boar, going through: a run forward, head low, and back
       const go = seg(u, 0.1, 0.55), back = 1 - seg(u, 0.7, 1), k = go * back;
       B.position.z = 0.9 * H * k; B.position.y = -0.02 * H * k;
-      rx(b, 'neck', 0.12 * k); rx(b, 'head', 0.12 * k);
+      rx(b, 'neck', 0.08 * k); rx(b, 'head', 0.12 * k);
       gait(b, u * 46, Math.min(1, 3 * k));
       return;
     }
@@ -61,7 +61,7 @@ export const boar = {
       // hackles up, head down: he sets his feet wide and Guards
       const k = seg(u, 0, 0.3) * (1 - seg(u, 0.8, 1)), q = Math.sin(u * 60) * 0.015 * k;
       B.position.y = -0.04 * H * k;
-      rx(b, 'chest', -0.05 * k); rx(b, 'neck', 0.14 * k + q); rx(b, 'head', 0.16 * k);
+      rx(b, 'chest', -0.03 * k); rx(b, 'neck', 0.075 * k + q); rx(b, 'head', 0.13 * k);
       rz(b, 'fl_upper', -0.08 * k); rz(b, 'fr_upper', 0.08 * k); rz(b, 'bl_upper', -0.06 * k); rz(b, 'br_upper', 0.06 * k);
       rz(b, 'spine', q);
       return;
@@ -74,15 +74,15 @@ export const boar = {
         else { rx(b, l + '_upper', -0.12 * sink); rx(b, l + '_lower', 0.22 * sink); }
       }
       B.position.y = -0.15 * H * sink; B.rotation.z = 0.9 * roll; B.position.x = -0.12 * H * roll;
-      rx(b, 'neck', 0.06 * sink); rz(b, 'head', -0.15 * roll);
-      for (const l of LEGS) rz(b, l + '_upper', 0.12 * roll * Math.sin(u * 30));
+      rx(b, 'neck', 0.06 * sink); rz(b, 'head', -0.05 * roll);
+      for (const l of LEGS) rz(b, l + '_upper', 0.06 * roll * Math.sin(u * 30));
       return;
     }
     if (move === 'charge') {
       // the hatchet in his hide catches the light: he paws the ground, then charges
       const low = seg(u, 0, 0.3), go = seg(u, 0.5, 0.72), back = 1 - seg(u, 0.85, 1);
       const paw = Math.max(0, Math.sin(u * 28)) * (1 - seg(u, 0.42, 0.5));
-      rx(b, 'neck', 0.15 * low * back); rx(b, 'head', 0.15 * low * back);
+      rx(b, 'neck', 0.08 * low * back); rx(b, 'head', 0.12 * low * back);
       rx(b, 'fr_upper', 0.22 * paw * low); rx(b, 'fr_lower', 0.15 * paw * low);
       B.position.z = 0.9 * H * go * back; B.position.y = -0.02 * H * low * back;
       if (go > 0 && back > 0) gait(b, u * 50, 0.9 * go);
@@ -91,7 +91,7 @@ export const boar = {
     if (move === 'hurt') {
       const a = bump(u * 1.6) * (1 - seg(u, 0.6, 1));
       B.position.z = -0.06 * H * a; rx(b, 'chest', -0.06 * a); rx(b, 'neck', -0.12 * a); rx(b, 'head', -0.1 * a);
-      rz(b, 'head', 0.1 * a); rx(b, 'jaw', 0.18 * a); rz(b, 'hips', 0.05 * Math.sin(u * 40) * a);
+      rz(b, 'head', 0.04 * a); rx(b, 'jaw', 0.18 * a); rz(b, 'hips', 0.05 * Math.sin(u * 40) * a);
       return;
     }
     if (move === 'ko') {
@@ -102,7 +102,7 @@ export const boar = {
         else { rx(b, l + '_upper', -0.15 * buckle); rx(b, l + '_lower', 0.25 * buckle); }
       }
       B.position.y = -0.15 * H * buckle + 0.05 * H * roll; B.rotation.z = 1.35 * roll; B.position.x = -0.25 * H * roll;
-      rx(b, 'neck', 0.15 * drop); rz(b, 'head', -0.2 * drop); rx(b, 'jaw', 0.12 * drop);
+      rx(b, 'neck', 0.12 * drop); rz(b, 'head', -0.06 * drop); rx(b, 'jaw', 0.12 * drop);
       return;
     }
   },

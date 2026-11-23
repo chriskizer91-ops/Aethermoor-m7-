@@ -35,7 +35,12 @@ def weigh(D, P, idx):
             far = np.linalg.norm(P[:, :2] - (a2 + t[:, None] * ab), axis=1) > REACH[n[3:]]
             far |= z > max(bn[2][2], bn[3][2]) + 0.05
             D[:, i] += np.where((z > 0.33) | (np.abs(x) < 0.12) | far, 400.0, 0.0)
+    for n, i in idx.items():                                         # the blades and haunches stay low on the leg
+        if n.endswith(('_blade', '_haunch')): D[:, i] += np.where(z > 0.52, 400.0, 0.0)
     D[:, idx['tail']] += np.where(np.abs(x) > 0.08, 400.0, 0.0)
+    y = P[:, 1]                                                     # the jowls and throat belong to the neck
+    for e, front in (('chest', 1320), ('spine', 1250), ('hips', 1150)):
+        D[:, idx[e]] += np.where(y > (front - MID) * S, 1000.0, 0.0)
     for e in ('head', 'jaw'):                                       # the head's bones stay in the head
         D[:, idx[e]] += np.where(P[:, 1] < (1330 - MID) * S, 1000.0, 0.0)
     return D
@@ -60,4 +65,4 @@ SMOOTH = 16
 SPLIT = [('head', 'jaw')]
 BANDS = {k + q: ((0.04, 0.10) if q == '_lower' else (0.02, 0.05) if q == '_paw' else (0.06, 0.15))
          for k in ('fl', 'fr', 'bl', 'br') for q in ('_upper', '_lower', '_paw')}
-BANDS.update({'neck_base': (0.09, 0.24), 'neck': (0.07, 0.18)})
+BANDS.update({'neck_base': (0.11, 0.3), 'neck': (0.1, 0.26), 'head': (0.08, 0.22)})

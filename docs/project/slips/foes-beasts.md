@@ -109,13 +109,33 @@ session 6 made Briarmaw.
     of the body, and each leg's first joint sits where the leg leaves the body, with the blade or haunch above it.
   - On the page: no errors at laptop and phone sizes; 20 frames a second in software drawing, with a pack of five too.
 
+- **Old Snag** (November 23), the Relic-Bearer of the Verdant Wilds: in the gallery (same link), his sculpt on his own
+  laptop page: https://claude.ai/artifact/Ps1AmDYiERFwSenm6KvVYx. (Each laptop page now carries just its own foe, to
+  stay well under 16 MB; the phone gallery has them all.)
+  - Sculpted from Chris's sheet (1.3 m to the top of his bristles, 2 m long): a shaggy brown coat in long locks, pale
+    stripes down his flanks, a crest of dark bristles thickest over his shoulders, pale whiskers on his cheeks, small
+    amber eyes, a pink-brown snout disc, long ivory tusks, short thick legs with cloven hooves, a thin tail with a dark
+    tuft, and the Thornsplitter Hatchet in his left shoulder: a green-lit blade in a dark red wound, the haft bound in
+    green cord with bone wraps, two green leaves tied at its end. About three quarters of each outline overlaps the
+    sheet's (front 0.79, side 0.72, back 0.78).
+  - **854,592 triangles** in the sculpt, baked onto a light model of **29,063 triangles**, on the kit's four-legged rig
+    with its helper joints and `bind.py`. The bristles, tusks, eyes and hatchet are rigid pieces, each riding one bone
+    (the hatchet the chest, so it moves with his shoulder).
+  - His moves: breathe, walk, Tusk, Trample (a run through the party), Bristle (hackles up, feet wide), Wallow (down
+    into the mud and a roll), Splitting Charge (he paws the ground, then charges), hit, fall.
+  - **The kit's stretch check passes**: worst big edge 1.28x, no scaled or slid bones, no webbing by eye. His legs
+    passed first time (set wide apart and clear of the belly, as on the rotstag); the work was the head: the jowls and
+    throat had gone to the chest bone, so the chest is now kept behind the shoulders, and his wide head turns mostly
+    at the neck rather than rolling, since a roll swings the jowls a long way.
+  - Second pass, later: the flank stripes are fainter than on the sheet.
+
 ## Next
 
 0. Move onto session 6's shared kit (commit f384b7d / 8f3b6e2 on job/foe-hd) once the hub brings it into its branch; my
    kit folder then goes, and the thornhound is rebuilt on it.
 
-1. Old Snag, the Mirelord, the rotgrub, the Gloamwing, the rime-wolf, the lamp-moth, the Thunder-Roc, each passing the
-   kit's stretch check. Then the thornhound's hind legs re-posed clear of the body and baked again.
+1. The Mirelord, the rotgrub and the rime-wolf, each passing the kit's stretch check (the Gloamwing, lamp-moth and
+   Thunder-Roc went to Models, November 23). Then the thornhound's hind legs re-posed clear of the body and baked again.
 2. The thornhound, pass two: the fur still reads a little like bark from far off; softer locks, the face's markings
    (the pale brows, the tan cheeks), teeth for the open-mouth moves, and the phone size down to about 0.4 MB
    (512 px pictures; he is 1.07 MB now).
