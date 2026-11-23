@@ -91,9 +91,9 @@
 - Build the fight page: `FIGHT_HD=briarmaw,briarling,glowcap,rotwarden,sapwight node build.mjs --page=m7-fight
   --places=thornhollow,briarmaw-den,heartroot-1,heartroot-2 --tex=768 --herotex=256 --entry=fight.js --plugin=battle/swap.mjs`
   (15.3 MB). Act One: `FIGHT_HD=briarmaw,briarling,glowcap,boglurcher FIGHT_STANDEES=thornhound ... --out=fight-act1
-  --places=<its 13> --tex=352`. Act Two: `FIGHT_HD=willow-wight,grandfather-willow,glass-scorpion,glass-matriarch,sand-skink FIGHT_STANDEES=none ...
+  --places=<its 13> --tex=320`. Act Two: `FIGHT_HD=willow-wight,grandfather-willow,glass-scorpion,glass-matriarch,sand-skink FIGHT_STANDEES=none ...
   --out=fight-act2 --places=scorchgate-vaults,harrows-forge,frostmere-below,tidal-flats,mothers-hollow,willowmurk,dust-trail,deep-shaft-2
-  --tex=448`. Events: `FIGHT_HD=marsh-light`.
+  --tex=448`. Events: `FIGHT_HD=marsh-light FIGHT_STANDEES=sand-wyrm,kharzul,blackwater-gar,blackwater-leviathan`.
 - Not proven by Auto: the Sand Wyrm's and the Thunder-Roc's swallows (their charge never landed in those runs).
 
 ## Step 4
@@ -183,6 +183,9 @@
   Ice-Cutter, the Thunder-Roc): every move a moment, no errors. 211 hand-made moments in all.
   **Known problem**: the Thunder-Roc's eyrie on Highfold: the fight faces a rock wall and the Roc can't be seen (the same
   on the events page; the fight's own camera finds no clear way to face there). To look into, maybe with Places.
+- **Models' winged** (November 23): setBeastLook(withWinged(withArmoured(withWraiths(foeLook(buildBeast))))); Gloamwing
+  proven on its own moves (its own silk shell in Cocoon, the bell glowing on Bell-Hum). A winged foe's own carry-off, dive
+  and swoop carry it forward without the arena's dash.
 - **Swallows** (agreed with Places, session 4, for the Sand Wyrm and the Leviathan): their `parts.mouth` and
   `SWALLOW_AT { u, reach }`; the hero shrinks into the mouth at that u and comes back out of it on release; the foe
   stops at `reach`; a `full` idle while a hero is inside, `spit` on release. One Foe (session 6) builds the
@@ -192,6 +195,10 @@
   **Built in the arena now** (November 23), ready for when their models land: the reach, the hero into and out of
   parts.mouth, `full` and `spit`, SINKS. Today's models have no mouth, so they keep the burst; proven headless: the Sand
   Wyrm's lair with `?land=1`, Pip swallowed, held and let go, the Sand-Dive, no errors.
+  **The Sand Wyrm in full detail** (Places, November 23) on the Sunscorch page: its own moves (maw, thrash, dive,
+  swallow, grind); the swallow seen headless: it plunges with its mouth over the hero, the hero goes into its mouth,
+  `full` while they're inside, out of the mouth on `spit` (fight-stills/sand-wyrm-swallow.png, sand-wyrm-spit.png);
+  a real fight with `?land=1`: swallowed, held, let go, no errors. Reads SWALLOW_AT {u, ahead} as well as EVENTS.
 - **Fixed November 23**: an effect started by a delayed one (fx.later) used to stand frozen on the field (dropped from
   the effects list); the turn strip steps aside during a close-up or wide camera; close-up spots scored by a fan of
   rays (built things, rock, trees, ground too near).

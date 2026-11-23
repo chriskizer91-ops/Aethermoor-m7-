@@ -421,7 +421,7 @@ export const arena = {
     // with a swallower that has a mouth (parts.mouth, agreed with the foe lanes), the hero shrinks into it and comes back out of it
     if (held !== !!h.held) {
       const by = held ? [...this.foes.values()].find((G) => !G.removed && (G.act?.target === h.id || G.lastTarget === h.id)) : h.heldBy;
-      const mouth = by?.fig?.beast?.parts?.mouth;
+      const mouth = by?.fig?.beast?.parts?.mouth || by?.fig?.beast?.bones?.mouth;
       if (mouth) { h.gulp = { t: 0, out: !held, at: () => mouth.getWorldPosition(V3()) }; if (!held) this.fx?.sparks(mouth.getWorldPosition(V3()), '#e8f8ff', 18, { spread: 0.7 }); }
       else if (this.fx) { const p = h.pos.clone().setY(h.pos.y + 1); if (held) this.fx.sparks(p, '#7a5a8a', 22, { spread: 0.8 }); else { this.fx.ring(h.pos.clone(), '#c8f0ff', 1.6, 0.7); this.fx.sparks(p, '#e8f8ff', 18, { spread: 0.7, up: 1.3 }); } }
       if (!held && by && ownMove(by, 'spit') === 'spit') by.kpose = { name: 'spit', t: 0, dur: kitDur(by, 'spit') };
@@ -673,7 +673,7 @@ function stepFoe(ar, F, d, t, heroCenter) {
       const minAlong = front + 0.9 + F.size.d * 0.5, along = tp.dot(ar.dir); if (along < minAlong) tp.addScaledVector(ar.dir, minAlong - along);
       // a swallow: the foe stops with the hero exactly its reach in front of it (moves.EVENTS.swallow.reach, or SWALLOW_AT)
       const sw = a.kmove === 'swallow' && (F.fig.beast?.moves?.EVENTS?.swallow || F.fig.beast?.moves?.SWALLOW_AT || F.fig.beast?.SWALLOW_AT);
-      if (sw && sw.reach) tp.copy(h.pos).addScaledVector(dv, sw.reach);
+      const reach = sw && (sw.reach ?? sw.ahead); if (reach) tp.copy(h.pos).addScaledVector(dv, reach);
       // a winged foe's own carry-off, dive or swoop flies it forward itself (Models, November 23): no dash on top
       const flies = F.fig.beast?.plan === 'winged' && ['carry-off', 'dive', 'swoop'].includes(a.kmove);
       const go = flies ? 0 : seg(a.t, 0.18, 0.42), ret = a.bit && !flies ? seg(after, 0.35, 0.85) : 0;
