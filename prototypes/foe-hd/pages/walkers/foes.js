@@ -243,5 +243,51 @@ const peakTroll = {
   },
 };
 
-export const FOES = { rotwarden, sapwight, 'old-horn': oldHorn, 'peak-troll': peakTroll };
+// the unmade (session 8, November 23): a thin husk of torn strips, its left hand still closed round the ghost of its
+// relic; it moves slowly, as if it has forgotten how, and its moves are M7's own
+const unmade = {
+  key: 'unmade', name: 'The Unmade', tier: 'Veteran', act: 'Act Three, the Hearth Below', height: 1.8, weight: 0.7,
+  stiff: 0.7, knees: 0.7,
+  limits: { neck: 0.5, head: 0.8, spine: 0.5, chest: 0.5, l_shin: 0.6, r_shin: 0.6, l_fore: 0.7, r_fore: 0.7 },
+  text: 'A relic-bearer the Worldforge unmade: a grey husk still carrying the shape of the thing it held, and still reaching for it.',
+  lunge: 'empty-grip',
+  idle(W, t) {
+    const b = W.bones, sw = Math.sin(t * 0.5);
+    b.spine.rotation.z = 0.03 * sw; b.head.rotation.z = 0.08 * Math.sin(t * 0.37); b.neck.rotation.x = 0.05;
+    b.r_upper.rotation.x = 0.04 * Math.sin(t * 0.8); b.r_fore.rotation.x = -0.08 - 0.05 * Math.sin(t * 1.1);   // its empty hand, flexing
+    b.l_upper.rotation.x = -0.03 * sw;
+  },
+  moves: {
+    'empty-grip': { label: 'Empty Grip', dur: 1.5, pose(W, u, t) {
+      // its right hand comes up and out, open, and closes on you as it closed on the relic
+      const b = W.bones, out = seg(u, 0.05, 0.45) * (1 - seg(u, 0.75, 1)), close = seg(u, 0.42, 0.55) * (1 - seg(u, 0.8, 1));
+      b.r_upper.rotation.x = -1.25 * out; b.r_upper.rotation.z = 0.15 * out; b.r_fore.rotation.x = -0.25 * out - 0.6 * close;
+      b.spine.rotation.x = 0.12 * out; b.chest.rotation.y = -0.2 * out; b.head.rotation.x = 0.15 * out;
+      W.body.position.z = 0.18 * out;
+    } },
+    'phantom-art': { label: 'Phantom Art', dur: 1.8, pose(W, u, t) {
+      // it raises the relic it no longer holds and swings it down across, as it used to
+      const b = W.bones, up = seg(u, 0.05, 0.4) * (1 - seg(u, 0.5, 0.65)), swing = seg(u, 0.5, 0.65) * (1 - seg(u, 0.85, 1));
+      b.l_upper.rotation.x = -1.6 * up - 0.5 * swing; b.l_upper.rotation.z = -0.3 * up + 0.2 * swing; b.l_fore.rotation.x = 0.3 * up - 0.2 * swing;
+      b.chest.rotation.y = 0.25 * up - 0.3 * swing; b.spine.rotation.x = -0.08 * up + 0.15 * swing; b.head.rotation.x = -0.2 * up + 0.15 * swing;
+      W.body.position.z = 0.1 * swing;
+    } },
+    'grey-touch': { label: 'Grey Touch', dur: 1.7, pose(W, u, t) {
+      // a slow reach, the palm laid flat on you, its head tilting as if it were listening
+      const b = W.bones, k = seg(u, 0.1, 0.55) * (1 - seg(u, 0.8, 1));
+      b.r_upper.rotation.x = -0.95 * k; b.r_upper.rotation.z = -0.15 * k; b.r_fore.rotation.x = -0.35 * k; b.r_hand.rotation.x = 0.5 * k;
+      b.head.rotation.z = 0.35 * k; b.head.rotation.x = 0.1 * k; b.spine.rotation.x = 0.08 * k;
+      W.body.position.z = 0.1 * k;
+    } },
+    husk: { label: 'Husk', dur: 1.8, pose(W, u, t) {
+      // it goes slack, folds in on itself, nothing in it to hurt, then draws itself up again
+      const b = W.bones, k = seg(u, 0, 0.3) * (1 - seg(u, 0.65, 1));
+      crouch(W, 0.3 * k); b.spine.rotation.x = 0.3 * k; b.chest.rotation.x = 0.2 * k; b.neck.rotation.x = 0.3 * k; b.head.rotation.x = 0.4 * k;
+      b.r_upper.rotation.x = 0.1 * k; b.r_upper.rotation.z = -0.1 * k; b.l_upper.rotation.x = 0.15 * k;
+      b.spine.rotation.z = 0.06 * Math.sin(u * 9) * k;
+    } },
+  },
+};
+
+export const FOES = { rotwarden, sapwight, 'old-horn': oldHorn, 'peak-troll': peakTroll, unmade };
 export const COMMON = [['idle', 'Breathe', 0], ['walk', 'Walk', 0], ['hurt', 'Hit', 0.9], ['ko', 'Fall', 2.6]];
