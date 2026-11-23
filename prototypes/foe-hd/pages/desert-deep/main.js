@@ -18,12 +18,18 @@ import { PLANS } from '../../kit/js/looks.js';
 import { FOES } from './assets.js';
 import * as lizard from './moves/lizard.js';
 import * as scorpion from './moves/scorpion.js';
+import * as wyrm from './moves/wyrm.js';
 // the desert and the deep (Places' lane, November 21): every finished foe of the lane on one page; the buttons at the top
 // pick which is on the stands (the page reloads with #<key>). Each foe's own moves where the kit's plan isn't enough.
-const OWN_MOVES = { lizard, scorpion };
+const OWN_MOVES = { lizard, scorpion, wyrm };
+// the lane's gallery pages (each holds a few foes, under 16 MB): links between them
+const PAGES = [['The sand-skink, the glass-scorpion, the Glass Matriarch', 'https://claude.ai/artifact/EwHdrinmmvPGCqF48sjdFP'],
+  ['The Sand Wyrm and Kharzul', 'https://claude.ai/artifact/2r6Q5RAfU9MqqaLsQvH2KF']];
 const pick = decodeURIComponent(location.hash.slice(1)), A = FOES.find((f) => f.key === pick) || FOES[FOES.length - 1];
 const KEY = A.lightMeta.key, MV = OWN_MOVES[A.lightMeta.moves] || OWN_MOVES[{ 'sand-skink': 'lizard' }[KEY]] || OWN_MOVES[A.lightMeta.plan] || PLANS[A.lightMeta.plan] || PLANS.quad;
 {
+  const pg = document.getElementById('pages');
+  if (pg) for (const [name, url] of PAGES) { if (url.startsWith('PAGE')) continue; const a = document.createElement('a'); a.className = 'btn'; a.href = url; a.target = '_blank'; a.rel = 'noopener'; a.textContent = name; if (FOES.some((f) => name.includes(f.name.replace(/^The /, '')))) a.setAttribute('aria-current', 'page'); pg.appendChild(a); }
   const bar = document.getElementById('foes');
   for (const f of FOES) {
     const b = document.createElement('button'); b.textContent = f.name; b.setAttribute('aria-pressed', f === A);

@@ -12,6 +12,7 @@
   .bar { display: flex; flex-wrap: wrap; gap: 8px; padding: 10px 16px; }
   button { min-height: 44px; min-width: 44px; padding: 0 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--panel);
            color: var(--ink); font: inherit; cursor: pointer; }
+  a.btn[aria-current] { display: none; }
   a.btn { display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--panel); color: var(--ink); text-decoration: none; }
   button[aria-pressed="true"] { border-color: var(--gold); background: #3a2a18; color: #ffe2b0; }
   #fps { padding: 0 16px; color: var(--gold); font-variant-numeric: tabular-nums; min-height: 22px; }
@@ -29,6 +30,7 @@
   <p>The Sunscorch's and the Gloomfen's beasts in full detail, one at a time. Pick one:</p>
 </header>
 <div class="bar" id="foes" aria-label="Which foe"></div>
+<div class="bar" id="pages" aria-label="The lane's other gallery pages"></div>
 <header style="padding-top:0">
   <p>Left to right on turning stands, under the same light: the model built in code, a cut-out of Chris's painted sheet, and the full-detail one baked from a sculpt.</p>
 </header>
