@@ -80,7 +80,7 @@ export function pose(B, move, u, t, step = 0) {
     lift(b.base, 0, 0.05 * H * go);
     // the gulp goes down his neck: a swell travelling from the head to the water
     const g = seg(u, 0.6, 0.95);
-    N.forEach((n, i) => { b[n].rotation.x += 0.04 * bump((g * 7 - (5 - i)) / 2); });
+    N.forEach((n, i) => { b[n].rotation.x += 0.03 * bump((g * 7 - (5 - i)) / 2); });
     return;
   }
   if (move === 'undertow') {
