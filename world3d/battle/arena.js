@@ -673,7 +673,9 @@ function stepFoe(ar, F, d, t, heroCenter) {
       // a swallow: the foe stops with the hero exactly its reach in front of it (moves.EVENTS.swallow.reach, or SWALLOW_AT)
       const sw = a.kmove === 'swallow' && (F.fig.beast?.moves?.EVENTS?.swallow || F.fig.beast?.moves?.SWALLOW_AT || F.fig.beast?.SWALLOW_AT);
       if (sw && sw.reach) tp.copy(h.pos).addScaledVector(dv, sw.reach);
-      const go = seg(a.t, 0.18, 0.42), ret = a.bit ? seg(after, 0.35, 0.85) : 0;
+      // a winged foe's own carry-off, dive or swoop flies it forward itself (Models, November 23): no dash on top
+      const flies = F.fig.beast?.plan === 'winged' && ['carry-off', 'dive', 'swoop'].includes(a.kmove);
+      const go = flies ? 0 : seg(a.t, 0.18, 0.42), ret = a.bit && !flies ? seg(after, 0.35, 0.85) : 0;
       F.pos.copy(F.home).lerp(tp, go * (1 - ret)); F.pos.y = ar.heightAt(F.pos.x, F.pos.z, F.pos.y);
       walking = (go > 0 && go < 1) || (ret > 0 && ret < 1);
       face = ret > 0.05 && ret < 1 ? Math.atan2(F.home.x - F.pos.x, F.home.z - F.pos.z) + Math.PI * 0 : Math.atan2(h.pos.x - F.pos.x, h.pos.z - F.pos.z);
