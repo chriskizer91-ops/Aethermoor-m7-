@@ -172,6 +172,14 @@
   https://claude.ai/artifact/AqSBbi7gYeRogHPsq24nAk (15.5 MB, 448 px world textures). Every move of Act Two's six
   Champions, Grandfather Willow and the Unsmith (events page) proven by check-moments: a moment each, no errors; the
   armoured, the wraiths, the Unsmith and Grandfather Willow play their own body moves.
+- **The Sunscorch page**: https://claude.ai/artifact/TWtn8x7hcGjTMHAUpAWC5M (12.9 MB; Scorchgate and its Vaults, the Glass
+  Flats, the Sun Road, the Dust Trail, the Miragewell, the deep shaft and the Glass Heart; full detail: glass-scorpion,
+  glass matriarch, sand-skink). Hand-made moments for its nine Relic-Bearers (the Ash-Wight Captain, Gnash, Rasa, the
+  Glass Matriarch, the Wisp-Queen, the Sand Wyrm, Vell, Brask, Tamsin): every move a moment, no errors (check-moments).
+  170 hand-made moments in all. Next: the Ironspire's and the Gloomfen's Relic-Bearers, each region its own page.
+- **Swallows** (agreed with Places, session 4, for the Sand Wyrm and the Leviathan): their `parts.mouth` and
+  `SWALLOW_AT { u, reach }`; the hero shrinks into the mouth at that u and comes back out of it on release; the foe
+  stops at `reach`; a `full` idle while a hero is inside, `spit` on release. To build when their models land.
 - **Fixed November 23**: an effect started by a delayed one (fx.later) used to stand frozen on the field (dropped from
   the effects list); the turn strip steps aside during a close-up or wide camera; close-up spots scored by a fan of
   rays (built things, rock, trees, ground too near).
