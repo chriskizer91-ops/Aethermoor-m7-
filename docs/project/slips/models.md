@@ -420,6 +420,15 @@ https://claude.ai/artifact/4WQXpMifD5GWsgCXTP4PVD
   (Relic-Bearers ~40k); same draws at both. Sculpts 830k to 980k. Every move poses with no errors; 390 px phone, no
   horizontal scroll.
 
+**The winged, second pass: the Roc** (November 23). Gallery republished: https://claude.ai/artifact/CmY9BHJzyVYCYgQtpboqBg
+- One fluffy coat: the Roc's body is now laid over in staggered rows of small feathers that lie along its shape (down
+  the body's own slope, lifted a little at the tip), so they overlap into one coat instead of tiers; the pale breast
+  is the same, smaller and scalloped. A feathered knee covers the joint of the raised leg.
+- The cloak: its feathers fan out from the talon like the sheet's, five of them carrying pale woven strips with a dark
+  border and a stepped key pattern (painted on, one rigid strip each), each strip ending in two little tassels and a
+  gold bead; one binding near the top.
+- At Light 38k (Relic-Bearer ~40k); the sculpt about 1.0M. Same draws at High and Light.
+
 ## Next
 
 - Chris chose full detail for the beasts (November 20): sessions 6 to 8 build them (`docs/project/jobs/foes.md`;
