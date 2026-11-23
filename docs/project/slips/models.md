@@ -385,6 +385,18 @@ https://claude.ai/artifact/4WQXpMifD5GWsgCXTP4PVD
   ~850-910k. Honestly, a first pass: the golems' limbs are still blocky beside the sheets' lumpy rock and shingled ash,
   the Journeyman reads plainer than his sheet (no fur collar or wild hair yet), the Bellows' harness is simpler.
 
+**The stone and forge constructs, second pass** (November 23). Gallery republished:
+https://claude.ai/artifact/4WQXpMifD5GWsgCXTP4PVD
+- Lumpier rock: every golem's trunk and limbs are pushed in and out with smooth bumps (rock, not boxes), and the slag
+  ones carry boulders on their shoulders and forearms.
+- Shingled ash: the Cinder-Thrall is laid over in rows of overlapping ash flakes, each tilted out at its lower edge, on
+  its chest, hips, arms and legs (a few triangles each; there are hundreds).
+- The Journeyman: a fur collar of tufts laid out and down over his shoulders, and wild dark hair swept back over his head.
+- The Bellows: a fuller harness: straps over each shoulder crossing in a Y down the back, brass rings and buckles where
+  they meet, a brass plate with lit slits on the back, leg straps with buckles, leather shoulder pads.
+- At Light: Cinder-Thrall 15k (rabble ~20k), Thrall-Overseer 13k, Forgeborn 11k, Bellows 14k, Forge-Warden 12k, the
+  Journeyman 30k (Relic-Bearer ~40k). Sculpts about 900k.
+
 ## Next
 
 - Chris chose full detail for the beasts (November 20): sessions 6 to 8 build them (`docs/project/jobs/foes.md`;
