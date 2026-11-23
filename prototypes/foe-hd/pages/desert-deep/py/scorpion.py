@@ -109,10 +109,11 @@ def build_scorpion(K, sp):
     seg_i = np.array([np.argmin([abs(v - q[0]) for q in PL]) for v in yy[::max(1, len(yy) // 20000)]])
     col = np.tile(GLASS, (len(Vb), 1))
     # each plate lighter in its middle and amber at its edges; the underside darker amber
+    BG, BE = (np.array(sp['back'][0]), np.array(sp['back'][1])) if 'back' in sp else (GLASS, AMBER)   # (Kharzul: the Glass Carapace)
     for px, py, hh, hw, hl in PL:
         m = np.abs(yy - px) < hl * 1.05
         u = np.abs(yy[m] - px) / (hl * 1.05)
-        col[m] = mix(GLASS, AMBER, (u ** 2.5)[:, None] * 0.75)
+        col[m] = mix(BG, BE, (u ** 2.5)[:, None] * 0.75)
     col = mix(col, JOINT * 1.2, sstep(0.55, 0.2, (Vb[:, 2] - (GROUND - PL[len(PL) // 2][1]) * S) / (PL[len(PL) // 2][2] * S) + 0.6)[:, None] * 0.6)
     col = col * (0.9 + 0.2 * fbm(Vb * 30, 2.0))[:, None]
     M.add(Vb, Fb, np.clip(col, 0, 1), 0, mat=MAT_G)
@@ -134,6 +135,39 @@ def build_scorpion(K, sp):
     TJ = [p(*j) for j in sp['tail']]; TR = [r * S for r in sp['tail_r']]
     for i in range(len(TJ) - 1):
         a, b = TJ[i], TJ[i + 1]
+        if i == len(TJ) - 2 and 'blade' in sp:     # Kharzul: the last small segment, a gold ring, and Cinderfang hanging from it
+            segment(a - (b - a) * 0.06, b + (b - a) * 0.06, TR[i], nfacet=10 if crystal else 0, seed=40 + i)
+            ring_c, ring_r = p(*sp['blade']['ring'][:2], 0), sp['blade']['ring'][2] * S
+            n_ = {0: 10, 1: 16, 2: 24, 3: 36}.get(LV, 36); th = np.linspace(0, 2 * np.pi, n_)
+            ring = np.array([ring_c + np.array([0, np.cos(t) * ring_r, np.sin(t) * ring_r]) for t in th])
+            V, F = G.tube(ring, np.full(n_, ring_r * 0.22), max(5, SIDES - 2)); M.add(V, F, np.array(sp['gold']), 8, mat=(0.25, 0.9))
+            hilt, tip = p(*sp['blade']['hilt']), p(*sp['blade']['tip'])
+            # the hilt: a gold guard and grip from the ring down to the blade
+            V, F = G.tube(G.resample(np.array([ring_c - [0, 0, ring_r * 0.9], hilt]), 6), np.full(6, sp['blade']['width'] * S * 0.35), max(5, SIDES - 2)); M.add(V, F, np.array(sp['gold']) * 0.85, 8, mat=(0.3, 0.9))
+            V, F = G.ellipsoid(hilt, [0.04, sp['blade']['width'] * S * 1.4, 0.02], 8, 12); M.add(V, F, np.array(sp['gold']), 8, mat=(0.25, 0.9))
+            # the blade: a curved, single-edged scimitar, dark glass with a molten edge (the edge glows: kind 7)
+            nb = {0: 10, 1: 18, 2: 30, 3: 48}.get(LV, 48); u = np.linspace(0, 1, nb)
+            d = tip - hilt; L_ = np.linalg.norm(d); dn = d / L_; out = np.cross(dn, [1.0, 0, 0]); out /= np.linalg.norm(out)
+            spine = hilt[None] + u[:, None] * d[None] + (np.sin(np.pi * u) * sp['blade']['bow'] * S)[:, None] * out[None]
+            wv = sp['blade']['width'] * S * (1 - 0.85 * u ** 2.5); th_ = 0.006
+            nw = {0: 3, 1: 4, 2: 6, 3: 8}.get(LV, 8)
+            for side in (1, -1):
+                V = []; F = []; C = []
+                for i2 in range(nb):
+                    for j2 in range(nw):
+                        f = j2 / (nw - 1); V.append(spine[i2] + out * (f - 0.2) * wv[i2] * 2 + np.array([side * th_ * (1 - f) , 0, 0]))
+                for i2 in range(nb - 1):
+                    for j2 in range(nw - 1):
+                        a2 = i2 * nw + j2; t1 = [a2, a2 + nw, a2 + nw + 1]; t2 = [a2, a2 + nw + 1, a2 + 1]
+                        F += [t1, t2] if side > 0 else [t1[::-1], t2[::-1]]
+                V = np.array(V); F = np.array(F)
+                ff = np.tile(np.linspace(0, 1, nw), nb)
+                Cc = mix(np.array(sp['blade']['steel']), np.array(sp['blade']['glow']), (ff ** 3)[:, None])
+                M.add(V, F, np.clip(Cc, 0, 1), 8, mat=(0.3, 0.4))
+                # the molten edge: a thin glowing bead along the cutting edge
+            edge = spine + out[None] * (0.8 * wv)[:, None]
+            V, F = G.tube(edge, np.maximum(wv * 0.08, 0.002), max(4, SIDES // 2)); M.add(V, F, np.array(sp['blade']['glow']), 7)
+            continue
         if i == len(TJ) - 2:          # the bulb, then the sting
             segment(a, b, TR[i], nfacet=10 if crystal else 0, seed=40 + i, rim=False)
             tip = p(*sp['sting']); d = b - a; d /= np.linalg.norm(d)

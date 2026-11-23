@@ -1,0 +1,88 @@
+{
+  "key": "blackwater-gar",
+  "name": "Blackwater Gar",
+  "plan": "fish",
+  "rank": "rabble",
+  "height": 0.55,
+  "sheet": "art-in/3d/sheets/sheet-blackwater-gar.webp",
+  "crops": [
+    [
+      20,
+      420
+    ],
+    [
+      440,
+      1720
+    ],
+    [
+      1740,
+      2150
+    ]
+  ],
+  "bounds": [
+    [
+      -0.4,
+      -0.78,
+      -0.01
+    ],
+    [
+      0.4,
+      0.68,
+      0.62
+    ]
+  ],
+  "voxel": {
+    "0": 0.006,
+    "1": 0.004,
+    "2": 0.0025,
+    "3": 0.0016
+  },
+  "view": {
+    "center": [
+      0,
+      0,
+      0.28
+    ],
+    "width": 1.5,
+    "head": [
+      0,
+      0.45,
+      0.3
+    ],
+    "headWidth": 0.4
+  },
+  "light": {
+    "level": 0,
+    "coat": 13000,
+    "kinds": {
+      "1": 3500,
+      "2": 1200,
+      "8": 800
+    }
+  },
+  "sculpt": {
+    "level": 3
+  },
+  "bake": {
+    "res": 1024,
+    "phone": 512,
+    "ao": 32,
+    "reach": {
+      "coat": [
+        0.01,
+        0.025
+      ],
+      "parts": [
+        0.004,
+        0.01
+      ]
+    }
+  },
+  "rig": "rig.py",
+  "blurb": "The blackwater-gar is a long armoured fish, as long as a man is tall, swimming just above the mud in its ripple: green diamond plates in rows, a pale belly, a long narrow snout full of needle teeth, a yellow eye, a sawtooth crest down its back, and fins and a fanned tail spotted orange.",
+  "next": "its plates catching more light, as the sheet paints them.",
+  "pages": {
+    "three": "https://claude.ai/artifact/Ry64sw4379cEjNfuju1BvU",
+    "sculpt": "https://claude.ai/artifact/TmEm8mbSEi8zQomTsndm51"
+  }
+}

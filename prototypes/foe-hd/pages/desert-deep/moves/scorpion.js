@@ -11,7 +11,7 @@ export const MOVES = [['idle', 'Wait'], ['walk', 'Walk'], ['pincer', 'Pincer'], 
 export const DUR = { pincer: 1.2, sting: 1.3, guard: 1.6, moult: 2.2, rain: 2.0, hurt: 0.9, ko: 2.2 };
 export const LUNGE = 'sting';
 const STING = { default: [1.7, -0.4, -0.7, -0.7, 0.15], 'glass-matriarch': [1.8, -0.6, -0.8, -0.6, 0.1] };
-export const ALIAS = { bite: 'pincer', swipe: 'pincer', strike: 'sting', cast: 'rain', roar: 'rain' };
+export const ALIAS = { bite: 'pincer', swipe: 'pincer', strike: 'sting', cast: 'rain', roar: 'rain', 'glass-sting': 'sting', carapace: 'guard', 'shell-rain': 'rain' };     // (M7's ids too)
 function reset(B) {
   for (const b of Object.values(B.bones)) { b.rotation.set(0, 0, 0); b.position.copy(b.userData.p0); b.scale.set(1, 1, 1); }
   B.body.position.set(0, 0, 0); B.body.rotation.set(0, 0, 0);
@@ -37,7 +37,7 @@ function claws(b, open, raise = 0, reach = 0) {
 }
 function tail(b, curl, sway = 0) {
   // curl > 0 brings the sting forward over the back (each segment turns a little more)
-  ['tail1', 'tail2', 'tail3', 'tail4', 'sting'].forEach((n, i) => { b[n].rotation.x = curl * [0.12, 0.18, 0.22, 0.25, 0.3][i]; b[n].rotation.y = sway * (0.3 + i * 0.15); });
+  ['tail1', 'tail2', 'tail3', 'tail4', 'tail5', 'tail6', 'sting'].forEach((n, i) => { b[n].rotation.x = curl * [0.12, 0.18, 0.22, 0.25, 0.27, 0.28, 0.3][i]; b[n].rotation.y = sway * (0.3 + i * 0.15); });
 }
 export function pose(B, move, u, t, step = 0) {
   reset(B);

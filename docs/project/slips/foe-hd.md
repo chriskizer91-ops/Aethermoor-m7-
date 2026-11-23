@@ -5,6 +5,38 @@ shown side by side with the code-built model and a cut-out of Chris's sheet.
 
 ## Done
 
+- **Briarmaw lively again** (November 23), **passing the stretch check** (120 frames), pages republished (same links):
+  - Three ways: https://claude.ai/artifact/5iUqJsPw3NGrvun4Ng73eh · the sculpt: https://claude.ai/artifact/AVSmLbEu3jz1NVnohgqT9P
+  - His legs drawn out of his belly: the belly raised to the sheet's 0.46 m, and each leg a piece of its own with its
+    own coat (kind 1), set into his body with a crease round it; the bramble vines round his legs move whole with the
+    lower leg. His rig finds the legs by kind (`part()`), keeps the body off the legs' bones (`mask()`), and welds
+    only points of one kind (`WELD_SAME_KIND`). Light model 49,686; sculpt 1.22M (5.7 MB saved).
+  - His own lively set, `bear` (`kit/js/moves/bear.js`, his game moves by name): the big leg swings back (upper legs
+    ±0.32 in the walk), the paw raised high in the maul (1.25 rad), a rearing rootquake, a thorn-shaking bristle, the
+    jaw wide in the roar; rearing, lunging, turning and shaking move his whole body. The knees bend a little less than
+    the first set (a thick furry knee tears past about half a radian), and his neck and head turn modestly: his head is
+    sunk in his shoulders under the cheek ruffs, so big tosses tear there until the sculpt draws his head out too.
+  - The Fight's `briarmawLook` (page/briarmaw.js) uses the bear set; the forwarding copies in `assets/` refreshed; the
+    three-ways page plays a foe's own named set (`moves` in foe.json) before its plan's.
+
+- **Old Jaws** (November 23), Relic-Bearer of the Gloomfen, in full detail, **passing the stretch check** (120 frames):
+  - Three ways, with the crowd test: https://claude.ai/artifact/9TmS56rJ3X9VZPkrF3BXsn
+  - The sculpt itself (laptop): https://claude.ai/artifact/FZXfQNJgJt3RNNaPDwF31S
+  - The gar grown old and huge (1.8 m), humped, deep and broad, a short broad snout, a pale old eye, a rope round his
+    neck and his snout, a cord of beads hanging to the great hooked tooth, blue bubbles beside him.
+    Light model 35,366; sculpt 964k (6.8 MB saved). His moves: bite, leap, dive, death-roll, the-tooth.
+
+- **The blackwater-gar** (November 23), rabble of the Gloomfen, in full detail, **passing the stretch check** (120 frames):
+  - Three ways, with the crowd test: https://claude.ai/artifact/Ry64sw4379cEjNfuju1BvU
+  - The sculpt itself (laptop): https://claude.ai/artifact/TmEm8mbSEi8zQomTsndm51
+  - A long armoured fish swimming just above the mud in its ripple: green diamond plates, a pale belly, a long snout
+    of needle teeth (the lower jaw its own piece), a yellow eye, a sawtooth crest, orange-spotted fins.
+    Light model 18,496; sculpt 959k (3.8 MB saved).
+  - Built by `foes/blackwater-gar/fish.py` (Old Jaws is the same fish with other numbers), moved by a new plan, `fish`
+    (`kit/js/moves/fish.js`): hover, swim, bite, leap, dive, death-roll, the-tooth, hit, belly up.
+  - The kit: `WELD_SAME_KIND` in a rig (`kit/rigs/bind.py`): only points of one kind are welded, so a fin, a crest plate
+    or a leg's own coat that merely touches the body keeps its own weights.
+
 - **The mire-leech** (November 23), rabble of the Gloomfen, in full detail, **passing the stretch check** (120 frames):
   - Three ways, with the crowd test: https://claude.ai/artifact/XKAzPTo5MW2j7a8T9ZBGcw
   - The sculpt itself (laptop): https://claude.ai/artifact/8vA22BicHBuWDnrysGVyor

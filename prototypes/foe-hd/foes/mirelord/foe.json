@@ -1,0 +1,83 @@
+{
+ "key": "mirelord",
+ "name": "Gorrow the Mire-King",
+ "plan": "frog",
+ "rank": "relic-bearer",
+ "height": 1.55,
+ "length": 1.6,
+ "sheet": "art-in/3d/sheets/sheet-mirelord.webp",
+ "crops": [
+  [
+   0,
+   730
+  ],
+  [
+   730,
+   1460
+  ],
+  [
+   1460,
+   2172
+  ]
+ ],
+ "bounds": [
+  [
+   -1.0,
+   -0.9,
+   -0.01
+  ],
+  [
+   1.0,
+   0.9,
+   1.6
+  ]
+ ],
+ "voxel": {
+  "0": 0.012,
+  "1": 0.011,
+  "2": 0.007,
+  "3": 0.0052
+ },
+ "view": {
+  "center": [
+   0,
+   0,
+   0.6
+  ],
+  "width": 2.4,
+  "head": [
+   0,
+   0.5,
+   0.95
+  ],
+  "headWidth": 0.8
+ },
+ "light": {
+  "level": 0,
+  "coat": 24000
+ },
+ "sculpt": {
+  "level": 3
+ },
+ "bake": {
+  "res": 2048,
+  "phone": 1024,
+  "ao": 48,
+  "reach": {
+   "coat": [
+    0.008,
+    0.022
+   ],
+   "parts": [
+    0.01,
+    0.03
+   ]
+  }
+ },
+ "rig": "rig.py",
+ "moves": "frog",
+ "what": "Act One, Relic-Bearer of the Mire, the Mire Pearl set in his crown of reeds. Belly-Flop, Drag Under, Wallow, Undertow.",
+ "about": "A frog-king as wide as a hut: warty green skin blotched with orange rings, a pale sagging belly, great gold eyes, and the Mire Pearl set in a crown of woven reeds and cattails. 1.1 m to the top of his head (1.55 m to the cattails), 1.6 m across.",
+ "pack": 1,
+ "sculptTriangles": 951258
+}

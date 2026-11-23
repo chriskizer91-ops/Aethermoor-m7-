@@ -1,10 +1,10 @@
 # Slip: the desert and the deep (Places, session 4, from November 21)
 
 The Sunscorch's beasts (sand-skink, glass-scorpion, the Glass Matriarch, the Sand Wyrm, Kharzul) and the Gloomfen's
-(mire-leech, blackwater-gar, Old Jaws, the Blackwater Leviathan), made with the foe kit (`prototypes/foe-hd/README.md`).
+(the Gloomfen's beasts went to session 6 on November 23), made with the foe kit (`prototypes/foe-hd/README.md`).
 
 - Gallery, page 1 (the skink, the scorpions): https://claude.ai/artifact/EwHdrinmmvPGCqF48sjdFP; page 2 (the Sand Wyrm,
-  Kharzul next): https://claude.ai/artifact/2r6Q5RAfU9MqqaLsQvH2KF. A "Full detail alone" button on each. (`pages/desert-deep/`: every finished foe of the lane,
+  Kharzul): https://claude.ai/artifact/2r6Q5RAfU9MqqaLsQvH2KF. A "Full detail alone" button on each. (`pages/desert-deep/`: every finished foe of the lane,
   pick one at the top; beside its code-built model and Chris's sheet; its moves; six at once with the heroes).
 
 ## Done
@@ -68,12 +68,32 @@ The Sunscorch's beasts (sand-skink, glass-scorpion, the Glass Matriarch, the San
 - Bake lessons: rigid parts must be the same at every level (the rocks' count differed between the light model and
   the sculpt: black patches); a part much coarser on the light model needs a longer `bake.reach.parts`.
 
+- Its move names now also answer to the Fight's ids: `scale-grind` and `sand-dive` (ALIAS in `wyrm.js`); the
+  scorpions' to `glass-sting`, `carapace`, `shell-rain`.
+
+### Kharzul (champion), November 23
+
+- Sculpt to the sheet: 756,916 triangles (3.1 MB glb): the scorpion builder (`py/scorpion.py`, `crystal` style) at
+  wagon size, blue glass plates on its back (the Glass Carapace), a seven-part tail, and Cinderfang: a gold ring, a
+  hilt and a curved two-sided blade whose edge glows molten. Laptop: https://claude.ai/artifact/EaS9GoMX1Gb8qQ1Ysy2Yno
+- Light model 41,864 triangles (a champion's budget runs to ~50,000; it needs no more), 41 bones: the scorpion's,
+  with tail1..tail6 and `sting`; the ring, hilt and blade all ride `sting`, the back crystals ride `body`.
+- Moves `pages/desert-deep/moves/kharzul.js` under the Fight's ids from `champions.js`: `tail-lash`, `glass-sting`,
+  `glasscutter` (the tail curls over and sweeps the blade across its whole front), `burrow` (sinks right under, the
+  raised blade too; `SINKS = { burrow: true }`, then `surface`), `erupt` (bursts up out of the floor and the blade
+  comes down), `carapace-brace`, `glass-rain`, `molten-tail` (slow, the blade held high first), plus Wait, Walk,
+  Pincer, Hit, Fall. ALIAS: bite → glass-sting, strike → tail-lash, swipe → glasscutter, cast → carapace-brace,
+  roar → glass-rain. Every stab reaches past its own face (`tools/reach.mjs`: Tail Lash 0.79 m, Erupt 0.78 m,
+  Glass Sting 0.59 m, Glasscutter 0.58 m), so it never stings itself.
+- **Stretch check: PASS**, 1.00x on every move (all its pieces are rigid).
+
 ## Needs
 
 - **Session 6 (the kit)**: `Coat.coat(V, want_id=True)` with `shape='plate'` at level 2+ fails (the crack term `q` is
   (n, 1), so `q[r, j]` is out of range). I work round it with `lv=1`.
 
 - **For the game** (Together, the Fight): session 6's kit now reads a foe's own moves set (`light.json` `moves`, from
-  foe.json; job/foe-hd after a4f6b4f). Before registering my foes: `addMoves('lizard', lizard)` and
-  `addMoves('scorpion', scorpion)` from `pages/desert-deep/moves/`. My light models carry `moves` once rebound
+  foe.json; job/foe-hd after a4f6b4f). Before registering my foes: `addMoves('lizard', lizard)`,
+  `addMoves('scorpion', scorpion)`, `addMoves('wyrm', wyrm)` and `addMoves('kharzul', kharzul)` from
+  `pages/desert-deep/moves/` (`kharzul.js` imports `scorpion.js` beside it). My light models carry `moves` once rebound
   after the hub brings that kit change in.

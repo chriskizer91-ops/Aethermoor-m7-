@@ -576,7 +576,7 @@ export const MOMENTS = {
     land: (c) => { c.shake(3); for (const h of c.heroes) c.fx.smoke(feet(h).setY(h.pos.y + 0.6), '#d8b880', 12, 1.4, 1.6); },
   },
   'sand-wyrm:scale-grind': { // "It grinds the great scale in its hide against the sinkhole wall: ... the sand has you to the knees (Rooted)."
-    move: ['scale-grind', 'swipe'], camera: 'wide',
+    move: ['scale-grind', 'grind', 'swipe'], camera: 'wide',
     start: (c) => { c.fx.sparks(mid(c), '#ffd27a', 40, { spread: 1.6, up: 0.6 }); },
     land: (c) => { for (const h of c.all) { c.fx.smoke(feet(h), '#d8b880', 6, 0.8, 1.6); c.fx.ring(feet(h), '#c8a070', 1.1, 1.4); } },
   },

@@ -26,9 +26,9 @@ function legs(b, step, amp = 1) {
   const P = { fl: 0, br: 0, fr: Math.PI, bl: Math.PI };
   for (const k of ['fl', 'fr', 'bl', 'br']) {
     const ph = step + P[k], s = Math.sin(ph), lift = Math.max(0, Math.cos(ph));
-    b[k + '_upper'].rotation.x = -0.32 * s * amp;
-    b[k + '_lower'].rotation.x = (k[0] === 'f' ? 0.45 : -0.45) * lift * amp;
-    b[k + '_paw'].rotation.x = 0.25 * s * amp - (k[0] === 'f' ? 0.3 : -0.2) * lift * amp;
+    b[k + '_upper'].rotation.x = (k[0] === 'f' ? -0.32 : -0.26) * s * amp;
+    b[k + '_lower'].rotation.x = (k[0] === 'f' ? 0.24 : -0.22) * lift * amp;
+    b[k + '_paw'].rotation.x = 0.14 * s * amp - (k[0] === 'f' ? 0.18 : -0.12) * lift * amp;
   }
 }
 export function pose(B, move, u, t, step = 0) {
@@ -36,82 +36,82 @@ export function pose(B, move, u, t, step = 0) {
   const b = new Proxy(B.bones, { get: (o, k) => o[k] || NOOP }), br = Math.sin(t * 1.9), A = (m) => AMP[m] ?? 1;
   // breathing under everything: the back lifts, the head bobs and looks about, the tail sways
   b.spine.rotation.x = -0.02 * br;
-  b.head.rotation.x = 0.03 * br; b.head.rotation.y = 0.12 * Math.sin(t * 0.55);
-  b.tail.rotation.y = 0.18 * Math.sin(t * 1.3); b.tail.rotation.x = 0.04 * br;
+  b.head.rotation.x = 0.02 * br; b.head.rotation.y = 0.05 * Math.sin(t * 0.55);
+  b.tail.rotation.y = 0.12 * Math.sin(t * 1.3); b.tail.rotation.x = 0.04 * br;
   b.jaw.rotation.x = 0.03 + 0.02 * br;
   if (move === 'idle') return;
   if (move === 'walk') {
     const a = A('walk');
     legs(b, step, a);
     B.body.position.y = 0.025 * Math.abs(Math.sin(step));
-    b.hips.rotation.z = 0.03 * Math.sin(step); b.chest.rotation.z = -0.03 * Math.sin(step);
-    b.head.rotation.x += 0.05 * Math.sin(step * 2) * a; b.head.rotation.y += 0.06 * Math.sin(step) * a;
+    b.hips.rotation.z = 0.04 * Math.sin(step); b.hips.rotation.y = 0.04 * Math.sin(step);
+    b.head.rotation.x += 0.02 * Math.sin(step * 2) * a; b.head.rotation.y += 0.03 * Math.sin(step) * a;
     return;
   }
   if (move === 'roar') {
     // rear back, head up, jaw wide, shake
     const a = A('roar'), up = seg(u, 0, 0.25), hold = 1 - seg(u, 0.75, 1), k = up * hold * a, shake = Math.sin(u * 70) * 0.03 * k;
-    b.hips.rotation.x = -0.12 * k; b.chest.rotation.x = -0.18 * k; b.neck.rotation.x = -0.35 * k;
-    b.head.rotation.x += -0.35 * k + shake; b.head.rotation.y = shake;
+    b.hips.rotation.x = -0.26 * k; b.hips.rotation.y = shake; b.chest.rotation.x = -0.04 * k; b.neck.rotation.x = -0.05 * k;
+    b.head.rotation.x += -0.05 * k;
     b.jaw.rotation.x = 0.05 + 0.55 * k;
     b.fl_upper.rotation.x = b.fr_upper.rotation.x = 0.12 * k;
-    B.body.position.y = 0.05 * k;
+    B.body.position.y = 0.08 * k;
     return;
   }
   if (move === 'swipe') {
     // up on the hind legs a little, the right forepaw raised and raked across
     const a = A('swipe'), lift = seg(u, 0, 0.3) * a, rake = seg(u, 0.32, 0.55) * a, k = 1 - seg(u, 0.7, 1);
-    b.hips.rotation.x = -0.18 * lift * k; b.chest.rotation.x = -0.12 * lift * k;
-    b.chest.rotation.y = (0.25 * lift - 0.55 * rake) * k;
+    b.hips.rotation.x = -0.28 * lift * k;     // he rears whole, and turns whole into the rake
+    b.hips.rotation.y = (0.2 * lift - 0.4 * rake) * k;
     b.fr_upper.rotation.x = (-1.25 * lift + 0.9 * rake) * k; b.fr_upper.rotation.z = (-0.35 * lift + 0.6 * rake) * k;
-    b.fr_lower.rotation.x = (0.6 * lift - 0.4 * rake) * k; b.fr_paw.rotation.x = -0.4 * lift * k;
-    b.head.rotation.y += (0.3 * lift - 0.5 * rake) * k; b.jaw.rotation.x = 0.05 + 0.3 * rake * k;
+    b.fr_lower.rotation.x = (0.25 * lift - 0.15 * rake) * k; b.fr_paw.rotation.x = -0.25 * lift * k;
+    b.head.rotation.y += (0.05 * lift - 0.08 * rake) * k; b.jaw.rotation.x = 0.05 + 0.3 * rake * k;
     B.body.position.y = 0.06 * lift * k;
     return;
   }
   if (move === 'bite') {
     // a lunge: head down and forward, jaw open, snapped shut as he lands
     const a = A('bite'), go = seg(u, 0, 0.4) * a, snap = seg(u, 0.45, 0.55), back = 1 - seg(u, 0.6, 1);
-    b.neck.rotation.x = 0.35 * go * back; b.head.rotation.x += -0.15 * go * back;
+    b.neck.rotation.x = 0.07 * go * back; b.head.rotation.x += -0.04 * go * back;
     b.jaw.rotation.x = 0.05 + 0.6 * go * (1 - snap) * back;
-    b.hips.rotation.x = 0.06 * go * back; B.body.position.z = 0.25 * go * back;
+    b.hips.rotation.x = 0.12 * go * back; B.body.position.z = 0.3 * go * back;
     b.fl_upper.rotation.x = b.fr_upper.rotation.x = -0.2 * go * back;
     return;
   }
   if (move === 'bristle') {
     // he hunches, his thorns up, and shakes himself like a wet dog: the thorns fly
     const k = seg(u, 0, 0.25) * (1 - seg(u, 0.8, 1)), shake = Math.sin(u * 45) * k;
-    b.chest.rotation.x = 0.08 * k; b.neck.rotation.x = 0.12 * k; b.head.rotation.x += 0.1 * k;
-    b.spine.rotation.z = 0.06 * shake; b.chest.rotation.z = -0.08 * shake; b.hips.rotation.z = 0.05 * shake;
-    b.head.rotation.z = -0.12 * shake; b.tail.rotation.y += 0.3 * shake;
+    b.hips.rotation.x = 0.06 * k; b.neck.rotation.x = 0.04 * k; b.head.rotation.x += 0.03 * k;
+    b.hips.rotation.z = 0.06 * shake; b.hips.rotation.y = 0.04 * shake;     // he shakes whole
+    b.head.rotation.z = -0.03 * shake; b.tail.rotation.y += 0.08 * shake;
     B.body.position.y = -0.03 * k;
     return;
   }
   if (move === 'stomp') {
     // he rears up on his hind legs, forepaws high, and slams them down: the ground cracks
     const a = A('stomp'), up = seg(u, 0, 0.4) * (1 - seg(u, 0.45, 0.58)) * a, slam = seg(u, 0.48, 0.6) * (1 - seg(u, 0.8, 1)) * a;
-    b.hips.rotation.x = -0.3 * up + 0.05 * slam; b.chest.rotation.x = -0.1 * up + 0.06 * slam;
+    b.hips.rotation.x = -0.32 * up + 0.07 * slam; b.chest.rotation.x = -0.03 * up + 0.02 * slam;
     for (const s of ['fl', 'fr']) {
-      b[s + '_upper'].rotation.x = -0.7 * up + 0.15 * slam; b[s + '_lower'].rotation.x = 0.5 * up; b[s + '_paw'].rotation.x = -0.3 * up;
+      b[s + '_upper'].rotation.x = -0.7 * up + 0.15 * slam; b[s + '_lower'].rotation.x = 0.23 * up; b[s + '_paw'].rotation.x = -0.16 * up;
     }
     for (const s of ['bl', 'br']) { b[s + '_upper'].rotation.x = 0.25 * up; b[s + '_lower'].rotation.x = -0.15 * up; }
-    b.neck.rotation.x = -0.2 * up + 0.15 * slam; b.jaw.rotation.x = 0.05 + 0.35 * (up + slam);
+    b.neck.rotation.x = -0.05 * up + 0.04 * slam; b.jaw.rotation.x = 0.05 + 0.35 * (up + slam);
     B.body.position.y = 0.12 * up - 0.03 * slam;
     return;
   }
   if (move === 'hurt') {
     const a = bump(u * 1.6) * (1 - seg(u, 0.6, 1));
-    B.body.position.z = -0.18 * a; b.chest.rotation.x = -0.22 * a; b.neck.rotation.x = -0.3 * a; b.head.rotation.x -= 0.25 * a;
-    b.head.rotation.z = 0.2 * a; b.jaw.rotation.x = 0.05 + 0.35 * a;
+    B.body.position.z = -0.18 * a; b.hips.rotation.x = -0.2 * a; b.neck.rotation.x = -0.06 * a; b.head.rotation.x -= 0.05 * a;
+    b.head.rotation.z = 0.05 * a; b.jaw.rotation.x = 0.05 + 0.35 * a;
     b.hips.rotation.z = 0.06 * Math.sin(u * 40) * a;
     return;
   }
   if (move === 'ko') {
     // the legs buckle, he rolls onto his side, the head drops last
     const buckle = seg(u, 0, 0.35), roll = seg(u, 0.25, 0.75), drop = seg(u, 0.6, 1);
-    for (const k of ['fl', 'fr', 'bl', 'br']) { b[k + '_upper'].rotation.x = (k[0] === 'f' ? 0.5 : -0.5) * buckle; b[k + '_lower'].rotation.x = (k[0] === 'f' ? -0.6 : 0.6) * buckle; }
+    for (const k of ['fl', 'fr', 'bl', 'br']) { b[k + '_upper'].rotation.x = (k[0] === 'f' ? 0.32 : -0.32) * buckle; b[k + '_lower'].rotation.x = (k[0] === 'f' ? -0.24 : 0.2) * buckle; }
     B.body.position.y = -0.25 * buckle + 0.1 * roll; B.body.rotation.z = 1.45 * roll; B.body.position.x = -0.55 * roll;
-    b.neck.rotation.x = 0.3 * drop; b.head.rotation.z = -0.3 * drop; b.jaw.rotation.x = 0.05 + 0.25 * drop;
+    b.neck.rotation.x = 0.08 * drop; b.head.rotation.z = -0.08 * drop; b.jaw.rotation.x = 0.05 + 0.25 * drop;
     b.tail.rotation.y = 0;
   }
 }
