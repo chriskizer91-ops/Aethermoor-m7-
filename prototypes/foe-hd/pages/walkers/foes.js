@@ -168,7 +168,7 @@ const sapwight = {
 const oldHorn = {
   key: 'old-horn', name: 'Old Horn', tier: 'Relic-Bearer', act: 'Act Two, the high passes', height: 2.7, weight: 1.6,
   stiff: 0.6, knees: 0.6,
-  limits: { neck: 0.4, head: 0.5, spine: 0.45, chest: 0.6, l_shin: 0.3, r_shin: 0.3, l_thigh: 0.5, r_thigh: 0.5, l_fore: 0.7, r_fore: 0.7 },
+  limits: { neck: 0.12, head: 0.7, spine: 0.35, chest: 0.4, l_shin: 0.3, r_shin: 0.3, l_thigh: 0.5, r_thigh: 0.5, l_fore: 0.55, r_fore: 0.55 },
   text: 'A troll of the high passes, grey-green and mossed like a boulder. Cut it and it grows back; the old ones wear the hides of the young.',
   lunge: 'club',
   idle(W, t) {
@@ -183,7 +183,7 @@ const oldHorn = {
       const b = W.bones, up = seg(u, 0, 0.38) * (1 - seg(u, 0.4, 0.55)), down = seg(u, 0.42, 0.56) * (1 - seg(u, 0.75, 1));
       b.l_upper.rotation.x = -2.0 * up - 0.9 * down; b.l_upper.rotation.z = 0.45 * up + 0.1 * down;
       b.l_fore.rotation.x = -0.9 * up - 0.2 * down;
-      b.chest.rotation.x = -0.18 * up + 0.3 * down; b.spine.rotation.x = -0.08 * up + 0.15 * down;
+      b.chest.rotation.x = -0.12 * up + 0.18 * down; b.spine.rotation.x = -0.05 * up + 0.08 * down;
       b.chest.rotation.y = 0.25 * up - 0.2 * down; b.neck.rotation.x = -0.1 * up + 0.1 * down;
       crouch(W, 0.4 * down);
     } },
@@ -204,7 +204,7 @@ const oldHorn = {
     'horn-toss': { label: 'Horn Toss', dur: 1.5, pose(W, u, t) {
       // head down, a lunge, and the horn hooks up
       const b = W.bones, dip = seg(u, 0, 0.35) * (1 - seg(u, 0.4, 0.55)), hook = seg(u, 0.4, 0.55) * (1 - seg(u, 0.75, 1));
-      b.neck.rotation.x = 0.5 * dip - 0.45 * hook; b.head.rotation.x += 0.3 * dip - 0.3 * hook;
+      b.neck.rotation.x = 0.2 * dip - 0.15 * hook; b.head.rotation.x += 0.55 * dip - 0.6 * hook;     // the head is its own piece: it does the turning
       b.chest.rotation.x = 0.15 * dip - 0.05 * hook; W.body.position.z = 0.3 * (dip + hook);
       b.r_upper.rotation.z -= 0.3 * dip; b.l_upper.rotation.z += 0.3 * dip;
       crouch(W, 0.35 * dip);
@@ -212,8 +212,8 @@ const oldHorn = {
     'mantle-of-trolls': { label: 'Mantle of Trolls', dur: 2.2, pose(W, u, t) {
       // the hides knit over his wounds: he hunches into his cape, then rises and beats his chest
       const b = W.bones, k = seg(u, 0, 0.35) * (1 - seg(u, 0.45, 0.6)), beat = seg(u, 0.5, 0.6) * (1 - seg(u, 0.85, 1));
-      crouch(W, 0.5 * k); b.spine.rotation.x = 0.3 * k; b.chest.rotation.x = 0.25 * k; b.neck.rotation.x = 0.2 * k - 0.35 * beat;
-      b.r_upper.rotation.x = -0.8 * k - 1.0 * beat; b.r_fore.rotation.x = -1.2 * k - 1.4 * beat;
+      crouch(W, 0.5 * k); b.spine.rotation.x = 0.3 * k; b.chest.rotation.x = 0.25 * k; b.neck.rotation.x = 0.1 * k - 0.15 * beat; b.head.rotation.x = 0.15 * k - 0.25 * beat;
+      b.r_upper.rotation.x = -0.8 * k - 1.0 * beat; b.r_fore.rotation.x = -0.9 * k - 0.85 * beat;
       b.l_upper.rotation.x = -0.6 * k; b.l_fore.rotation.x = -0.8 * k;
       W.body.position.y += 0.02 * Math.sin(u * 60) * beat;
     } },
