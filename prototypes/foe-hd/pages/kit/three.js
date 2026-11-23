@@ -16,7 +16,7 @@ import { STANDEES } from '../../../bestiary/standees/pack.js';
 import { ready, makeShared, makeFoe, cloneFoe } from '../../kit/js/loader.js';
 import { PLANS } from '../../kit/js/looks.js';
 import { A } from './assets.js';
-const KEY = A.lightMeta.key, MV = PLANS[A.lightMeta.plan] || PLANS.quad;
+const KEY = A.lightMeta.key, MV = PLANS[A.lightMeta.moves] || PLANS[A.lightMeta.plan] || PLANS.quad;   // its own named set first (Briarmaw's bear)
 // the stands and the camera scale with the foe (Briarmaw, 1.7 m, is 1); small ones not below 0.45
 const SZ = Math.max(0.3, Math.min(1.6, (A.lightMeta.height || 1.7) / 1.7));
 
