@@ -47,8 +47,13 @@ def make(sp):
     def weigh(D, P, idx):
         # the back (kind 0) is body and head only: nothing else may take it
         return D
+    BL = (p(*sp['blade']['hilt']), p(*sp['blade']['tip'])) if 'blade' in sp else None
+    RING = p(*sp['blade']['ring'][:2]) if 'blade' in sp else None
+    def on_blade(c):
+        return BL is not None and (seg_dist(c[None], BL[0], BL[1])[0][0] < 0.08 or np.linalg.norm(c - RING) < 0.08)
     def rigid(kind, P, idx):
         if kind == 2: return 'body'               # the crystals on the back are the back's, never the tail's
+        if on_blade(P.mean(0)): return 'sting'    # Kharzul: the ring, the hilt and Cinderfang hang from the tail's end
         return bone_of_piece(P)
     def part(P, kind, idx, piece):
         out = np.full(len(P), -1)
@@ -58,7 +63,7 @@ def make(sp):
         for c in np.unique(piece[~k0 & (kind != 2)]):          # each separate shell piece rides the bone it lies along
             m = (piece == c) & ~k0 & (kind != 2)
             if m.sum() < 3: continue
-            bn = bone_of_piece(P[m])
+            bn = 'sting' if on_blade(P[m].mean(0)) else bone_of_piece(P[m])
             if bn: out[m] = idx[bn]
         return out
     return B, weigh, rigid, part

@@ -132,7 +132,7 @@
   "dive": {
    "ok": true,
    "big": {
-    "worst": 1.208,
+    "worst": 1.191,
     "limit": 1.3,
     "part": "w10 > w9",
     "where": [
@@ -141,11 +141,11 @@
      1.544
     ],
     "restEdge": 0.02,
-    "u": 0.383,
+    "u": 0.957,
     "trianglesOver": 0
    },
    "crease": {
-    "worst": 2.445,
+    "worst": 2.346,
     "limit": 3,
     "part": "w6 > w7",
     "where": [
@@ -154,7 +154,38 @@
      1.66
     ],
     "restEdge": 0.0012,
-    "u": 0.383,
+    "u": 0.957,
+    "trianglesOver": 0
+   },
+   "framesOver": "0/48",
+   "bones": []
+  },
+  "surface": {
+   "ok": true,
+   "big": {
+    "worst": 1.221,
+    "limit": 1.3,
+    "part": "w10 > w9",
+    "where": [
+     0.1,
+     1.019,
+     1.544
+    ],
+    "restEdge": 0.02,
+    "u": 0,
+    "trianglesOver": 0
+   },
+   "crease": {
+    "worst": 2.51,
+    "limit": 3,
+    "part": "w6 > w7",
+    "where": [
+     0.08,
+     0.03,
+     1.66
+    ],
+    "restEdge": 0.0012,
+    "u": 0,
     "trianglesOver": 0
    },
    "framesOver": "0/48",
@@ -163,7 +194,7 @@
   "swallow": {
    "ok": true,
    "big": {
-    "worst": 1.278,
+    "worst": 1.241,
     "limit": 1.3,
     "part": "w10",
     "where": [
@@ -172,11 +203,11 @@
      0.958
     ],
     "restEdge": 0.0211,
-    "u": 0.766,
+    "u": 0.66,
     "trianglesOver": 0
    },
    "crease": {
-    "worst": 2.544,
+    "worst": 2.402,
     "limit": 3,
     "part": "w6 > w7",
     "where": [
@@ -185,7 +216,38 @@
      1.66
     ],
     "restEdge": 0.0012,
-    "u": 0.809,
+    "u": 0.745,
+    "trianglesOver": 0
+   },
+   "framesOver": "0/48",
+   "bones": []
+  },
+  "full": {
+   "ok": true,
+   "big": {
+    "worst": 1.189,
+    "limit": 1.3,
+    "part": "w2 > w3",
+    "where": [
+     -0.404,
+     -0.37,
+     0.65
+    ],
+    "restEdge": 0.0207,
+    "u": 0.34,
+    "trianglesOver": 0
+   },
+   "crease": {
+    "worst": 2.237,
+    "limit": 3,
+    "part": "w6 > w7",
+    "where": [
+     0.08,
+     0.03,
+     1.66
+    ],
+    "restEdge": 0.0012,
+    "u": 0,
     "trianglesOver": 0
    },
    "framesOver": "0/48",
@@ -317,7 +379,7 @@
   }
  },
  "ok": true,
- "worstMove": "swallow",
+ "worstMove": "maw",
  "bigEdge": 0.016,
  "crease": 3
 }

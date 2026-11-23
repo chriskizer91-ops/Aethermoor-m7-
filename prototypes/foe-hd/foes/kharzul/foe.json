@@ -1,0 +1,27 @@
+{
+  "key": "kharzul",
+  "name": "Kharzul",
+  "plan": "scorpion",
+  "moves": "kharzul",
+  "rank": "champion",
+  "height": 1.5,
+  "sheet": "art-in/3d/sheets/sheet-kharzul.webp",
+  "crops": [[30, 500], [500, 1280], [1300, 1750]],
+  "bounds": [[-0.72, -0.85, -0.01], [0.72, 1.06, 1.53]],
+  "voxel": {"0": 0.0105, "1": 0.0095, "2": 0.006, "3": 0.0038},
+  "view": {"center": [0, 0.1, 0.75], "width": 2.6, "head": [0, 0.5, 0.45], "headWidth": 1.1},
+  "light": {"level": 0, "coat": 34000},
+  "sculpt": {"level": 3},
+  "glow": "0xff7020",
+  "glowIntensity": 1.6,
+  "bake": {"res": 2048, "phone": 1024, "ao": 48, "reach": {"coat": [0.02, 0.07], "parts": [0.012, 0.035]}},
+  "rig": "rig.py",
+  "stretchMoves": "pages/desert-deep/moves/kharzul.js",
+  "blurb": "Kharzul the Glass Scorpion, Champion of the Glass Heart: a scorpion of living glass the size of a wagon, 1.5 m to the top of its tail, faceted pale gold with gold rings at every joint. Over its back the Glass Carapace, plates of blue glass; in its tail Cinderfang, a scimitar lodged there three hundred years, hanging from a gold ring, its edge still molten.",
+  "next": "",
+  "pages": {
+  "sculpt": "https://claude.ai/artifact/EaS9GoMX1Gb8qQ1Ysy2Yno",
+  "three": "https://claude.ai/artifact/2r6Q5RAfU9MqqaLsQvH2KF"
+ },
+ "sculptTriangles": 756916
+}

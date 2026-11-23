@@ -9,11 +9,15 @@ const ease = (x) => { x = Math.max(0, Math.min(1, x)); return x * x * (3 - 2 * x
 const bump = (x) => Math.sin(Math.max(0, Math.min(1, x)) * Math.PI);
 const seg = (u, a, b) => ease((u - a) / (b - a));
 export const MOVES = [['idle', 'Wait'], ['walk', 'Sway'], ['maw', 'Maw'], ['thrash', 'Thrash'], ['dive', 'Sand-Dive'],
-  ['swallow', 'Swallow'], ['spit', 'Spit'], ['grind', 'Scale-Grind'], ['hurt', 'Hit'], ['ko', 'Fall']];
-export const DUR = { maw: 1.3, thrash: 1.8, dive: 2.2, swallow: 2.6, spit: 1.4, grind: 2.0, hurt: 0.9, ko: 2.6 };
+  ['surface', 'Surface'], ['swallow', 'Swallow'], ['full', 'Full'], ['spit', 'Spit'], ['grind', 'Scale-Grind'], ['hurt', 'Hit'], ['ko', 'Fall']];
+export const DUR = { maw: 1.3, thrash: 1.8, dive: 1.4, surface: 1.4, swallow: 2.0, full: 3.0, spit: 1.4, grind: 2.0, hurt: 0.9, ko: 2.6 };
 export const LUNGE = 'maw';
-export const ALIAS = { bite: 'maw', strike: 'maw', swipe: 'thrash', roar: 'grind', cast: 'grind' };
-export const SWALLOW_AT = { u: 0.52, ahead: 1.6, up: 0.54 };     // metres from its root, measured (tools/track.mjs)
+export const ALIAS = { bite: 'maw', strike: 'maw', swipe: 'thrash', roar: 'grind', cast: 'grind', 'sand-dive': 'dive', 'scale-grind': 'grind' };     // (M7's ids too)
+// the Fight (November 23): at u = gulp the mouth is down over its target and the hero is taken into parts.mouth; the foe
+// stops with the hero `reach` metres in front of its root (measured: tools/track.mjs). Sand-Dive sinks it right under.
+export const EVENTS = { swallow: { gulp: 0.45, reach: 1.6 } };
+export const SWALLOW_AT = { u: 0.45, ahead: 1.6, up: 0.55 };
+export const SINKS = { dive: true };
 const SEGS = ['w1', 'w2', 'w3', 'w4', 'w5', 'w6', 'w7', 'w8', 'w9', 'w10', 'head'];
 const _ax = new THREE.Vector3(), _q = new THREE.Quaternion(), _n = new THREE.Vector3(), _r = new THREE.Vector3(), _r2 = new THREE.Vector3();
 function reset(B) {
@@ -65,20 +69,29 @@ export function pose(B, move, u, t, step = 0) {
     bend(B, 0.1 * k, 0.35 * sw * k); B.body.rotation.y = 0.35 * sw * k; mouth(B, 0.5 * k); B.body.rotation.z = 0.04 * sw * k;
     return;
   }
-  if (move === 'dive') {
-    // it pours itself back into the sand (the body sinks; the Fight's sand hides it) and rises again
-    const down = seg(u, 0, 0.4), up = seg(u, 0.6, 1), k = down * (1 - up);
-    tip(B, 0.2 * k); lean(B, 0.1 * k, 0.35 * k); B.body.position.y = -0.85 * (B.height || 1.6) * k; mouth(B, 0.05);
+  if (move === 'dive' || move === 'surface') {
+    // Sand-Dive: it pours itself back into the sand, right under (the Fight hides it once under); Surface: up again
+    const k = move === 'dive' ? seg(u, 0, 1) : 1 - seg(u, 0, 1);
+    tip(B, 0.2 * k); lean(B, 0.1 * k, 0.35 * k); B.body.position.y = -1.15 * (B.height || 1.6) * k; mouth(B, 0.05);
     return;
   }
   if (move === 'swallow') {
-    // the sand opens: it rears up high with its mouth wide, plunges out and down over the one it wants (SWALLOW_AT: the
-    // mouth is 1.55 m ahead of its root, 0.55 m up, at u 0.52), shuts and swallows, a gulp running down its body
-    const rear = seg(u, 0, 0.35), plunge = seg(u, 0.38, SWALLOW_AT.u), shut = seg(u, 0.58, 0.68), gulp = seg(u, 0.7, 0.95), back = 1 - seg(u, 0.8, 1);
+    // the sand opens: it rears up high with its mouth wide (to u 0.28), plunges out and down over the one it wants (the
+    // mouth is over them at u 0.45, where the Fight holds until the blow lands), shuts on them (0.45 to 0.6) and
+    // swallows, a gulp running down its body as it rises again
+    const rear = seg(u, 0, 0.28), plunge = seg(u, 0.3, 0.45), shut = seg(u, 0.46, 0.6), gulp = seg(u, 0.58, 0.95), back = 1 - seg(u, 0.62, 1);
     const r = rear * (1 - plunge), k = plunge * back;
     tip(B, -0.15 * r + 0.3 * k); lean(B, -0.2 * r + 0.22 * k, 0.15 * r - 0.42 * k);
     mouth(B, 1.0 * rear * (1 - shut) + 0.05);
     if (gulp > 0 && gulp < 1) SEGS.forEach((n, i) => { const b = B.bones[n]; if (b) b.rotation.z += 0.06 * Math.exp(-(((1 - gulp) * SEGS.length - i) ** 2) / 2); });
+    return;
+  }
+  if (move === 'full') {
+    // a hero inside: mouth shut, a slow chew of the lips, a bulge (a little sway) running down the body over and over
+    const g = (t * 0.35) % 1;
+    mouth(B, 0.02 + 0.06 * Math.max(0, Math.sin(t * 2.4)));
+    SEGS.forEach((n, i) => { const b = B.bones[n]; if (b) b.rotation.z += 0.05 * Math.exp(-(((1 - g) * SEGS.length - i) ** 2) / 2); });
+    bend(B, 0.04 * Math.sin(t * 0.8), 0);
     return;
   }
   if (move === 'spit') {
