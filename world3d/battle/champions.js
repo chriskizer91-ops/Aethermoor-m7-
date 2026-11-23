@@ -196,19 +196,19 @@ export const MOMENTS = {
   },
 
   'gloamwing:wing-buffet': { // "Pale wings hit like a door slammed in a gale."
-    move: 'swipe',
+    move: ['wing-buffet', 'swipe'],
     land: (c) => { for (const h of c.heroes) { c.fx.slash(chest(h), c.ar.cam, '#f0ecf8', true); c.fx.smoke(feet(h), '#d8d0c8', 6, 1.0, 0.9); } c.shake(1); },
   },
   'gloamwing:dreamdust': { // "Scales like snow. WIS save or Frightened."
-    move: 'cast',
+    move: ['dreamdust', 'cast'],
     land: (c) => { for (const h of c.heroes) { c.fx.sparks(head1(h).setY(h.pos.y + 2.4), '#f4f0ff', 30, { spread: 0.9, up: -0.8 }); c.fx.mark(head1(h), '#c8a8ff', 0.28, 1.2); } },
   },
   'gloamwing:cocoon': { // "It wraps itself in silk: Regenerating."
-    move: 'cast',
+    move: ['cocoon', 'cast'],
     land: (c) => { c.fx.vines(c.F.pos.clone(), c.F.size.h * 1.0, Math.max(0.5, c.F.size.w * 0.55), '#f0ece0', 1.5); c.fx.pulse(mid(c), '#8ad872', 1.2, 1.0); },
   },
   'gloamwing:bell-hum': { // "The Dawnbell hums on its thorax: 2d6 radiant to all, and you Stagger."
-    move: 'roar', camera: 'wide',
+    move: ['bell-hum', 'roar'], camera: 'wide',
     start: (c) => { c.fx.pulse(mid(c), '#ffe8a0', 1.6, 1.4); for (let k = 0; k < 3; k++) c.fx.later(k * 0.25, () => c.fx.ring(c.F.pos.clone(), '#ffe8a0', 6, 1.1, 0.06)); },
     land: (c) => { for (const h of c.all) c.fx.sparks(chest(h), '#fff0b0', 14, { spread: 0.8 }); c.shake(1); },
   },
