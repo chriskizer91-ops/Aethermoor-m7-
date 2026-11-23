@@ -15,7 +15,7 @@ import * as THREE from 'three';
 import { V, lerp, smooth, clamp01, loft, ellipse, tube, curve, lathe, plate, blade as bladeGeo, mat, fitMaster, add, bake, sph, tor, cone, ico, Q, rngOf } from '../hero-3d/kit.js';
 import { buildHero, setPose } from '../hero-3d/model.js';
 import { BEASTS } from '../bestiary/beasts.js';
-import { C, cloth, solid, glow, ghost, glowless, robeRings, robe, wsh, hemTrim, ringAt, beads, mist, SHAPES, env, rise } from '../wraiths/wraiths.js';
+import { C, cloth, solid, glow, ghost, glowless, robeRings, robe, wsh, hemTrim, ringAt, beads, mist, SHAPES, env, rise, face } from '../wraiths/wraiths.js';
 
 export const ARMOURED = ['iron-sentinel', 'sentinel-captain', 'ashen-warden', 'unsmith'];
 export const ARMOURED_INFO = {
@@ -44,7 +44,7 @@ function band(parent, m, y, w, d, h = 0.05, kind = 'rim') { return add(fitMaster
 // a pauldron: a big rounded cap over the shoulder with a gold rim and rivets
 function pauldron(parent, side, iron, gold, r = 0.17) {
   const g = new THREE.Group(); g.position.set(side * 0.03, -0.04, 0); g.rotation.z = -side * 0.45; parent.add(g);
-  add(fitMaster(sph(r, 20, 12, 0, Math.PI * 2, 0, Math.PI * 0.55), 'pauldron'), iron, g).scale.set(1.15, 0.75, 1.0);
+  add(fitMaster(sph(r, 20, 12, 0, Math.PI * 2, 0, Math.PI * 0.55), 'battered'), iron, g).scale.set(1.15, 0.75, 1.0);
   const rr = r * Math.sin(Math.PI * 0.55) * 1.0;
   add(fitMaster(tube(ringAt(r * Math.cos(Math.PI * 0.55) * 0.9, rr * 1.1, rr, 28), r * 0.08, { closed: true, n: 6 }), 'rim'), gold, g);
   for (let i = 0; i < 8; i++) { const a = i / 8 * Math.PI * 2; add(sph(r * 0.06, 8, 6), gold, g, Math.cos(a) * rr * 0.86 * 1.1, r * 0.35, Math.sin(a) * rr * 0.86); }
@@ -67,11 +67,11 @@ const B = {};
 function construct(G, { iron, gold, dark, glowC, emblem, helm, shield, crown, plume, cape, blade }) {
   const R = rigOf(G, { hipY: 0.72, chestY: 1.08, headY: 1.56, shX: 0.36, shY: 1.36, hipX: 0.15, legL: 0.66 }), core = glow(glowC, 2.2);
   // the trunk: a barrel of riveted plate, a gold belt with a boss, the hips' plates
-  add(fitMaster(block(0.62, 0.62, 0.44, { round: 0.35, taper: 1.12 }), 'plate'), iron, R.chest, 0, 0.0, 0);
+  add(fitMaster(block(0.62, 0.62, 0.44, { round: 0.35, taper: 1.12 }), 'battered'), iron, R.chest, 0, 0.0, 0);
   band(R.chest, gold, 0.24, 0.66, 0.48, 0.05); band(R.body, gold, 0.08, 0.6, 0.44, 0.08);
   rivetRing(R.chest, gold, 0.24, 0.67, 0.49, 22); rivetRing(R.body, gold, 0.08, 0.61, 0.45, 18, 0.014);
   add(sph(0.045, 14, 10), gold, R.body, 0, 0.08, 0.225).scale.set(1, 1, 0.6);
-  add(fitMaster(block(0.56, 0.2, 0.42, { round: 0.3 }), 'lame'), iron, R.body, 0, -0.06, 0);
+  add(fitMaster(block(0.56, 0.2, 0.42, { round: 0.3 }), 'battered'), iron, R.body, 0, -0.06, 0);
   for (const s of [-1, 1]) { add(fitMaster(block(0.06, 0.4, 0.04, { round: 0.2 }), 'rim'), gold, R.chest, s * 0.1, 0.0, -0.22); }
   if (emblem === 'gear') { add(tor(0.05, 0.016, 8, 16), gold, R.chest, 0, 0.05, 0.225); for (let i = 0; i < 8; i++) { const a = i / 8 * Math.PI * 2; add(new THREE.BoxGeometry(0.025, 0.025, 0.02), gold, R.chest, Math.cos(a) * 0.072, 0.05 + Math.sin(a) * 0.072, 0.225).rotation.z = a; } add(sph(0.022, 10, 8), core, R.chest, 0, 0.05, 0.228); }
   if (emblem === 'fleur') { add(cone(0.03, 0.12, 4), gold, R.chest, 0, 0.08, 0.23).rotation.z = 0; for (const s of [-1, 1]) add(tube(curve([V(0, 0.02, 0.23), V(s * 0.05, 0.06, 0.235), V(s * 0.06, 0.12, 0.23)], 8), 0.012, { n: 6 }), gold, R.chest); add(sph(0.02, 10, 8), core, R.chest, 0, 0.0, 0.232); }
@@ -81,7 +81,7 @@ function construct(G, { iron, gold, dark, glowC, emblem, helm, shield, crown, pl
     pauldron(a.sh, a.side, iron, gold, 0.15);
     add(fitMaster(block(0.15, 0.26, 0.15, { round: 0.3 }), 'vambrace'), dark, a.sh, 0, -0.16, 0);
     a.el.position.y = -0.3;
-    add(fitMaster(block(0.17, 0.24, 0.17, { round: 0.3, taper: 1.1 }), 'vambrace'), iron, a.el, 0, -0.12, 0);
+    add(fitMaster(block(0.17, 0.24, 0.17, { round: 0.3, taper: 1.1 }), 'battered'), iron, a.el, 0, -0.12, 0);
     band(a.el, gold, -0.03, 0.19, 0.19, 0.035); band(a.el, gold, -0.22, 0.2, 0.2, 0.035);
     a.hand.position.y = -0.26;
     add(fitMaster(block(0.2, 0.2, 0.19, { round: 0.45 }), 'forged'), dark, a.hand, 0, -0.09, 0.0);
@@ -91,14 +91,14 @@ function construct(G, { iron, gold, dark, glowC, emblem, helm, shield, crown, pl
   for (const l of R.legs) {
     add(fitMaster(block(0.2, 0.32, 0.2, { round: 0.3 }), 'vambrace'), dark, l.hip, 0, -0.17, 0);
     band(l.hip, gold, -0.3, 0.22, 0.22, 0.04);
-    add(fitMaster(block(0.22, 0.32, 0.24, { round: 0.35, taper: 1.15 }), 'vambrace'), iron, l.knee, 0, -0.12, 0);
+    add(fitMaster(block(0.22, 0.32, 0.24, { round: 0.35, taper: 1.15 }), 'battered'), iron, l.knee, 0, -0.12, 0);
     add(fitMaster(sph(0.07, 14, 10, 0, Math.PI * 2, 0, Math.PI * 0.6), 'pauldron'), iron, l.knee, 0, 0.0, 0.11).rotation.x = Math.PI / 2;
     add(fitMaster(block(0.26, 0.12, 0.34, { round: 0.4 }), 'forged'), dark, l.knee, 0, -0.33, 0.04);
     band(l.knee, gold, -0.24, 0.25, 0.27, 0.04);
   }
   // the head
   if (helm === 'castle') {
-    add(fitMaster(block(0.3, 0.32, 0.3, { round: 0.12, p: 3 }), 'plate'), iron, R.head, 0, 0.0, 0);
+    add(fitMaster(block(0.3, 0.32, 0.3, { round: 0.12, p: 3 }), 'battered'), iron, R.head, 0, 0.0, 0);
     for (let i = 0; i < 8; i++) { const a = i / 8 * Math.PI * 2; add(new THREE.BoxGeometry(0.07, 0.07, 0.04), gold, R.head, Math.cos(a) * 0.15, 0.19, Math.sin(a) * 0.15).rotation.y = -a; }
     band(R.head, gold, 0.15, 0.33, 0.33, 0.04); rivetRing(R.head, gold, -0.12, 0.31, 0.31, 14, 0.01, 3);
     add(new THREE.BoxGeometry(0.2, 0.035, 0.03), core, R.head, 0, 0.03, 0.15); add(new THREE.BoxGeometry(0.22, 0.12, 0.02), glowless('#0a0a0e'), R.head, 0, 0.03, 0.148);
@@ -111,12 +111,12 @@ function construct(G, { iron, gold, dark, glowC, emblem, helm, shield, crown, pl
     add(new THREE.BoxGeometry(0.16, 0.04, 0.02), glowless('#0a0a0e'), R.head, 0, 0.03, 0.158);
   }
   if (helm === 'great') {
-    add(fitMaster(block(0.28, 0.36, 0.3, { round: 0.25, p: 3, taper: 0.9 }), 'helm'), iron, R.head, 0, 0.0, 0);
+    add(fitMaster(block(0.28, 0.36, 0.3, { round: 0.25, p: 3, taper: 0.9 }), 'battered'), iron, R.head, 0, 0.0, 0);
     add(fitMaster(tube([V(0, 0.18, 0.15), V(0, -0.16, 0.16)], [0.008, 0.016], { n: 6 }), 'rim'), gold, R.head);
     add(new THREE.BoxGeometry(0.2, 0.025, 0.02), core, R.head, 0, 0.04, 0.152); add(new THREE.BoxGeometry(0.22, 0.05, 0.015), glowless('#0a0a0e'), R.head, 0, 0.04, 0.148);
   }
   if (crown) { band(R.head, gold, 0.2, 0.31, 0.33, 0.06); for (let i = 0; i < 7; i++) { const a = i / 7 * Math.PI * 2; add(cone(0.026, 0.12 + (i % 2) * 0.05, 4), gold, R.head, Math.sin(a) * 0.15, 0.29 + (i % 2) * 0.025, Math.cos(a) * 0.16); } add(sph(0.025, 10, 8), core, R.head, 0, 0.22, 0.17); }
-  if (plume) { const pm = cloth('#e8b020', { key: 'wool' }); for (let i = 0; i < 9; i++) { const ph = i * 0.7, pts = []; for (let k = 0; k <= 8; k++) { const t = k / 8; pts.push(V(Math.sin(ph) * 0.03 * t, 0.2 + t * 0.2 - t * t * 0.12, -t * 0.18 + Math.cos(ph) * 0.02)); } add(fitMaster(tube(curve(pts, 10), t => [0.012, 0.04 * (1 - t * 0.6)], { n: 6, twist: ph }), 'lock'), pm, R.head); } }
+  if (plume) { const pm = cloth('#e8b020', { key: 'wool' }); for (let i = 0; i < 14; i++) { const ph = i * 0.7, sp = (i / 13 - 0.5) * 0.1, pts = []; for (let k = 0; k <= 8; k++) { const t = k / 8; pts.push(V(sp * (1 + t) + Math.sin(ph + t * 3) * 0.02 * t, 0.19 + t * 0.26 - t * t * 0.14, 0.03 - t * 0.26 + Math.cos(ph) * 0.015)); } add(fitMaster(tube(curve(pts, 10), t => [0.016 * (1 - t * 0.5), 0.07 * (1 - t * 0.55)], { n: 6, twist: ph * 0.5 }), 'lock'), pm, R.head); } }
   // the shield on the left arm
   if (shield) {
     const sh = new THREE.Group(); sh.position.set(0.1, -0.14, 0.12); R.armL.el.add(sh); R.props.shield = sh;
@@ -151,19 +151,51 @@ function construct(G, { iron, gold, dark, glowC, emblem, helm, shield, crown, pl
 }
 B['iron-sentinel'] = G => construct(G, { iron: solid('iron', '#56607e'), gold: solid('bronze', '#c8902a'), dark: solid('iron', '#3a3c52'), glowC: '#ffb02a', emblem: 'gear', helm: 'castle', shield: 'round' });
 B['sentinel-captain'] = G => construct(G, { iron: solid('iron', '#525e88'), gold: solid('gold', '#d4a030'), dark: solid('iron', '#36385a'), glowC: '#ffc040', emblem: 'fleur', helm: 'visor', shield: 'tower', plume: true });
-B['ashen-warden'] = G => construct(G, { iron: solid('bronze', '#6a4a30'), gold: solid('gold', '#c8962e'), dark: solid('iron', '#3e2c20'), glowC: '#ff7a1a', emblem: 'warden', helm: 'great', crown: true, shield: 'heater', blade: true, cape: true });
+B['ashen-warden'] = G => { const R = construct(G, { iron: solid('bronze', '#6a4a30'), gold: solid('gold', '#c8962e'), dark: solid('iron', '#3e2c20'), glowC: '#ff7a1a', emblem: 'warden', helm: 'great', crown: true, shield: 'heater', blade: true, cape: true });
+  const ember = glow('#ff6a1a', 1.2), rnd = rngOf(77);
+  for (let i = 0; i < 26; i++) { const a = rnd() * Math.PI * 2, y = -0.25 + rnd() * 0.5, c = Math.cos(a), s2 = Math.sin(a); add(sph(0.006 + rnd() * 0.006, 6, 4), ember, R.chest, Math.sign(c) * Math.sqrt(Math.abs(c)) * 0.33, y, Math.sign(s2) * Math.sqrt(Math.abs(s2)) * 0.235); }
+  R.glows.push(ember); return R; };
 
 /* ------------------------------------------------------------------ the Unsmith: a person, by the heroes' builder */
 function buildUnsmith(o) {
-  const H = { build: 'brute', skin: 'skinTan', hairMat: 'hairCopper', hair: 'short', beard: true, stubble: true, eye: '#3a2a20', tunic: 'leatherDark', pants: 'wool', boots: 'leatherDark', gloves: 'skinTan', apron: 'leather', cloak: 'leatherDark', buckle: 'bronze' };
+  const H = { build: 'brute', skin: 'skinTan', hairMat: 'hairCopper', hair: 'none', eye: '#3a2a20', tunic: 'leatherDark', pants: 'wool', boots: 'leatherDark', gloves: 'skinTan', apron: 'leather', cloak: 'leatherDark', buckle: 'bronze' };
   const h = buildHero('warden', {}, { H, looks: {} });
-  const R = h.rig;
+  const R = h.rig, S = R.S, r = S.headR;
+  // broad shoulders: a wider chest, the arms set further out (set once, as built: nothing scales as he moves)
+  R.chest.scale.set(1.2, 1, 1.12); for (const a of R.arms) a.sh.position.x *= 1.16;
+  // his own face, sculpted: older and heavier than the builder's painted one (that is hidden)
+  R.head.traverse(o => { if (o.isMesh && o.material?.userData?.face) o.visible = false; });
+  const skin = solid('skin', '#b98264'), hairM = mat('hairCopper', { side: true }), fg = new THREE.Group(); fg.scale.setScalar(r / 0.1); R.head.add(fg);
+  face(fg, skin, { r: 0.1, iris: '#1a2a34', gaunt: 0, socket: '#6a4232' });
+  add(sph(0.017, 12, 8), skin, fg, 0, -0.01, 0.097).scale.set(0.9, 1.5, 0.9);                                        // a broad bridge to the nose
+  for (const sd of [-1, 1]) {
+    add(fitMaster(tube(curve([V(sd * 0.012, 0.048, 0.093), V(sd * 0.04, 0.058, 0.09), V(sd * 0.07, 0.05, 0.075)], 8), t => [0.007 * (1 - t * 0.4), 0.005], { n: 6 }), 'lock'), hairM, fg);   // brows
+    add(fitMaster(tube(curve([V(sd * 0.005, -0.04, 0.105), V(sd * 0.04, -0.045, 0.098), V(sd * 0.065, -0.07, 0.085)], 8), t => 0.011 * (1 - t * 0.5), { n: 6 }), 'lock'), hairM, fg);       // the moustache
+    for (let k = 0; k < 4; k++) add(sph(0.01, 8, 6), solid('gold', '#c89a3a'), fg, sd * 0.03, -0.13 - k * 0.022, 0.1);  // beads plaited in
+  }
+  // the beard: a great mass under the jaw, and locks hanging from it
+  add(sph(0.075, 18, 12), hairM, fg, 0, -0.085, 0.055).scale.set(1.05, 1.15, 0.85);
+  const rnd = rngOf(19);
+  for (let i = 0; i < (Q.d > 1 ? 26 : 14); i++) { const a = (rnd() - 0.5) * 2.4, x0 = Math.sin(a) * 0.07, z0 = 0.05 + Math.cos(a) * 0.05, L = 0.12 + rnd() * 0.1; add(fitMaster(tube(curve([V(x0, -0.06, z0), V(x0 * 1.1, -0.06 - L * 0.5, z0 + 0.012), V(x0 * 0.8 + (rnd() - 0.5) * 0.02, -0.06 - L, z0 - 0.01)], 8), t => [0.016 * (1 - t * 0.7), 0.012 * (1 - t * 0.6)], { n: 6, twist: rnd() * 2 }), 'lock'), hairM, fg); }
+  // a full head of hair, and wild locks lying along it, swept back and out
+  add(sph(0.118, 22, 10, 0, Math.PI * 2, 0, Math.PI * 0.3), hairM, fg, 0, 0.004, -0.01).scale.set(0.95, 1.02, 1.04);               // the crown
+  add(sph(0.118, 22, 14, Math.PI, Math.PI, 0, Math.PI * 0.64), hairM, fg, 0, 0.004, -0.012).scale.set(0.97, 1.02, 1.04);         // the back of the head
+  for (let i = 0; i < (Q.d > 1 ? 34 : 18); i++) {
+    const sgn = rnd() < 0.5 ? -1 : 1, a0 = sgn * (0.55 + rnd() * 1.5), e0 = 0.3 + rnd() * 1.05, L = 0.5 + rnd() * 0.7, pts = [];
+    for (let k = 0; k <= 6; k++) { const t = k / 6, az = a0 + sgn * L * t * 1.3, el = e0 - L * t * 0.7, rr = 0.124 + t * 0.03 + Math.sin(t * Math.PI) * 0.012; pts.push(V(Math.sin(az) * Math.cos(el) * rr, Math.sin(el) * rr, Math.cos(az) * Math.cos(el) * rr - 0.01)); }
+    add(fitMaster(tube(curve(pts, 10), t => [0.02 * (1 - t * 0.7), 0.009 * (1 - t * 0.5)], { n: 6, twist: rnd() }), 'lock'), hairM, fg);
+  }
+  bake(fg, new Set([fg]));
+  // a heavy ragged mantle over the shoulders (the sheet's cloak), torn in layers
+  { const u = S.unit, w0 = S.shX * 1.05, cm = cloth('#26242a');
+    robe(R.chest, cm, { y0: S.neckY + 0.02 * u, y1: S.shY - 0.26 * u, w: t => lerp(w0 * 0.42, w0 * 1.55, Math.sqrt(t)), d: 0.78, folds: 0.09, k: 8, tatter: 0.08 * u, seed: 31, steps: 9, rags: 2 }, 'mantle'); }
   // the Unmaking Hammer, cracked with violet fire, in his right hand
   const vio = glow('#b060ff', 2.2), ham = new THREE.Group(); R.armR.grip.add(ham);
   add(fitMaster(tube([V(0, -0.12, 0), V(0, 0.42, 0)], 0.018, { n: 8 }), 'haft'), solid('iron', '#3a2e4a'), ham);
   for (const y of [0.0, 0.14, 0.28]) add(tor(0.022, 0.006, 6, 12), solid('bronze', '#a0782a'), ham, 0, y, 0).rotation.x = Math.PI / 2;
   add(fitMaster(block(0.32, 0.17, 0.17, { round: 0.3, p: 3 }), 'forged', { planar: true }), solid('stone', '#3a3048'), ham, 0, 0.5, 0).rotation.z = Math.PI / 2;
-  for (let i = 0; i < 5; i++) add(tube(curve([V(-0.04 + i * 0.02, 0.44, 0.056), V(-0.02 + i * 0.02, 0.48, 0.058), V(-0.03 + i * 0.02, 0.52, 0.056)], 6), 0.004, { n: 4 }), vio, ham);
+  for (let i = 0; i < 5; i++) add(tube(curve([V(-0.06 + i * 0.03, 0.44, 0.088), V(-0.03 + i * 0.03, 0.5, 0.09), V(-0.05 + i * 0.03, 0.56, 0.088)], 6), 0.005, { n: 4 }), vio, ham);
+  bake(ham, new Set([ham]));
   // the Worldforge Heart burning through his shirt
   const core = glow('#ff7a2a', 2.4); add(sph(0.03, 12, 10), core, R.chest, 0, R.S.shY - 0.12 * R.S.unit, 0.12 * R.S.unit).scale.set(1, 1, 0.5);
   h.extra = { core, vio };
@@ -277,7 +309,6 @@ function heroLook(key, group, h, height) {
     if (!strikeLike) for (const a of R.arms) { const mv = a.side === -1 ? S.armR : S.armL; if (mv) { a.sh.rotation.x += mv[0]; a.sh.rotation.z += mv[1] * a.side; a.elbow.rotation.x += mv[2]; } }
     inner.rotation.x = (S.lean || 0) * (S.lean < -0.8 ? 1 : 0.4); inner.position.set(0, -(S.sink || 0) - (S.lean < -0.8 ? 0.2 * clamp01(-S.lean - 0.8) : 0), S.forward || 0); inner.rotation.y = S.turn || 0;
     const gl = S.glow ?? 1; for (const m of glows) { m.userData.base ??= m.emissiveIntensity; m.emissiveIntensity = m.userData.base * Math.max(0.05, gl); }
-    h.face?.(S.glow > 1.5 ? 'effort' : move === 'hurt' ? 'wince' : 'neutral');
   };
   look.pose('idle', 0, 0, 0);
   return look;
