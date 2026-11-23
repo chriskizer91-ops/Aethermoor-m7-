@@ -17,6 +17,7 @@ import { FOES_HD, WALKERS } from 'game3d:foes-hd';
 import { registerWalkers } from '../prototypes/foe-hd/pages/walkers/register.js';
 import { withWraiths, WRAITHS } from '../prototypes/wraiths/wraiths.js';
 import { withArmoured, ARMOURED } from '../prototypes/armoured/armoured.js';
+import { withWinged, WINGED } from '../prototypes/winged/winged.js';
 
 // the foes' look (Chris is choosing; questions.md): 'hd' full detail where a foe has one (session 6's kit: Briarmaw;
 // session 8's walkers: the Rotwarden and the sapwight; Models' eleven wraiths), the sculpted beasts for the rest (the default); 'hd-cutout' full detail, else Chris's painted cut-outs;
@@ -26,12 +27,13 @@ let hdDone = false;
 export async function setFoeLook(look = 'hd') {
   if (look.startsWith('hd') && !hdDone) { try { await hdReady(); addMoves('scorpion', scorpionMoves); addMoves('lizard', lizardMoves); for (const A of FOES_HD) register(A); registerWalkers(WALKERS, register); hdDone = true; } catch (e) { console.warn('full-detail foes', e); } }
   const fall = look.endsWith('cutout') ? standeeLook : buildBeast;
-  // Models' armoured walkers (the sentinels, the Ashen Warden, the Unsmith) and the eleven wraiths, rigid so always
+  // Models' winged foes (lamp-moth, Gloamwing, Thunder-Roc), armoured and forge foes (the sentinels, the Ashen Warden, the
+  // thralls, the forge-warden, the Unsmith...) and the eleven wraiths, rigid so always
   // allowed, come first in a full-detail look, as on the Fight's page
-  setBeastLook(look.startsWith('hd') ? withArmoured(withWraiths(hdDone ? foeLook(fall) : fall)) : look === 'cutout' ? standeeLook : null);
+  setBeastLook(look.startsWith('hd') ? withWinged(withArmoured(withWraiths(hdDone ? foeLook(fall) : fall))) : look === 'cutout' ? standeeLook : null);
   return look;
 }
-export const hdFoes = () => [...FOES_HD.map((A) => A.key), ...Object.keys(WALKERS), ...WRAITHS, ...ARMOURED];
+export const hdFoes = () => [...FOES_HD.map((A) => A.key), ...Object.keys(WALKERS), ...WRAITHS, ...ARMOURED, ...WINGED];
 
 // the townsfolk are Models' (prototypes/hero-3d/people.js personFigure: looks picked as M7's npcSheet does, a standing
 // weight shift, a talking gesture while .talking is true)
