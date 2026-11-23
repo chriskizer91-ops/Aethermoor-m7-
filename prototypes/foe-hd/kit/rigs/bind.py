@@ -125,6 +125,10 @@ def bind(RIG, P, kind, tris, height, mid, log=print):
     from scipy.spatial import cKDTree
     Pf = np.asarray(P, np.float64)
     pairs = cKDTree(Pf).query_pairs(height * 5e-4, output_type='ndarray')
+    # WELD_SAME_KIND (Briarmaw, November 23): weld only points of one kind, so pieces that merely touch (a leg's coat
+    # set into the body's, a vine laid on a leg) stay apart and keep their own weights
+    if getattr(RIG, 'WELD_SAME_KIND', False) and len(pairs):
+        kk = np.asarray(kind); pairs = pairs[kk[pairs[:, 0]] == kk[pairs[:, 1]]]
     G = coo_matrix((np.ones(len(pairs)), (pairs[:, 0], pairs[:, 1])), shape=(len(Pf), len(Pf)))
     nw, wid = connected_components(G, directed=False)
     first = np.full(nw, -1); first[wid[::-1]] = np.arange(len(Pf))[::-1]

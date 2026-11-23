@@ -1,0 +1,89 @@
+{
+  "key": "old-jaws",
+  "name": "Old Jaws",
+  "plan": "fish",
+  "rank": "relic-bearer",
+  "height": 0.95,
+  "sheet": "art-in/3d/sheets/sheet-old-jaws.webp",
+  "crops": [
+    [
+      20,
+      460
+    ],
+    [
+      480,
+      1680
+    ],
+    [
+      1700,
+      2150
+    ]
+  ],
+  "bounds": [
+    [
+      -0.5,
+      -1.08,
+      -0.01
+    ],
+    [
+      0.5,
+      0.86,
+      1.05
+    ]
+  ],
+  "voxel": {
+    "0": 0.008,
+    "1": 0.0055,
+    "2": 0.0035,
+    "3": 0.0025
+  },
+  "view": {
+    "center": [
+      0,
+      0,
+      0.36
+    ],
+    "width": 2.1,
+    "head": [
+      0,
+      0.5,
+      0.4
+    ],
+    "headWidth": 0.55
+  },
+  "light": {
+    "level": 0,
+    "coat": 26000,
+    "kinds": {
+      "1": 6000,
+      "2": 1600,
+      "5": 800,
+      "8": 1600
+    }
+  },
+  "sculpt": {
+    "level": 3
+  },
+  "bake": {
+    "res": 1024,
+    "phone": 512,
+    "ao": 32,
+    "reach": {
+      "coat": [
+        0.01,
+        0.025
+      ],
+      "parts": [
+        0.004,
+        0.01
+      ]
+    }
+  },
+  "rig": "rig.py",
+  "blurb": "Old Jaws is the blackwater-gar grown old and huge, all jaw and armour: a shorter, broader snout full of needle teeth, a pale old eye, a darker hide of green plates, a twisted rope round his neck and another round his snout, a cord of beads hanging from it to the great hooked tooth, and blue bubbles rising beside him.",
+  "next": "his body rounder still, his tail fan longer as the sheet paints it.",
+  "pages": {
+    "three": "https://claude.ai/artifact/9TmS56rJ3X9VZPkrF3BXsn",
+    "sculpt": "https://claude.ai/artifact/FZXfQNJgJt3RNNaPDwF31S"
+  }
+}
