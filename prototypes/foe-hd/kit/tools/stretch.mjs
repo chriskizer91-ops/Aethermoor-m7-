@@ -56,6 +56,8 @@ async function loadMoves() {
     const m = (await imp(`pages/beasts/kit/moves-${cfg.moves}.js`))[cfg.moves];
     return { MOVES: m.list, DUR: m.dur, LUNGE: m.lunge, pose: m.pose };
   }
+  // a kit set named in foe.json "moves" (Briarmaw's bear, November 23), else the plan's
+  if (cfg.moves && fs.existsSync(path.join(KIT, `kit/js/moves/${cfg.moves}.js`))) return imp(`kit/js/moves/${cfg.moves}.js`);
   return imp(`kit/js/moves/${cfg.plan || meta.plan || 'quad'}.js`);
 }
 const moves = await loadMoves();
