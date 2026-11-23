@@ -1,17 +1,17 @@
 # The board
 
-Where the 3D game stands. Written by the hub only. Last updated November 21, midday.
+Where the 3D game stands. Written by the hub only. Last updated November 23, evening.
 
 ## The sessions
 
 | # | Job | Session | Branch | State | Latest link |
 |---|---|---|---|---|---|
 | 1 | the hub | `session_01DgbUKb6orvjjc1cMgBGPJK` | `claude/brave-davinci-790efm` | running | (the board) |
-| 2 | The Fight | `session_01DgbUKYR9qmKyBdACUWGViw` | `job/fight` | step 5: Act One's twelve big foes' moments all hand-made and played (the Rotwarden on his own moves, in full detail on the fight page); tongues coil, trees thin in fights, the spoils camera indoors; next: close-up cameras clear of rocks and bushes, then Act Two's Champions on a new page | https://claude.ai/artifact/Q9T8quXCTVgiVUZoMuUaP4 |
+| 2 | The Fight | `session_01DgbUKYR9qmKyBdACUWGViw` | `job/fight` | step 5: Act One's twelve and Act Two's six Champions' moments hand-made (the Ashen Warden, Kharzul, Mother Anvil, the Rime-Abbot, the Lantern Mother, the Blackwater Leviathan); next: close-ups clear of rocks and bushes, an Act Two page | https://claude.ai/artifact/Q9T8quXCTVgiVUZoMuUaP4 |
 | 3 | Models | `session_01DgbUKcWh5MEvjHnxzp4HHo` | `job/models` | the wraiths' third pass (the Rime-Abbot's cowl and capelet, the Abbess's tiers, the Choir-Wraith's arched panels); next: the armoured walkers and the Unsmith (iron-sentinel, the Sentinel-Captain, the Ashen Warden, the Unsmith; moved from session 8) | https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL |
-| 4 | Places | `session_01DgbUKZVFBfm1dVautXEw5f` | `job/places` | foe lane, the desert and the deep: the sand-skink (1.04M sculpt → 17,516, passes); next: the glass-scorpion and the Glass Matriarch; still owns the places | https://claude.ai/artifact/GBxRVSqwMwYUTy1xLNjATA |
+| 4 | Places | `session_01DgbUKZVFBfm1dVautXEw5f` | `job/places` | foe lane, the desert and the deep: the sand-skink and the glass-scorpion (a shared scorpion builder and rig); next: the Glass Matriarch | https://claude.ai/artifact/GBxRVSqwMwYUTy1xLNjATA |
 | 5 | Together | `session_01DgbUKbyjzZFe1BXHHxzHBn` | `job/together` | the place map in every game page with M7's live marks; Act Three done (single file and full pictures), so every act has its pages; next: the Chained Deep and the Worldforge played to the end, then the chests and signs in 3D | https://claude.ai/artifact/RaeSK5hezqb3qH7jmuM5aj |
-| 6 | One Foe | `session_01DgbUKZCNBFY7zwSzwAXR8y` | `job/foe-hd` | Grandfather Willow (1.4M sculpt → 40,956, passes; the Weeping Bow); the willow-wight; next: the sparks (marsh-light, forge-spark), rockling, Mother Anvil | https://claude.ai/artifact/VVD4hHroTdUSQ2pEZAtaZf |
+| 6 | One Foe | `session_01DgbUKZCNBFY7zwSzwAXR8y` | `job/foe-hd` | the kit takes a foe's own moves by name (light.json moves, addMoves); the marsh-light begun; next: the forge-spark, rockling, Mother Anvil | https://claude.ai/artifact/VVD4hHroTdUSQ2pEZAtaZf |
 | 7 | Foes: beasts | `session_01DgbUKZ4qEpafSazysExsYV` | `job/foes-beasts` | the thornhound's knee needs his hind legs re-posed in the sculpt (he stays on his stand-in); now the rotstag, legs clear of the body from the start; then Old Snag, the Mirelord, rotgrub, the Gloamwing, rime-wolf, lamp-moth, the Thunder-Roc (the desert's and the deep's beasts moved to Places) | https://claude.ai/artifact/64Ukg3yQAAb8DWz69xqvxs |
 | 8 | Foes: walkers | `session_01DgbUKcTDUjKDVHw3sPhu7R` | `job/foes-walkers` | the Rotwarden and the sapwight pass the stretch check (worst 1.29× and 1.28×; separate pieces bound by part, joint limits); next: the kit's standard form for the Fight, the Rotwarden's named moves, Old Horn (held until his cape passes) | https://claude.ai/artifact/YBLUHaLG3bNdfcjBdeq3aj |
 
