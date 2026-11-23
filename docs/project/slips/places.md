@@ -223,6 +223,28 @@ people are `people[].id` (the game's NPC ids).
   lantern (`lamps[i].noLantern`; game3d/props.js burns the fire on it). Engine `world.js` (additive, marked): the
   pillar's lantern skipped for those, and `K.mats`, `K.scene` handed to a place's extras.
 
+### Looking over every place (November 23)
+
+- **Walking** (`m7/reach.mjs`, new: floods each place's 3D walkable ground from its arrival points and lists every M7
+  chest, foe, person, sign, gate, exit and arrival the party can't reach). All 60 places: everything reached. The only
+  things out of reach are two solid props meant to be looked at, the sleeper in the Chained Deep and the Worldforge
+  itself (its heart's step is reached). The few cut-off pockets (a field behind Drystone Lea's wall, glades in
+  Plankford's and Shrinewood's woods) are shut off in M7 too.
+- **The Thunder-Roc's eyrie** (Highfold): the plateau round the nest is open (about 15 m by 12 m); the Fight's party spot
+  was inside the crevasse. Settled with the Fight: the party stands on the plateau's east lip (6.3, 15); the place is
+  unchanged.
+- **A fault fixed**: the lamppost piece gave its lantern a two-number direction, so one bracket had no position (NaN)
+  and could stop every iron piece in the place being drawn. Only the Gloomfen uses lampposts (Lanternfen); fixed in
+  `m7-kit.js`, Gloomfen page republished.
+- **From above**: every place matches its painting. The high test camera shows two things the party never sees: the
+  trees thinned along the camera's line (pale shapes) and the weather that follows the camera.
+- **Phone draws** (headless, the walker's view with the party): heaviest the Thornway 62 (was the Hearth Road 61);
+  Mossfall 60 and Willowmurk 61 grew from the life (about 7 draws) and the set dressing and chests since the last
+  measure. Life's particles span a whole place, so culling them saves nothing.
+- **Set dressing not yet read** (no list): Act One's Keep Hall, Hearth Road, Thornway, Briarmaw's Den, Mossfall, the
+  Mosswatch, the Hindwood, Eldergrove, the Heartroot, and Act Three's halls. Their paintings show little beyond what
+  the converter already builds (walls, floors, torches, rocks).
+
 ## Next
 
 - Waiting for the hub.
