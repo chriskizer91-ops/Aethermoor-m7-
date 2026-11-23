@@ -1,7 +1,7 @@
 // game3d/tools/finale.mjs: the end of the game, headless (Together, November 21). One of M7's three endings
 // (data/endings.js: rekindle, release, anew), played on the Act Three page from a journey made with M7's own rules,
 // put in the 3D game's own save key before the page loads:
-//   from=deep (the default): the party at the foot of the Ash Stair, the Hollow Council freed (level 32): "Go on" ·
+//   from=deep (the default): the party at the foot of the Ash Stair, the Hollow Council freed (level 38): "Go on" ·
 //     the Chained Deep's walkway and its chain gate (the unmade fought) · Tamsin's return · the forge door · the
 //     Worldforge's bridge (the forge-warden fought) · the Unsmith's word and his fight · the heart.
 //   from=heart: the Unsmith already beaten, the party on the smith's place before the heart.
@@ -26,8 +26,9 @@ const { chromium } = createRequire(import.meta.url)(path.join(process.env.NODE_P
 const [file, END = 'rekindle', FROM = 'deep', out = `/tmp/g3-finale-${END}-${FROM}`] = process.argv.slice(2);
 if (!ENDINGS[END]) throw new Error('no such ending: ' + END);
 mkdirSync(out, { recursive: true });
-// level 32: on auto, a level-24 party lost the chain gate's unmade (M7's own end-to-end check fights the finale at 38)
-const LEVEL = Number(process.env.LEVEL) || 32;
+// level 38: M7 tunes the Hearth Below for a party of about 36.5 (data/encounters.js, BELOW_WAKE), its foes climbing
+// four levels a Waking; on auto, parties at 24 and 32 lost the chain gate's unmade. M7's own end-to-end check uses 38.
+const LEVEL = Number(process.env.LEVEL) || 38;
 
 // ---- the journey so far, by M7's rules: Acts One and Two, the fifth Council, the Hollow Council freed ----
 let g = newGame({ name: 'Wren', starter: 'hearthbrand', seed: 21 });
