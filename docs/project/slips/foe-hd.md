@@ -5,6 +5,16 @@ shown side by side with the code-built model and a cut-out of Chris's sheet.
 
 ## Done
 
+- **The marsh-light** (November 23), in full detail, **passing the stretch check** (120 frames):
+  - Three ways, with the crowd test: https://claude.ai/artifact/XvU3kSAEBLpKMQP5pBXvQx
+  - The sculpt itself (laptop): https://claude.ai/artifact/MatuoD1NwsB6inUV1K592H
+  - A floating flame of swirling green tongues (they glow: cold fire), round a glowing yellow core with a face,
+    golden drops falling into a ripple of water. Light model 16,842; sculpt saved (1.8 MB).
+  - A new plan in the kit, `spark` (`kit/js/moves/spark.js`, the forge-spark's too): what floats is a root of its own
+    (the flame, the drops, the fists), so it hovers, drifts, darts, flares, lures, flickers, flinches and gutters by
+    moving whole, and nothing can stretch; only the flame's top bends a little.
+  - Next for it: the core warmer and brighter, glowing out through the tongues, as the sheet paints it.
+
 - **Grandfather Willow** (November 21), in full detail, **passing the stretch check** (120 frames):
   - Three ways, with the crowd test: https://claude.ai/artifact/VVD4hHroTdUSQ2pEZAtaZf
   - The sculpt itself (laptop): https://claude.ai/artifact/CQZDYsv6DHM5FzXh19ymzC

@@ -27,7 +27,7 @@ export function pose(B, move, u, t, step = 0) {
   const bob = 0.04 * H * Math.sin(t * 2.1);
   // it hovers: bobbing, turning a little; its flame flickers; what floats at its sides bobs out of step; drops fall
   off(b.body, 0, bob, 0); b.body.rotation.y = 0.15 * Math.sin(t * 0.7);
-  b.top.rotation.z = 0.06 * Math.sin(t * 7.3) + 0.03 * Math.sin(t * 11.1); b.top.rotation.x = 0.05 * Math.sin(t * 5.7);
+  b.top.rotation.z = 0.035 * Math.sin(t * 7.3) + 0.02 * Math.sin(t * 11.1); b.top.rotation.x = 0.03 * Math.sin(t * 5.7);
   off(b.l_fist, 0, 0.05 * H * Math.sin(t * 2.1 + 1.3), 0); off(b.r_fist, 0, 0.05 * H * Math.sin(t * 2.1 + 2.6), 0);
   b.l_fist.rotation.y = 0.4 * Math.sin(t * 0.9); b.r_fist.rotation.y = -0.4 * Math.sin(t * 0.8);
   const fall = (t * 0.8) % 1;
@@ -38,14 +38,14 @@ export function pose(B, move, u, t, step = 0) {
   if (move === 'dart') {
     // it darts in, touches you, and darts back
     const go = seg(u, 0.1, 0.4) * (1 - seg(u, 0.55, 0.9));
-    all(0, -0.05 * H * go, 0.7 * H * go); b.body.rotation.x = 0.35 * go; b.top.rotation.x += -0.3 * go;
+    all(0, -0.05 * H * go, 0.7 * H * go); b.body.rotation.x = 0.35 * go; b.top.rotation.x += -0.1 * go;
     off(b.l_fist, 0.15 * H * go, 0, 0.9 * H * go); off(b.r_fist, -0.15 * H * go, 0, 0.9 * H * go);
     return;
   }
   if (move === 'flare') {
     // it rises and flares white-hot; what floats at its sides flies out
     const k = seg(u, 0, 0.35) * (1 - seg(u, 0.75, 1)), shake = Math.sin(u * 70) * 0.04 * k;
-    all(0, 0.12 * H * k, 0); b.top.rotation.z += shake * 3; b.body.rotation.z = shake;
+    all(0, 0.12 * H * k, 0); b.top.rotation.z += shake; b.body.rotation.z = shake * 2;
     off(b.l_fist, 0.25 * H * k, 0.12 * H * k, 0); off(b.r_fist, -0.25 * H * k, 0.12 * H * k, 0);
     return;
   }
@@ -60,18 +60,18 @@ export function pose(B, move, u, t, step = 0) {
     // it gutters down, and lights again a step away
     const out = seg(u, 0, 0.35) * (1 - seg(u, 0.4, 0.45)), back = seg(u, 0.45, 0.8);
     all(0.25 * H * back, -0.3 * H * out + 0.0 * back, 0);
-    b.body.rotation.x = 0.5 * out; b.top.rotation.x += 0.4 * out;
+    b.body.rotation.x = 0.5 * out; b.top.rotation.x += 0.1 * out;
     return;
   }
   if (move === 'hurt') {
     const a = bump(u * 1.6) * (1 - seg(u, 0.6, 1));
-    all(0, 0.03 * H * a, -0.18 * H * a); b.body.rotation.x = -0.4 * a; b.top.rotation.z += 0.2 * Math.sin(u * 40) * a;
+    all(0, 0.03 * H * a, -0.18 * H * a); b.body.rotation.x = -0.4 * a; b.top.rotation.z += 0.07 * Math.sin(u * 40) * a;
     return;
   }
   if (move === 'ko') {
     // it gutters and sinks to the ground, tipping over
     const k = seg(u, 0, 0.8);
-    all(0, -0.42 * H * k, 0); b.body.rotation.z = 1.2 * seg(u, 0.4, 1); b.top.rotation.x += 0.5 * k;
+    all(0, -0.42 * H * k, 0); b.body.rotation.z = 1.2 * seg(u, 0.4, 1); b.top.rotation.x += 0.12 * k;
     off(b.l_fist, 0.1 * H * k, -0.4 * H * k, 0); off(b.r_fist, -0.1 * H * k, -0.4 * H * k, 0);
   }
 }

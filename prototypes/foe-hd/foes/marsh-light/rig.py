@@ -9,7 +9,7 @@ BONES = [
     ('top', 'body', (0, 0, 0.40), (0, 0, 0.62)),
 ]
 TRUNK = ('body', 'top')
-BANDS = {'top': (0.06, 0.2)}            # the flame's upper half bends over a wide band
+BANDS = {'top': (0.09, 0.25)}            # the flame's upper half bends over a wide band
 
 def part(P, kind, idx, piece):
     out = np.full(len(P), -1)
@@ -17,6 +17,8 @@ def part(P, kind, idx, piece):
         m = piece == c; Q = P[m]; zt = Q[:, 2].max()
         if zt < 0.03: out[m] = idx['ground']                                     # the ripple and its light
         elif zt < 0.155: out[m] = idx['drops']                                   # the falling drops
+        elif len(Q) < 400 and np.bincount(kind[m]).argmax() in (1, 7) and Q[:, 2].mean() > 0.18:      # a tongue, whole
+            out[m] = idx['body'] if Q[:, 2].mean() < 0.43 else idx['top']
         elif np.bincount(kind[m]).argmax() in (7, 8) and Q[:, 2].mean() < 0.42: out[m] = idx['body']   # core, face
     return out
 
