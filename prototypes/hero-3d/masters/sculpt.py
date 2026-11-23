@@ -72,6 +72,9 @@ KINDS = {
     'brick':    (36, 1.20, 0.60, None),  # firebrick laid in courses (a kiln's body): bricks, mortar, chipped corners, soot
     'slag':     (37, 0.80, 0.60, None),  # cooled slag and rock: lumpy, pitted, split by deep cracks
     'ashflake': (38, 0.50, 0.60, None),  # packed ash in overlapping flakes, like shingles (the cinder-thralls)
+    'feather':  (39, 0.20, 0.50, None),  # one flight feather or leaf: u 0 and .5 the middle of its faces (the quill), v root to tip
+    'mothwing': (40, 0.60, 0.60, None),  # a moth's wing laid flat over it: rows of tiny overlapping scales, fine veins
+    'plumage':  (41, 0.60, 0.60, None),  # a body's coat of small feathers or a moth's furry scales, overlapping down it
 }
 rng = np.random.default_rng(21)
 V_, U_ = np.mgrid[0:N, 0:N] / N          # V_ down the rows (v), U_ across (u)
@@ -464,6 +467,33 @@ def sculpt(kind):
         edge = np.abs(fx - 0.5) * 2
         h = (1 - fy) * 0.003 + (fy < 0.15) * 0.0 - edge ** 3 * 0.0012                                   # each flake thickest at its lower edge
         h += P.noise(0.006, 0.006, 382) * 0.0004 + P.creases(0.03, 0.03, 383, 3.0) * 0.0008
+    elif kind == 'feather':
+        q = np.minimum(wrapd(U_, 0.0), wrapd(U_, 0.5)) * C                                        # distance from the quill
+        h = np.exp(-(q / 0.004) ** 2) * 0.0025                                                       # the quill, a ridge
+        ph = (P.y - q * 1.4) / 0.006 + P.noise(0.05, 0.05, 391) * 0.6                                 # barbs: grooves angled out and up
+        h += (0.5 + 0.5 * np.cos(ph * 2 * np.pi)) * 0.00035 * ss(0.003, 0.008, q)
+        split = np.clip(P.noise(0.004, 0.08, 392) - 1.6, 0, None)                                     # a few splits between barbs
+        h -= split * 0.0015 * ss(0.01, 0.03, q)
+    elif kind == 'mothwing':
+        sh, sw = 0.012, 0.010                                                                        # scales in rows, like roof tiles
+        row = np.floor(P.y / sh); off = (row % 2) * 0.5
+        fx = (P.x / sw + off) % 1.0; fy = (P.y / sh) % 1.0
+        h = (1 - fy) * 0.0005 - (np.abs(fx - 0.5) * 2) ** 4 * 0.0003
+        vein = np.zeros_like(h)
+        for k in range(9):                                                                           # veins fanning from the root (u 0, v 0)
+            a = (k + 0.5) / 9 * np.pi / 2
+            d = np.abs(P.x * np.cos(a) - P.y * np.sin(a))
+            vein += np.exp(-(d / 0.0025) ** 2)
+        h += np.clip(vein, 0, 1) * 0.0012 + P.noise(0.05, 0.05, 401) * 0.0003
+    elif kind == 'plumage':
+        fh, fw = 0.05, 0.045                                                                         # small feathers, tips pointing down
+        row = np.floor(P.y / fh); off = (row % 2) * 0.5 + P.noise(0.12, 0.12, 411) * 0.1
+        fx = (P.x / fw + off) % 1.0; fy = (P.y / fh) % 1.0
+        tip = np.abs(fx - 0.5) * 2 - fy                                                              # a rounded point at the bottom of each
+        h = np.clip(1 - fy, 0, 1) * 0.0022 - np.clip(tip, 0, None) * 0.0012
+        h += np.exp(-((fx - 0.5) * fw / 0.0025) ** 2) * 0.0004 * (1 - fy)                               # its quill
+        h += (0.5 + 0.5 * np.cos((P.y + np.abs(fx - 0.5) * fw * 1.2) / 0.005 * 2 * np.pi)) * 0.00025   # barbs
+        h += P.noise(0.01, 0.01, 412) * 0.0003
     return P, h
 
 

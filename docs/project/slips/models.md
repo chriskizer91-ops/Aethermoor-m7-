@@ -397,13 +397,37 @@ https://claude.ai/artifact/4WQXpMifD5GWsgCXTP4PVD
 - At Light: Cinder-Thrall 15k (rabble ~20k), Thrall-Overseer 13k, Forgeborn 11k, Bellows 14k, Forge-Warden 12k, the
   Journeyman 30k (Relic-Bearer ~40k). Sculpts about 900k.
 
+**The winged, first pass** (November 23; from session 7's list). A new gallery: https://claude.ai/artifact/CmY9BHJzyVYCYgQtpboqBg
+(`prototypes/winged/`)
+- Three new sculpted masters (42 kinds; still one picture in `masters/pack.js`, 697 KB): **feather** (a quill ridge and
+  angled barbs, a few splits), **mothwing** (rows of tiny overlapping scales and fine veins) and **plumage** (a coat of
+  small overlapping feathers, or a moth's furry scales).
+- The Lamp-Moth: dun and pale-gold wings mottled like the sheet with amber eyespots, a furry thorax and head, big amber
+  eyes, comb antennae, six long legs, and a lamp burning in the last segments of its tail.
+- The Gloamwing: lavender-grey wings with gold eyespots, a pale wavy band, scalloped dark borders; snowy fur; gold
+  plumed antennae; the Dawnbell on braided cords crossed over its chest, knotted in a gold quatrefoil on its back, the
+  bell on its own pendulum with tassels (it always hangs straight down).
+- The Thunder-Roc: storm-blue wings raised like the sheet, three jointed spars with every feather a rigid blade (pale
+  sky-blue leading edge), a pale scalloped breast, a spiky crest, a gold hooked beak and a fierce pale eye, a fan tail,
+  feathered thighs, gold scaled legs, black claws, the shepherd's feather cloak with its woven strips and beads on its
+  left foot, and sparks that flicker in its pinions.
+- Nothing stretches: moth wings are stiff membranes hinged at the root, the abdomen is insect segments, legs are rigid
+  parts; the Roc's wing folds and spreads by its joints.
+- Moves: M7's own (the Lamp-Moth: batter, dust, circle; the Gloamwing: wing-buffet, dreamdust, cocoon, bell-hum; the
+  Roc: talons, wing-gale, carry-off, storm-mantle), flight (hover, swoop, dive, land) and the common ones.
+  `wingedLook` / `withWinged` for the Fight, chained like `withArmoured`. The moths hover on their own.
+- Triangles (High / Light): Lamp-Moth 70k / 21k (rabble ~20k), the Gloamwing 90k / 27k, the Thunder-Roc 124k / 39k
+  (Relic-Bearers ~40k); same draws at both. Sculpts 830k to 980k. Every move poses with no errors; 390 px phone, no
+  horizontal scroll.
+
 ## Next
 
 - Chris chose full detail for the beasts (November 20): sessions 6 to 8 build them (`docs/project/jobs/foes.md`;
   sculpts of 500k to 1M triangles kept as viewable assets, baked to about 50k for the game). This job does no more
   beast reshaping. The sculpted twelve (`sculpt.js`) and the painted standees (`standee.js`, `standeeLook`) stay as
   stand-ins, and `buildBeast` and the Bestiary keep working, until each full-detail foe lands.
-- This job keeps the heroes, the townsfolk and the 39 people foes: next, whatever the hub asks for them.
+- This job keeps the heroes, the townsfolk, the people foes, the wraiths, the ironclad and constructs, and the winged:
+  next, whatever the hub asks for them.
 
 ## Changed outside my files
 

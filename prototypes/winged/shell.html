@@ -1,0 +1,53 @@
+<title>Aethermoor Winged</title>
+<style>
+:root{color-scheme:dark;--ink:#06090c;--soot:#120e0c;--iron2:#2b221d;--seam:#3f3229;--seam2:#5a4838;--parchment:#ecdfc3;--ash:#a8977f;--sea:#ee8e31;--hot:#ffcb66;--tap:44px}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--soot);color:var(--parchment);font:15px/1.4 "Trebuchet MS",system-ui,sans-serif;-webkit-tap-highlight-color:transparent}
+.app{display:grid;grid-template-columns:minmax(0,1fr) 380px;height:100%}
+.stage{position:relative;min-height:0;overflow:hidden;background:radial-gradient(70% 60% at 50% 55%,#18203a 0%,#0e1018 70%)}
+#view{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+.top{position:absolute;left:0;right:0;top:0;padding:calc(10px + env(safe-area-inset-top)) 16px 0;pointer-events:none}
+.title b{display:block;font-family:Georgia,serif;font-size:22px;color:#eafcff;text-shadow:0 2px 0 #000}
+.title span{font-size:11px;letter-spacing:.12em;color:var(--ash);text-transform:uppercase}
+#stats{font-size:11px;color:var(--ash);margin-top:4px}
+button{min-height:var(--tap);padding:0 12px;font:inherit;font-size:14px;color:var(--parchment);background:var(--iron2);border:2px solid var(--seam2);box-shadow:0 0 0 2px var(--ink);cursor:pointer}
+button:hover{border-color:var(--sea);color:var(--hot)}
+button[aria-pressed=true]{border-color:var(--hot);color:var(--hot)}
+.acts{position:absolute;left:16px;right:16px;bottom:calc(14px + env(safe-area-inset-bottom));display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px}
+.panel{overflow:auto;padding:14px 16px 24px;background:#18110d;border-left:2px solid var(--seam)}
+.panel h2{font-family:Georgia,serif;font-size:20px;margin:4px 0 2px;color:#eafcff}
+.panel h3{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--ash);margin:16px 0 6px}
+.who{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.who button{text-align:left;font-size:13px;padding:4px 10px}
+.who button small{display:block;font-size:10px;color:var(--ash)}
+.moves{display:flex;flex-wrap:wrap;gap:6px}
+.moves button{font-size:13px;padding:0 10px}
+.sheet{width:100%;display:block;border:2px solid var(--seam);background:#9b958d}
+.blurb{font-size:14px;color:#cfdcdc}
+.note{font-size:12px;color:var(--ash)}
+@media (max-width:820px){
+  .app{grid-template-columns:1fr;grid-template-rows:62vh auto;height:auto;min-height:100%}
+  .stage{height:62vh}
+  .panel{border-left:0;border-top:2px solid var(--seam)}
+  .acts button{padding:0 9px;font-size:13px}
+}
+</style>
+<div class="app">
+  <div class="stage">
+    <canvas id="view"></canvas>
+    <div class="top"><div class="title"><b id="name">The Winged</b><span>Aethermoor · moths and the Roc</span></div><div id="stats"></div></div>
+    <div class="acts"><button id="b-detail">High detail</button><button id="b-sculpt" aria-pressed="false">The sculpt</button><button id="b-crowd" aria-pressed="false">Crowd</button><button id="b-turn" aria-pressed="true">Turning</button></div>
+  </div>
+  <div class="panel">
+    <h3>Who</h3>
+    <div id="who" class="who"></div>
+    <h2 id="title2"></h2>
+    <div id="blurb" class="blurb"></div>
+    <h3>Moves</h3>
+    <div id="moves" class="moves"></div>
+    <h3>Chris's sheet</h3>
+    <img id="sheet" class="sheet" alt="The model sheet for this foe: front, side and back">
+    <p class="note">Built from the heroes' kit and wearing its sculpted masters, with three new ones for these: a flight feather, a moth's scaled wing and a coat of small feathers. Every piece is rigid on one moving part, so nothing stretches: a moth's wings are stiff painted membranes on their veins, hinged at the root, its body insect segments; the Roc's wings are three jointed spars with every feather a rigid blade on its spar. "The sculpt" shows the full-detail shape; "Crowd" puts twelve in the air at the fight's detail. Try hover, swoop, dive and land.</p>
+  </div>
+</div>
+<script>/*SCRIPT*/</script>
