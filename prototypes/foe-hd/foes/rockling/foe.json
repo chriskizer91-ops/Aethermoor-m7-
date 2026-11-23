@@ -1,0 +1,80 @@
+{
+  "key": "rockling",
+  "name": "Rockling",
+  "plan": "heap",
+  "rank": "rabble",
+  "height": 0.6,
+  "sheet": "art-in/3d/sheets/sheet-rockling.webp",
+  "crops": [
+    [
+      60,
+      640
+    ],
+    [
+      640,
+      1140
+    ],
+    [
+      1140,
+      1740
+    ]
+  ],
+  "bounds": [
+    [
+      -0.34,
+      -0.2,
+      -0.01
+    ],
+    [
+      0.34,
+      0.2,
+      0.62
+    ]
+  ],
+  "voxel": {
+    "0": 0.006,
+    "1": 0.004,
+    "2": 0.0024,
+    "3": 0.0024
+  },
+  "view": {
+    "center": [
+      0,
+      0,
+      0.3
+    ],
+    "width": 0.75,
+    "head": [
+      0,
+      0.05,
+      0.47
+    ],
+    "headWidth": 0.32
+  },
+  "light": {
+    "level": 0,
+    "coat": 18000
+  },
+  "sculpt": {
+    "level": 3
+  },
+  "bake": {
+    "res": 1024,
+    "phone": 512,
+    "ao": 32,
+    "reach": {
+      "coat": [
+        0.01,
+        0.025
+      ],
+      "parts": [
+        0.004,
+        0.01
+      ]
+    }
+  },
+  "rig": "rig.py",
+  "blurb": "The rockling is a heap of scree that stood up: dark blue-grey stones chipped into flat faces, a round boulder for a head with two pale stones for eyes, a body of boulders with pebbles packed between them, a big stone at each side for a fist and two flat stones for feet.",
+  "next": "its moves smoothed.",
+  "pages": {}
+}

@@ -1,0 +1,84 @@
+{
+  "key": "mother-anvil",
+  "name": "Mother Anvil",
+  "plan": "anvil",
+  "rank": "champion",
+  "height": 1.6,
+  "sheet": "art-in/3d/sheets/sheet-mother-anvil.webp",
+  "crops": [
+    [
+      30,
+      540
+    ],
+    [
+      550,
+      1220
+    ],
+    [
+      1230,
+      1750
+    ]
+  ],
+  "bounds": [
+    [
+      -0.6,
+      -0.66,
+      -0.01
+    ],
+    [
+      0.6,
+      0.96,
+      1.62
+    ]
+  ],
+  "voxel": {
+    "0": 0.012,
+    "1": 0.008,
+    "2": 0.007,
+    "3": 0.0055
+  },
+  "view": {
+    "center": [
+      0,
+      0.1,
+      0.8
+    ],
+    "width": 1.9,
+    "head": [
+      0,
+      0.3,
+      1.0
+    ],
+    "headWidth": 0.9
+  },
+  "light": {
+    "level": 0,
+    "coat": 38000,
+    "kinds": {
+      "4": 6000,
+      "8": 5000
+    }
+  },
+  "sculpt": {
+    "level": 3
+  },
+  "bake": {
+    "res": 1024,
+    "phone": 512,
+    "ao": 32,
+    "reach": {
+      "coat": [
+        0.01,
+        0.025
+      ],
+      "parts": [
+        0.004,
+        0.01
+      ]
+    }
+  },
+  "rig": "rig.py",
+  "blurb": "Mother Anvil is the biggest anvil of the forge, stood up on four iron legs: dark riveted iron, her top flared and her horn pointing forward, her heart a fire behind iron grates between copper bands, four short legs armoured in plates with clawed feet, and on her top a hinged iron arm holding a great hammer with brass bands and a golden star on each face.",
+  "next": "her moves smoothed.",
+  "pages": {}
+}
