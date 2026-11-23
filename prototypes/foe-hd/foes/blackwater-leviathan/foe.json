@@ -1,0 +1,87 @@
+{
+  "key": "blackwater-leviathan",
+  "name": "The Blackwater Leviathan",
+  "plan": "leviathan",
+  "rank": "champion",
+  "height": 2.2,
+  "sheet": "art-in/3d/sheets/sheet-blackwater-leviathan.webp",
+  "crops": [
+    [
+      20,
+      560
+    ],
+    [
+      580,
+      1220
+    ],
+    [
+      1230,
+      1760
+    ]
+  ],
+  "bounds": [
+    [
+      -1.5,
+      -1.65,
+      -0.03
+    ],
+    [
+      1.5,
+      1.35,
+      2.25
+    ]
+  ],
+  "voxel": {
+    "0": 0.016,
+    "1": 0.01,
+    "2": 0.0065,
+    "3": 0.0042
+  },
+  "view": {
+    "center": [
+      0,
+      0,
+      1.05
+    ],
+    "width": 2.9,
+    "head": [
+      0,
+      0.45,
+      1.85
+    ],
+    "headWidth": 0.9
+  },
+  "light": {
+    "level": 0,
+    "coat": 34000,
+    "kinds": {
+      "1": 3500,
+      "2": 3500,
+      "4": 1200,
+      "7": 1500,
+      "8": 6000
+    }
+  },
+  "sculpt": {
+    "level": 3
+  },
+  "bake": {
+    "res": 1024,
+    "phone": 512,
+    "ao": 32,
+    "reach": {
+      "coat": [
+        0.01,
+        0.025
+      ],
+      "parts": [
+        0.004,
+        0.01
+      ]
+    }
+  },
+  "rig": "rig.py",
+  "blurb": "The Blackwater Leviathan is a sea-serpent rising out of the black water, his neck in a slow S and two coils of his body humped out of the water at his sides: dark teal scales with pale edges and pale green plates down his throat, a dragon's head with orange eyes, a frill of fins and a ridge of spines, a great pearl set in his crown, an iron collar with a chain hanging from it into the water, a harpoon in his chest with red rags, and barnacles in clusters.",
+  "next": "his moves smoothed.",
+  "pages": {}
+}

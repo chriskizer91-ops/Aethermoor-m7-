@@ -5,6 +5,24 @@ shown side by side with the code-built model and a cut-out of Chris's sheet.
 
 ## Done
 
+- **Old Jaws** (November 23), Relic-Bearer of the Gloomfen, in full detail, **passing the stretch check** (120 frames):
+  - Three ways, with the crowd test: https://claude.ai/artifact/9TmS56rJ3X9VZPkrF3BXsn
+  - The sculpt itself (laptop): https://claude.ai/artifact/FZXfQNJgJt3RNNaPDwF31S
+  - The gar grown old and huge (1.8 m), humped, deep and broad, a short broad snout, a pale old eye, a rope round his
+    neck and his snout, a cord of beads hanging to the great hooked tooth, blue bubbles beside him.
+    Light model 35,366; sculpt 964k (6.8 MB saved). His moves: bite, leap, dive, death-roll, the-tooth.
+
+- **The blackwater-gar** (November 23), rabble of the Gloomfen, in full detail, **passing the stretch check** (120 frames):
+  - Three ways, with the crowd test: https://claude.ai/artifact/Ry64sw4379cEjNfuju1BvU
+  - The sculpt itself (laptop): https://claude.ai/artifact/TmEm8mbSEi8zQomTsndm51
+  - A long armoured fish swimming just above the mud in its ripple: green diamond plates, a pale belly, a long snout
+    of needle teeth (the lower jaw its own piece), a yellow eye, a sawtooth crest, orange-spotted fins.
+    Light model 18,496; sculpt 959k (3.8 MB saved).
+  - Built by `foes/blackwater-gar/fish.py` (Old Jaws is the same fish with other numbers), moved by a new plan, `fish`
+    (`kit/js/moves/fish.js`): hover, swim, bite, leap, dive, death-roll, the-tooth, hit, belly up.
+  - The kit: `WELD_SAME_KIND` in a rig (`kit/rigs/bind.py`): only points of one kind are welded, so a fin, a crest plate
+    or a leg's own coat that merely touches the body keeps its own weights.
+
 - **The mire-leech** (November 23), rabble of the Gloomfen, in full detail, **passing the stretch check** (120 frames):
   - Three ways, with the crowd test: https://claude.ai/artifact/XKAzPTo5MW2j7a8T9ZBGcw
   - The sculpt itself (laptop): https://claude.ai/artifact/8vA22BicHBuWDnrysGVyor
