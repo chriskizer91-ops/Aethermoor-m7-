@@ -10,6 +10,7 @@ export const MOVES = [['idle', 'Wait'], ['walk', 'Walk'], ['pincer', 'Pincer'], 
   ['moult', 'Moult'], ['rain', 'Shell Rain'], ['hurt', 'Hit'], ['ko', 'Fall']];
 export const DUR = { pincer: 1.2, sting: 1.3, guard: 1.6, moult: 2.2, rain: 2.0, hurt: 0.9, ko: 2.2 };
 export const LUNGE = 'sting';
+const STING = { default: [1.7, -0.4, -0.7, -0.7, 0.15], 'glass-matriarch': [1.8, -0.6, -0.8, -0.6, 0.1] };
 export const ALIAS = { bite: 'pincer', swipe: 'pincer', strike: 'sting', cast: 'rain', roar: 'rain' };
 function reset(B) {
   for (const b of Object.values(B.bones)) { b.rotation.set(0, 0, 0); b.position.copy(b.userData.p0); b.scale.set(1, 1, 1); }
@@ -54,11 +55,17 @@ export function pose(B, move, u, t, step = 0) {
     return;
   }
   if (move === 'sting') {
-    // the tail draws back, then the sting stabs forward over the head
-    const draw = seg(u, 0, 0.3), stab = seg(u, 0.3, 0.45), back = 1 - seg(u, 0.6, 1);
-    tail(b, (-0.5 * draw * (1 - stab) + 1.4 * stab) * back);
-    claws(b, 0.5 * draw * back, 0.3 * draw * back, 0.4 * draw * back);
-    B.body.rotation.x = (-0.05 * draw + 0.08 * stab) * back; B.body.position.z = 0.04 * stab * back;
+    // the tail draws back, then swings forward from its root and straightens, so the sting stabs down well out in
+    // front of the claws (not into its own head); the body pitches nose-down and lunges into it
+    const draw = seg(u, 0, 0.3), stab = seg(u, 0.3, 0.45), back = 1 - seg(u, 0.6, 1), h = B.height || 1;
+    tail(b, -0.5 * draw * (1 - stab) * back);
+    const k = stab * back;
+    // the tail's turns at the stab, found by pages/desert-deep/tools/reach.mjs (the furthest the sting reaches past the
+    // face at face height; each foe's tail is a little different)
+    const TS = STING[B.key] || STING.default;
+    ['tail1', 'tail2', 'tail3', 'tail4', 'sting'].forEach((n, i) => { b[n].rotation.x += TS[i] * k; });
+    claws(b, (0.5 * draw + 0.3 * stab) * back, 0.2 * draw * back, (0.4 * draw + 0.6 * stab) * back);
+    B.body.rotation.x = (-0.05 * draw + 0.16 * stab) * back; B.body.position.z = 0.22 * h * stab * back; B.body.position.y = -0.02 * h * stab * back;
     return;
   }
   if (move === 'guard') {
