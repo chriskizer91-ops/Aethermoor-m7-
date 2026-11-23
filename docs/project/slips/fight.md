@@ -93,7 +93,8 @@
   (15.3 MB). Act One: `FIGHT_HD=briarmaw,briarling,glowcap,boglurcher FIGHT_STANDEES=thornhound ... --out=fight-act1
   --places=<its 13> --tex=320`. Act Two: `FIGHT_HD=willow-wight,grandfather-willow,glass-scorpion,glass-matriarch,sand-skink FIGHT_STANDEES=none ...
   --out=fight-act2 --places=scorchgate-vaults,harrows-forge,frostmere-below,tidal-flats,mothers-hollow,willowmurk,dust-trail,deep-shaft-2
-  --tex=448`. Events: `FIGHT_HD=marsh-light FIGHT_STANDEES=sand-wyrm,kharzul,blackwater-gar,blackwater-leviathan`.
+  --tex=448`. Ironspire: `FIGHT_HD=mother-anvil,peak-troll,old-horn,rockling ... --tex=384`. Gloomfen: `FIGHT_HD=marsh-light,blackwater-gar,old-jaws,
+  blackwater-leviathan,mire-leech ... --tex=384`. Events: `FIGHT_HD=marsh-light FIGHT_STANDEES=sand-wyrm,kharzul,blackwater-gar,blackwater-leviathan`.
 - Not proven by Auto: the Sand Wyrm's and the Thunder-Roc's swallows (their charge never landed in those runs).
 
 ## Step 4
@@ -199,6 +200,11 @@
   agreed EVENTS / SINKS and mouth, head, pearl, harpoon bones: every move on their own bodies, no errors. The Leviathan
   strikes from where he lies (his root stays in the water); the swallowed hero is drawn into his mouth
   (fight-stills/leviathan-swallow.png); Pearl-Light glows on his pearl, Harpoon Rage sparks from the wound.
+- **More full-detail foes on the pages** (November 23): Mother Anvil, the peak-troll, Old Horn and the rockling on the
+  Ironspire page (384 px world textures; Mother Anvil's eight and Old Horn's six moves on their own bodies, no errors); the
+  mire-leech on the Gloomfen page (384 px). The Mirelord passes but Act One can't take him (16.39 MB even at 288 px): Act
+  One split across two pages would make room. The forge-spark isn't fought anywhere in M7. The kit's loader builds bones in
+  any order (two passes), so session 7's serpent-chain note doesn't touch the Fight.
 - **Swallows** (agreed with Places, session 4, for the Sand Wyrm and the Leviathan): their `parts.mouth` and
   `SWALLOW_AT { u, reach }`; the hero shrinks into the mouth at that u and comes back out of it on release; the foe
   stops at `reach`; a `full` idle while a hero is inside, `spit` on release. One Foe (session 6) builds the
