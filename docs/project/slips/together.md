@@ -1,8 +1,45 @@
 # Slip: Together (session 5, branch `job/together`)
 
-Last updated November 21.
+Last updated November 23.
 
 ## Done
+
+## Latest round (November 23): the endings, the foes back, chests, the wraiths, the save-code box
+
+All seven pages republished from builds after the hub's merge (Places' boat fix, the Fight's latest code). Each game
+page was checked to start with no errors before it went up; the fight checks below ran on the exact files published.
+
+| Page | Link | Version | Size |
+|---|---|---|---|
+| Act One | https://claude.ai/artifact/RaeSK5hezqb3qH7jmuM5aj | 8 | 15.9 MB |
+| Act One, full pictures | https://claude.ai/artifact/9rGvzRh4eocZrz4RYPQLz6 | 5 | 11.8 MB + 186 pictures |
+| The Sunscorch | https://claude.ai/artifact/7dPEGKka7t1FyHF5SSLPAo | 4 | 14.0 MB |
+| The Ironspire | https://claude.ai/artifact/6jSwPVzbwwZWmmD6VsQ1sU | 3 | 15.1 MB |
+| The Gloomfen | https://claude.ai/artifact/N2iCRiMardtJNbntUoXYsA | 3 | 14.7 MB |
+| Act Three | https://claude.ai/artifact/U8tPe6ZcZKrYA1o7XJeTjp | 2 | 13.2 MB |
+| Act Three, full pictures | https://claude.ai/artifact/28QkrWfL1YqMUnGLki2s5w | 2 | 4.8 MB + 148 pictures |
+
+- **M7's three endings** (`game3d/tools/finale.mjs <page> <rekindle|release|anew> [deep|heart]`): the heart's choice,
+  its last word, the ending's card, the credits, the last card, back in the Great Hall, the ending saved under the 3D
+  key, M7's key never written. Release 9 of 9 and Kindle Anew 10 of 10 (with its price paid; Kindle Anew is shown shut
+  with its three reasons otherwise), no page errors. Rekindle from the foot of the Ash Stair (the chain gate's unmade,
+  Tamsin, the forge-warden, the Unsmith's fight): on auto a party at level 24 and at 32 lost the unmade; M7 tunes the
+  Hearth Below for about 36.5, so the check now uses 38, as M7's own check does (running).
+- **The Rotwarden and the sapwight in full detail** (session 8, after the stretch check). Act One's single page: the
+  Heroes' new masters (Models, through the hub) took 1.9 MB, so it carries its two bosses, Briarmaw and the Rotwarden
+  (15.9 MB); the sapwight, briarling and glowcap are full detail on the full-pictures page. Checked on the published
+  file (`act-end.mjs`, 11 of 11, no page errors): the Rotwarden's fight in full detail, won, Act One complete, the
+  Council, saved.
+- **The wraiths** (Models' eleven robed foes, `prototypes/wraiths`): first in the full-detail look on every page.
+  Checked on the published Gloomfen page (`wraith.mjs`, 3 of 3, no page errors): the drowned on the Long Boardwalk
+  fought to a win.
+- **Chests with lids** (Places): each chest opens as M7 says, at once when a place is shown, swinging back when opened
+  in front of the party. **Hearthfire pillars** have no lantern now (Act One's places; the regions with Places' next
+  conversion).
+- **Bring a journey by its save code** on every title (open call 10: the hub's suggestion while Chris decides; one
+  line switches it off, `CARRY_M7` in `game3d/main.js`, or `?m7=0`). A code from the 2D game's Settings or another 3D
+  page: the party with its levels and gear, the 3D save backed up first, M7's key never written. Checked on the built
+  Act One page (`codebox.mjs`, 7 of 7, no page errors, at 360 px).
 
 ## Latest round (November 21): the place map, live Hearthfires, chests, and Act Three
 
@@ -98,10 +135,7 @@ state) and unopened chests glint (`game3d/props.js`). All seven pages republishe
 
 ## Needs
 
-- Places: each Hearthfire's pillar (`m7/convert.mjs` lamps, h 1.1) carries a lantern; the game now burns a live fire
-  in a bowl on top (`game3d/props.js`: lit or cold by M7's state), and the lantern pokes up through the flame. Could a
-  Hearthfire's pillar go without its lantern?
-
+- The Worldforge's heart: the camera behind the party looks at the wall, not the furnace (mine to look at).
 - The Fight: indoors (Sneck's fight in the Great Hall), `arena.spoilsView()` puts the camera behind the hall's wall, so
   the spoils' field is hidden by stone (the after-fight screen itself is fine). Outdoors it's as on the Fight's page.
 
