@@ -74,6 +74,7 @@ def part(P, kind, idx, piece):
         lab = np.where(kind[m] == 6, idx[f'{k}_paw'], lab)
         lab = np.where(kind[m] == 1, -1, lab)              # the leg's coat stays free (mask() keeps it to this leg):
         out[m] = lab                                       # fixed points get no blend, and its knees would tear
+    role[kind == 4] = 'headp'                                                      # his head's own coat
     crown = np.isin(kind, (2, 3)) & (P[:, 2] > 1.1) & (P[:, 1] > 0.4)              # the crown of brambles: his head's
     out[crown] = idx['head']
     ROLE['now'] = role
@@ -83,6 +84,10 @@ def mask(P, idx):
     legb = [idx[n] for k in LEGBONES for n in LEGBONES[k]]
     isbody = role == 'body'
     M_[np.ix_(isbody, legb)] = 0
+    headb = [idx[n] for n in ('head', 'jaw', 'neck')]                                 # his head is its own piece: his body
+    M_[np.ix_(isbody, headb)] = 0                                                     # never takes its bones, it takes only
+    hp = role == 'headp'                                                              # them
+    if hp.any(): M_[hp] = 0; M_[np.ix_(hp, [idx['head'], idx['jaw']])] = 1   # the head piece moves whole (and its jaw)
     for k in LEGBONES:
         m = role == k
         if m.any():
@@ -91,5 +96,5 @@ def mask(P, idx):
     return M_
 # his legs are their own pieces now, set into his body: the shoulder blades and haunches carry none of a leg's swing
 # into his body (any share tears his flank when a paw is raised high)
-HELPERS = {'fl_blade': 0.0, 'fr_blade': 0.0, 'bl_haunch': 0.0, 'br_haunch': 0.0}     # (they stay with his body)
+HELPERS = {'fl_blade': 0.0, 'fr_blade': 0.0, 'bl_haunch': 0.0, 'br_haunch': 0.0, 'neck_base': 0.0}     # (they stay with his body)
 WELD_SAME_KIND = True

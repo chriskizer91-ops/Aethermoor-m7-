@@ -109,7 +109,8 @@ def sub(name, keep):
         a.data.foreach_set('color', c4.ravel())
     ob.data.materials.append(smat); return ob
 smat = blib.vcol_material('sculpt_mat', rough=0.8)
-hi_coat, hi_parts = sub('sculpt_coat', hk <= 1), sub('sculpt_parts', hk > 1)
+COAT_KINDS = set(cfg.get('bake', {}).get('coat_kinds', [0, 1]))     # kinds baked as coat (Briarmaw's head coat is 4)
+hi_coat, hi_parts = sub('sculpt_coat', np.isin(hk, list(COAT_KINDS))), sub('sculpt_parts', ~np.isin(hk, list(COAT_KINDS)))
 log('sculpt', len(h['F']), 'triangles')
 
 mat = bpy.data.materials.new('light'); mat.use_nodes = True; lo.data.materials.append(mat)
@@ -123,7 +124,7 @@ def lo_part(name, keep_kinds):
     kv = KL   # kind per vertex, in the light mesh's own vertex order
     bmesh.ops.delete(bm, geom=[f for f in bm.faces if kv[f.verts[0].index] not in keep_kinds], context='FACES')
     bm.to_mesh(ob.data); bm.free(); return ob
-lo_coat, lo_parts = lo_part('light_coat', {0, 1}), lo_part('light_parts', {2, 3, 4, 5, 6, 7, 8})
+lo_coat, lo_parts = lo_part('light_coat', COAT_KINDS), lo_part('light_parts', set(range(9)) - COAT_KINDS)
 lo.hide_render = True
 
 sc.render.engine = 'CYCLES'; sc.cycles.device = 'CPU'

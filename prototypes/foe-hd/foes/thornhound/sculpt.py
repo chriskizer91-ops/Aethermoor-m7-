@@ -81,13 +81,24 @@ def body_sdf(P):
     d = smin(d, ell(P, p(0, 610, 432), r(66, 105, 85)), 0.04)                        # haunches
     d = smin(d, cap(P, p(0, 1052, 360), p(0, 1150, 255), 58 * S, 44 * S, scale=(0.9, 1, 1)), 0.03)  # neck
     d = smin(d, head_sdf(P), 0.025)
+    d = smin(d, chain(P, TAIL, [15 * S, 24 * S, 31 * S, 22 * S, 2 * S], 0.02, scale=(0.75, 1, 1)), 0.03)
+    # (session 6, November 23: his legs are pieces of their own, with their own coat, set into his body; a crease
+    # round each below the flank, so a leg swings without dragging the body's fur)
+    legs = legs_only(P)
+    low = np.clip((0.42 - P[:, 2]) / 0.06, 0, 1)
+    d = np.where(P[:, 2] < 0.42, smax(d, -(legs - 0.012 * low), 0.008 * low + 1e-4), d)
+    return np.maximum(d, -P[:, 2])
+
+def legs_only(P):
+    """his four legs, each from inside his body (its top hidden there) to the paw and toes"""
+    out = None
     for k, J in LEGS.items():
         front = k[0] == 'f'
         if front:
-            d = smin(d, chain(P, J, [40 * S, 28 * S, 20 * S, 21 * S], 0.012), 0.04)
+            d = chain(P, J, [40 * S, 28 * S, 20 * S, 21 * S], 0.012)
             d = smin(d, ell(P, J[0] + r(-np.sign(J[0][0]) * 10, 0, -10), r(34, 58, 75)), 0.03)   # shoulder, upper arm
         else:
-            d = smin(d, ell(P, (J[0] + J[1]) * 0.5 + r(-np.sign(J[0][0]) * 8, -18, 6), r(48, 82, 98)), 0.04)   # the thigh
+            d = ell(P, (J[0] + J[1]) * 0.5 + r(-np.sign(J[0][0]) * 8, -18, 6), r(48, 82, 98))     # the thigh
             d = smin(d, chain(P, J, [40 * S, 29 * S, 19 * S, 20 * S], 0.01), 0.03)
         sx = 1 if J[0][0] > 0 else -1
         c = J[3] + r(sx * 4, 24, -16)
@@ -95,8 +106,9 @@ def body_sdf(P):
         for i in range(4):                                                            # and its four toes
             ang = (i - 1.5) * 0.36
             d = smin(d, ell(P, c + np.array([math.sin(ang) * 0.026, math.cos(ang) * 0.034, -0.002], np.float32), r(10, 13, 11)), 0.005)
-    d = smin(d, chain(P, TAIL, [15 * S, 24 * S, 31 * S, 22 * S, 2 * S], 0.02, scale=(0.75, 1, 1)), 0.03)
-    return np.maximum(d, -P[:, 2])
+        out = d if out is None else np.minimum(out, d)
+    return np.maximum(out, -P[:, 2])
+def legs_sdf(P): return np.maximum(legs_only(P), P[:, 2] - 0.52)
 
 # ---- 2. the coat --------------------------------------------------------------------------------------------------
 def zones(P):
@@ -165,68 +177,83 @@ log('coat')
 def hscale(P):
     Z = zones(P)
     return mix(mix(mix(mix(mix(1, 2.0, Z['belly']), 2.4, Z['tail']), 1.6, Z['ruff']), 0.6, Z['lower'] * (1 - Z['paws'])), 0.45, Z['face'])
-coat = Coat(body_sdf, LO, HI, tuft_len, flow, bare, LV=LV, VOX=VOX, seed=17, n_samples=300000, spacing=float(os.environ.get('SPACING', 0.24)),
+COAT_ARGS = dict(LV=LV, VOX=VOX, n_samples=300000, spacing=float(os.environ.get('SPACING', 0.24)),
             width=(0.38, 0.08), height=(0.10, 0.03), hmax=0.02, sample_vox=0.008, hscale=hscale, barb=0.45, style='lock',
             sway=0.3, tip_soft=float(os.environ.get('TIPSOFT', 1.4)), groove_depth=0.22, grooves=(2, 4), round_=0.75)
+coat = Coat(body_sdf, LO, HI, tuft_len, flow, bare, seed=17, **COAT_ARGS)
+LHI = (HI[0], HI[1], 0.53)
+lcoat = Coat(legs_sdf, LO, LHI, tuft_len, flow, lambda P: bare(P) | (P[:, 2] > 0.5), seed=18, **dict(COAT_ARGS, n_samples=150000))
 
 # tuft colours: dark brown-black, streaked taupe in patches that run with the fur, the bib, muzzle and lower legs tan
 DARK = np.array([0.20, 0.155, 0.135]); DARK2 = np.array([0.27, 0.21, 0.175]); TAUPE = np.array([0.55, 0.45, 0.38])
 TAN = np.array([0.52, 0.42, 0.33]); TAN2 = np.array([0.40, 0.31, 0.24])
-rng = np.random.default_rng(5)
-Zt = zones(coat.TP)
-streak = np.clip((fbm(coat.TP * np.array([10, 3.5, 7]) + 2, 3.0) - 0.43) * 5, 0, 1)
-TC = mix(DARK, DARK2, rng.random(coat.n)[:, None])
-TC = mix(TC, mix(TAUPE, TAN2, rng.random(coat.n)[:, None]), (streak * 0.85)[:, None])
-TC = mix(TC, mix(TAUPE, TAN, 0.3), (Zt['bib'] * 0.8)[:, None])
-TC = mix(TC, mix(TAN, TAUPE, 0.4), (Zt['cheek'] * 0.8)[:, None].clip(0, 1))
-TC = mix(TC, TAN2, (Zt['lower'] * 0.45 * (1 - Zt['paws']))[:, None])
-TC = mix(TC, DARK, (Zt['paws'] * 0.6)[:, None])
-TC = mix(TC, mix(TAUPE, TAN2, rng.random(coat.n)[:, None]), (Zt['tail'] * (0.35 + 0.5 * sstep(500, 600, topx(coat.TP)[2])))[:, None])
-TC = TC * (0.9 + 0.2 * rng.random(coat.n))[:, None]
+def tuft_colours(coat, seed):
+    rng = np.random.default_rng(seed)
+    Zt = zones(coat.TP)
+    streak = np.clip((fbm(coat.TP * np.array([10, 3.5, 7]) + 2, 3.0) - 0.43) * 5, 0, 1)
+    TC = mix(DARK, DARK2, rng.random(coat.n)[:, None])
+    TC = mix(TC, mix(TAUPE, TAN2, rng.random(coat.n)[:, None]), (streak * 0.85)[:, None])
+    TC = mix(TC, mix(TAUPE, TAN, 0.3), (Zt['bib'] * 0.8)[:, None])
+    TC = mix(TC, mix(TAN, TAUPE, 0.4), (Zt['cheek'] * 0.8)[:, None].clip(0, 1))
+    TC = mix(TC, TAN2, (Zt['lower'] * 0.45 * (1 - Zt['paws']))[:, None])
+    TC = mix(TC, DARK, (Zt['paws'] * 0.6)[:, None])
+    TC = mix(TC, mix(TAUPE, TAN2, rng.random(coat.n)[:, None]), (Zt['tail'] * (0.35 + 0.5 * sstep(500, 600, topx(coat.TP)[2])))[:, None])
+    return TC * (0.9 + 0.2 * rng.random(coat.n))[:, None]
+TC = tuft_colours(coat, 5); TCL = tuft_colours(lcoat, 6)
 
-def full_sdf(P):
-    d = body_sdf(P)
-    band = np.abs(d) < coat.HMAX + 0.01
-    if band.any():
-        d = d.copy(); d[band] -= coat.height(P[band])
-    if LV >= 3: d = d - 0.0007 * (vnoise(P, 260.0) - 0.5)
-    return d
+def with_coat(sdf, c):
+    def f(P):
+        d = sdf(P)
+        band = np.abs(d) < c.HMAX + 0.01
+        if band.any():
+            d = d.copy(); d[band] -= c.height(P[band])
+        if LV >= 3: d = d - 0.0007 * (vnoise(P, 260.0) - 0.5)
+        return d
+    return f
+body_full, legs_full = with_coat(body_sdf, coat), with_coat(legs_sdf, lcoat)
+def full_sdf(P): return np.minimum(body_full(P), legs_full(P))
 
 # ---- 3. the body with its coat -------------------------------------------------------------------------------------
+def colour(Vb, coat, TC):
+    top, tid, ts, tq = coat.height(Vb, True)
+    has = top > 0.0006
+    FACEC = np.array([0.24, 0.18, 0.15])
+    col = np.tile(FACEC, (len(Vb), 1)).astype(np.float64)
+    shade = 0.42 + 0.78 * ts ** 0.8
+    if LV >= 2: shade = shade * (1 - 0.22 * tri(tq + 0.5) ** 3)
+    col[has] = TC[tid[has]] * shade[has, None] + (np.clip((ts[has] - 0.65) * 2.5, 0, 1) * 0.06)[:, None]
+    crev = np.clip(1 - top / 0.004, 0, 1) * (zones(Vb)['face'] < 0.5)
+    col = col * (1 - 0.5 * crev[:, None])
+    Zb = zones(Vb)
+    xo, sx, sy = topx(Vb)
+    muz_top = 236 + (sx - 1250) * 0.33                       # the line along the top of the muzzle (sheet px)
+    tan_side = sstep(muz_top + 6, muz_top + 18, sy) * sstep(1225, 1260, sx) * (1 - sstep(300, 310, sy))
+    col = mix(col, TAN * (0.85 + 0.3 * fbm(Vb, 120.0))[:, None], (tan_side * 0.9)[:, None])
+    col = mix(col, np.array([0.17, 0.14, 0.13]), (Zb['muzzle'] * (1 - tan_side) * 0.7)[:, None])
+    nose = np.clip(1.5 - np.linalg.norm((Vb - NOSE) / r(17, 17, 15), axis=1), 0, 1)[:, None]
+    col = mix(col, np.array([0.05, 0.045, 0.05]), np.clip(nose * 1.6, 0, 1))
+    xo, sx, sy = topx(Vb)
+    lips = np.exp(-((sy - (279 + (sx - 1252) * 0.18)) / 4.0) ** 2) * (np.abs(xo) < 24) * (sx > 1240)
+    col = mix(col, np.array([0.07, 0.05, 0.05]), lips[:, None])
+    for e in EYES:
+        ring_ = np.clip(1.5 - np.linalg.norm((Vb - e) / r(15, 13, 11), axis=1), 0, 1)[:, None]
+        col = mix(col, np.array([0.06, 0.05, 0.045]), ring_ * 0.9)                           # the dark rim round the eye
+        brow = np.exp(-np.sum(((Vb - e - r(0, -6, 14)) / r(14, 16, 6)) ** 2, 1))[:, None]
+        col = mix(col, TAN, brow * 0.7)                                                       # the pale brow marks
+    pads = np.clip(1 - Vb[:, 2] / 0.012, 0, 1)[:, None]
+    col = mix(col, np.array([0.08, 0.06, 0.06]), pads)
+    earin = Zb['ears'] * (np.abs(xo) < 47) * (sx > 1162)
+    col = mix(col, np.array([0.30, 0.22, 0.19]), (earin * 0.6)[:, None])
+    return np.clip(col, 0, 1)
+
 M = Mesh()
 log('body, voxel', VOX)
-Vb, Fb = mc(full_sdf, VOX, LO, HI, band=coat.HMAX + 0.012, coarse=4)
+Vb, Fb = mc(body_full, VOX, LO, HI, band=coat.HMAX + 0.012, coarse=4)
 log('body tris', len(Fb))
-top, tid, ts, tq = coat.height(Vb, True)
-has = top > 0.0006
-FACEC = np.array([0.24, 0.18, 0.15])
-col = np.tile(FACEC, (len(Vb), 1)).astype(np.float64)
-shade = 0.42 + 0.78 * ts ** 0.8
-if LV >= 2: shade = shade * (1 - 0.22 * tri(tq + 0.5) ** 3)
-col[has] = TC[tid[has]] * shade[has, None] + (np.clip((ts[has] - 0.65) * 2.5, 0, 1) * 0.06)[:, None]
-crev = np.clip(1 - top / 0.004, 0, 1) * (zones(Vb)['face'] < 0.5)
-col = col * (1 - 0.5 * crev[:, None])
-Zb = zones(Vb)
-xo, sx, sy = topx(Vb)
-muz_top = 236 + (sx - 1250) * 0.33                       # the line along the top of the muzzle (sheet px)
-tan_side = sstep(muz_top + 6, muz_top + 18, sy) * sstep(1225, 1260, sx) * (1 - sstep(300, 310, sy))
-col = mix(col, TAN * (0.85 + 0.3 * fbm(Vb, 120.0))[:, None], (tan_side * 0.9)[:, None])
-col = mix(col, np.array([0.17, 0.14, 0.13]), (Zb['muzzle'] * (1 - tan_side) * 0.7)[:, None])
-nose = np.clip(1.5 - np.linalg.norm((Vb - NOSE) / r(17, 17, 15), axis=1), 0, 1)[:, None]
-col = mix(col, np.array([0.05, 0.045, 0.05]), np.clip(nose * 1.6, 0, 1))
-xo, sx, sy = topx(Vb)
-lips = np.exp(-((sy - (279 + (sx - 1252) * 0.18)) / 4.0) ** 2) * (np.abs(xo) < 24) * (sx > 1240)
-col = mix(col, np.array([0.07, 0.05, 0.05]), lips[:, None])
-for e in EYES:
-    ring_ = np.clip(1.5 - np.linalg.norm((Vb - e) / r(15, 13, 11), axis=1), 0, 1)[:, None]
-    col = mix(col, np.array([0.06, 0.05, 0.045]), ring_ * 0.9)                           # the dark rim round the eye
-    brow = np.exp(-np.sum(((Vb - e - r(0, -6, 14)) / r(14, 16, 6)) ** 2, 1))[:, None]
-    col = mix(col, TAN, brow * 0.7)                                                       # the pale brow marks
-pads = np.clip(1 - Vb[:, 2] / 0.012, 0, 1)[:, None]
-col = mix(col, np.array([0.08, 0.06, 0.06]), pads)
-earin = Zb['ears'] * (np.abs(xo) < 47) * (sx > 1162)
-col = mix(col, np.array([0.30, 0.22, 0.19]), (earin * 0.6)[:, None])
-M.add(Vb, Fb, np.clip(col, 0, 1), 0)
+M.add(Vb, Fb, colour(Vb, coat, TC), 0)
+log('legs')
+Vl, Fl = mc(legs_full, VOX, LO, LHI, band=lcoat.HMAX + 0.012, coarse=4)
+M.add(Vl, Fl, colour(Vl, lcoat, TCL), 1)                 # kind 1: the legs' own coat (the rig finds the legs by it)
 
 def surf(pt, out=0.0):
     Pp, Nn = project(np.array([pt], np.float32), full_sdf)
