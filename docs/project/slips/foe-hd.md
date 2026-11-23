@@ -5,6 +5,34 @@ shown side by side with the code-built model and a cut-out of Chris's sheet.
 
 ## Done
 
+- **Mother Anvil** (November 23), Champion, in full detail, **passing the stretch check** (120 frames):
+  - Three ways, with the crowd test: https://claude.ai/artifact/GpnVAt4gcTybB3w9weeZsp
+  - The sculpt itself (laptop): https://claude.ai/artifact/RkoYTSqzxA4rLktCJT2cJy
+  - The biggest anvil of the forge on four iron legs: riveted dark iron, the top flared, the horn forward, her heart a
+    fire behind grates between copper bands, a riveted back plate, four plated legs with clawed paws, a hinged arm with
+    a brass collar holding the hammer (brass bands, a glowing golden star on each face). Light model 50,391; sculpt
+    976k (3.8 MB saved).
+  - A new plan, `anvil` (`kit/js/moves/anvil.js`), with her game moves by their own ids: hammerfall (she rears up on
+    her hind legs), anvil-strike, worldforge-blow (charging), sparks, steam-burst, temper, heart-flare, bellows, and
+    stand, stomp, hit, fall. Every plate moves whole: every edge 1.00x.
+  - Next for her: the horn's faceted boss standing out more in front, plates chipped like the sheet's.
+
+- **The rockling** (November 23), rabble, in full detail, **passing the stretch check** (120 frames):
+  - Three ways, with the crowd test: https://claude.ai/artifact/K5G7NXT5biU4Yyp8aGAfiF
+  - The sculpt itself (laptop): https://claude.ai/artifact/QPkgvXNDUmWtG2yupQaPYP
+  - A heap of scree that stood up: 24 chipped blue-grey stones and up to 50 pebbles packed in the creases, a boulder head with
+    two pale stone eyes. Light model 18,180; sculpt 924k (3.8 MB saved).
+  - A new plan, `heap` (`kit/js/moves/heap.js`): stand, trudge, slam, roll in (it tucks and rolls once over about its
+    middle), hunker, hit, fall. Every stone moves whole: every edge 1.00x.
+
+- **The forge-spark** (November 23), in full detail, **passing the stretch check** (120 frames):
+  - Three ways, with the crowd test: https://claude.ai/artifact/7sjTb3ubzrCxJJZ189YZBW
+  - The sculpt itself (laptop): https://claude.ai/artifact/M7NGzTZXnqPTVEHXtDeQUr
+  - A living cinder: a ball of ember in a cracked slag shell held by rusted, riveted iron bands, light pouring out of
+    three slits in front and through a web of cracks, a crown of slag spikes with a flame and sparks, two floating
+    fists of glowing slag and a molten ring under it. Light model 13,642 (rabble); sculpt 981k triangles (4 MB saved).
+  - The `spark` plan moves it: every piece moves whole, so every edge stays at 1.00x.
+
 - **The marsh-light** (November 23), in full detail, **passing the stretch check** (120 frames):
   - Three ways, with the crowd test: https://claude.ai/artifact/XvU3kSAEBLpKMQP5pBXvQx
   - The sculpt itself (laptop): https://claude.ai/artifact/MatuoD1NwsB6inUV1K592H
@@ -154,7 +182,7 @@ shown side by side with the code-built model and a cut-out of Chris's sheet.
    report that bind.py lets some neck weight onto the thornhound's ear root despite its weigh(): weigh gates need
    +1000 (an unseen bone costs 100), and a gate should also stop the bands and smoothing.
 1. My lane, each passing the stretch check before it's handed in: (briarling, glowcap, boglurcher, willow-wight,
-   Grandfather Willow done) the sparks (marsh-light, forge-spark), rockling, Mother Anvil. (The wraiths moved
+   Grandfather Willow done) the sparks (marsh-light, forge-spark), rockling, Mother Anvil: all done. (The wraiths moved
    to Models, session 3.)
 2. Briarmaw's moves smoothed (weights round the shoulders and hips, a fuller walk), a hit flash.
 2. The face closer still to the sheet; the coat's brown zones placed as the sheet paints them.

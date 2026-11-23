@@ -25,7 +25,24 @@ light model that can share the screen with the party, rigged, moving through its
   - The light model: 19,913 triangles, pictures at 1024 px plus the glow. Its moves: Breathe (hunched, swaying), Walk,
     Sap Leech, Grasp, Bark Hide, Hit, Fall. 17 bones.
 
+- **Old Horn** (Act Two's Relic-Bearer, the troll with the horn): on the Act Two page below.
+  - The sculpt: 1,324,836 triangles. Grey-green hide with moss stains; the cape of stitched troll hides (tufts in
+    layers, the dark lining) riding his chest, the hide loincloth riding his hips; belt and buckle; the horn, tusks,
+    pointed ears and a scowl; toe claws; the club with its moss and mushrooms.
+  - The light model: 42,531 triangles, pictures at 2048 px (2.6 MB). Phone version: 22,292 triangles, 768 px, 0.67 MB.
+  - His arms, legs and head are pieces of their own; 17 bones. Moves: Breathe, Walk, Club, Pummel, Hurl Boulder,
+    Horn Toss, Mantle of Trolls, Hit, Fall.
+  - Stretch check (kit/tools/stretch.mjs): passes, full and phone. Worst big edge 1.28 times (Walk, his foot; Mantle of
+    Trolls, his elbow), worst crease 2.99 (Fall, his neck under the head). By eye at the worst frames: no webs.
+  - What it took: the binding had put most of his legs on his hips and then snapped each knee point whole to the thigh
+    or the shin, so the knee folded at one line. Now each separate piece chooses only among its own bones before the
+    joints are blended (`pages/walkers/kit/bind.py`). His head became its own piece (his fur collar and his face were
+    one surface), turning low at his jaw; his elbow's pivot sits behind the joint; his neck barely bends and his head
+    does the turning. The phone version smooths its weights over 4 passes instead of 8 (its edges are longer).
+
 ## Links
+
+- Act Two (Old Horn): https://claude.ai/artifact/PosCApXURcQF2S8qyicNaY (9.7 MB)
 
 - The walkers' gallery (the Rotwarden and the sapwight, their sheets, the checks, the moves, five of them walking round
   the heroes): https://claude.ai/artifact/YBLUHaLG3bNdfcjBdeq3aj (12.8 MB, with the phone versions)
@@ -66,9 +83,7 @@ how far each joint really bends, applied after any move), so the Rotwarden's pla
 fold only so far; his knee plates' points were shortened so they don't straddle the knee; his root arm has more
 triangles; the sapwight's neck and elbows bend less.
 
-- **Old Horn** (Act Two, built today): his arms, legs, cape (riding his chest) and loincloth (riding his hips) are pieces
-  of their own, and he has joint limits; his chest joint sits low so his deltoids ride the chest. Still failing the
-  check: big edges up to 2.4 times at his knees, 2.1 at his elbows, 1.7 at his neck. Not on any page until he passes.
+- **Old Horn** passes too (November 23), every move, full and phone; see Done.
 - The laptop sculpt page still shows the earlier sculpts; to be refreshed.
 
 ## The Rotwarden's named moves for the Fight (done)
@@ -96,7 +111,9 @@ plan 'walker' and height; foe.json), written by `pages/walkers/kit/standard.py` 
 
 1. The Rotwarden: one thin root at his left hip stays behind when the root arm swings; the tasset closer to the
    sheet's (a curved plate, not a box); the plates a little more faceted, like the sheet's.
-2. Then Act Two's walkers: Old Horn and the peak-troll, then the forge's folk.
+2. Then the peak-troll (he starts from Old Horn's troll body), cinder-thrall, the Journeyman, forgeborn, bellows,
+   forge-warden, thrall-overseer, unmade. (Iron-sentinel, the Sentinel-Captain, the Ashen Warden and the Unsmith moved
+   to Models, November 21.)
 
 ## How it's made (for the other foe sessions)
 

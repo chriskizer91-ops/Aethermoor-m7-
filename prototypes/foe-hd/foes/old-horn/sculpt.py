@@ -213,9 +213,12 @@ def group(names, keep=True):
     for it in P_.items:
         if (it[0] in names) == keep: g.items.append(it)
     return g
-LIMB = {'arms', 'fists', 'legs'}
+# his head too (kind 14), so it turns on his thick neck without dragging the fur collar after it
+HEADP = {'head', 'ears', 'eye1', 'eye-1'}
+LIMB = {'arms', 'fists', 'legs'} | HEADP
 GROUPS = [(group(LIMB, False), 0, LO, HI), (group({'arms', 'fists'}), 12, (-0.95, -0.15, 0.45), (0.95, 0.55, 2.0)),
-          (group({'legs'}), 13, (-0.75, -0.40, -0.01), (0.75, 0.50, 1.30))]
+          (group({'legs'}), 13, (-0.75, -0.40, -0.01), (0.75, 0.50, 1.30)),
+          (group(HEADP), 14, (-0.50, 0.08, 1.62), (0.40, 0.84, 2.40))]
 VS, FS, LK, KS, off = [], [], [], [], 0
 for parts, kd, lo_, hi_ in GROUPS:
     Vg, Fg = mc(lambda P, p=parts: detail(P, p.sdf(P)), VOX, lo_, hi_)
@@ -247,7 +250,7 @@ col[sock & (look == 'skin')] *= 0.45
 lining = (look == 'fur') & (ell(Vb, (0, -0.10, 1.42), (0.76, 0.62, 0.92)) < 0) & (Vb[:, 2] < 1.55) & (Vb[:, 1] < 0.0)
 col[lining] = FUR_D * 0.6
 M.add(Vb, Fb, np.clip(col, 0, 1), 0, mat)
-M.K[-1][:] = KB                     # kinds: 0 body, 12 arms, 13 legs
+M.K[-1][:] = KB                     # kinds: 0 body, 12 arms, 13 legs, 14 head
 M.K[-1][look == 'fur'] = 1          # kind 1: the cape, which hangs from his shoulders (it rides his chest)
 M.K[-1][(look == 'fur') & (Vb[:, 1] > 0.0) & (Vb[:, 2] < 1.16)] = 15     # kind 15: the loincloth, which hangs from his belt (his hips)
 

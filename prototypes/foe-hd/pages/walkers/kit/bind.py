@@ -180,6 +180,23 @@ def bind(RIG, P, kind, tris, height, mid, log=print):
             lab[ii] = par[b]
         lab = smooth(lab, 2)
 
+    # (session 8) each separately meshed piece chooses only among its own bones (rig.PIECES = {kind: [bones]}), before
+    # the bands, so its points still blend at its joints (the purity pass after bind would snap them whole instead)
+    PC = getattr(RIG, 'PIECES', None)
+    if PC:
+        for k_, ok_ in PC.items():
+            m_ = free & (Kw == k_)
+            if not m_.any(): continue
+            okb = np.array([idx[n] for n in ok_ if n in idx])
+            bad_ = m_ & ~np.isin(lab, okb)
+            if bad_.any(): lab[bad_] = okb[np.argmin(D[np.ix_(bad_, okb)], 1)]
+        lab = smooth(lab, 2)
+        for k_, ok_ in PC.items():
+            m_ = free & (Kw == k_)
+            okb = np.array([idx[n] for n in ok_ if n in idx])
+            bad_ = m_ & ~np.isin(lab, okb)
+            if bad_.any(): lab[bad_] = okb[np.argmin(D[np.ix_(bad_, okb)], 1)]
+
     # 4. the bands
     r = radii(lab)
     w = np.array([max(0.6 * r[b], 0.08 * L[b]) for b in range(nb)])

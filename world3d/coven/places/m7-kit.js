@@ -619,6 +619,27 @@
           for (const b2 of [-0.5, 0.5]) { const [bx, bz] = L(0, b2 * Lb * 0.5); B.box('wood', bx, wl + 0.18, bz, Wb * 0.9, 0.06, 0.25, ry, [0.86, 0.76, 0.64], NS); }
           shade = 0; break;
         }
+        case 'furnacemouth': {   // (Together, the Worldforge's heart) a furnace mouth glowing in the wall behind it: a forge-stone
+          // arch standing out from the wall, its opening a sheet of fire, embers rising, a strong forge light on the floor
+          const W = 2.6 * sz, H = 3.0 * sz, D = 0.5;
+          for (const s2 of [-1, 1]) { const [jx, jz] = L(s2 * (W / 2 + 0.25), -D / 2); B.box('stone', jx, g, jz, 0.5, H, D + 0.2, ry, [0.55, 0.5, 0.5]); }
+          { const [lx, lz] = L(0, -D / 2); B.box('stone', lx, g + H, lz, W + 1.0, 0.55, D + 0.3, ry, [0.5, 0.46, 0.46]); }
+          { const [ix, iz] = L(0, -D * 0.6); B.box('dCoal', ix, g, iz, W, H * 0.92, 0.12, ry, null, NS); B.box('iron', ix, g, iz + 0.0, W + 0.1, 0.12, 0.25, ry, [0.4, 0.38, 0.4], NS); }
+          for (let i = 0; i < 4; i++) { const [fx3, fz3] = L((i - 1.5) * W * 0.24, -D * 0.2); if (d.__fx) { d.__fx.flames.push([fx3, g + 0.4, fz3, 2.4]); d.__fx.sparks.push([fx3, g + 0.3, fz3]); } }
+          K.lights && K.lights.push([px, py, 260, 1.8, 'forge']); K.halo && K.halo(x, g + 1.4, z, 6.0, [1.0, 0.45, 0.12]);
+          shade = 0; break;
+        }
+        case 'furnace': {   // a great furnace: a stone body with iron bands, a glowing mouth on its front, a chimney into the dark
+          const W = 2.8 * sz, D = 2.4 * sz, H = 2.6 * sz;
+          B.box('stone', x, g, z, W, H, D, ry, [0.55, 0.5, 0.5]);
+          B.box('stone', x, g + H, z, W * 0.8, 0.4, D * 0.8, ry, [0.5, 0.46, 0.46]);
+          B.cyl('stone', x, g + H + 0.4, z, 0.55 * sz, 0.45 * sz, 4.5, 10, [0.45, 0.42, 0.42]);
+          for (const hh of [0.4, H - 0.5]) B.box('iron', x, g + hh, z, W + 0.06, 0.16, D + 0.06, ry, [0.35, 0.33, 0.35], NS);
+          { const [mx, mz] = L(0, D / 2 + 0.02); B.box('dCoal', mx, g + 0.3, mz, W * 0.5, H * 0.45, 0.06, ry, null, NS); }
+          { const [mx, mz] = L(0, D / 2 + 0.5); if (d.__fx) { d.__fx.flames.push([mx, g + 0.6, mz, 2.0]); d.__fx.sparks.push([mx, g + 0.6, mz]); d.__fx.smoke.push([x, g + H + 4.9, z]); }
+            K.lights && K.lights.push([px + Math.sin(fa) * 30, py + Math.cos(fa) * 30, 220, 1.6, 'forge']); K.halo && K.halo(mx, g + 0.9, mz, 4.0, [1.0, 0.5, 0.15]); }
+          shade = 60; break;
+        }
         case 'lowwall': {   // a low, mossy stone wall (a ruin's), a stone or two fallen from it
           B.box('stone', x, g - 0.1, z, 3.8 * sz, 1.05, 1.0, ry, [0.86, 0.9, 0.82]);
           B.box('stone', x, g + 0.95, z, 3.9 * sz, 0.14, 1.1, ry, [0.7, 0.8, 0.66], NS);
@@ -627,7 +648,7 @@
         }
         case 'trough': { B.box('wood', x, g, z, 1.7 * sz, 0.5, 0.6, ry, [0.8, 0.7, 0.6]); B.box('glass', x, g + 0.42, z, 1.5 * sz, 0.04, 0.45, ry, [0.4, 0.55, 0.65], NS); shade = 20; break; }
         case 'jars': { for (let i = 0; i < 3; i++) { const [jx, jz] = L((i - 1) * 0.4, (R() - 0.5) * 0.3), hh = 0.6 + R() * 0.3; B.cyl('dClay', jx, g, jz, 0.18, 0.28, hh * 0.55, 10); B.cyl('dClay', jx, g + hh * 0.55, jz, 0.28, 0.12, hh * 0.45, 10); } shade = 18; break; }
-        case 'anvil': { B.box('wood', x, g, z, 0.5, 0.45, 0.5, ry, [0.6, 0.45, 0.38]); B.box('iron', x, g + 0.45, z, 0.3, 0.2, 0.22, ry); B.box('iron', x, g + 0.65, z, 0.75, 0.16, 0.26, ry); shade = 14; break; }
+        case 'anvil': { B.box(sz > 1.4 ? 'stone' : 'wood', x, g, z, 0.5 * sz, 0.45 * sz, 0.5 * sz, ry, [0.6, 0.45, 0.38]); B.box('iron', x, g + 0.45 * sz, z, 0.3 * sz, 0.2 * sz, 0.22 * sz, ry); B.box('iron', x, g + 0.65 * sz, z, 0.75 * sz, 0.16 * sz, 0.26 * sz, ry); if (sz > 1.4) { const [hx, hz] = L(0.5 * sz, 0); B.cyl('iron', hx, g + 0.73 * sz, hz, 0.06 * sz, 0.01, 0.3 * sz, 6); } shade = 14 * sz; break; }
         case 'cauldron': { B.cyl('iron', x, g + 0.1, z, 0.3, 0.45, 0.55, 12, [0.4, 0.4, 0.42], null, true); B.cyl('glass', x, g + 0.55, z, 0.4, 0.4, 0.03, 10, [0.5, 0.7, 0.4], null, false); shade = 16; break; }
         case 'tent': {   // a ridge tent of canvas
           const W = 2.2 * sz, D = 2.6 * sz, H = 1.9 * sz; const a = L(-W / 2, -D / 2), b = L(W / 2, -D / 2), c2 = L(W / 2, D / 2), e = L(-W / 2, D / 2), t0 = L(0, -D / 2), t1 = L(0, D / 2);

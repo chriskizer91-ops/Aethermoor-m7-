@@ -9,9 +9,11 @@ import { SLOTS } from '../../../../../game/src/art/item-looks.js';
 import { buildHero, setPose } from '../../../../hero-3d/model.js';
 import { ready, makeShared, buildFoe, cloneFoe, decodeSculpt } from '../kit/foe.js';
 import { quad } from '../kit/moves-quad.js';
+import { stag } from '../kit/moves-stag.js';
+import { boar } from '../kit/moves-boar.js';
 import { FOES, WITH_HEROES } from 'virtual:foes';
 
-const MOVESETS = { quad };
+const MOVESETS = { quad, stag, boar };
 const $ = (id) => document.getElementById(id);
 const phone = Math.min(screen.width, screen.height) < 820 || /Mobi|Android|iPhone/i.test(navigator.userAgent);
 const S = { foe: null, turn: true, move: 'idle', moveT: 0, pack: false };
