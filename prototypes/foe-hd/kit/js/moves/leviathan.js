@@ -35,7 +35,7 @@ export function pose(B, move, u, t, step = 0) {
   const all = (y, z = 0) => { lift(b.base, y, z); lift(b.r_coil, y, z); lift(b.l_coil, y, z); };
   // he looms: his neck sways slow as the water, his head turns to look, his coils roll in the swell
   neck(0.012 * Math.sin(t * 0.6), 0.025 * Math.sin(t * 0.45), 0.012 * Math.sin(t * 0.5));
-  b.head.rotation.y = 0.12 * Math.sin(t * 0.35); b.head.rotation.x = 0.04 * Math.sin(t * 0.7);
+  b.head.rotation.y = 0.08 * Math.sin(t * 0.35); b.head.rotation.x = 0.03 * Math.sin(t * 0.7);
   b.jaw.rotation.x = 0.03 + 0.02 * Math.sin(t * 0.9);
   lift(b.r_coil, 0.025 * H * Math.sin(t * 0.8)); lift(b.l_coil, 0.025 * H * Math.sin(t * 0.8 + 2));
   if (move === 'idle') return;
@@ -43,7 +43,7 @@ export function pose(B, move, u, t, step = 0) {
   if (move === 'coil') {
     // he draws his neck back into a tight S, coils heaving, ready
     const k = seg(u, 0, 0.4) * (1 - seg(u, 0.8, 1));
-    neck(0.1 * k, 0, 0, 0, 0.4); neck(-0.13 * k, 0, 0, 0.6, 1); b.head.rotation.x += 0.25 * k;
+    neck(0.1 * k, 0, 0, 0, 0.4); neck(-0.13 * k, 0, 0, 0.6, 1); b.head.rotation.x += 0.14 * k;
     lift(b.r_coil, 0.08 * H * k); lift(b.l_coil, 0.08 * H * k); b.jaw.rotation.x += 0.15 * k;
     return;
   }
@@ -51,20 +51,20 @@ export function pose(B, move, u, t, step = 0) {
     // a coil rears out of the water and slams down on you
     const up = seg(u, 0, 0.4) * (1 - seg(u, 0.45, 0.55)), slam = seg(u, 0.45, 0.55) * (1 - seg(u, 0.8, 1));
     lift(b.r_coil, 0.35 * H * up - 0.05 * H * slam, 0.25 * H * (up + slam)); b.r_coil.rotation.x = -0.5 * up + 0.4 * slam;
-    neck(0, 0, 0.06 * up - 0.04 * slam); b.head.rotation.y += -0.3 * up;
+    neck(0, 0, 0.06 * up - 0.04 * slam); b.head.rotation.y += -0.15 * up;
     return;
   }
   if (move === 'sound') {
     // he goes under: the neck tips forward and the whole of him sinks out of sight
     const tip = seg(u, 0, 0.3), down = seg(u, 0.15, 0.6);
-    neck(0.08 * tip); b.head.rotation.x += 0.3 * tip; all(-1.25 * H * down, 0.1 * H * down);
+    neck(0.08 * tip); b.head.rotation.x += 0.15 * tip; all(-1.25 * H * down, 0.1 * H * down);
     return;
   }
   if (move === 'breach') {
     // he bursts up out of the water under you, high, and settles
     const up = seg(u, 0, 0.4), settle = seg(u, 0.5, 1);
     all(-1.25 * H * (1 - up) + 0.12 * H * bump((u - 0.3) / 0.4), 0);
-    neck(-0.06 * bump((u - 0.2) / 0.5)); b.head.rotation.x += -0.35 * bump((u - 0.25) / 0.45) * (1 - settle * 0.5);
+    neck(-0.06 * bump((u - 0.2) / 0.5)); b.head.rotation.x += -0.18 * bump((u - 0.25) / 0.45) * (1 - settle * 0.5);
     b.jaw.rotation.x += 0.5 * bump((u - 0.3) / 0.3);
     return;
   }
@@ -72,9 +72,9 @@ export function pose(B, move, u, t, step = 0) {
     // the neck draws back, the jaw opens wide (widest at u 0.45: the gulp), he lunges down on you, snaps shut, swallows
     const back = seg(u, 0, 0.3) * (1 - seg(u, 0.35, 0.45)), go = seg(u, 0.35, 0.5) * (1 - seg(u, 0.75, 1));
     const open = seg(u, 0.15, 0.42) * (1 - seg(u, 0.48, 0.55));
-    neck(-0.07 * back + 0.13 * go); b.head.rotation.x += -0.2 * back + 0.25 * go;
+    neck(-0.07 * back + 0.13 * go, 0, 0, 0.35, 1); b.head.rotation.x += -0.12 * back + 0.14 * go;
     b.jaw.rotation.x += 0.85 * open;
-    lift(b.base, 0, 0.12 * H * go);
+    lift(b.base, 0, 0.05 * H * go);
     // the gulp goes down his neck: a swell travelling from the head to the water
     const g = seg(u, 0.6, 0.95);
     N.forEach((n, i) => { b[n].rotation.x += 0.04 * bump((g * 7 - (5 - i)) / 2); });
@@ -83,7 +83,7 @@ export function pose(B, move, u, t, step = 0) {
   if (move === 'undertow') {
     // he sweeps his neck slow from side to side, his coils circling: the water drags you
     const k = seg(u, 0, 0.2) * (1 - seg(u, 0.85, 1)), w = Math.sin(u * Math.PI * 3);
-    neck(0.02 * k, 0.07 * k * w, 0.03 * k * w); b.head.rotation.y += 0.2 * k * w;
+    neck(0.02 * k, 0.07 * k * w, 0.03 * k * w); b.head.rotation.y += 0.12 * k * w;
     b.r_coil.rotation.y = 0.6 * k * u; b.l_coil.rotation.y = -0.6 * k * u;
     lift(b.r_coil, 0.05 * H * k * w); lift(b.l_coil, -0.05 * H * k * w);
     return;
@@ -91,35 +91,35 @@ export function pose(B, move, u, t, step = 0) {
   if (move === 'harpoon-rage') {
     // the harpoon in him: he thrashes, his head flung side to side, jaw wide
     const k = seg(u, 0, 0.15) * (1 - seg(u, 0.85, 1)), w = Math.sin(u * 22);
-    neck(-0.03 * k, 0.05 * k * w, 0.04 * k * Math.sin(u * 17)); b.head.rotation.y += 0.22 * k * w; b.head.rotation.z = 0.1 * k * w;
+    neck(-0.03 * k, 0.05 * k * w, 0.04 * k * Math.sin(u * 17)); b.head.rotation.y += 0.12 * k * w; b.head.rotation.z = 0.05 * k * w;
     b.jaw.rotation.x += 0.45 * k; lift(b.r_coil, 0.06 * H * k * Math.abs(w)); lift(b.l_coil, 0.06 * H * k * Math.abs(Math.sin(u * 22 + 1)));
     return;
   }
   if (move === 'pearl-light') {
     // he rises tall and still, his head up, and the pearl shines
     const k = seg(u, 0, 0.35) * (1 - seg(u, 0.85, 1));
-    neck(0.05 * k, 0, 0, 0.5, 1); neck(-0.03 * k, 0, 0, 0, 0.4); b.head.rotation.x += -0.3 * k;
+    neck(0.05 * k, 0, 0, 0.5, 1); neck(-0.03 * k, 0, 0, 0, 0.4); b.head.rotation.x += -0.15 * k;
     all(0.06 * H * k); b.head.rotation.z = 0.02 * Math.sin(u * 40) * k;
     return;
   }
   if (move === 'flood') {
     // he rears back high and crashes down into the water before you: the wave
     const up = seg(u, 0, 0.35) * (1 - seg(u, 0.4, 0.55)), down = seg(u, 0.42, 0.58) * (1 - seg(u, 0.8, 1));
-    neck(-0.08 * up + 0.16 * down); b.head.rotation.x += -0.25 * up + 0.3 * down; b.jaw.rotation.x += 0.4 * up;
-    lift(b.base, 0.06 * H * up - 0.12 * H * down, 0.15 * H * down);
+    neck(-0.08 * up + 0.16 * down, 0, 0, 0.35, 1); b.head.rotation.x += -0.12 * up + 0.15 * down; b.jaw.rotation.x += 0.4 * up;
+    lift(b.base, 0.06 * H * up - 0.08 * H * down, 0.05 * H * down);
     lift(b.r_coil, 0.15 * H * up - 0.05 * H * down); lift(b.l_coil, 0.15 * H * up - 0.05 * H * down);
     return;
   }
   if (move === 'hurt') {
     const a = bump(u * 1.6) * (1 - seg(u, 0.6, 1));
-    neck(-0.06 * a, 0, 0.03 * Math.sin(u * 30) * a); b.head.rotation.x += -0.25 * a; b.head.rotation.z = 0.12 * a;
+    neck(-0.06 * a, 0, 0.03 * Math.sin(u * 30) * a); b.head.rotation.x += -0.12 * a; b.head.rotation.z = 0.06 * a;
     b.jaw.rotation.x += 0.3 * a;
     return;
   }
   if (move === 'ko') {
     // he topples slowly over onto his side into the water, and sinks
     const k = seg(u, 0, 0.6), down = seg(u, 0.4, 1);
-    b.base.rotation.z = 1.1 * k; neck(0.03 * k, 0, 0.04 * k); b.head.rotation.x += 0.2 * k;
+    b.base.rotation.z = 1.1 * k; neck(0.03 * k, 0, 0.04 * k); b.head.rotation.x += 0.1 * k;
     all(-0.7 * H * down); lift(b.base, -0.7 * H * down, 0); b.base.position.x = b.base.userData.p0.x - 0.15 * H * k;
   }
 }

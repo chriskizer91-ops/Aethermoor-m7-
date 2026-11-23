@@ -25,13 +25,15 @@ def build(K):
     EYES = [np.array([s * 0.15, 1.05, 1.11], np.float32) for s in (1, -1)]
     TAIL = ((0, -1.0, 1.0), (0, -1.36, 0.44))
 
-    def body_sdf(P):
-        d = ell(P, (0, -0.08, 0.90), (0.58, 0.88, 0.55))                      # the barrel
+    def trunk_sdf(P):
+        # (November 23: the barrel, chest, haunches and belly raised so his belly sits at 0.46 m as the sheet paints it,
+        # and his legs stand clear of it: they can swing without dragging his belly fur)
+        d = ell(P, (0, -0.08, 0.97), (0.58, 0.88, 0.48))                      # the barrel
         d = smin(d, ell(P, (0, -0.12, 1.14), (0.46, 0.66, 0.36)), 0.18)        # the hump over the middle of his back
-        d = smin(d, ell(P, (0, 0.26, 0.92), (0.62, 0.44, 0.50)), 0.16)         # chest and shoulders, wide
+        d = smin(d, ell(P, (0, 0.26, 0.97), (0.62, 0.44, 0.46)), 0.16)         # chest and shoulders, wide
         d = smin(d, ell(P, (0, 0.52, 1.08), (0.46, 0.38, 0.32)), 0.12)         # shoulder hump the head sinks into
-        d = smin(d, ell(P, (0, -0.68, 0.80), (0.54, 0.44, 0.48)), 0.16)        # haunches
-        d = smin(d, ell(P, (0, 0.0, 0.58), (0.46, 0.78, 0.22)), 0.20)          # belly
+        d = smin(d, ell(P, (0, -0.68, 0.87), (0.54, 0.44, 0.42)), 0.16)        # haunches
+        d = smin(d, ell(P, (0, 0.0, 0.62), (0.32, 0.7, 0.16)), 0.16)          # belly
         # the head (side view: eye at 0.83 forward and 1.11 up, nose tip 1.20 and 0.98, chin 0.94 and 0.83; front view:
         # eyes 0.155 out, the nose pad 0.22 wide, the grin 0.4 wide at 0.885 up, the tusks out of the lower jaw's sides)
         h = ell(P, HEAD, (0.29, 0.26, 0.20))                                                   # skull
@@ -57,17 +59,30 @@ def build(K):
             mouth = m if mouth is None else np.minimum(mouth, m)
         h = smax(h, -mouth, 0.01)
         d = smin(d, h, 0.10)
+        legs = legs_only(P)
         for k, (a, b, c) in LEGS.items():
-            front = k[0] == 'f'
-            d = smin(d, cap(P, a, b, 0.25 if front else 0.27, 0.20), 0.10)
-            d = smin(d, cap(P, b, c, 0.20, 0.19), 0.06)
-            sx = 1 if a[0] > 0 else -1
-            d = smin(d, ell(P, (c[0] + sx * 0.02, c[1] + 0.06, 0.09), (0.24, 0.29, 0.11)), 0.06)
-            if not front:
+            if k[0] == 'b':                                                          # the hind thigh is his haunch
                 d = smin(d, ell(P, (a[0], a[1] + 0.04, a[2] - 0.08), (0.24, 0.34, 0.34)), 0.12)
+        # a crease round each leg below the flank: the body stands back from it (November 23: the legs are pieces of
+        # their own, with their own coat, set into the body; they swing without dragging his belly)
+        low = np.clip((0.82 - P[:, 2]) / 0.12, 0, 1)
+        d = np.where(P[:, 2] < 0.82, smax(d, -(legs - 0.035 * low), 0.02 * low + 1e-4), d)
         # the tail: a wide pointed bunch hanging down behind the rump (side and back views)
         d = smin(d, cap(P, TAIL[0], TAIL[1], 0.18, 0.02, scale=(1.35, 1.0, 1.0)), 0.2)
         return np.maximum(d, -P[:, 2])
+
+    def legs_only(P):
+        """his four legs, each from inside his body (its top hidden there) to the paw"""
+        out = None
+        for k, (a, b, c) in LEGS.items():
+            front = k[0] == 'f'
+            l = cap(P, a, b, 0.25 if front else 0.23, 0.20)
+            l = smin(l, cap(P, b, c, 0.20, 0.19), 0.06)
+            sx = 1 if a[0] > 0 else -1
+            l = smin(l, ell(P, (c[0] + sx * 0.02, c[1] + 0.06, 0.09), (0.24, 0.29, 0.11)), 0.06)
+            out = l if out is None else np.minimum(out, l)
+        return np.maximum(out, -P[:, 2])
+    def legs_sdf(P): return np.maximum(legs_only(P), P[:, 2] - 1.0)
 
 
     # ---- 2. the coat: where the tufts are, how big, which way they lie, their colours -----------------------------
@@ -84,12 +99,19 @@ def build(K):
         legs = 1 - sstep(0.30, 0.62, z)
         paws = 1 - sstep(0.12, 0.28, z)
         spine = np.exp(-(x / 0.12) ** 2) * sstep(0.98, 1.1, z) * (1 - sstep(0.45, 0.6, y))
-        shoulder = np.exp(-(((ax - 0.66) / 0.2) ** 2 + ((y - 0.38) / 0.26) ** 2 + ((z - 0.88) / 0.26) ** 2))
-        haunch = np.exp(-(((ax - 0.60) / 0.2) ** 2 + ((y + 0.80) / 0.28) ** 2 + ((z - 0.78) / 0.26) ** 2))
+        shoulder = np.exp(-(((ax - 0.66) / 0.2) ** 2 + ((y - 0.38) / 0.26) ** 2 + ((z - 0.94) / 0.19) ** 2))
+        haunch = np.exp(-(((ax - 0.60) / 0.2) ** 2 + ((y + 0.80) / 0.28) ** 2 + ((z - 0.86) / 0.19) ** 2))
         cheek = np.exp(-(((ax - 0.44) / 0.14) ** 2 + ((y - 0.82) / 0.18) ** 2 + ((z - 0.95) / 0.22) ** 2))
         beard = np.exp(-((x / 0.14) ** 2 + ((y - 0.96) / 0.12) ** 2 + ((z - 0.78) / 0.09) ** 2))
         tail = sstep(0.98, 1.08, -y) * (1 - sstep(0.9, 1.0, z))
-        return dict(face=face, legs=legs, paws=paws, spine=spine, shoulder=shoulder, haunch=haunch, cheek=cheek, tail=tail, beard=beard)
+        # the belly and the lower flanks, off the legs: short fur, so the legs stand clear (November 23)
+        dl = np.full(len(P), 9.0)
+        for k, (a, b_, c_) in LEGS.items():
+            a2 = np.array(a[:2]); c2 = np.array(c_[:2]); ab = c2 - a2
+            tt = np.clip(((P[:, :2] - a2) @ ab) / max(float(ab @ ab), 1e-9), 0, 1)
+            dl = np.minimum(dl, np.linalg.norm(P[:, :2] - (a2 + tt[:, None] * ab), axis=1))
+        belly = (1 - sstep(0.62, 0.8, z)) * sstep(0.2, 0.32, dl) * (1 - sstep(0.62, 0.8, y))
+        return dict(belly=belly, face=face, legs=legs, paws=paws, spine=spine, shoulder=shoulder, haunch=haunch, cheek=cheek, tail=tail, beard=beard)
 
     def tuft_len(P):
         Z = zones(P)
@@ -99,6 +121,7 @@ def build(K):
         L = mix(L, 0.23, Z['cheek']); L = mix(L, 0.42, Z['tail'])
         L = mix(L, 0.06, Z['face'] * (1 - Z['cheek']))
         L = mix(L, 0.13, Z['beard'])
+        L = mix(L, 0.12, Z['belly'])
         return L
 
     def flow(P, N):
@@ -144,15 +167,24 @@ def build(K):
         return dict(W=W, H=H, C=C)
 
     log('tufts')
-    coat = K.Coat(body_sdf, K.lo, K.hi, LV, VOX, tuft_len, flow, bare, style, seed=11, log=log)
-    full_sdf, place_sdf = coat.full_sdf, coat.place_sdf
+    coat = K.Coat(trunk_sdf, K.lo, K.hi, LV, VOX, tuft_len, flow, bare, style, seed=11, log=log)
+    # the legs' own coat: short tufts lying down the leg, none on the top hidden in his body
+    leg_len = lambda P: mix(np.full(len(P), 0.17), 0.11, zones(P)['paws'])
+    leg_flow = lambda P, N: (lambda v: v / np.maximum(np.linalg.norm(v, axis=1, keepdims=True), 1e-6))(
+        np.tile([0, -0.12, -1.0], (len(P), 1)) - N * (N @ np.array([0, -0.12, -1.0]))[:, None] + 0.2 * (np.stack([fbm(P + 3, 3.0), fbm(P + 7, 3.0), fbm(P + 11, 3.0)], 1) - 0.5))
+    leg_bare = lambda P: P[:, 2] < 0.05
+    lcoat = K.Coat(legs_sdf, K.lo, np.array([K.hi[0], K.hi[1], 1.0]), LV, VOX, leg_len, leg_flow, leg_bare, style, seed=12, samples=90000, log=log)
+    place_sdf = lambda P: np.minimum(coat.place_sdf(P), lcoat.place_sdf(P))
+    body_sdf = lambda P: np.minimum(trunk_sdf(P), legs_sdf(P))
 
+    def shade(Vb, c):
+        col, top, has = c.colours(Vb, np.tile(FACE, (len(Vb), 1)))
+        crev = np.clip(1 - top / 0.012, 0, 1) * (zones(Vb)['face'] < 0.5)
+        return col * (1 - 0.55 * crev[:, None]), has
     log('body, voxel', VOX)
-    Vb, Fb = S.mc(full_sdf, VOX, K.lo, K.hi)
+    Vb, Fb = S.mc(coat.full_sdf, VOX, K.lo, K.hi)
     log('body tris', len(Fb))
-    col, top, has = coat.colours(Vb, np.tile(FACE, (len(Vb), 1)))
-    crev = np.clip(1 - top / 0.012, 0, 1) * (zones(Vb)['face'] < 0.5)
-    col = col * (1 - 0.55 * crev[:, None])
+    col, has = shade(Vb, coat)
     fz = zones(Vb)['face'] * (~has)
     col = mix(col, FACE * (0.85 + 0.3 * fbm(Vb, 40.0))[:, None], fz[:, None])
     # the face's own colours: a dark wet nose, the dark of the grin, shadowed round the eyes
@@ -164,6 +196,10 @@ def build(K):
         ring_ = np.clip(1.4 - np.linalg.norm((Vb - e) / [0.09, 0.06, 0.06], axis=1), 0, 1)[:, None]
         col = col * (1 - 0.5 * ring_)
     M.add(Vb, Fb, np.clip(col, 0, 1), 0)
+    log('legs')
+    Vl, Fl = S.mc(lcoat.full_sdf, VOX, K.lo, np.array([K.hi[0], K.hi[1], 1.0]))
+    col, _ = shade(Vl, lcoat)
+    M.add(Vl, Fl, np.clip(col, 0, 1), 1)                                           # kind 1: the legs' coat (the rig finds the legs by it)
 
     def surf(p, out=0.0):
         Pp, Nn = project(np.array([p], np.float32), place_sdf)
@@ -283,7 +319,7 @@ def build(K):
         vine(lay(pts, 0.045), r=0.048, thorns=9, thorn_len=0.08)
     for s in (1, -1):
         for path in [
-            [(s * 0.2, 0.62, 1.24), (s * 0.5, 0.45, 1.06), (s * 0.66, 0.35, 0.78), (s * 0.55, 0.30, 0.55), (s * 0.3, 0.32, 0.42)],
+            [(s * 0.2, 0.62, 1.24), (s * 0.5, 0.45, 1.06), (s * 0.66, 0.33, 0.84), (s * 0.62, 0.12, 0.70), (s * 0.45, 0.0, 0.64)],
             [(s * 0.25, -0.45, 1.27), (s * 0.55, -0.55, 1.03), (s * 0.62, -0.72, 0.80), (s * 0.55, -0.92, 0.62), (s * 0.3, -1.05, 0.62)],
         ]:
             vine(lay(resample(path), 0.045), r=0.048, thorns=10, thorn_len=0.08)
