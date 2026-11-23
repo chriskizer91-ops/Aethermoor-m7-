@@ -12,7 +12,7 @@ export const MOVES = [['idle', 'Wait'], ['walk', 'Sway'], ['maw', 'Maw'], ['thra
   ['surface', 'Surface'], ['swallow', 'Swallow'], ['full', 'Full'], ['spit', 'Spit'], ['grind', 'Scale-Grind'], ['hurt', 'Hit'], ['ko', 'Fall']];
 export const DUR = { maw: 1.3, thrash: 1.8, dive: 1.4, surface: 1.4, swallow: 2.0, full: 3.0, spit: 1.4, grind: 2.0, hurt: 0.9, ko: 2.6 };
 export const LUNGE = 'maw';
-export const ALIAS = { bite: 'maw', strike: 'maw', swipe: 'thrash', roar: 'grind', cast: 'grind' };
+export const ALIAS = { bite: 'maw', strike: 'maw', swipe: 'thrash', roar: 'grind', cast: 'grind', 'sand-dive': 'dive', 'scale-grind': 'grind' };     // (M7's ids too)
 // the Fight (November 23): at u = gulp the mouth is down over its target and the hero is taken into parts.mouth; the foe
 // stops with the hero `reach` metres in front of its root (measured: tools/track.mjs). Sand-Dive sinks it right under.
 export const EVENTS = { swallow: { gulp: 0.45, reach: 1.6 } };
