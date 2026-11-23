@@ -446,7 +446,7 @@ export const MOMENTS = {
 
   'blackwater-leviathan:coil': { // "A loop of it comes up out of the water and closes on one of you: 2d10 crushing, and you are Rooted."
     move: ['coil', 'bite'],
-    land: (c) => { for (const h of c.heroes) { c.fx.lash(mid(c), chest(h), '#1a2a28', 0.22, 1.0, { wrap: true, bulb: false }); c.fx.splash(feet(h), '#3a5a5a', 14, 1); } },
+    land: (c) => { for (const h of c.heroes) { if (!c.F.fig.beast?.pose) c.fx.lash(mid(c), chest(h), '#1a2a28', 0.22, 1.0, { wrap: true, bulb: false }); c.fx.splash(feet(h), '#3a5a5a', 14, 1); } }, // (in full detail his own coils do it)
   },
   'blackwater-leviathan:tail-slap': { // "Its tail comes down across the flats: 2d6 tide to every hero."
     move: ['tail-slap', 'strike'], camera: 'wide',
@@ -471,12 +471,12 @@ export const MOMENTS = {
   },
   'blackwater-leviathan:harpoon-rage': { // "The harpoon in its side twists, and the pain drives it mad: it coils on one of you twice in one breath."
     move: ['harpoon-rage', 'bite'],
-    start: (c) => { c.fx.sparks(mid(c), '#c01a10', 18, { spread: 0.6 }); },
-    land: (c) => { for (const h of c.heroes) { c.fx.lash(mid(c), chest(h), '#1a2a28', 0.2, 0.7, { wrap: true, bulb: false }); c.fx.later(0.35, () => c.fx.lash(mid(c), chest(h), '#1a2a28', 0.2, 0.7, { wrap: true, bulb: false })); } },
+    start: (c) => { c.fx.sparks(bone(c, 'harpoon', mid(c)), '#c01a10', 18, { spread: 0.6 }); },
+    land: (c) => { for (const h of c.heroes) { if (c.F.fig.beast?.pose) { c.fx.splash(feet(h), '#3a5a5a', 14, 1); c.fx.later(0.35, () => c.fx.splash(feet(h), '#3a5a5a', 14, 1)); continue; } c.fx.lash(mid(c), chest(h), '#1a2a28', 0.2, 0.7, { wrap: true, bulb: false }); c.fx.later(0.35, () => c.fx.lash(mid(c), chest(h), '#1a2a28', 0.2, 0.7, { wrap: true, bulb: false })); } },
   },
   'blackwater-leviathan:pearl-light': { // "The pearl in its brow lights the water green, and its wounds close: it heals 2d8, and is Warded."
     move: ['pearl-light', 'cast'],
-    land: (c) => { c.fx.flare(head(c), '#a8ffc8', 1.4, 1.0); c.fx.ring(c.F.pos.clone(), '#6ad8a0', 4, 1.2); },
+    land: (c) => { c.fx.flare(bone(c, 'pearl', head(c)), '#a8ffc8', 1.4, 1.0); c.fx.ring(c.F.pos.clone(), '#6ad8a0', 4, 1.2); },
   },
   'blackwater-leviathan:flood': { // "The whole channel comes up over the flats: 3d8 tide to every hero."
     move: ['flood', 'roar'], camera: 'wide',
@@ -695,6 +695,8 @@ function RAIDER(k) {
   };
 }
 const mid = (c) => c.F.pos.clone().setY(c.F.pos.y + c.F.size.h * 0.6);
+// a named bone of a full-detail foe where it has one (the Leviathan's pearl, his harpoon), else a point on the body
+const bone = (c, name, or) => { const b = c.F.fig.beast?.bones?.[name] || c.F.fig.beast?.parts?.[name]; return b ? b.getWorldPosition(c.F.pos.clone()) : or; };
 const head1 = (h) => nearer(h, h.pos.clone().setY(h.pos.y + 2.05), 0.3);
 // the front of a beast's face, turned towards hero h (a tongue, a breath, a bite)
 const mouth = (c, h) => { const d = h.pos.clone().sub(c.F.pos).setY(0).normalize(); return c.F.pos.clone().addScaledVector(d, c.F.size.d * 0.45).setY(c.F.pos.y + c.F.size.h * 0.5); };

@@ -181,8 +181,9 @@
   Stair, the Frost Road, Frostmere and Beneath, Highfold, Harrow's Forge). Hand-made moments for its seven Relic-Bearers
   (the Brigand Warden, the Journeyman and the Sentinel Captain on Models' armoured, Old Horn, the Drowned Abbess, the
   Ice-Cutter, the Thunder-Roc): every move a moment, no errors. 211 hand-made moments in all.
-  **Known problem**: the Thunder-Roc's eyrie on Highfold: the fight faces a rock wall and the Roc can't be seen (the same
-  on the events page; the fight's own camera finds no clear way to face there). To look into, maybe with Places.
+  **The Thunder-Roc's eyrie, fixed with Places** (November 23): M7's spot for the party (4.5 tiles east of the nest) is
+  inside the crevasse; the party now stands on the plateau's east lip where the crossing comes in, facing the nest
+  (fight.js START). The Roc stands in clear view (fight-stills/thunder-roc-eyrie.png).
 - **Models' winged** (November 23): setBeastLook(withWinged(withArmoured(withWraiths(foeLook(buildBeast))))); Gloamwing
   proven on its own moves (its own silk shell in Cocoon, the bell glowing on Bell-Hum). A winged foe's own carry-off, dive
   and swoop carry it forward without the arena's dash.
@@ -194,6 +195,10 @@
 - **Briarmaw and Kharzul on their own moves** (November 23): Briarmaw's new 'bear' set (session 6) answers his game moves
   by name through its ALIAS (ownMove reads ALIAS now); Kharzul in full detail (Places) on the Sunscorch page, registered
   with Places' kharzul set (his files name 'scorpion'). Both proven: every move on their own bodies, no errors.
+- **The Leviathan, the blackwater-gar and Old Jaws in full detail** (One Foe, November 23) on the Gloomfen page, with the
+  agreed EVENTS / SINKS and mouth, head, pearl, harpoon bones: every move on their own bodies, no errors. The Leviathan
+  strikes from where he lies (his root stays in the water); the swallowed hero is drawn into his mouth
+  (fight-stills/leviathan-swallow.png); Pearl-Light glows on his pearl, Harpoon Rage sparks from the wound.
 - **Swallows** (agreed with Places, session 4, for the Sand Wyrm and the Leviathan): their `parts.mouth` and
   `SWALLOW_AT { u, reach }`; the hero shrinks into the mouth at that u and comes back out of it on release; the foe
   stops at `reach`; a `full` idle while a hero is inside, `spit` on release. One Foe (session 6) builds the
