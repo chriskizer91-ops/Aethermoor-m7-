@@ -91,12 +91,31 @@ session 6 made Briarmaw.
   sculpted tucked into the haunches, so they can't swing without dragging the body. Next time round: re-pose his hind
   legs clear of the body in the sculpt and bake again.
 
+- **The Rot-Stag** (November 23), the Relic-Bearer of Fawnrest: in the gallery (same link as above), and his sculpt on
+  his own laptop page: https://claude.ai/artifact/CSoGr5Hp53nx94b6c7HQ6B (two sculpts in one page pass 16 MB, so each foe's sculpt
+  gets its own laptop page; the thornhound's stays at the link above).
+  - Sculpted in code from Chris's sheet (2.0 m to the antler tips): a white shaggy coat in overlapping locks, the rot
+    patches bare, sunken and dark purple, purple lower legs, a deer's head with leaf ears, black-tipped antlers with
+    six tines each, purple vines and tan mushrooms, and the golden circlet with its filigree and front spike. About
+    half of each outline overlaps the sheet's from the front, side and back (the misses are the antler tips and the
+    coat's ragged edge).
+  - **618,216 triangles** in the sculpt (kept in `foes/rotstag/assets/sculpt.bin`, 3.1 MB), baked onto a light model
+    of **30,117 triangles** (relic-bearer size), on session 6's kit rig for four legs with its helper joints (shoulder
+    blades, haunches, neck in two, tail root), weighted with the kit's `bind.py`.
+  - His moves: breathe, walk, Gore, Antler Charge, Trample (up on his hind legs and down through the party), Rot
+    Bellow, hit, fall.
+  - **The kit's stretch check passes** (`kit/tools/stretch.mjs`, 48 frames a move): the worst big edge is 1.30x in the
+    Gore, no scaled or slid bones, no webbing by eye. What made the difference: his legs are sculpted apart and clear
+    of the body, and each leg's first joint sits where the leg leaves the body, with the blade or haunch above it.
+  - On the page: no errors at laptop and phone sizes; 20 frames a second in software drawing, with a pack of five too.
+
 ## Next
 
 0. Move onto session 6's shared kit (commit f384b7d / 8f3b6e2 on job/foe-hd) once the hub brings it into its branch; my
    kit folder then goes, and the thornhound is rebuilt on it.
 
-1. The rotstag, Old Snag, the Mirelord, the rotgrub and the Gloamwing (Act One), then the rest in the order they're met.
+1. Old Snag, the Mirelord, the rotgrub, the Gloamwing, the rime-wolf, the lamp-moth, the Thunder-Roc, each passing the
+   kit's stretch check. Then the thornhound's hind legs re-posed clear of the body and baked again.
 2. The thornhound, pass two: the fur still reads a little like bark from far off; softer locks, the face's markings
    (the pale brows, the tan cheeks), teeth for the open-mouth moves, and the phone size down to about 0.4 MB
    (512 px pictures; he is 1.07 MB now).
