@@ -75,6 +75,9 @@
   },
   "rig": "rig.py",
   "blurb": "The marsh-light is a light over the black water: a flame of curling green tongues like leaves of fire round a glowing yellow core with a face in it, golden drops falling from its tip into a little ripple of water below.",
-  "next": "its moves smoothed.",
-  "pages": {}
+  "next": "its core a warmer, brighter yellow glowing out through the tongues, as the sheet paints it.",
+  "pages": {
+    "three": "https://claude.ai/artifact/XvU3kSAEBLpKMQP5pBXvQx",
+    "sculpt": "https://claude.ai/artifact/MatuoD1NwsB6inUV1K592H"
+  }
 }

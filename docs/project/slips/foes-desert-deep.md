@@ -24,8 +24,27 @@ The Sunscorch's beasts (sand-skink, glass-scorpion, the Glass Matriarch, the San
 - Its own moves: `pages/desert-deep/moves/lizard.js` (the kit's quad moves, a tail that sways and lashes down four
   bones, a short sprawled-leg claw). foe.json `stretchMoves` points the check at them.
 
+### The glass-scorpion (veteran) and the Glass Matriarch (its lair-boss variant), November 23
+
+- A shared scorpion builder (`pages/desert-deep/py/scorpion.py`, from sheet measurements) and rig
+  (`scorpion_rig.py`): every back plate, the carapace, each tail segment and the sting, each piece of each leg and
+  pincer is its own **rigid piece** riding the bone it lies along, overlapping at the joints as a real one's do, so
+  nothing on a scorpion can stretch (stretch check 1.00x on every move). Styles `glass` (smooth clouded glass,
+  rimmed plates) and `crystal` (faceted plates, gold crystals on the back, copper tips). Kharzul will use it too.
+- Moves `pages/desert-deep/moves/scorpion.js` (foe.json `"moves": "scorpion"`): Wait, Walk (alternating tetrapod),
+  Pincer, Glass Sting (the tail stabs over the head), Carapace (hunkers behind its claws), Moult, Shell Rain, Hit,
+  Fall (rolls onto its back); the common names aliased (bite, swipe -> Pincer; strike -> Glass Sting; cast, roar ->
+  Shell Rain).
+- Glass-scorpion: sculpt 807,488 triangles (3.2 MB glb), light model 24,244 (veteran ~30,000), 39 bones. Laptop:
+  https://claude.ai/artifact/D49CZMPK2Q3ukBKRytYAHr
+- The Glass Matriarch: 1.0 m, sculpt 776,928 triangles (3.1 MB glb), light model 33,164 (~40,000), pictures at 2048
+  (phone 1024). Laptop: https://claude.ai/artifact/94S3612ZZtUFsYE99A7oba
+- The gallery is built with the phone pictures (`--phone`) to stay under 16 MB (15.2 MB with three foes); the next
+  foes go on a second gallery page linked from it.
+
 ## Needs
 
-- **Session 6 (the kit)**: a foe's own moves aren't reachable from `looks.js` `register` unless its plan is in `PLANS`.
-  The sand-skink uses `pages/desert-deep/moves/lizard.js` (plan `quad` in its light model). Asked for: either
-  `lizard` added to `PLANS`, or `register` reading a moves name from the foe (e.g. `light.json` `moves`).
+- **For the game** (Together, the Fight): session 6's kit now reads a foe's own moves set (`light.json` `moves`, from
+  foe.json; job/foe-hd after a4f6b4f). Before registering my foes: `addMoves('lizard', lizard)` and
+  `addMoves('scorpion', scorpion)` from `pages/desert-deep/moves/`. My light models carry `moves` once rebound
+  after the hub brings that kit change in.

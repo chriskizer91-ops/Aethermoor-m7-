@@ -14,15 +14,15 @@ def build(K):
     S, G, LV, VOX, SIDES, SEG, log = K.sdf, K.geom, K.LV, K.VOX, K.SIDES, K.SEG, K.log
     smin, smax, ell, cap, fbm, mix, sstep = S.smin, S.smax, S.ell, S.cap, S.fbm, S.mix, S.sstep
     M = K.Mesh()
-    GREEN = np.array([0.42, 0.62, 0.15]); LIME = np.array([0.80, 0.88, 0.32]); DK = np.array([0.20, 0.38, 0.08])
-    CORE = np.array([1.0, 0.95, 0.55]); GOLD = np.array([1.0, 0.80, 0.25]); WATER = np.array([0.10, 0.20, 0.18])
+    GREEN = np.array([0.26, 0.42, 0.08]); LIME = np.array([0.60, 0.70, 0.18]); DK = np.array([0.10, 0.20, 0.04])   # they glow (kind 7): cold fire
+    CORE = np.array([0.85, 0.72, 0.22]); GOLD = np.array([1.0, 0.80, 0.25]); WATER = np.array([0.10, 0.20, 0.18])
     rr = np.random.default_rng(23)
     nt, npp = {0: (6, 9), 1: (8, 12), 2: (12, 18)}.get(LV, (16, 24))
 
     # ---- the flame's body: a teardrop, pointed below, a curling tip above; a window at the front for the core ----
     def body_sdf(P, lv=None):
         x, y, z = P[:, 0], P[:, 1], P[:, 2]
-        d = ell(P, C0, (0.11, 0.10, 0.11))
+        d = ell(P, C0, (0.088, 0.08, 0.10))
         d = smin(d, cap(P, (0, 0, 0.30), (0, 0, 0.16), 0.08, 0.004), 0.05)                     # pointed foot
         d = smin(d, cap(P, (0, 0, 0.42), (0.0, -0.01, 0.55), 0.06, 0.01), 0.05)                  # rising to the tip
         d = smax(d, -ell(P, FACE + [0, 0.03, 0], (0.075, 0.06, 0.075)), 0.025)                  # the window
@@ -46,7 +46,7 @@ def build(K):
     # ---- the tongues: long narrow flames lying on the teardrop, spiralling up it, licking out at their tips ------
     log('tongues')
     def prof(z):                                                                  # the flame's radius at each height
-        return np.interp(z, [0.15, 0.22, 0.30, 0.37, 0.44, 0.50, 0.56, 0.62], [0.0, 0.06, 0.115, 0.14, 0.12, 0.07, 0.028, 0.0])
+        return np.interp(z, [0.15, 0.22, 0.30, 0.37, 0.44, 0.50, 0.56, 0.62], [0.0, 0.05, 0.095, 0.112, 0.098, 0.06, 0.024, 0.0])
     segs = {0: 6, 1: 10, 2: 16}.get(LV, 24); wseg = {0: 2, 1: 2, 2: 3}.get(LV, 5)
     def tongue(a, z0, length, width, twist, lift, col_tip, thick=0.004, r_scale=1.03):
         t = np.linspace(0, 1, segs + 1)
@@ -78,17 +78,17 @@ def build(K):
             L = rr.uniform(0.16, 0.3) * (1.0 - 0.15 * layer)
             if abs(da) < 0.75: z0, L = (0.155, 0.09) if rr.random() < 0.5 else (0.43, 0.13 + 0.04 * rr.random())   # the window
             V, F, Cc = tongue(a, z0, L, rr.uniform(0.035, 0.055), rr.uniform(1.3, 2.1) * (1 if layer % 2 else -1),
-                              rr.uniform(0.02, 0.05), LIME, r_scale=1.0 + 0.025 * layer)
+                              rr.uniform(0.01, 0.03), LIME, r_scale=1.0 + 0.025 * layer)
             win = (V[:, 1] > 0.05) & (np.abs(V[:, 0]) < 0.065) & (np.abs(V[:, 2] - FACE[2]) < 0.065)
             if win.any(): continue                                                # it would cross the face: leave it out
-            M.add(V, F, Cc, 1)
+            M.add(V, F, Cc, 7)
     # the long curl at the top, licking over to its left
-    V, F, Cc = tongue(-math.pi / 2, 0.47, 0.17, 0.038, 2.2, 0.06, LIME, r_scale=0.6); M.add(V, F, Cc, 1)
-    V, F, Cc = tongue(-math.pi / 2 - 1.2, 0.5, 0.14, 0.03, -1.8, 0.04, LIME, r_scale=0.5); M.add(V, F, Cc, 1)
+    V, F, Cc = tongue(-math.pi / 2, 0.47, 0.17, 0.038, 2.2, 0.06, LIME, r_scale=0.6); M.add(V, F, Cc, 7)
+    V, F, Cc = tongue(-math.pi / 2 - 1.2, 0.5, 0.14, 0.03, -1.8, 0.04, LIME, r_scale=0.5); M.add(V, F, Cc, 7)
     # stray wisps flying off, little flames
     for i in range(10):
         a = rr.uniform(0, 2 * math.pi); z = rr.uniform(0.3, 0.58)
-        V, F, Cc = tongue(a, z, 0.04, 0.012, 0.3, 0.06, LIME, thick=0.002, r_scale=1.45); M.add(V, F, Cc, 1)
+        V, F, Cc = tongue(a, z, 0.04, 0.012, 0.3, 0.04, LIME, thick=0.002, r_scale=1.3); M.add(V, F, Cc, 7)
 
     # ---- the drops falling from its foot, and the ripple of water under it --------------------------------------
     for k, (z, r) in enumerate([(0.14, 0.006), (0.115, 0.005), (0.075, 0.009)]):
