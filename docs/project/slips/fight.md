@@ -195,6 +195,10 @@
   **Built in the arena now** (November 23), ready for when their models land: the reach, the hero into and out of
   parts.mouth, `full` and `spit`, SINKS. Today's models have no mouth, so they keep the burst; proven headless: the Sand
   Wyrm's lair with `?land=1`, Pip swallowed, held and let go, the Sand-Dive, no errors.
+  **The Sand Wyrm in full detail** (Places, November 23) on the Sunscorch page: its own moves (maw, thrash, dive,
+  swallow, grind); the swallow seen headless: it plunges with its mouth over the hero, the hero goes into its mouth,
+  `full` while they're inside, out of the mouth on `spit` (fight-stills/sand-wyrm-swallow.png, sand-wyrm-spit.png);
+  a real fight with `?land=1`: swallowed, held, let go, no errors. Reads SWALLOW_AT {u, ahead} as well as EVENTS.
 - **Fixed November 23**: an effect started by a delayed one (fx.later) used to stand frozen on the field (dropped from
   the effects list); the turn strip steps aside during a close-up or wide camera; close-up spots scored by a fan of
   rays (built things, rock, trees, ground too near).
