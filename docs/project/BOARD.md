@@ -13,7 +13,7 @@ Where the 3D game stands. Written by the hub only. Last updated November 23, eve
 | 5 | Together | `session_01DgbUKbyjzZFe1BXHHxzHBn` | `job/together` | the place map in every game page with M7's live marks; Act Three done (single file and full pictures), so every act has its pages; next: the Chained Deep and the Worldforge played to the end, then the chests and signs in 3D | https://claude.ai/artifact/RaeSK5hezqb3qH7jmuM5aj |
 | 6 | One Foe | `session_01DgbUKZCNBFY7zwSzwAXR8y` | `job/foe-hd` | the marsh-light (passes; the spark plan); a foe's own moves by name in the kit; next: the forge-spark, rockling, Mother Anvil | https://claude.ai/artifact/XvU3kSAEBLpKMQP5pBXvQx |
 | 7 | Foes: beasts | `session_01DgbUKZ4qEpafSazysExsYV` | `job/foes-beasts` | the Rot-Stag (618k sculpt → 30,117, passes; legs sculpted clear of the body); next: Old Snag, the Mirelord, rotgrub, the Gloamwing, rime-wolf, lamp-moth, the Thunder-Roc; the thornhound's legs later | https://claude.ai/artifact/64Ukg3yQAAb8DWz69xqvxs |
-| 8 | Foes: walkers | `session_01DgbUKcTDUjKDVHw3sPhu7R` | `job/foes-walkers` | Old Horn's knees pass, his head remade as its own piece; then peak-troll and unmade (the stone and forge constructs moved to Models) | https://claude.ai/artifact/YBLUHaLG3bNdfcjBdeq3aj |
+| 8 | Foes: walkers | `session_01DgbUKcTDUjKDVHw3sPhu7R` | `job/foes-walkers` | Old Horn (1.32M sculpt → 42,531, passes; a phone copy); next: the peak-troll from his body, then unmade | https://claude.ai/artifact/YBLUHaLG3bNdfcjBdeq3aj |
 
 ## What's built (on the hub's branch)
 
@@ -46,6 +46,7 @@ Where the 3D game stands. Written by the hub only. Last updated November 23, eve
 | The desert and the deep in full detail (Places' foe lane): the sand-skink, the glass-scorpion, the Glass Matriarch (gallery; sculpts: skink, scorpion, Matriarch) | `prototypes/foe-hd/pages/desert-deep/` | https://claude.ai/artifact/EwHdrinmmvPGCqF48sjdFP · https://claude.ai/artifact/SLHAnYPiHyGVqdXk3y6WfD · https://claude.ai/artifact/D49CZMPK2Q3ukBKRytYAHr · https://claude.ai/artifact/94S3612ZZtUFsYE99A7oba |
 | The beasts in full detail: the thornhound and the Rot-Stag (phone gallery; laptop pages with the sculpts) | `prototypes/foe-hd/pages/beasts/` | https://claude.ai/artifact/64Ukg3yQAAb8DWz69xqvxs · thornhound https://claude.ai/artifact/8pCvG7xuqHuCcARiUYa9SX · Rot-Stag https://claude.ai/artifact/CSoGr5Hp53nx94b6c7HQ6B |
 | The walkers in full detail: the Rotwarden and the sapwight | `prototypes/foe-hd/pages/walkers/` | https://claude.ai/artifact/YBLUHaLG3bNdfcjBdeq3aj |
+| The walkers of Act Two: Old Horn (every move; phone and full) | `prototypes/foe-hd/pages/walkers/` | https://claude.ai/artifact/PosCApXURcQF2S8qyicNaY |
 | The walkers' sculpts, for a laptop | `prototypes/foe-hd/foes/` | https://claude.ai/artifact/JCdvpAPKT781gZiU49jTh2 |
 | Briarmaw's full sculpt (982,634 triangles) beside his light version, for a laptop | `prototypes/foe-hd/` | https://claude.ai/artifact/AVSmLbEu3jz1NVnohgqT9P |
 | The armoured walkers and the Unsmith (iron-sentinel, the Sentinel-Captain, the Ashen Warden, the Unsmith) beside Chris's sheets, every move, their sculpts | `prototypes/armoured/` | https://claude.ai/artifact/4WQXpMifD5GWsgCXTP4PVD |
