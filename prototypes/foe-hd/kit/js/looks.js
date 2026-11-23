@@ -15,12 +15,13 @@ import * as winged from './moves/winged.js';
 import * as mushroom from './moves/mushroom.js';
 import * as mound from './moves/mound.js';
 import * as willow from './moves/willow.js';
+import * as spark from './moves/spark.js';
 // the walkers (session 8): plan 'walker', their moves per foe in pages/walkers/foes.js, made into the kit's moves shape
 // by movesFor (with each foe's joint limits); so the Fight and Together get them with no special case
 import { FOES as WALKERS } from '../../pages/walkers/foes.js';
 import { movesFor } from '../../pages/walkers/walker.js';
 
-export const PLANS = { quad, biped, sapling, serpent, frog, winged, mushroom, mound, willow };          // more as the lanes add them (serpent, frog, winged, wraith...)
+export const PLANS = { quad, biped, sapling, serpent, frog, winged, mushroom, mound, willow, spark };          // more as the lanes add them (serpent, frog, winged, wraith...)
 const reg = new Map();
 export function addMoves(name, set) { PLANS[name] = set; }        // a lane's own moves set, by name
 
