@@ -111,9 +111,9 @@ plan 'walker' and height; foe.json), written by `pages/walkers/kit/standard.py` 
 
 1. The Rotwarden: one thin root at his left hip stays behind when the root arm swings; the tasset closer to the
    sheet's (a curved plate, not a box); the plates a little more faceted, like the sheet's.
-2. Then the peak-troll (he starts from Old Horn's troll body), cinder-thrall, the Journeyman, forgeborn, bellows,
-   forge-warden, thrall-overseer, unmade. (Iron-sentinel, the Sentinel-Captain, the Ashen Warden and the Unsmith moved
-   to Models, November 21.)
+2. Then the peak-troll (he starts from Old Horn's troll body), then unmade. (Iron-sentinel, the Sentinel-Captain,
+   the Ashen Warden and the Unsmith moved to Models on November 21; cinder-thrall, the Journeyman, forgeborn,
+   forge-warden, thrall-overseer and bellows on November 23.)
 
 ## How it's made (for the other foe sessions)
 
