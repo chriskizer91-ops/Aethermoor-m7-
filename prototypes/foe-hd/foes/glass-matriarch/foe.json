@@ -1,0 +1,86 @@
+{
+ "key": "glass-matriarch",
+ "name": "The Glass Matriarch",
+ "plan": "scorpion",
+ "moves": "scorpion",
+ "rank": "relic-bearer",
+ "height": 1.0,
+ "sheet": "art-in/3d/sheets/sheet-glass-matriarch.webp",
+ "crops": [
+  [
+   20,
+   580
+  ],
+  [
+   600,
+   1540
+  ],
+  [
+   1600,
+   2160
+  ]
+ ],
+ "bounds": [
+  [
+   -0.68,
+   -0.62,
+   -0.01
+  ],
+  [
+   0.68,
+   0.86,
+   1.03
+  ]
+ ],
+ "voxel": {
+  "0": 0.01,
+  "1": 0.0067,
+  "2": 0.0043,
+  "3": 0.0027
+ },
+ "view": {
+  "center": [
+   0,
+   0.1,
+   0.5
+  ],
+  "width": 1.8,
+  "head": [
+   0,
+   0.45,
+   0.35
+  ],
+  "headWidth": 0.8
+ },
+ "light": {
+  "level": 0,
+  "coat": 26000
+ },
+ "sculpt": {
+  "level": 3
+ },
+ "bake": {
+  "res": 2048,
+  "phone": 1024,
+  "ao": 48,
+  "reach": {
+   "coat": [
+    0.015,
+    0.05
+   ],
+   "parts": [
+    0.008,
+    0.025
+   ]
+  }
+ },
+ "rig": "rig.py",
+ "stretchMoves": "pages/desert-deep/moves/scorpion.js",
+ "blurb": "The Glass Matriarch, the lair boss of the old aqueduct: a glass-scorpion grown to 1.0 m at the top of her tail, her shell gone to faceted crystal plates with a row of gold crystals standing out of her back, her claw tips, sting and feet copper-brown. She moults when hurt and brings down a rain of shed shells.",
+ "next": "",
+ "pages": {
+  "sculpt": "https://claude.ai/artifact/94S3612ZZtUFsYE99A7oba",
+  "three": "https://claude.ai/artifact/EwHdrinmmvPGCqF48sjdFP"
+ },
+ "sculptTriangles": 776928
+}
