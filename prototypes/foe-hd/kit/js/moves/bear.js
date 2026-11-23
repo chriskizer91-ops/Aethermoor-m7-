@@ -36,7 +36,7 @@ export function pose(B, move, u, t, step = 0) {
   const b = new Proxy(B.bones, { get: (o, k) => o[k] || NOOP }), br = Math.sin(t * 1.9), A = (m) => AMP[m] ?? 1;
   // breathing under everything: the back lifts, the head bobs and looks about, the tail sways
   b.spine.rotation.x = -0.02 * br;
-  b.head.rotation.x = 0.02 * br; b.head.rotation.y = 0.05 * Math.sin(t * 0.55);
+  b.head.rotation.x = 0.03 * br; b.head.rotation.y = 0.12 * Math.sin(t * 0.55);
   b.tail.rotation.y = 0.12 * Math.sin(t * 1.3); b.tail.rotation.x = 0.04 * br;
   b.jaw.rotation.x = 0.03 + 0.02 * br;
   if (move === 'idle') return;
@@ -45,14 +45,14 @@ export function pose(B, move, u, t, step = 0) {
     legs(b, step, a);
     B.body.position.y = 0.025 * Math.abs(Math.sin(step));
     b.hips.rotation.z = 0.04 * Math.sin(step); b.hips.rotation.y = 0.04 * Math.sin(step);
-    b.head.rotation.x += 0.02 * Math.sin(step * 2) * a; b.head.rotation.y += 0.03 * Math.sin(step) * a;
+    b.head.rotation.x += 0.05 * Math.sin(step * 2) * a; b.head.rotation.y += 0.07 * Math.sin(step) * a;
     return;
   }
   if (move === 'roar') {
     // rear back, head up, jaw wide, shake
     const a = A('roar'), up = seg(u, 0, 0.25), hold = 1 - seg(u, 0.75, 1), k = up * hold * a, shake = Math.sin(u * 70) * 0.03 * k;
-    b.hips.rotation.x = -0.26 * k; b.hips.rotation.y = shake; b.chest.rotation.x = -0.04 * k; b.neck.rotation.x = -0.05 * k;
-    b.head.rotation.x += -0.05 * k;
+    b.hips.rotation.x = -0.2 * k; b.chest.rotation.x = -0.04 * k; b.neck.rotation.x = -0.3 * k;     // head flung up
+    b.head.rotation.x += -0.3 * k + shake; b.head.rotation.y = shake * 1.5;
     b.jaw.rotation.x = 0.05 + 0.55 * k;
     b.fl_upper.rotation.x = b.fr_upper.rotation.x = 0.12 * k;
     B.body.position.y = 0.08 * k;
@@ -65,14 +65,14 @@ export function pose(B, move, u, t, step = 0) {
     b.hips.rotation.y = (0.2 * lift - 0.4 * rake) * k;
     b.fr_upper.rotation.x = (-1.25 * lift + 0.9 * rake) * k; b.fr_upper.rotation.z = (-0.35 * lift + 0.6 * rake) * k;
     b.fr_lower.rotation.x = (0.25 * lift - 0.15 * rake) * k; b.fr_paw.rotation.x = -0.25 * lift * k;
-    b.head.rotation.y += (0.05 * lift - 0.08 * rake) * k; b.jaw.rotation.x = 0.05 + 0.3 * rake * k;
+    b.head.rotation.y += (0.3 * lift - 0.5 * rake) * k; b.jaw.rotation.x = 0.05 + 0.3 * rake * k;
     B.body.position.y = 0.06 * lift * k;
     return;
   }
   if (move === 'bite') {
     // a lunge: head down and forward, jaw open, snapped shut as he lands
     const a = A('bite'), go = seg(u, 0, 0.4) * a, snap = seg(u, 0.45, 0.55), back = 1 - seg(u, 0.6, 1);
-    b.neck.rotation.x = 0.07 * go * back; b.head.rotation.x += -0.04 * go * back;
+    b.neck.rotation.x = 0.3 * go * back; b.head.rotation.x += -0.15 * go * back;
     b.jaw.rotation.x = 0.05 + 0.6 * go * (1 - snap) * back;
     b.hips.rotation.x = 0.12 * go * back; B.body.position.z = 0.3 * go * back;
     b.fl_upper.rotation.x = b.fr_upper.rotation.x = -0.2 * go * back;
@@ -83,7 +83,7 @@ export function pose(B, move, u, t, step = 0) {
     const k = seg(u, 0, 0.25) * (1 - seg(u, 0.8, 1)), shake = Math.sin(u * 45) * k;
     b.hips.rotation.x = 0.06 * k; b.neck.rotation.x = 0.04 * k; b.head.rotation.x += 0.03 * k;
     b.hips.rotation.z = 0.06 * shake; b.hips.rotation.y = 0.04 * shake;     // he shakes whole
-    b.head.rotation.z = -0.03 * shake; b.tail.rotation.y += 0.08 * shake;
+    b.head.rotation.z = -0.12 * shake; b.neck.rotation.z = 0.06 * shake; b.tail.rotation.y += 0.08 * shake;
     B.body.position.y = -0.03 * k;
     return;
   }
@@ -95,14 +95,14 @@ export function pose(B, move, u, t, step = 0) {
       b[s + '_upper'].rotation.x = -0.7 * up + 0.15 * slam; b[s + '_lower'].rotation.x = 0.23 * up; b[s + '_paw'].rotation.x = -0.16 * up;
     }
     for (const s of ['bl', 'br']) { b[s + '_upper'].rotation.x = 0.25 * up; b[s + '_lower'].rotation.x = -0.15 * up; }
-    b.neck.rotation.x = -0.05 * up + 0.04 * slam; b.jaw.rotation.x = 0.05 + 0.35 * (up + slam);
+    b.neck.rotation.x = -0.25 * up + 0.15 * slam; b.jaw.rotation.x = 0.05 + 0.35 * (up + slam);
     B.body.position.y = 0.12 * up - 0.03 * slam;
     return;
   }
   if (move === 'hurt') {
     const a = bump(u * 1.6) * (1 - seg(u, 0.6, 1));
-    B.body.position.z = -0.18 * a; b.hips.rotation.x = -0.2 * a; b.neck.rotation.x = -0.06 * a; b.head.rotation.x -= 0.05 * a;
-    b.head.rotation.z = 0.05 * a; b.jaw.rotation.x = 0.05 + 0.35 * a;
+    B.body.position.z = -0.18 * a; b.hips.rotation.x = -0.15 * a; b.neck.rotation.x = -0.25 * a; b.head.rotation.x -= 0.2 * a;
+    b.head.rotation.z = 0.2 * a; b.jaw.rotation.x = 0.05 + 0.35 * a;
     b.hips.rotation.z = 0.06 * Math.sin(u * 40) * a;
     return;
   }
@@ -111,7 +111,7 @@ export function pose(B, move, u, t, step = 0) {
     const buckle = seg(u, 0, 0.35), roll = seg(u, 0.25, 0.75), drop = seg(u, 0.6, 1);
     for (const k of ['fl', 'fr', 'bl', 'br']) { b[k + '_upper'].rotation.x = (k[0] === 'f' ? 0.32 : -0.32) * buckle; b[k + '_lower'].rotation.x = (k[0] === 'f' ? -0.24 : 0.2) * buckle; }
     B.body.position.y = -0.25 * buckle + 0.1 * roll; B.body.rotation.z = 1.45 * roll; B.body.position.x = -0.55 * roll;
-    b.neck.rotation.x = 0.08 * drop; b.head.rotation.z = -0.08 * drop; b.jaw.rotation.x = 0.05 + 0.25 * drop;
+    b.neck.rotation.x = 0.3 * drop; b.head.rotation.z = -0.3 * drop; b.jaw.rotation.x = 0.05 + 0.25 * drop;
     b.tail.rotation.y = 0;
   }
 }
