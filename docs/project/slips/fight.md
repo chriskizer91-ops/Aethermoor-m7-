@@ -186,6 +186,14 @@
 - **Models' winged** (November 23): setBeastLook(withWinged(withArmoured(withWraiths(foeLook(buildBeast))))); Gloamwing
   proven on its own moves (its own silk shell in Cocoon, the bell glowing on Bell-Hum). A winged foe's own carry-off, dive
   and swoop carry it forward without the arena's dash.
+- **The Gloomfen page**: https://claude.ai/artifact/GGPe1k5K6g54kaUb49Y3bt (14.6 MB; the Lanternfen, the Rotbridge, the Drowned
+  Belfry, Blackwater Reach, the Tidal Flats, Misthollow, the Mother's Hollow; full detail: marsh-light, blackwater-gar,
+  Old Jaws; the Leviathan joins when he passes the stretch check). Hand-made moments for its Relic-Bearers (Old Jaws,
+  Mother Grue, the Drowned Cantor, Hodge, the Bargemaster, the Salvage-Master, Grandfather Willow): every move a moment,
+  no errors. **Act Two is hand-made throughout: 255 moments.**
+- **Briarmaw and Kharzul on their own moves** (November 23): Briarmaw's new 'bear' set (session 6) answers his game moves
+  by name through its ALIAS (ownMove reads ALIAS now); Kharzul in full detail (Places) on the Sunscorch page, registered
+  with Places' kharzul set (his files name 'scorpion'). Both proven: every move on their own bodies, no errors.
 - **Swallows** (agreed with Places, session 4, for the Sand Wyrm and the Leviathan): their `parts.mouth` and
   `SWALLOW_AT { u, reach }`; the hero shrinks into the mouth at that u and comes back out of it on release; the foe
   stops at `reach`; a `full` idle while a hero is inside, `spit` on release. One Foe (session 6) builds the
