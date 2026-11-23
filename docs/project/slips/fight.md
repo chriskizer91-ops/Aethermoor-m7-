@@ -179,7 +179,13 @@
   170 hand-made moments in all. Next: the Ironspire's and the Gloomfen's Relic-Bearers, each region its own page.
 - **Swallows** (agreed with Places, session 4, for the Sand Wyrm and the Leviathan): their `parts.mouth` and
   `SWALLOW_AT { u, reach }`; the hero shrinks into the mouth at that u and comes back out of it on release; the foe
-  stops at `reach`; a `full` idle while a hero is inside, `spit` on release. To build when their models land.
+  stops at `reach`; a `full` idle while a hero is inside, `spit` on release. One Foe (session 6) builds the
+  Leviathan and Old Jaws the same way; we agreed one form for both lanes: `moves.EVENTS = { swallow: { gulp, reach } }`
+  (SWALLOW_AT read too), `moves.SINKS = { sound: true }` for a dive that takes the foe fully under by itself (the arena
+  then doesn't lower it, and hides it once under), and parts `mouth`, `head`, `pearl`, `harpoon`.
+  **Built in the arena now** (November 23), ready for when their models land: the reach, the hero into and out of
+  parts.mouth, `full` and `spit`, SINKS. Today's models have no mouth, so they keep the burst; proven headless: the Sand
+  Wyrm's lair with `?land=1`, Pip swallowed, held and let go, the Sand-Dive, no errors.
 - **Fixed November 23**: an effect started by a delayed one (fx.later) used to stand frozen on the field (dropped from
   the effects list); the turn strip steps aside during a close-up or wide camera; close-up spots scored by a fan of
   rays (built things, rock, trees, ground too near).
