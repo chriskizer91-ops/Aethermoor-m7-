@@ -12,7 +12,7 @@
 //   NODE_PATH=$(npm root -g) node game3d/tools/finale.mjs <page.html|http url> <rekindle|release|anew> [deep|heart] [out-dir]
 import { createRequire } from 'node:module';
 import path from 'node:path';
-import { mkdirSync } from 'node:fs';
+import { mkdirSync, readFileSync } from 'node:fs';
 import { kit } from './kit.mjs';
 import { newGame } from '../../game/src/rules/gauntlet.js';
 import { grantXp, xpForLevel } from '../../game/src/rules/progression.js';
@@ -31,9 +31,17 @@ mkdirSync(out, { recursive: true });
 const LEVEL = Number(process.env.LEVEL) || 38;
 
 // ---- the journey so far, by M7's rules: Acts One and Two, the fifth Council, the Hollow Council freed ----
-let g = newGame({ name: 'Wren', starter: 'hearthbrand', seed: 21 });
+// PARTY_FROM=<file>: the party as M7's own balance sim plays it to the end of Act Two, levels and gear won on the way
+// (game/tools/sim.mjs --modes below --seed N --gloom-cache <file>); without it, a new party levelled to LEVEL in its
+// starting gear (enough from the heart, not for the Chained Deep's fights on auto)
+const FROM_SIM = process.env.PARTY_FROM ? Object.values(JSON.parse(readFileSync(process.env.PARTY_FROM, 'utf8')))[0].g : null;
+let g = FROM_SIM ? structuredClone(FROM_SIM) : newGame({ name: 'Wren', starter: 'hearthbrand', seed: 21 });
+if (FROM_SIM) {
+  g.party.roster.warden.name = 'Wren'; g.progress.flags.seen = { ...(g.progress.flags.seen || {}) };
+  for (const id of Object.keys(g.party.roster)) { const h = g.party.roster[id], d = deriveHero(h, g.inventory); g.party.roster[id] = { ...h, hp: d.maxHp, mp: d.maxMp }; }
+}
 const rng = createRng('finale:' + END);
-for (const id of g.party.active) {
+if (!FROM_SIM) for (const id of g.party.active) {
   let h = g.party.roster[id];
   const need = xpForLevel(LEVEL) - (h.xp || 0);
   if (need > 0) h = grantXp(h, need, rng).hero;
