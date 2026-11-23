@@ -78,5 +78,9 @@
  "stretchMoves": "pages/desert-deep/moves/scorpion.js",
  "blurb": "The glass-scorpion is the size of a dog, 0.6 m to the top of its tail: its shell gone to clouded pale-gold glass in the heat, amber at the edge of every plate, dark amber at the joints. Every plate, tail segment and leg piece is its own hard piece riding its own bone, so nothing on it stretches.",
  "next": "",
- "pages": {}
+ "pages": {
+  "sculpt": "https://claude.ai/artifact/D49CZMPK2Q3ukBKRytYAHr",
+  "three": "https://claude.ai/artifact/EwHdrinmmvPGCqF48sjdFP"
+ },
+ "sculptTriangles": 807488
 }

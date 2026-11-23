@@ -54,7 +54,7 @@ def build_scorpion(K, sp):
                 d = d - 0.035 * min(rad) * np.exp(-((q + 0.78) / 0.07) ** 2) + 0.02 * min(rad) * np.exp(-((q + 0.62) / 0.05) ** 2)
             return d
         if nfacet:
-            FN = facets(nfacet, seed); FO = 0.82 + 0.1 * np.random.default_rng(seed + 1).random(nfacet)
+            FN = facets(nfacet * 2, seed); FO = 0.72 + 0.12 * np.random.default_rng(seed + 1).random(nfacet * 2)
         ext = np.max(rad) * 1.25
         lo = c - ext; hi = c + ext
         vs = min(VS, max(min(rad) / 5, VS * 0.5)) if LV > 0 else max(VS * 0.8, min(rad) / 2.6)     # light: coarse pieces
@@ -144,13 +144,19 @@ def build_scorpion(K, sp):
             segment(a - (b - a) * 0.06, b + (b - a) * 0.06, TR[i], nfacet=12 if crystal else 0, seed=20 + i)
             joint(b, TR[i] * 0.55)
     # crystal spikes along the back (the Matriarch, Kharzul)
-    for px, py, L in sp.get('spikes', []):
-        for xx in ([0] if abs(L) > 1 else [0]):
-            pass
     for (px, py, x, L) in sp.get('spikes', []):
-        base = p(px, py, x * S)
-        V, F = G.horn(base, [x * 0.004, 0, 1], L * S, L * S * 0.32, [0, 0, 1], 0.0, 4, 6)
-        M.add(V, F, np.array(sp['spike']), 7, mat=(0.1, 0.1))
+        # a crystal: a six-sided bipyramid standing out of the plate (short below the waist, long above)
+        base = p(px, py, x); up = np.array([x * 1.5, 0, 1.0]); up /= np.linalg.norm(up)
+        n6 = 6; ang = np.linspace(0, 2 * np.pi, n6, endpoint=False); w = L * S * 0.3
+        side = np.cross(up, [0, 1, 0]); side /= np.linalg.norm(side); fw = np.cross(side, up)
+        ring = np.array([base + up * L * S * 0.3 + (np.cos(a) * side + np.sin(a) * fw) * w for a in ang])
+        V = np.vstack([base - up * L * S * 0.05, ring, base + up * L * S])
+        F = [(0, 1 + (i + 1) % n6, 1 + i) for i in range(n6)] + [(n6 + 1, 1 + i, 1 + (i + 1) % n6) for i in range(n6)]
+        F = np.array(F); ctr = V.mean(0)       # every face turned outward (the bake reads a face from outside)
+        nrm = np.cross(V[F[:, 1]] - V[F[:, 0]], V[F[:, 2]] - V[F[:, 0]])
+        out = np.sum(nrm * (V[F].mean(1) - ctr), 1) < 0; F[out] = F[out][:, ::-1]
+        col = np.tile(np.array(sp['spike']), (len(V), 1)); col[-1] = np.minimum(1, col[-1] * 1.25)
+        M.add(V, F, col, 2, mat=(0.1, 0.1))
 
     # ---- the pincers: arm, forearm, the claw's palm with its fixed finger, and the moving finger --------------------
     for s in (1, -1):
