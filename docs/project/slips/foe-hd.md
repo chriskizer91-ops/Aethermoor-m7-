@@ -5,6 +5,15 @@ shown side by side with the code-built model and a cut-out of Chris's sheet.
 
 ## Done
 
+- **The mire-leech** (November 23), rabble of the Gloomfen, in full detail, **passing the stretch check** (120 frames):
+  - Three ways, with the crowd test: https://claude.ai/artifact/XKAzPTo5MW2j7a8T9ZBGcw
+  - The sculpt itself (laptop): https://claude.ai/artifact/8vA22BicHBuWDnrysGVyor
+  - A leech as long as your arm, rising like a cobra off a broad flat foot: ringed, glossy, mottled dark greens,
+    orange chevrons down its back, a teal sole, a round sucker with a pale rim, two rings of teeth and a red throat.
+    Light model 19,200; sculpt 914k (3.4 MB saved).
+  - A new plan, `leech` (`kit/js/moves/leech.js`): rooted at its foot (the tail behind and the neck ahead grow out of
+    it), sway, crawl, latch, drink, sink, hit, fall; wide joint blends along its rings (worst edge 1.29x).
+
 - **Mother Anvil** (November 23), Champion, in full detail, **passing the stretch check** (120 frames):
   - Three ways, with the crowd test: https://claude.ai/artifact/GpnVAt4gcTybB3w9weeZsp
   - The sculpt itself (laptop): https://claude.ai/artifact/RkoYTSqzxA4rLktCJT2cJy

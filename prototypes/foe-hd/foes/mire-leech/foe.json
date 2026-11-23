@@ -1,0 +1,87 @@
+{
+  "key": "mire-leech",
+  "name": "Mire Leech",
+  "plan": "leech",
+  "rank": "rabble",
+  "height": 0.45,
+  "sheet": "art-in/3d/sheets/sheet-mire-leech.webp",
+  "crops": [
+    [
+      100,
+      580
+    ],
+    [
+      640,
+      1580
+    ],
+    [
+      1620,
+      2100
+    ]
+  ],
+  "bounds": [
+    [
+      -0.25,
+      -0.46,
+      -0.01
+    ],
+    [
+      0.25,
+      0.37,
+      0.53
+    ]
+  ],
+  "voxel": {
+    "0": 0.005,
+    "1": 0.0035,
+    "2": 0.0022,
+    "3": 0.0015
+  },
+  "view": {
+    "center": [
+      0,
+      0,
+      0.22
+    ],
+    "width": 0.95,
+    "head": [
+      0,
+      0.25,
+      0.42
+    ],
+    "headWidth": 0.25
+  },
+  "light": {
+    "level": 0,
+    "coat": 17000,
+    "kinds": {
+      "2": 1500,
+      "1": 800
+    }
+  },
+  "sculpt": {
+    "level": 3
+  },
+  "bake": {
+    "res": 1024,
+    "phone": 512,
+    "ao": 32,
+    "reach": {
+      "coat": [
+        0.01,
+        0.025
+      ],
+      "parts": [
+        0.004,
+        0.01
+      ]
+    }
+  },
+  "rig": "rig.py",
+  "blurb": "The mire-leech is a leech as long as your arm, rising like a cobra off a broad flat foot: ringed all along, glossy and mottled in dark greens, a row of orange chevrons down its back, a dark teal sole, and at the top a round sucker with a pale rim, two rings of teeth and a dark red throat.",
+  "next": "its base flared wider as the sheet paints it.",
+  "pages": {
+    "three": "https://claude.ai/artifact/XKAzPTo5MW2j7a8T9ZBGcw",
+    "sculpt": "https://claude.ai/artifact/8vA22BicHBuWDnrysGVyor"
+  }
+}
