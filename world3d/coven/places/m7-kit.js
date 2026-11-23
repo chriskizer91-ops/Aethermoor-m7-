@@ -590,7 +590,7 @@
           K.lights && K.lights.push([px, py, 120, 1.2, 'forge']); K.halo && K.halo(x, g + 1.3, z, 2.2, [1.0, 0.55, 0.2]);
           shade = 12; break;
         }
-        case 'lamppost': { B.box('iron', x, g, z, 0.12, 2.8, 0.12, 0, [0.5, 0.5, 0.55]); B.box('iron', x, g, z, 0.3, 0.3, 0.3, 0, [0.5, 0.5, 0.55]); if (K.lantern) K.lantern(x, g + 2.8, z, [0, 1], 1, 0); shade = 8; break; }
+        case 'lamppost': { B.box('iron', x, g, z, 0.12, 2.8, 0.12, 0, [0.5, 0.5, 0.55]); B.box('iron', x, g, z, 0.3, 0.3, 0.3, 0, [0.5, 0.5, 0.55]); if (K.lantern) K.lantern(x, g + 2.8, z, [0, 0, 1], 1, 0); shade = 8; break; }
         case 'hay': { B.box('dHay', x, g, z, 1.2 * sz, 0.6 * sz, 0.7 * sz, ry); if (sz >= 1) { const [hx, hz] = L(0.15, 0.05); const ns = B.solid; B.solid = false; B.box('dHay', hx, g + 0.6, hz, 1.1, 0.55, 0.65, ry + 0.15); B.solid = ns; } shade = 22; break; }
         case 'haystack': { const cg = new THREE.ConeGeometry(1.2 * sz, 2.0 * sz, 10); cg.translate(0, 1.0 * sz, 0); B.geom('dHay', cg, new THREE.Matrix4().makeTranslation(x, g, z), null, [3, 2]); cg.dispose(); shade = 34; break; }
         case 'logs': { for (const [a, hh, r] of [[-0.24, 0.2, 0.2], [0.24, 0.2, 0.2], [0, 0.52, 0.19]]) { const [lx, lz] = L(0, a); log('dLog', lx, g + hh, lz, r, 2.0 * sz, ry + Math.PI / 2); } shade = 26; break; }

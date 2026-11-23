@@ -5,6 +5,14 @@ shown side by side with the code-built model and a cut-out of Chris's sheet.
 
 ## Done
 
+- **Briarmaw's head drawn out** (November 23), **passing the stretch check** (120 frames), pages republished (same links):
+  - His head and face are a piece of their own now (their own coat, kind 4, baked as coat: `bake.coat_kinds` in
+    foe.json, new in the kit), set into his shoulders like his legs; the head piece moves whole with the head (its jaw
+    cut free as before), and his body never takes the neck, head or jaw. So the big head tosses are back: the roar
+    flings his head up (neck and head 0.3 each), the maul turns it 0.5, the hit and the fall throw it, the bristle
+    shakes it, as in the first lively set. Every move under 1.3x (worst 1.29x, the maul's foreleg).
+  - Light model 52,168; sculpt 1.29M (the head and legs carry coats of their own).
+
 - **The Blackwater Leviathan** (November 23), Champion of the Gloomfen, in full detail, **passing the stretch check**
   (120 frames):
   - Three ways, with the crowd test: https://claude.ai/artifact/3Px9mipuqrTBB8NFfehbj5

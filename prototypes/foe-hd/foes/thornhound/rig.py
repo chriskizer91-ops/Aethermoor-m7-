@@ -6,7 +6,7 @@ S = 0.9 / 716; MID = 900; GROUND = 788
 def p(xo, px, py): return (xo * S, (px - MID) * S, (GROUND - py) * S)
 
 # triangles in the light version, per kind of part (he is rabble: about 20,000 in all)
-TARGET = {0: 13200, 2: 1500, 3: 700, 4: 3000, 5: 40, 6: 500, 7: 200, 8: 1100}
+TARGET = {0: 8600, 1: 4600, 2: 1500, 3: 700, 4: 3000, 5: 40, 6: 500, 7: 200, 8: 1100}   # kind 1: the legs' own coat
 CAGE, RAY, AO_DIST = 0.02, 0.06, 0.18
 SMOOTH = 16           # weights smoothed over the surface (no stretching, Chris November 21)
 RIGID = [2, 4, 5, 6, 7, 8]          # thorns, leaves, fangs, claws, eyes and flowers move as one piece each
@@ -88,14 +88,14 @@ def weights_at(P):
     # the jaw: below the mouth line, at the front of the face
     jaw = (sx_ > 1225) & (sy_ > 278 + (sx_ - 1252) * 0.18) & (sy_ < 330) & (np.abs(x) < 34 * S)
     D[jaw, IDX['jaw']] = 0.0
-    W = 1.0 / np.maximum(D, 0.004) ** 4 * mask(P) + 1e-12
+    W = 1.0 / np.maximum(D, 0.004) ** 4 * mask0(P) + 1e-12
     top = np.argsort(-W, 1)[:, :4]
     Wt = np.take_along_axis(W, top, 1); Wt /= Wt.sum(1, keepdims=True)
     return top.astype(np.uint16), Wt.astype(np.float32)
 
 def ramp(x, a, b): return np.clip((x - a) / (b - a), 0, 1)
 
-def mask(P, idx=None):
+def mask0(P, idx=None):
     """where each bone may reach (0..1, with soft edges): a leg's lower bones stay below their own joint, the tail's
     later bones behind the rump, the head's bones in front of the neck, the neck off the shoulders"""
     P = np.asarray(P, np.float32)
@@ -133,7 +133,6 @@ def rigid_root(P, kind):
 # ---- for the kit's bind (kit/rigs/bind.py): the reach masks and side/front rules as gating on the distances
 def weigh(D, P, idx):
     P = np.asarray(P, np.float32); x = P[:, 0]; sx_ = P[:, 1] / S + MID
-    M = mask(P)
     for i, b in enumerate(BONES):
         if is_helper(b[0]): continue
         n = b[0]
@@ -165,3 +164,33 @@ BANDS.update({'ear_l': (0.03, 0.06), 'ear_r': (0.03, 0.06)})
 BANDS.update({'bl_lower': (0.12, 0.28), 'br_lower': (0.12, 0.28), 'bl_upper': (0.05, 0.16), 'br_upper': (0.05, 0.16)})   # the hind knee, wider
 SPLIT = [('head', 'jaw')]          # the mouth cut along the lips (the kit's bind), so the jaw opens without dragging the cheeks
 
+
+# ---- session 6, November 23: his legs are pieces of their own (the sculpt's kind-1 coat), set into his body. Each
+# leg's coat takes only that leg's bones (free within them, so its joints blend); his body never takes a leg's bones;
+# points of different kinds are never welded (a leg merely touches the body); the blades and haunches stay with the
+# body (any share of a leg's swing tears the flank, as on Briarmaw)
+LEGBONES = {k: [f'{k}_upper', f'{k}_lower', f'{k}_foot', f'{k}_paw'] for k in LEGS}
+LEGJ = {k: [p(*j) for j in J] for k, J in LEGS.items()}
+WELD_SAME_KIND = True
+HELPERS = {f'{k}_blade': 0.0 for k in ('fl', 'fr')} | {f'{k}_haunch': 0.0 for k in ('bl', 'br')}
+ROLE = {}
+def part(P, kind, idx, piece):
+    P = np.asarray(P, np.float32); role = np.full(len(P), 'body', dtype=object); out = np.full(len(P), -1)
+    D = np.stack([np.min(np.stack([seg_dist(P, J[i], J[i + 1]) for i in range(3)], 1), 1) for J in LEGJ.values()], 1)
+    near = np.argmin(D, 1); ks = list(LEGJ)
+    for j, k in enumerate(ks):
+        role[(kind == 1) & (near == j)] = k
+    ROLE['now'] = role
+    return out
+def mask(P, idx=None):
+    M = mask0(P, idx)
+    if idx is None or 'now' not in ROLE or len(ROLE['now']) != len(P): return M
+    role = ROLE['now']; legb = [idx[n] for k in LEGBONES for n in LEGBONES[k]]
+    body = role == 'body'
+    M[np.ix_(body, legb)] = 0
+    for k in LEGBONES:
+        m = role == k
+        if m.any():
+            keep = [idx[n] for n in LEGBONES[k]]
+            Mk = M[np.ix_(m, keep)].copy(); M[m] = 0; M[np.ix_(m, keep)] = np.maximum(Mk, 1e-3)
+    return M

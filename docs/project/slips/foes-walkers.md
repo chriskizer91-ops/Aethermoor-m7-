@@ -55,16 +55,36 @@ light model that can share the screen with the party, rigged, moving through its
   - Not yet like the sheet: the moss on his shoulders is bulkier and rounder than the sheet's, and his hands are fists
     where the sheet has big open fingers (Old Horn's too).
 
+- **The unmade** (Act Three veteran): on its own page (Act Three) below.
+  - The sculpt: 817,238 triangles. A thin man of grey-brown husk strips wound round and round (the sapwight's wound
+    strips, as husk), torn through in holes everywhere to the dark violet nothing inside; a ragged tunic to its knees,
+    holed, with a torn hem; a thick cowl about its neck; its head wrapped too, a dark mask with two violet eyes; violet
+    shards of light in a crack in its chest; its feet wrapped into blunt ends; and in its left hand the ghost of its
+    relic, a six-sided violet crystal rod with heavy ends.
+  - Light model 22,754 triangles at 1024 px; phone version at 512 px, 0.56 MB.
+  - Moves: Breathe, Walk, Empty Grip (its empty hand comes out and closes on you), Phantom Art (it raises the relic it
+    no longer holds and swings it down), Grey Touch (a slow reach, its head tilting as if listening), Husk (it goes
+    slack and folds in on itself, then draws itself up), Hit, Fall. Passes the stretch check, full and phone.
+  - New for it: the page now tints each walker's glow with its own colour (light.json `glow`, written by
+    `kit/standard.py` for the page and the phone version), so its eyes are violet, not amber; the walkers' binder takes
+    session 6's `WELD_SAME_KIND` switch.
+
 ## Links
 
 - Act Two (Old Horn and the peak-troll): https://claude.ai/artifact/PosCApXURcQF2S8qyicNaY (13.8 MB)
+- Act Three (the unmade): https://claude.ai/artifact/1fd2Ko7CSdQQD6hL2fKZcW (7.9 MB)
 
 - The walkers' gallery (the Rotwarden and the sapwight, their sheets, the checks, the moves, five of them walking round
   the heroes): https://claude.ai/artifact/YBLUHaLG3bNdfcjBdeq3aj (12.8 MB, with the phone versions)
-- The sculpts themselves, for a laptop (Chris's newer word: keep each sculpt as something he can look at):
-  https://claude.ai/artifact/JCdvpAPKT781gZiU49jTh2 (14.1 MB). The sculpts are kept compressed (meshopt) in
-  `prototypes/foe-hd/foes/<key>/sculpt/`: the Rotwarden 5.6 MB (1,067,554 triangles), the sapwight 4.8 MB (900,422).
-  Built with `node build.mjs --sculpt` in `pages/walkers/`.
+- The sculpts themselves, for a laptop (kept compressed, meshopt, in `prototypes/foe-hd/foes/<key>/sculpt/`; built with
+  `node build.mjs --sculpt --foes=...` in `pages/walkers/`), one page per act, each under 16 MB:
+  - Act One: https://claude.ai/artifact/JCdvpAPKT781gZiU49jTh2 (refreshed November 23 with the remade sculpts, in
+    pieces): the Rotwarden 1,196,442 triangles (5.8 MB), the sapwight 1,036,254 (5.2 MB).
+  - Act Two: https://claude.ai/artifact/EGKt3nEVvxuz9gJ3BzzA4p: Old Horn 1,324,836 (6.4 MB), the peak-troll 912,536
+    (4.4 MB).
+  - Act Three: https://claude.ai/artifact/AZUi3tVEEpBk4iCchS21kP: the unmade 817,238 (3.9 MB).
+  - Over the 1,000,000 aim: Old Horn (1.32 M, his cape of tufts), the Rotwarden (1.20 M, since he was remade in
+    pieces) and the sapwight (1.04 M). A coarser voxel on their last pass brings each under; say if that's wanted.
 
 ## Fixed (Chris, November 20, on his phone: "the arms are attached to the body in a weird way... they're pulling away")
 
@@ -99,7 +119,6 @@ fold only so far; his knee plates' points were shortened so they don't straddle 
 triangles; the sapwight's neck and elbows bend less.
 
 - **Old Horn** passes too (November 23), every move, full and phone; see Done.
-- The laptop sculpt page still shows the earlier sculpts; to be refreshed.
 
 ## The Rotwarden's named moves for the Fight (done)
 
@@ -126,7 +145,8 @@ plan 'walker' and height; foe.json), written by `pages/walkers/kit/standard.py` 
 
 1. The Rotwarden: one thin root at his left hip stays behind when the root arm swings; the tasset closer to the
    sheet's (a curved plate, not a box); the plates a little more faceted, like the sheet's.
-2. Then unmade (the peak-troll is done). (Iron-sentinel, the Sentinel-Captain,
+2. My lane is built: the Rotwarden, the sapwight, Old Horn, the peak-troll and the unmade. The laptop sculpt pages are
+   refreshed with all five. Next: whatever Chris says on his phone. (Iron-sentinel, the Sentinel-Captain,
    the Ashen Warden and the Unsmith moved to Models on November 21; cinder-thrall, the Journeyman, forgeborn,
    forge-warden, thrall-overseer and bellows on November 23.)
 

@@ -72,16 +72,20 @@ def sight(Pw, wid, tris, H, T, height, steps=40):
     for b in range(nb):
         ab = T[b] - H[b]
         u = np.clip(((Pw - H[b]) @ ab) / max(float(ab @ ab), 1e-12), 0, 1)
-        Q = H[b] + u[:, None] * ab
-        d = np.linalg.norm(Q - Pw, axis=1)
-        for c0 in range(0, len(Pw), 20000):
-            P_, Q_, d_ = Pw[c0:c0 + 20000], Q[c0:c0 + 20000], d[c0:c0 + 20000]
-            X = P_[:, None] + t[None, :, None] * (Q_ - P_)[:, None]
-            ii = np.clip(np.floor((X - lo) / h).astype(int), 0, shape - 1)
-            inside = S[ii[..., 0], ii[..., 1], ii[..., 2]]
-            near = (t[None, :] * d_[:, None]) < 2.0 * h          # the first steps leave the surface
-            ok = inside | near
-            out[c0:c0 + 20000, b] = ok.mean(1) >= 0.95
+        # to the bone's nearest point, or else to its middle (session 8, November 23: a thigh bone starting inside the
+        # pelvis could be hidden from the top of the thigh along the line to its nearest point)
+        for Q in (H[b] + u[:, None] * ab, np.broadcast_to(H[b] + 0.5 * ab, Pw.shape)):
+            d = np.linalg.norm(Q - Pw, axis=1)
+            for c0 in range(0, len(Pw), 20000):
+                todo = ~out[c0:c0 + 20000, b]
+                if not todo.any(): continue
+                P_, Q_, d_ = Pw[c0:c0 + 20000][todo], Q[c0:c0 + 20000][todo], d[c0:c0 + 20000][todo]
+                X = P_[:, None] + t[None, :, None] * (Q_ - P_)[:, None]
+                ii = np.clip(np.floor((X - lo) / h).astype(int), 0, shape - 1)
+                inside = S[ii[..., 0], ii[..., 1], ii[..., 2]]
+                near = (t[None, :] * d_[:, None]) < 2.0 * h          # the first steps leave the surface
+                ok = inside | near
+                blk = out[c0:c0 + 20000, b]; blk[todo] = ok.mean(1) >= 0.95; out[c0:c0 + 20000, b] = blk
     return out
 
 def bind(RIG, P, kind, tris, height, mid, log=print):

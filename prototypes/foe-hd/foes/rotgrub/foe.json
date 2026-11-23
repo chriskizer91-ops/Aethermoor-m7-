@@ -1,0 +1,83 @@
+{
+ "key": "rotgrub",
+ "name": "Rotgrub",
+ "plan": "serpent",
+ "rank": "rabble",
+ "height": 0.35,
+ "length": 0.92,
+ "sheet": "art-in/3d/sheets/sheet-rotgrub.webp",
+ "crops": [
+  [
+   40,
+   520
+  ],
+  [
+   560,
+   1600
+  ],
+  [
+   1640,
+   2140
+  ]
+ ],
+ "bounds": [
+  [
+   -0.24,
+   -0.49,
+   -0.005
+  ],
+  [
+   0.24,
+   0.5,
+   0.37
+  ]
+ ],
+ "voxel": {
+  "0": 0.0055,
+  "1": 0.0045,
+  "2": 0.0026,
+  "3": 0.00175
+ },
+ "view": {
+  "center": [
+   0,
+   0,
+   0.17
+  ],
+  "width": 1.2,
+  "head": [
+   0,
+   0.37,
+   0.17
+  ],
+  "headWidth": 0.3
+ },
+ "light": {
+  "level": 0,
+  "coat": 15000
+ },
+ "sculpt": {
+  "level": 3
+ },
+ "bake": {
+  "res": 2048,
+  "phone": 1024,
+  "ao": 48,
+  "reach": {
+   "coat": [
+    0.004,
+    0.012
+   ],
+   "parts": [
+    0.004,
+    0.012
+   ]
+  }
+ },
+ "rig": "rig.py",
+ "moves": "grub",
+ "what": "Act One rabble, in the roots of the eldest trees. Latch, Ichor Spit, Burrow.",
+ "about": "Pale grubs as long as your arm, fat on the black sap of the eldest trees. A cream body in fat wrinkled rings, flecked brown, the tail tip orange; little clawed legs and a head of four hooked mandibles. 0.35 m tall, 0.9 m long.",
+ "pack": 5,
+ "sculptTriangles": 911444
+}

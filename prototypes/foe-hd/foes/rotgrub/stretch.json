@@ -1,0 +1,230 @@
+{
+ "key": "rotgrub",
+ "limit": 1.3,
+ "parts": {},
+ "frames": 48,
+ "triangles": 15984,
+ "moves": {
+  "idle": {
+   "ok": true,
+   "big": {
+    "worst": 1.157,
+    "limit": 1.3,
+    "part": "seg7",
+    "where": [
+     0.151,
+     0.278,
+     0.109
+    ],
+    "restEdge": 0.0085,
+    "u": 0,
+    "trianglesOver": 0
+   },
+   "crease": {
+    "worst": 1.004,
+    "limit": 3,
+    "part": "seg1",
+    "where": [
+     -0.152,
+     -0.27,
+     0.087
+    ],
+    "restEdge": 0.0027,
+    "u": 0,
+    "trianglesOver": 0
+   },
+   "framesOver": "0/48",
+   "bones": []
+  },
+  "walk": {
+   "ok": true,
+   "big": {
+    "worst": 1.295,
+    "limit": 1.3,
+    "part": "seg4",
+    "where": [
+     0.147,
+     0.019,
+     0.283
+    ],
+    "restEdge": 0.0059,
+    "u": 0,
+    "trianglesOver": 0
+   },
+   "crease": {
+    "worst": 1.015,
+    "limit": 3,
+    "part": "seg7",
+    "where": [
+     -0.014,
+     0.411,
+     0.131
+    ],
+    "restEdge": 0.0031,
+    "u": 0,
+    "trianglesOver": 0
+   },
+   "framesOver": "0/48",
+   "bones": []
+  },
+  "latch": {
+   "ok": true,
+   "big": {
+    "worst": 1.292,
+    "limit": 1.3,
+    "part": "seg7",
+    "where": [
+     0.124,
+     0.29,
+     0.095
+    ],
+    "restEdge": 0.0112,
+    "u": 0.362,
+    "trianglesOver": 0
+   },
+   "crease": {
+    "worst": 1.035,
+    "limit": 3,
+    "part": "seg7",
+    "where": [
+     -0.014,
+     0.411,
+     0.131
+    ],
+    "restEdge": 0.0031,
+    "u": 0.362,
+    "trianglesOver": 0
+   },
+   "framesOver": "0/48",
+   "bones": []
+  },
+  "spit": {
+   "ok": true,
+   "big": {
+    "worst": 1.249,
+    "limit": 1.3,
+    "part": "seg7",
+    "where": [
+     0.151,
+     0.278,
+     0.109
+    ],
+    "restEdge": 0.0085,
+    "u": 0.34,
+    "trianglesOver": 0
+   },
+   "crease": {
+    "worst": 1.025,
+    "limit": 3,
+    "part": "seg7",
+    "where": [
+     -0.014,
+     0.411,
+     0.131
+    ],
+    "restEdge": 0.0031,
+    "u": 0.34,
+    "trianglesOver": 0
+   },
+   "framesOver": "0/48",
+   "bones": []
+  },
+  "burrow": {
+   "ok": true,
+   "big": {
+    "worst": 1.299,
+    "limit": 1.3,
+    "part": "head",
+    "where": [
+     0.06,
+     0.316,
+     0.239
+    ],
+    "restEdge": 0.005,
+    "u": 0.447,
+    "trianglesOver": 0
+   },
+   "crease": {
+    "worst": 1.021,
+    "limit": 3,
+    "part": "seg1",
+    "where": [
+     -0.152,
+     -0.27,
+     0.087
+    ],
+    "restEdge": 0.0027,
+    "u": 0.468,
+    "trianglesOver": 0
+   },
+   "framesOver": "0/48",
+   "bones": []
+  },
+  "hurt": {
+   "ok": true,
+   "big": {
+    "worst": 1.247,
+    "limit": 1.3,
+    "part": "seg7",
+    "where": [
+     0.151,
+     0.278,
+     0.109
+    ],
+    "restEdge": 0.0085,
+    "u": 0.319,
+    "trianglesOver": 0
+   },
+   "crease": {
+    "worst": 1.025,
+    "limit": 3,
+    "part": "seg7",
+    "where": [
+     -0.014,
+     0.411,
+     0.131
+    ],
+    "restEdge": 0.0031,
+    "u": 0.319,
+    "trianglesOver": 0
+   },
+   "framesOver": "0/48",
+   "bones": []
+  },
+  "ko": {
+   "ok": true,
+   "big": {
+    "worst": 1.29,
+    "limit": 1.3,
+    "part": "seg2",
+    "where": [
+     -0.18,
+     -0.168,
+     0.116
+    ],
+    "restEdge": 0.0054,
+    "u": 0.915,
+    "trianglesOver": 0
+   },
+   "crease": {
+    "worst": 1.008,
+    "limit": 3,
+    "part": "seg1",
+    "where": [
+     -0.152,
+     -0.27,
+     0.087
+    ],
+    "restEdge": 0.0027,
+    "u": 0.532,
+    "trianglesOver": 0
+   },
+   "framesOver": "0/48",
+   "bones": []
+  }
+ },
+ "ok": true,
+ "worstMove": "burrow",
+ "bigEdge": 0.0035,
+ "crease": 3
+}

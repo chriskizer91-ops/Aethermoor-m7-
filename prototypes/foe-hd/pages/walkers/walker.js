@@ -62,7 +62,7 @@ export function makeWalkerShared(a, opts = {}) {
     map: tex(a.color, true), normalMap: tex(a.normal, false), aoMap: orm, aoMapIntensity: 1.0,
     roughnessMap: orm, metalnessMap: orm, roughness: 1, metalness: 1, envMapIntensity: opts.env ?? 1,
   });
-  if (a.emit) { mat.emissiveMap = tex(a.emit, true); mat.emissive = new THREE.Color(opts.glow ?? 0xffa040); mat.emissiveIntensity = 0.9; }   // the bake's glow mask, tinted
+  if (a.emit) { mat.emissiveMap = tex(a.emit, true); mat.emissive = new THREE.Color(Number(opts.glow ?? a.meta?.glow ?? 0xffa040)); mat.emissiveIntensity = 0.9; }   // the bake's glow mask, tinted with the walker's own glow colour (light.json; amber if none)
   return { geo, mat, meta: a.meta };
 }
 

@@ -25,7 +25,7 @@ def build(K):
     EYES = [np.array([s * 0.15, 1.05, 1.11], np.float32) for s in (1, -1)]
     TAIL = ((0, -1.0, 1.0), (0, -1.36, 0.44))
 
-    def trunk_sdf(P):
+    def trunk_sdf(P, head=False):
         # (November 23: the barrel, chest, haunches and belly raised so his belly sits at 0.46 m as the sheet paints it,
         # and his legs stand clear of it: they can swing without dragging his belly fur)
         d = ell(P, (0, -0.08, 0.97), (0.58, 0.88, 0.48))                      # the barrel
@@ -58,7 +58,9 @@ def build(K):
             m = cap(P, c0, c1, 0.016, 0.016)
             mouth = m if mouth is None else np.minimum(mouth, m)
         h = smax(h, -mouth, 0.01)
-        d = smin(d, h, 0.10)
+        # (November 23: his head is a piece of its own with its own coat, set into his shoulders, so it can toss
+        # without dragging them; head=True gives the head alone)
+        if head: return np.maximum(h, -P[:, 2])
         legs = legs_only(P)
         for k, (a, b, c) in LEGS.items():
             if k[0] == 'b':                                                          # the hind thigh is his haunch
@@ -174,17 +176,25 @@ def build(K):
         np.tile([0, -0.12, -1.0], (len(P), 1)) - N * (N @ np.array([0, -0.12, -1.0]))[:, None] + 0.2 * (np.stack([fbm(P + 3, 3.0), fbm(P + 7, 3.0), fbm(P + 11, 3.0)], 1) - 0.5))
     leg_bare = lambda P: P[:, 2] < 0.05
     lcoat = K.Coat(legs_sdf, K.lo, np.array([K.hi[0], K.hi[1], 1.0]), LV, VOX, leg_len, leg_flow, leg_bare, style, seed=12, samples=90000, log=log)
-    place_sdf = lambda P: np.minimum(coat.place_sdf(P), lcoat.place_sdf(P))
-    body_sdf = lambda P: np.minimum(trunk_sdf(P), legs_sdf(P))
+    # his head's own coat (the cheek ruffs, the beard, the face's short fur)
+    head_sdf = lambda P: trunk_sdf(P, head=True)
+    HLO, HHI = np.array([-0.7, 0.4, 0.5]), np.array([0.7, 1.4, 1.5])
+    hcoat = K.Coat(head_sdf, HLO, HHI, LV, VOX, tuft_len, flow, bare, style, seed=13, samples=80000, log=log)
+    place_sdf = lambda P: np.minimum(np.minimum(coat.place_sdf(P), lcoat.place_sdf(P)), hcoat.place_sdf(P))
+    body_sdf = lambda P: np.minimum(np.minimum(trunk_sdf(P), legs_sdf(P)), head_sdf(P))
 
     def shade(Vb, c):
         col, top, has = c.colours(Vb, np.tile(FACE, (len(Vb), 1)))
         crev = np.clip(1 - top / 0.012, 0, 1) * (zones(Vb)['face'] < 0.5)
         return col * (1 - 0.55 * crev[:, None]), has
     log('body, voxel', VOX)
-    Vb, Fb = S.mc(coat.full_sdf, VOX, K.lo, K.hi)
-    log('body tris', len(Fb))
-    col, has = shade(Vb, coat)
+    Vt, Ft = S.mc(coat.full_sdf, VOX, K.lo, K.hi)
+    log('body tris', len(Ft))
+    col, _ = shade(Vt, coat)
+    M.add(Vt, Ft, np.clip(col, 0, 1), 0)
+    log('head')
+    Vb, Fb = S.mc(hcoat.full_sdf, VOX, HLO, HHI)
+    col, has = shade(Vb, hcoat)
     fz = zones(Vb)['face'] * (~has)
     col = mix(col, FACE * (0.85 + 0.3 * fbm(Vb, 40.0))[:, None], fz[:, None])
     # the face's own colours: a dark wet nose, the dark of the grin, shadowed round the eyes
@@ -195,7 +205,7 @@ def build(K):
     for e in EYES:
         ring_ = np.clip(1.4 - np.linalg.norm((Vb - e) / [0.09, 0.06, 0.06], axis=1), 0, 1)[:, None]
         col = col * (1 - 0.5 * ring_)
-    M.add(Vb, Fb, np.clip(col, 0, 1), 0)
+    M.add(Vb, Fb, np.clip(col, 0, 1), 4)                                           # kind 4: his head's coat (the rig finds it by it)
     log('legs')
     Vl, Fl = S.mc(lcoat.full_sdf, VOX, K.lo, np.array([K.hi[0], K.hi[1], 1.0]))
     col, _ = shade(Vl, lcoat)
@@ -344,7 +354,7 @@ def build(K):
         e1 = np.cross(tdir, [1, 0, 0]); e1 /= np.linalg.norm(e1); e2 = np.cross(tdir, e1)
         cpts = base + 0.005 * tdir + 0.074 * (np.cos(a_)[:, None] * e1 + np.sin(a_)[:, None] * e2)
         V, F = tube(cpts, np.full(len(cpts), 0.022), SIDES)
-        M.add(V, F, np.array([0.36, 0.22, 0.12]), 4)
+        M.add(V, F, np.array([0.36, 0.22, 0.12]), 8)
     # teeth: fangs along the grin, upper ones hanging down, a few lower ones up (sheet: gold-tinted)
     for i, x0 in enumerate(np.linspace(-0.15, 0.15, 9)):
         y0 = 1.07 - 2.6 * x0 * x0 + 0.012; z0 = 0.885 + 0.4 * x0 * x0
