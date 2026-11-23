@@ -363,6 +363,28 @@ from session 8's list). Gallery: https://claude.ai/artifact/4WQXpMifD5GWsgCXTP4P
 - Triangles (High / Light): Iron Sentinel 80k / 25k, Sentinel-Captain 85k / 26k, Ashen Warden 99k / 31k, the Unsmith
   113k / 26k; sculpts about 900k (Warden 898k, Unsmith 915k). Every move poses with no errors; no horizontal scroll.
 
+**The stone and forge constructs, first pass** (November 23; from session 8's list). In the ironclad gallery (now ten):
+https://claude.ai/artifact/4WQXpMifD5GWsgCXTP4PVD
+- Three new sculpted masters (39 kinds; the atlas grown to 4 x 12 cells, still one picture in `masters/pack.js`, 632
+  KB): **brick** (courses of firebrick, mortar, chipped corners, soot), **slag** (lumpy, pitted, deep cracks) and
+  **ashflake** (packed ash in overlapping flakes).
+- The Cinder-Thrall (ash in flakes, a rag over its burning eyes, a coal heart, fire in its cracks), the Thrall-Overseer
+  (slag, a smith's iron mask set in its chest, burning spikes, one lit eye on a bent stalk, glowing ankle cuffs, a
+  loincloth, the hot chain), the Forgeborn (black slag split with fire, a furnace grille in its chest, rock shoulders
+  with lit slits, belt and buckle, a burning crown of flame), the Bellows (a strapped swollen body, a round furnace grate,
+  a brass pipe curling over into the chimney that is its head), Harrow's Journeyman (a person, by the heroes' builder:
+  masked, mantled and cloaked, with the Runestaff and its compass-star and tags) and the Forge-Warden (a kiln of
+  firebrick with a fire-door, an anvil head, a burning chimney with smoke, a bellows at its side, a hammer arm and a
+  fist on jointed iron arms, stubby iron legs). Glowing cracks are rigid lines of fire on each piece, so they move with it.
+- Moves, named for M7's: the Thrall: cinder-fist, ash-in-the-eyes, reform; the Overseer: those and hot-chain,
+  drive-them; the Forgeborn: molten-fist, slag-spit, stoke; the Bellows: those and bellows-blast, blow-sparks; the
+  Journeyman: those and smiths-hammer, temper-kin, rune-fire, white-heat; the Forge-Warden: hammer-arm, bellows-breath,
+  hold-the-bridge, stoke. Same `armouredLook` / `withArmoured` for the Fight.
+- Triangles (High / Light): Cinder-Thrall 18k / 9k (rabble ~20k), Thrall-Overseer 33k / 13k, Forgeborn 21k / 10k,
+  Bellows 18k / 10k, Forge-Warden 31k / 12k (veterans ~30k), the Journeyman 122k / 26k (Relic-Bearer ~40k). Sculpts
+  ~850-910k. Honestly, a first pass: the golems' limbs are still blocky beside the sheets' lumpy rock and shingled ash,
+  the Journeyman reads plainer than his sheet (no fur collar or wild hair yet), the Bellows' harness is simpler.
+
 ## Next
 
 - Chris chose full detail for the beasts (November 20): sessions 6 to 8 build them (`docs/project/jobs/foes.md`;

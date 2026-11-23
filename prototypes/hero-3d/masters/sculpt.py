@@ -24,7 +24,7 @@ from PIL import Image
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 N = 1024
-COLS, ROWS = 4, 9             # the atlas: 4 across, 9 down
+COLS, ROWS = 4, 12            # the atlas: 4 across, 12 down
 CELL = 256                   # each kind's bake
 HCELL = 512                  # each kind's height, for the sculpt view
 INSET = 2                    # pixels kept clear round each cell (the code maps the piece inside them)
@@ -69,6 +69,9 @@ KINDS = {
     'lace':     (33, 0.85, 0.36, None),  # a lace-edged robe (a surplice): v 0 the top, 1 the scalloped hem; eyelets toward the hem
     'embroid':  (34, 0.85, 0.80, None),  # an embroidered cope or panel: vines of raised thread climbing from the hem
     'battered': (35, 0.70, 0.40, None),  # old plate that has kept a stair for a century: deep dents, gouges, scratches, soot
+    'brick':    (36, 1.20, 0.60, None),  # firebrick laid in courses (a kiln's body): bricks, mortar, chipped corners, soot
+    'slag':     (37, 0.80, 0.60, None),  # cooled slag and rock: lumpy, pitted, split by deep cracks
+    'ashflake': (38, 0.50, 0.60, None),  # packed ash in overlapping flakes, like shingles (the cinder-thralls)
 }
 rng = np.random.default_rng(21)
 V_, U_ = np.mgrid[0:N, 0:N] / N          # V_ down the rows (v), U_ across (u)
@@ -442,6 +445,25 @@ def sculpt(kind):
         h += P.blur(sc, 0.0004) * 0.0005 + P.noise(0.08, 0.08, 354) * 0.0007
         soot = np.clip(P.noise(0.06, 0.06, 355) - 0.3, 0, None)                                      # soot: low patches the cavity darkens
         h -= soot * 0.0006
+    elif kind == 'brick':
+        bh, bw = 0.06, 0.14                                                                        # course height, brick length
+        row = np.floor(P.y / bh); off = (row % 2) * 0.5
+        bx = (P.x / bw + off) % 1.0; by = (P.y / bh) % 1.0
+        mort = np.minimum(np.minimum(bx, 1 - bx) * bw, np.minimum(by, 1 - by) * bh)
+        h = np.clip(mort / 0.008, 0, 1) ** 0.6 * 0.004                                                  # each brick proud of its mortar
+        h += P.noise(0.02, 0.02, 361) * 0.0005 + P.dents(80, 0.004, 0.012, 0.0012, 0, 1, 362)           # chips and wear
+        h -= np.clip(P.noise(0.12, 0.12, 363) - 0.4, 0, None) * 0.0008                                 # soot
+    elif kind == 'slag':
+        h = P.noise(0.05, 0.05, 371) * 0.004 + P.noise(0.015, 0.015, 372) * 0.0015
+        h += P.creases(0.07, 0.07, 373, 4.0) * 0.006 + P.creases(0.025, 0.025, 374, 4.0) * 0.002       # cracks, deep and fine
+        h += P.dents(200, 0.002, 0.006, 0.0008, 0, 1, 375)                                            # pits
+    elif kind == 'ashflake':
+        fh, fw = 0.045, 0.05                                                                         # flakes laid like shingles, top over bottom
+        row = np.floor(P.y / fh); off = (row % 2) * 0.5 + P.noise(0.1, 0.1, 381) * 0.15
+        fx = (P.x / fw + off) % 1.0; fy = (P.y / fh) % 1.0
+        edge = np.abs(fx - 0.5) * 2
+        h = (1 - fy) * 0.003 + (fy < 0.15) * 0.0 - edge ** 3 * 0.0012                                   # each flake thickest at its lower edge
+        h += P.noise(0.006, 0.006, 382) * 0.0004 + P.creases(0.03, 0.03, 383, 3.0) * 0.0008
     return P, h
 
 
