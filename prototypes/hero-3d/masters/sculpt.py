@@ -68,6 +68,7 @@ KINDS = {
     'head':     (32, 0.55, 0.30, 0.25),  # the skull under the painted face (a sphere: u .25 the front, v 0 the chin, 1 the crown)
     'lace':     (33, 0.85, 0.36, None),  # a lace-edged robe (a surplice): v 0 the top, 1 the scalloped hem; eyelets toward the hem
     'embroid':  (34, 0.85, 0.80, None),  # an embroidered cope or panel: vines of raised thread climbing from the hem
+    'battered': (35, 0.70, 0.40, None),  # old plate that has kept a stair for a century: deep dents, gouges, scratches, soot
 }
 rng = np.random.default_rng(21)
 V_, U_ = np.mgrid[0:N, 0:N] / N          # V_ down the rows (v), U_ across (u)
@@ -423,6 +424,24 @@ def sculpt(kind):
                             ii = int((v - t * 0.0022) * N); jj = int(((u0 + sgn * t * 0.0028) % 1) * N)
                             if 0 <= ii < N: thread[max(0, ii - 1):ii + 2, max(0, jj - 1):jj + 2] += 0.8
         h += P.blur(np.clip(thread, 0, 1), 0.0012) * 0.0018 + P.noise(0.004, 0.004, 343) * 0.0002
+    elif kind == 'battered':
+        h = P.dents(55, 0.012, 0.035, 0.0022, 0.02, 0.98, 351) + P.dents(140, 0.003, 0.009, 0.0009, 0, 1, 352)    # blows, big and small
+        gz = np.zeros((N, N)); r = np.random.default_rng(353)
+        for _ in range(16):                                                                          # gouges where a blade skidded
+            u0, v0, a, ln = r.uniform(0, 1), r.uniform(0.05, 0.95), r.uniform(-0.6, 0.6), r.uniform(0.03, 0.09)
+            for t in np.linspace(0, ln, 200):
+                i, j = int((v0 + np.sin(a) * t / L) * N), int(((u0 + np.cos(a) * t / C) % 1) * N)
+                if 0 <= i < N: gz[i, j] -= 1
+        h += P.blur(gz, 0.0012) * 0.0035
+        sc = np.zeros((N, N))
+        for _ in range(90):                                                                          # fine scratches
+            u0, v0, a, ln = r.uniform(0, 1), r.uniform(0, 1), r.uniform(0, np.pi), r.uniform(0.01, 0.04)
+            for t in np.linspace(0, ln, 120):
+                i, j = int((v0 + np.sin(a) * t / L) * N), int(((u0 + np.cos(a) * t / C) % 1) * N)
+                if 0 <= i < N: sc[i, j] -= 1
+        h += P.blur(sc, 0.0004) * 0.0005 + P.noise(0.08, 0.08, 354) * 0.0007
+        soot = np.clip(P.noise(0.06, 0.06, 355) - 0.3, 0, None)                                      # soot: low patches the cavity darkens
+        h -= soot * 0.0006
     return P, h
 
 

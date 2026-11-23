@@ -350,6 +350,19 @@ from session 8's list). Gallery: https://claude.ai/artifact/4WQXpMifD5GWsgCXTP4P
   (Champion ~50k), the Unsmith 110k / 23k. The sculpts: Ashen Warden 893k, the Unsmith 845k. Gallery 6.9 MB, no
   horizontal scroll at 390 px, no page errors.
 
+**The ironclad, second pass** (November 23). Gallery republished: https://claude.ai/artifact/4WQXpMifD5GWsgCXTP4PVD
+- The Unsmith closer to his sheet: his own sculpted head in place of the builder's painted face (older and heavier:
+  brow, a broad nose, cheekbones, deep-set eyes), bushy copper brows and a moustache, a great beard with gold beads
+  plaited in, wild copper hair swept back over the crown, broad shoulders (a wider chest, the arms set further out,
+  set once as built: nothing scales as he moves) and a heavy ragged mantle torn in layers over his shoulders; the
+  Unmaking Hammer's head made bigger, dark violet stone with its cracks burning.
+- The constructs against their sheets: a new sculpted master, **battered** (36 kinds in all, the atlas full: 578 KB):
+  big and small dents from blows, gouges where blades skidded, fine scratches, patches of soot, on all their plate
+  (chest, hips, arms, legs, helms, pauldrons). The Ashen Warden keeps embers in the seams of its plate; the
+  Sentinel-Captain's plume is now the sheet's great swept crest.
+- Triangles (High / Light): Iron Sentinel 80k / 25k, Sentinel-Captain 85k / 26k, Ashen Warden 99k / 31k, the Unsmith
+  113k / 26k; sculpts about 900k (Warden 898k, Unsmith 915k). Every move poses with no errors; no horizontal scroll.
+
 ## Next
 
 - Chris chose full detail for the beasts (November 20): sessions 6 to 8 build them (`docs/project/jobs/foes.md`;
