@@ -163,6 +163,22 @@ B['ashen-warden'] = G => { const R = construct(G, { iron: solid('bronze', '#6a4a
   R.glows.push(ember); return R; };
 
 /* ------------------------------------------------------------------ the stone and forge constructs */
+function lumpy(geo, amp, seed = 1, freq = 9) {
+  geo.computeVertexNormals(); const P = geo.attributes.position, N = geo.attributes.normal, r = rngOf(seed), ph = [0, 0, 0, 0, 0, 0].map(() => r() * 6.28);
+  for (let i = 0; i < P.count; i++) { const x = P.getX(i), y = P.getY(i), z = P.getZ(i);
+    const n = Math.sin(x * freq + ph[0]) * Math.sin(y * freq * 1.3 + ph[1]) * Math.sin(z * freq + ph[2]) + 0.5 * Math.sin(x * freq * 2.3 + ph[3]) * Math.sin(y * freq * 2.1 + ph[4]) * Math.sin(z * freq * 2.7 + ph[5]);
+    P.setXYZ(i, x + N.getX(i) * n * amp, y + N.getY(i) * n * amp, z + N.getZ(i) * n * amp); }
+  P.needsUpdate = true; geo.computeVertexNormals(); return geo;
+}
+// shingles: small flakes laid over a squarish surface in overlapping rows, each tilted out at its lower edge (packed ash)
+function shingles(parent, m, { w, d, y0, y1, rows, per, seed = 1, size = 0.05, p = 3 }) {
+  const r = rngOf(seed), flake = plate([[-0.5, 0.5], [0.5, 0.5], [0.42, -0.1], [0.15, -0.5], [-0.2, -0.45], [-0.45, -0.05]], (x, y) => 0.06 - y * 0.08, { rings: 2, seg: 10 }); // a few triangles each: there are hundreds
+  for (let i = 0; i < rows; i++) for (let j = 0; j < per; j++) {
+    const a = (j + (i % 2) * 0.5 + r() * 0.3) / per * Math.PI * 2, y = lerp(y1, y0, (i + r() * 0.3) / rows), c = Math.cos(a), s2 = Math.sin(a);
+    const f = add(fitMaster(flake.clone(), 'ashflake', { planar: true }), m, parent, Math.sign(c) * Math.pow(Math.abs(c), 2 / p) * w / 2 * 1.04, y, Math.sign(s2) * Math.pow(Math.abs(s2), 2 / p) * d / 2 * 1.04);
+    f.rotation.set(-0.35 - r() * 0.2, Math.atan2(c, s2), (r() - 0.5) * 0.4); f.scale.setScalar(size * (0.8 + r() * 0.5));
+  }
+}
 // glowing cracks over a body: jagged lines of fire on a squarish surface (w x d, from y0 to y1)
 function cracks(parent, m, n, { w, d, y0, y1, p = 3, seed = 1, r = 0.006 }) {
   const rnd = rngOf(seed);
@@ -173,21 +189,22 @@ function cracks(parent, m, n, { w, d, y0, y1, p = 3, seed = 1, r = 0.006 }) {
   }
 }
 // a golem's body: trunk, arms and legs of one stuff (stone, slag, ash), on the walkers' rig
-function golem(G, { stuff, kind, glowC, hipY = 0.82, chestY = 1.14, headY = 1.56, shX = 0.24, shY = 1.36, hipX = 0.12, legL = 0.78, tw = 0.44, th = 0.56, td = 0.3, arm = 0.075, leg = 0.09, fist = 1, crackN = 18 }) {
+function golem(G, { lump = 0.018, stuff, kind, glowC, hipY = 0.82, chestY = 1.14, headY = 1.56, shX = 0.24, shY = 1.36, hipX = 0.12, legL = 0.78, tw = 0.44, th = 0.56, td = 0.3, arm = 0.075, leg = 0.09, fist = 1, crackN = 18 }) {
   const R = rigOf(G, { hipY, chestY, headY, shX, shY, hipX, legL }), fire = glow(glowC, 2.2);
-  add(fitMaster(block(tw, th, td, { round: 0.4, taper: 1.15 }), kind), stuff, R.chest, 0, 0.0, 0);
-  add(fitMaster(block(tw * 0.85, 0.24, td * 0.95, { round: 0.4 }), kind), stuff, R.body, 0, 0.0, 0);
+  add(fitMaster(lumpy(block(tw, th, td, { round: 0.4, taper: 1.15 }), lump, 47), kind), stuff, R.chest, 0, 0.0, 0);
+  add(fitMaster(lumpy(block(tw * 0.85, 0.24, td * 0.95, { round: 0.4 }), lump, 32), kind), stuff, R.body, 0, 0.0, 0);
   for (const a of R.arms) {
-    add(fitMaster(block(arm * 2.2, 0.3, arm * 2.1, { round: 0.5, taper: 0.9 }), kind), stuff, a.sh, 0, -0.14, 0);
-    a.el.position.y = -0.3; add(fitMaster(block(arm * 2, 0.28, arm * 1.9, { round: 0.5, taper: 0.85 }), kind), stuff, a.el, 0, -0.13, 0);
-    a.hand.position.y = -0.28; add(fitMaster(block(arm * 2.1 * fist, arm * 1.9 * fist, arm * 1.8 * fist, { round: 0.6 }), kind), stuff, a.hand, 0, -0.06, 0);
+    add(fitMaster(lumpy(block(arm * 2.2, 0.3, arm * 2.1, { round: 0.5, taper: 0.9 }), lump, 68), kind), stuff, a.sh, 0, -0.14, 0);
+    a.el.position.y = -0.3; add(fitMaster(lumpy(block(arm * 2, 0.28, arm * 1.9, { round: 0.5, taper: 0.85 }), lump, 73), kind), stuff, a.el, 0, -0.13, 0);
+    a.hand.position.y = -0.28; add(fitMaster(lumpy(block(arm * 2.1 * fist, arm * 1.9 * fist, arm * 1.8 * fist, { round: 0.6 }), lump, 38), kind), stuff, a.hand, 0, -0.06, 0);
     for (let f = 0; f < 4; f++) add(sph(arm * 0.42 * fist, 8, 6), stuff, a.hand, (f - 1.5) * arm * 0.5 * fist, -0.06 - arm * 1.1 * fist, arm * 0.4);
   }
   for (const l of R.legs) {
-    add(fitMaster(block(leg * 2.2, legL * 0.5, leg * 2.2, { round: 0.5 }), kind), stuff, l.hip, 0, -legL * 0.25, 0);
-    l.knee.position.y = -legL * 0.5; add(fitMaster(block(leg * 2, legL * 0.46, leg * 2, { round: 0.5, taper: 1.1 }), kind), stuff, l.knee, 0, -legL * 0.23, 0);
+    add(fitMaster(lumpy(block(leg * 2.2, legL * 0.5, leg * 2.2, { round: 0.5 }), lump, 64), kind), stuff, l.hip, 0, -legL * 0.25, 0);
+    l.knee.position.y = -legL * 0.5; add(fitMaster(lumpy(block(leg * 2, legL * 0.46, leg * 2, { round: 0.5, taper: 1.1 }), lump, 43), kind), stuff, l.knee, 0, -legL * 0.23, 0);
     add(fitMaster(block(leg * 2.3, 0.1, leg * 3.2, { round: 0.5 }), kind), stuff, l.knee, 0, -legL * 0.48, 0.04);
   }
+  if (kind === 'slag') { const rr = rngOf(23); for (const a of R.arms) for (let k = 0; k < 4; k++) add(fitMaster(lumpy(ico(arm * (0.7 + rr() * 0.5), 1), arm * 0.15, k), 'slag'), stuff, k < 2 ? a.sh : a.el, a.side * arm * (0.6 + rr() * 0.4), -0.05 - rr() * 0.2, (rr() - 0.5) * arm * 1.4).scale.set(1, 0.7, 0.9); }
   cracks(R.chest, fire, crackN, { w: tw, d: td, y0: -th * 0.4, y1: th * 0.4, seed: 5 });
   cracks(R.body, fire, Math.round(crackN * 0.3), { w: tw * 0.85, d: td * 0.95, y0: -0.1, y1: 0.1, seed: 6 });
   for (const a of R.arms) cracks(a.el, fire, 3, { w: arm * 2, d: arm * 1.9, y0: -0.25, y1: -0.02, seed: 7 + a.side });
@@ -197,7 +214,12 @@ function golem(G, { stuff, kind, glowC, hipY = 0.82, chestY = 1.14, headY = 1.56
   return R;
 }
 B['cinder-thrall'] = G => {
-  const R = golem(G, { stuff: solid('stone', '#4a4440'), kind: 'ashflake', glowC: '#ff7a2a', tw: 0.36, th: 0.5, td: 0.22, shX: 0.21, arm: 0.06, leg: 0.075, crackN: 14 });
+  const R = golem(G, { stuff: solid('stone', '#4a4440'), kind: 'ashflake', glowC: '#ff7a2a', tw: 0.36, th: 0.5, td: 0.22, shX: 0.21, arm: 0.06, leg: 0.075, crackN: 14, lump: 0.01 });
+  const ash = solid('stone', '#6a625a'), hi = Q.d > 1;
+  shingles(R.chest, ash, { w: 0.36, d: 0.22, y0: 0.24, y1: -0.24, rows: hi ? 7 : 4, per: hi ? 16 : 10, seed: 3, size: 0.07 });
+  shingles(R.body, ash, { w: 0.31, d: 0.21, y0: 0.1, y1: -0.1, rows: hi ? 3 : 2, per: hi ? 14 : 8, seed: 4, size: 0.06 });
+  for (const a of R.arms) { shingles(a.sh, ash, { w: 0.13, d: 0.13, y0: -0.02, y1: -0.28, rows: hi ? 4 : 2, per: hi ? 7 : 5, seed: 5 + a.side, size: 0.045 }); shingles(a.el, ash, { w: 0.12, d: 0.12, y0: -0.02, y1: -0.26, rows: hi ? 4 : 2, per: hi ? 7 : 5, seed: 7 + a.side, size: 0.04 }); }
+  for (const l of R.legs) { shingles(l.hip, ash, { w: 0.16, d: 0.16, y0: -0.02, y1: -0.38, rows: hi ? 4 : 2, per: hi ? 8 : 5, seed: 9 + l.side, size: 0.05 }); shingles(l.knee, ash, { w: 0.15, d: 0.15, y0: -0.02, y1: -0.34, rows: hi ? 4 : 2, per: hi ? 8 : 5, seed: 11 + l.side, size: 0.05 }); }
   R.head.scale.setScalar(1.25); add(fitMaster(sph(0.11, 18, 14), 'ashflake'), solid('stone', '#46403c'), R.head, 0, 0, 0).scale.set(0.95, 1.1, 1);
   const rag = cloth('#a89a80'); add(fitMaster(lathe([[0.112, -0.03], [0.122, -0.015], [0.124, 0.03], [0.114, 0.05]], { n: 28, sx: 0.96 }), 'strap'), rag, R.head);
   for (const s2 of [-1, 1]) add(fitMaster(tube(curve([V(s2 * 0.02, 0.02, -0.11), V(s2 * 0.08, -0.03, -0.17), V(s2 * 0.1, -0.08, -0.2)], 8), t => [0.004, 0.02 * (1 - t * 0.5)], { n: 6, up: V(0, 0, 1) }), 'strap'), rag, R.head);
@@ -249,6 +271,14 @@ B.bellows = G => {
   for (let i = 0; i < 5; i++) add(new THREE.BoxGeometry(0.018, 0.17, 0.02), solid('iron', '#3a3230'), R.chest, (i - 2) * 0.035, 0.04, 0.295);
   for (const s2 of [-1, 1]) add(fitMaster(tube(curve([V(s2 * 0.26, 0.32, 0.2), V(s2 * 0.1, 0.1, 0.3), V(-s2 * 0.12, -0.18, 0.29), V(-s2 * 0.26, -0.3, 0.2)], 12), [0.008, 0.035], { n: 6, up: V(0, 0, 1) }), 'strap'), leather, R.chest);
   band(R.body, leather, 0.06, 0.66, 0.54, 0.07, 'strap');
+  // the harness: straps over each shoulder crossing in a Y down the back, buckles and brass rings where they meet
+  for (const s2 of [-1, 1]) { add(fitMaster(tube(curve([V(s2 * 0.16, 0.34, 0.22), V(s2 * 0.2, 0.36, 0.0), V(s2 * 0.14, 0.3, -0.24), V(0, 0.08, -0.29)], 12), [0.008, 0.032], { n: 6, up: V(0, 1, 0) }), 'strap'), leather, R.chest); add(tor(0.028, 0.007, 6, 14), brass, R.chest, s2 * 0.16, 0.3, 0.25); add(new THREE.BoxGeometry(0.05, 0.04, 0.012), brass, R.chest, s2 * 0.22, -0.28, 0.25); }
+  add(fitMaster(tube([V(0, 0.08, -0.29), V(0, -0.3, -0.27)], [0.008, 0.04], { n: 6, up: V(0, 0, 1) }), 'strap'), leather, R.chest);
+  add(fitMaster(plate([[-0.12, -0.08], [0.12, -0.08], [0.1, 0.06], [-0.1, 0.06]], () => 0.01), 'battered', { planar: true }), brass, R.chest, 0, -0.12, -0.29).rotation.y = Math.PI;
+  for (let i = 0; i < 3; i++) add(new THREE.BoxGeometry(0.012, 0.09, 0.01), fire, R.chest, (i - 1) * 0.04, -0.12, -0.302);
+  add(new THREE.BoxGeometry(0.07, 0.06, 0.015), brass, R.body, 0.0, 0.06, 0.28);
+  for (const l of R.legs) { band(l.hip, leather, -0.22, 0.27, 0.27, 0.05, 'strap'); add(new THREE.BoxGeometry(0.03, 0.035, 0.01), brass, l.hip, 0.0, -0.22, 0.14); add(new THREE.BoxGeometry(0.07, 0.012, 0.01), fire, l.knee, 0, -0.12, 0.125); }
+  for (const a of R.arms) { add(fitMaster(lumpy(sph(0.12, 14, 10, 0, Math.PI * 2, 0, Math.PI * 0.5), 0.01, 3), 'battered'), leather, a.sh, a.side * 0.02, 0.02, 0).scale.set(1.1, 0.7, 1); add(tor(0.025, 0.006, 6, 12), brass, a.sh, a.side * 0.1, -0.02, 0.1); }
   for (const a of R.arms) { band(a.sh, leather, -0.06, 0.24, 0.24, 0.05, 'strap'); band(a.el, leather, -0.08, 0.22, 0.22, 0.04, 'strap'); for (let k = 0; k < 2; k++) add(new THREE.BoxGeometry(0.06, 0.012, 0.01), fire, a.el, 0, -0.14 - k * 0.04, 0.11); }
   // the brass pipe up its back and over, and the chimney that is its head
   add(fitMaster(tube(curve([V(0, 0.2, -0.26), V(0, 0.42, -0.26), V(0, 0.56, -0.12), V(0, 0.56, 0.0)], 16), 0.035, { n: 10 }), 'rim'), brass, R.chest);
@@ -342,7 +372,18 @@ function buildUnsmith(o) {
 function buildJourneyman(o) {
   const H = { build: 'human', skin: 'skinTan', hairMat: 'hairBlack', hair: 'crop', eye: '#c89a3a', tunic: 'leatherDark', pants: 'wool', boots: 'leatherDark', gloves: 'leather', mask: 'leatherDark', mantle: 'hide', cloak: 'leatherDark', buckle: 'bronze', satchel: 'leather' };
   const h = buildHero('warden', {}, { H, looks: {} });
-  const R = h.rig, brass = solid('gold', '#c8a040');
+  const R = h.rig, brass = solid('gold', '#c8a040'), S = R.S, u = S.unit;
+  // a fur collar round the neck and over the shoulders: tufts laid outward and down
+  const fur = solid('wool', '#5a4636'), fr = rngOf(51), furG = new THREE.Group(); R.chest.add(furG);
+  for (let i = 0; i < (Q.d > 1 ? 44 : 22); i++) { const a = i / (Q.d > 1 ? 44 : 22) * Math.PI * 2 + fr() * 0.1, rr = S.shX * (0.75 + fr() * 0.25), y = S.shY + 0.03 * u + fr() * 0.04 * u, x = Math.cos(a) * rr, z = Math.sin(a) * rr * 0.75, out = V(Math.cos(a), 0, Math.sin(a) * 0.75).normalize();
+    add(fitMaster(tube(curve([V(x, y, z), V(x + out.x * 0.04 * u, y - 0.02 * u, z + out.z * 0.04 * u), V(x + out.x * 0.07 * u, y - 0.08 * u - fr() * 0.04 * u, z + out.z * 0.07 * u)], 6), t => [0.022 * u * (1 - t * 0.7), 0.012 * u * (1 - t * 0.6)], { n: 6, twist: fr() }), 'lock'), fur, furG); }
+  bake(furG, new Set([furG]));
+  // wild dark hair over the head (as the Unsmith's: locks along the scalp, swept back and out)
+  const hairM = mat('hairBlack', { side: true }), hg = new THREE.Group(); hg.scale.setScalar(S.headR / 0.1); R.head.add(hg);
+  for (let i = 0; i < (Q.d > 1 ? 30 : 16); i++) { const sgn = fr() < 0.5 ? -1 : 1, a0 = sgn * (0.2 + fr() * 1.6), e0 = 0.45 + fr() * 1.0, L = 0.4 + fr() * 0.6, pts = [];
+    for (let k = 0; k <= 6; k++) { const t = k / 6, az = a0 + sgn * L * t * 1.2, el = e0 - L * t * 0.9, rr2 = 0.115 + t * 0.035 + Math.sin(t * Math.PI) * 0.015; pts.push(V(Math.sin(az) * Math.cos(el) * rr2, Math.sin(el) * rr2, Math.cos(az) * Math.cos(el) * rr2 - 0.005)); }
+    add(fitMaster(tube(curve(pts, 10), t => [0.018 * (1 - t * 0.7), 0.009 * (1 - t * 0.5)], { n: 6, twist: fr() }), 'lock'), hairM, hg); }
+  bake(hg, new Set([hg]));
   // the Runestaff, its compass-star and the tags tied to it
   const st = new THREE.Group(); R.armR.grip.add(st);
   add(fitMaster(tube([V(0, -0.5, 0), V(0, 0.55, 0)], 0.013, { n: 8 }), 'haft'), solid('wood', '#3a2a1e'), st);
