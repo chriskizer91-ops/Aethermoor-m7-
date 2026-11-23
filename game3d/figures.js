@@ -10,9 +10,12 @@ import { buildBeast } from '../prototypes/bestiary/beasts.js';
 import { standeeLook } from '../prototypes/bestiary/standee.js';
 import { ready as hdReady } from '../prototypes/foe-hd/kit/js/loader.js';
 import { register, foeLook, addMoves } from '../prototypes/foe-hd/kit/js/looks.js';
-// the lanes' own move sets, added before registering (session 6): the desert lane's scorpion and lizard
+// the lanes' own move sets, added before registering (session 6): the desert lane's scorpion, lizard, wyrm (the Sand
+// Wyrm's swallow) and Kharzul's
 import * as scorpionMoves from '../prototypes/foe-hd/pages/desert-deep/moves/scorpion.js';
 import * as lizardMoves from '../prototypes/foe-hd/pages/desert-deep/moves/lizard.js';
+import * as wyrmMoves from '../prototypes/foe-hd/pages/desert-deep/moves/wyrm.js';
+import * as kharzulMoves from '../prototypes/foe-hd/pages/desert-deep/moves/kharzul.js';
 import { FOES_HD, WALKERS } from 'game3d:foes-hd';
 import { registerWalkers } from '../prototypes/foe-hd/pages/walkers/register.js';
 import { withWraiths, WRAITHS } from '../prototypes/wraiths/wraiths.js';
@@ -25,7 +28,7 @@ import { withWinged, WINGED } from '../prototypes/winged/winged.js';
 export const LOOKS = ['hd', 'hd-cutout', '3d', 'cutout'];
 let hdDone = false;
 export async function setFoeLook(look = 'hd') {
-  if (look.startsWith('hd') && !hdDone) { try { await hdReady(); addMoves('scorpion', scorpionMoves); addMoves('lizard', lizardMoves); for (const A of FOES_HD) register(A); registerWalkers(WALKERS, register); hdDone = true; } catch (e) { console.warn('full-detail foes', e); } }
+  if (look.startsWith('hd') && !hdDone) { try { await hdReady(); addMoves('scorpion', scorpionMoves); addMoves('lizard', lizardMoves); addMoves('wyrm', wyrmMoves); addMoves('kharzul', kharzulMoves); for (const A of FOES_HD) register(A); registerWalkers(WALKERS, register); hdDone = true; } catch (e) { console.warn('full-detail foes', e); } }
   const fall = look.endsWith('cutout') ? standeeLook : buildBeast;
   // Models' winged foes (lamp-moth, Gloamwing, Thunder-Roc), armoured and forge foes (the sentinels, the Ashen Warden, the
   // thralls, the forge-warden, the Unsmith...) and the eleven wraiths, rigid so always
