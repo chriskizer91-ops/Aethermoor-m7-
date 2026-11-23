@@ -5,6 +5,14 @@ shown side by side with the code-built model and a cut-out of Chris's sheet.
 
 ## Done
 
+- **The forge-spark** (November 23), in full detail, **passing the stretch check** (120 frames):
+  - Three ways, with the crowd test: https://claude.ai/artifact/7sjTb3ubzrCxJJZ189YZBW
+  - The sculpt itself (laptop): https://claude.ai/artifact/M7NGzTZXnqPTVEHXtDeQUr
+  - A living cinder: a ball of ember in a cracked slag shell held by rusted, riveted iron bands, light pouring out of
+    three slits in front and through a web of cracks, a crown of slag spikes with a flame and sparks, two floating
+    fists of glowing slag and a molten ring under it. Light model 13,642 (rabble); sculpt 981k triangles (4 MB saved).
+  - The `spark` plan moves it: every piece moves whole, so every edge stays at 1.00x.
+
 - **The marsh-light** (November 23), in full detail, **passing the stretch check** (120 frames):
   - Three ways, with the crowd test: https://claude.ai/artifact/XvU3kSAEBLpKMQP5pBXvQx
   - The sculpt itself (laptop): https://claude.ai/artifact/MatuoD1NwsB6inUV1K592H
@@ -154,7 +162,7 @@ shown side by side with the code-built model and a cut-out of Chris's sheet.
    report that bind.py lets some neck weight onto the thornhound's ear root despite its weigh(): weigh gates need
    +1000 (an unseen bone costs 100), and a gate should also stop the bands and smoothing.
 1. My lane, each passing the stretch check before it's handed in: (briarling, glowcap, boglurcher, willow-wight,
-   Grandfather Willow done) the sparks (marsh-light, forge-spark), rockling, Mother Anvil. (The wraiths moved
+   Grandfather Willow done) the sparks (marsh-light, forge-spark: done), rockling, Mother Anvil. (The wraiths moved
    to Models, session 3.)
 2. Briarmaw's moves smoothed (weights round the shoulders and hips, a fuller walk), a hit flash.
 2. The face closer still to the sheet; the coat's brown zones placed as the sheet paints them.
