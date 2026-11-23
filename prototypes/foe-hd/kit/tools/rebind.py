@@ -60,6 +60,7 @@ for k_, a_ in out.items():
                   'type': 'uint32' if a_.dtype == np.uint32 else 'float32'}
     blob.append(b_); o += len(b_)
 meta['layout'] = layout
+meta['moves'] = cfg.get('moves')     # the foe's own moves set, by name (looks.js PLANS)
 meta['split'] = bool(getattr(RIG, 'SPLIT', None))     # a cut mouth: the page draws both sides
 from common import helpers_for
 meta['helpers'] = helpers_for(RIG.BONES, getattr(RIG, 'HELPERS', None))     # helper joints the loader drives

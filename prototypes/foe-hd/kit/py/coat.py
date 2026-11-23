@@ -162,7 +162,9 @@ class Coat:
         """per-vertex colour of the coat: each tuft dark at its root, lighter to the tip, the partings darker, the
         crevices between tufts dark; elsewhere bare_colour (n, 3). Returns colours and the tuft height there."""
         top, tid, ts, tq = self.coat(V, True)
-        has = top > 0.002
+        # on a tuft at all: above 2 mm, or a quarter of the coat's tall tufts on a small foe whose scales stand 2-3 mm
+        tall = np.percentile(top[top > 0], 90) if (top > 0).any() else 0.008
+        has = top > min(0.002, 0.25 * tall)
         col = np.asarray(bare_colour, np.float64).copy()
         shade = 0.50 + 0.65 * ts ** 0.9
         if self.LV >= 2 and self.shape in ('tuft', 'lock'): shade = shade * (1 - 0.25 * tri(tq + 0.5) ** 3)

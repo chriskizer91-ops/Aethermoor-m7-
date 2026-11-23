@@ -15,18 +15,23 @@ import * as winged from './moves/winged.js';
 import * as mushroom from './moves/mushroom.js';
 import * as mound from './moves/mound.js';
 import * as willow from './moves/willow.js';
+import * as spark from './moves/spark.js';
 // the walkers (session 8): plan 'walker', their moves per foe in pages/walkers/foes.js, made into the kit's moves shape
 // by movesFor (with each foe's joint limits); so the Fight and Together get them with no special case
 import { FOES as WALKERS } from '../../pages/walkers/foes.js';
 import { movesFor } from '../../pages/walkers/walker.js';
 
-export const PLANS = { quad, biped, sapling, serpent, frog, winged, mushroom, mound, willow };          // more as the lanes add them (serpent, frog, winged, wraith...)
+export const PLANS = { quad, biped, sapling, serpent, frog, winged, mushroom, mound, willow, spark };          // more as the lanes add them (serpent, frog, winged, wraith...)
 const reg = new Map();
+export function addMoves(name, set) { PLANS[name] = set; }        // a lane's own moves set, by name
 
 export function register(A, { res = A.tex[2048] ? 2048 : Number(Object.keys(A.tex)[0]), moves } = {}) {
   const key = A.lightMeta.key, plan = A.lightMeta.plan || 'quad';
   const own = plan === 'walker' && WALKERS[key] ? movesFor(WALKERS[key]) : null;
-  reg.set(key, { A, res, moves: moves || own || PLANS[plan] || quad, shared: null, first: null });
+  // a foe may name its own moves set (foe.json "moves", carried into light.json), e.g. 'lizard' on a 'quad' rig;
+  // a lane adds its sets with addMoves('lizard', lizardMoves) before registering
+  const named = A.lightMeta.moves && PLANS[A.lightMeta.moves];
+  reg.set(key, { A, res, moves: moves || own || named || PLANS[plan] || quad, shared: null, first: null });
   return key;
 }
 export function registered(key) { return reg.has(key); }

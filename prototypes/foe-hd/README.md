@@ -153,6 +153,11 @@ Chris saw the Rotwarden's belt and straps drag out into a web when he spread his
 
 ### The page side (`kit/js/`)
 
+- **A foe's own moves set.** `looks.js` `register(A)` picks the moves by `light.json` `moves` (from foe.json
+  `"moves"`, carried by the bake, `rebind.py` and `pack.mjs`), else by its `plan`. A lane adds its own sets first:
+  `addMoves('lizard', lizardMoves)` (or `PLANS.lizard = ...`), then registers its foes. The walkers' plan finds its
+  moves in `pages/walkers/foes.js` by itself.
+
 - `loader.js`: `ready, makeShared(A, res), makeFoe(shared, moves), cloneFoe(F)`: the Fight's face
   `{ group, plan, height, parts, update(t, step), hit(), act: { lunge, fall }, pose(move, u, t) }`.
 - `moves/<plan>.js` (quad, biped, sapling, mushroom, serpent, frog, winged): `MOVES, DUR, LUNGE, ALIAS?, pose(F, move,

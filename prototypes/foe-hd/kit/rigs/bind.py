@@ -103,6 +103,11 @@ def bind(RIG, P, kind, tris, height, mid, log=print):
     def subtree_branches(b): return len(kids[b]) >= 2 or any(subtree_branches(c) for c in kids[b])
     trunk = set(idx[n] for n in getattr(RIG, 'TRUNK', ())) or \
         set(b for b in range(nb) if par[b] < 0 or subtree_branches(b))
+    # helper joints sit on the body (a blade on the shoulder, neck_base, tail_root): the touching-limbs cut never opens
+    # between two of them (session 4's tear on a long, low body, where a blade met neck_base)
+    from common import HELPER_SHARE
+    helpers = set(b for b, n in enumerate(names)
+                  if any(n == k or (k.startswith('_') and n.endswith(k)) for k in HELPER_SHARE))
     def chain(b):                                   # the bones from b up to the root
         out = [b]
         while par[out[-1]] >= 0: out.append(par[out[-1]])
@@ -257,7 +262,7 @@ def bind(RIG, P, kind, tris, height, mid, log=print):
         for e in range(3):
             a, b = lt[:, e], lt[:, (e + 1) % 3]
             dif = np.flatnonzero(a != b)
-            far = np.array([(apart(x, y) >= 2 and x not in trunk and y not in trunk) or (x, y) in split
+            far = np.array([(apart(x, y) >= 2 and x not in trunk and y not in trunk and not (x in helpers and y in helpers)) or (x, y) in split
                             or ((x in jaws or y in jaws) and apart(x, y) >= 2)
                             for x, y in zip(a[dif], b[dif])], bool)
             cut[dif[far]] = True

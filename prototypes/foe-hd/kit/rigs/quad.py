@@ -51,6 +51,12 @@ def make(legs, hips, spine, chest, neck, head, jaw=None, tail=None, jaw_region=N
                 D[:, i] += np.where((P[:, 1] > split) != (n[0] == 'f'), 1.0, 0.0)
             if n == 'jaw': D[:, i] += 10
             if n in ('tail', 'tail_root'): D[:, i] *= np.where(P[:, 1] < tfrom, 0.7, 2.0)
+        # the helpers keep to their own joint: a blade or haunch only within one upper-leg length of its joint (on a
+        # long, low body they'd otherwise claim the side up to the neck); +400 steers the labels, it isn't a gate
+        for i, b in enumerate(B):
+            if b[0].endswith(('_blade', '_haunch')):
+                L = float(np.linalg.norm(np.subtract(legs[b[0][:2]][0], legs[b[0][:2]][1])))
+                D[:, i] += np.where(np.linalg.norm(P - np.asarray(b[3]), axis=1) > 1.0 * L, 400.0, 0.0)
         if jaw and jaw_region is not None:
             D[jaw_region(P), idx['jaw']] = 0.0
         return D
