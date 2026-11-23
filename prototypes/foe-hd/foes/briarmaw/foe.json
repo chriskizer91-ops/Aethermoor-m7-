@@ -46,7 +46,10 @@
   },
   "light": {
     "level": 0,
-    "coat": 29500
+    "coat": 21000,
+    "kinds": {
+      "1": 8500
+    }
   },
   "sculpt": {
     "level": 3
@@ -67,9 +70,9 @@
     }
   },
   "rig": "rig.py",
-  "moves": "quad",
+  "moves": "bear",
   "blurb": "Briarmaw's coat is about 1,500 big leaf-feather tufts sculpted into one surface, with the thorn ridge down his back, the crown of thorns, the bramble vines, tusks, golden fangs and claws as real shapes.",
-  "next": "his moves smoothed, and the face closer still to the sheet.",
+  "next": "his head drawn out of his shoulders in the sculpt, so his head can toss as freely as his legs now swing.",
   "pages": {
     "sculpt": "https://claude.ai/artifact/AVSmLbEu3jz1NVnohgqT9P",
     "three": "https://claude.ai/artifact/5iUqJsPw3NGrvun4Ng73eh"

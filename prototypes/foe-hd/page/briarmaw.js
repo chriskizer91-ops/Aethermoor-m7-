@@ -1,7 +1,7 @@
 // Kept so earlier callers keep working (November 20): Briarmaw now comes from the foe kit. New code should use
 // kit/js/looks.js (register each foe's assets, then setBeastLook(foeLook(buildBeast))) and kit/js/loader.js.
 import { ready, makeShared, makeFoe, cloneFoe, decodeLight } from '../kit/js/loader.js';
-import * as quad from '../kit/js/moves/quad.js';
+import * as quad from '../kit/js/moves/bear.js';     // his own lively set (November 23)
 export { ready, makeShared, decodeLight };
 export const buildBriarmawHD = (shared) => makeFoe(shared, quad);
 export const cloneBriarmaw = (B) => cloneFoe(B, quad);
