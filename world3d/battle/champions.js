@@ -205,7 +205,7 @@ export const MOMENTS = {
   },
   'gloamwing:cocoon': { // "It wraps itself in silk: Regenerating."
     move: ['cocoon', 'cast'],
-    land: (c) => { c.fx.vines(c.F.pos.clone(), c.F.size.h * 1.0, Math.max(0.5, c.F.size.w * 0.55), '#f0ece0', 1.5); c.fx.pulse(mid(c), '#8ad872', 1.2, 1.0); },
+    land: (c) => { if (!c.F.fig.beast?.pose) c.fx.vines(c.F.pos.clone(), c.F.size.h * 1.0, Math.max(0.5, c.F.size.w * 0.55), '#f0ece0', 1.5); c.fx.pulse(mid(c), '#8ad872', 1.2, 1.0); }, // (Models' Gloamwing spins its own silk shell)
   },
   'gloamwing:bell-hum': { // "The Dawnbell hums on its thorax: 2d6 radiant to all, and you Stagger."
     move: ['bell-hum', 'roar'], camera: 'wide',
