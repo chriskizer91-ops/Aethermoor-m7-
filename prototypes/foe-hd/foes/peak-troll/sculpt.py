@@ -160,7 +160,7 @@ def loin_body(P):
 def hides(P): return np.minimum(cape_body(P), loin_body(P))
 def tuft_len(P):
     z = P[:, 2]
-    L = mix(0.30, 0.09, sstep(1.55, 2.0, z))                 # long ragged strands low down, a short cushion over the shoulders
+    L = mix(0.30, 0.10, sstep(1.85, 2.15, z))                 # long strands off his shoulders and back, a short cushion on top                 # long ragged strands low down, a short cushion over the shoulders
     L = mix(L, 0.20, (z < 1.15) & (P[:, 1] > 0.05))         # the moss skirt
     return L * (0.9 + 0.2 * fbm(P, 3.0))
 def flow(P, N):
@@ -181,11 +181,10 @@ def style(TP, TL, rng):
     C = C * (0.85 + 0.3 * rng.random(n))[:, None]
     return dict(W=W, H=H, C=C)
 # the boulders: each set on the mantle's outer surface, two thirds out of the moss
-_BC = [((0.0, -0.40, 2.30), (0.22, 0.17, 0.13)), ((0.40, -0.25, 2.15), (0.17, 0.14, 0.11)), ((-0.38, -0.22, 2.18), (0.16, 0.14, 0.11)),
-       ((0.70, 0.0, 2.0), (0.14, 0.12, 0.10)), ((0.05, -0.80, 1.60), (0.18, 0.10, 0.15)), ((-0.10, -0.10, 2.45), (0.12, 0.11, 0.07)),
-       ((-0.35, -0.70, 1.85), (0.12, 0.09, 0.11))]
+_BC = [((0.0, -0.40, 2.30), (0.18, 0.15, 0.11)), ((0.40, -0.25, 2.15), (0.14, 0.12, 0.09)), ((-0.38, -0.22, 2.18), (0.13, 0.12, 0.09)),
+       ((0.05, -0.80, 1.60), (0.15, 0.09, 0.13)), ((-0.10, -0.10, 2.45), (0.10, 0.09, 0.06))]
 _q, _n = project(A([c for c, r in _BC]), mantle_outer, it=12)
-BOULDERS = [(tuple((_q[i] + _n[i] * 0.25 * min(r)).astype(float)), r) for i, (c, r) in enumerate(_BC)]   # sunk into the moss
+BOULDERS = [(tuple((_q[i] + _n[i] * 0.05 * min(r)).astype(float)), r) for i, (c, r) in enumerate(_BC)]   # half sunk into the moss
 log('hides: the coat of tufts')
 COAT = kitcoat.Coat(hides, LO, HI, LV, VOX, tuft_len, flow, bare, style, seed=23, spacing=0.36, strands=(4, 6), log=log)
 P_.add('hides', COAT.full_sdf, 'fur')
@@ -238,9 +237,13 @@ col = np.zeros((len(Vb), 3)); mat = np.zeros((len(Vb), 2))
 n1 = fbm(Vb, 4.0); n2 = fbm(Vb + 5, 12.0)
 skin = mix(SKIN_D, SKIN, np.clip(n1 * 1.6 - 0.2, 0, 1)[:, None])
 skin = mix(skin, SKIN_L, (np.clip(n2 - 0.55, 0, 1) * 2)[:, None])
-skin = mix(skin, np.array([0.26, 0.36, 0.12]), (np.clip((fbm(Vb + 9, 3.5) - 0.48) * 4, 0, 1) * 0.85)[:, None])   # moss growing on him
+skin = mix(skin, np.array([0.17, 0.27, 0.07]), (np.clip((fbm(Vb + 9, 3.5) - 0.50) * 4, 0, 1) * 0.9)[:, None])   # moss growing on him in patches
 m_ = look == 'stone'; col_st = mix(STONE_D, STONE, np.clip(n1 * 1.5 - 0.2, 0, 1)[:, None])
-col_st = mix(col_st, FUR, (np.clip((fbm(Vb + 2, 6.0) - 0.36) * 3, 0, 1))[:, None])          # moss over the boulders
+_fn = np.cross(Vb[Fb[:, 1]] - Vb[Fb[:, 0]], Vb[Fb[:, 2]] - Vb[Fb[:, 0]]); _vn = np.zeros_like(Vb)
+for _j in range(3): np.add.at(_vn, Fb[:, _j], _fn)
+_vn /= np.maximum(np.linalg.norm(_vn, axis=1, keepdims=True), 1e-9)
+_mo = np.clip(sstep(-0.1, 0.5, _vn[:, 2]) * (0.6 + 0.8 * (fbm(Vb + 2, 7.0) - 0.5)), 0, 1)
+col_st = mix(col_st, mix(FUR_D, FUR, fbm(Vb, 20.0)[:, None]), _mo[:, None])                     # moss over the boulders' tops
 col[:] = skin; mat[:] = MAT['skin']
 fc, top, has = COAT.colours(Vb, skin)
 m = look == 'fur'; col[m] = fc[m] * (1 - 0.45 * np.clip(1 - top[m] / 0.01, 0, 1))[:, None]; mat[m] = MAT['fur']
@@ -308,8 +311,9 @@ def vine(pts, n, out):
             M.add(V, F, BLOOD, 4, MAT['blood'])
 vine([(0.50, 0.30, 1.78), (0.30, 0.42, 1.60), (0.02, 0.50, 1.38), (-0.25, 0.46, 1.20), (-0.42, 0.30, 1.10)], 60, 0.012)
 # shelf mushrooms on his left shoulder and down the left of his back, stacked in tiers
-SH_MUSH = [(-0.72, 0.05, 1.98), (-0.78, -0.05, 1.90), (-0.70, 0.12, 2.03), (-0.80, -0.15, 1.82), (-0.60, -0.35, 2.00), (-0.68, -0.30, 1.86),
-           (-0.50, -0.50, 1.84), (-0.82, 0.0, 1.76), (-0.75, -0.22, 1.95), (-0.62, 0.05, 2.10), (-0.55, -0.45, 1.95), (-0.80, -0.10, 1.70)]
+SH_MUSH = [(-0.62, 0.02, 2.06), (-0.70, -0.08, 2.02), (-0.55, 0.10, 2.10), (-0.66, -0.18, 1.98), (-0.48, -0.25, 2.12), (-0.58, -0.32, 2.02),
+           (-0.45, -0.45, 1.98), (-0.74, 0.04, 1.94), (-0.72, -0.25, 1.88), (-0.52, -0.05, 2.15), (-0.40, -0.55, 1.90), (-0.30, -0.62, 1.95),
+           (-0.20, -0.66, 2.0), (-0.78, -0.12, 1.84)]
 for k, c in enumerate(SH_MUSH):
     p, nn = on_surf(np.array(c), 0.04)
     r = 0.06 + 0.03 * rng.random()
@@ -320,8 +324,8 @@ for k, c in enumerate(SH_MUSH):
         for j in range(npp):
             a_ = i * npp + j; b_ = i * npp + (j + 1) % npp; Fc += [(a_, a_ + npp, b_ + npp), (a_, b_ + npp, b_)]
     out_ = nn * np.array([1, 1, 0.3]); out_ /= np.linalg.norm(out_)
-    Vc = p + out_ * r * 0.6 + sp * [r, r, r * 0.35]
-    Cc = mix(CAP * 0.75, CAP, np.clip(sp[:, 2:3] * 1.2, 0, 1))
+    Vc = p + out_ * r * 0.3 + np.array([0, 0, r * 0.25]) + sp * [r, r, r * 0.55]          # a domed cap standing on the moss
+    Cc = mix(CAP * 0.9, np.array([0.52, 0.40, 0.28]), np.clip(sp[:, 2:3] * 1.3 - 0.2, 0, 1))   # browner on top
     M.add(Vc, np.array(Fc), Cc, 8, MAT['cap'])
 
 # ---- 7. the club in his left hand: a gnarled log, moss and mushrooms on its head --------------------------------------

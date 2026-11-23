@@ -55,9 +55,10 @@ def rigid(kind, P, idx): return RIGID.get(int(kind))
 # the pieces (sculpt.py): each keeps only its own bones
 _ALL = [b[0] for b in BONES]
 _ARMS = [n for n in _ALL if n[2:] in ('upper', 'fore', 'hand')]; _LEGS = [n for n in _ALL if n[2:] in ('thigh', 'shin', 'foot')]
-PIECES = {12: _ARMS, 13: _LEGS, 14: ['head'], 0: [n for n in _ALL if n not in _ARMS + _LEGS + ['head']], 1: ['chest'], 15: ['hips'],
+PIECES = {12: _ARMS, 13: _LEGS, 14: ['head'], 0: [n for n in _ALL if n not in _ARMS + _LEGS + ['head']], 1: ['hips', 'spine', 'chest'], 15: ['hips'],     # the mantle hugs his trunk and meets his skin at his seat: it bends as his trunk does
           10: ['l_hand'], 5: ['head'], 8: ['chest'], 4: ['hips', 'spine', 'chest']}
 BANDS = {'r_upper': (0.001, 0.001), 'l_upper': (0.001, 0.001), 'r_thigh': (0.001, 0.001), 'l_thigh': (0.001, 0.001),
          'r_shin': (0.12, 0.32), 'l_shin': (0.12, 0.32),
          'r_fore': (0.16, 0.34), 'l_fore': (0.16, 0.34),
-         'spine': (0.14, 0.45), 'chest': (0.14, 0.45), 'neck': (0.12, 0.35), 'head': (0.001, 0.001)}
+         'spine': (0.14, 0.45), 'chest': (0.14, 0.45), 'neck': (0.12, 0.35), 'head': (0.001, 0.001),
+         'r_foot': (0.06, 0.18), 'l_foot': (0.06, 0.18)}      # the ankle's blend kept to the ankle (a broad foot's band reached the knee)
