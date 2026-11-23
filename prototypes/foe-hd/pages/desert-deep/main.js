@@ -116,6 +116,13 @@ function refresh() {
   $('stands').hidden = S.crowd; $('crowdnote').hidden = !S.crowd;
 }
 $('turn').onclick = () => { S.turn = !S.turn; refresh(); };
+// (desert and deep) the full-detail one alone, in the middle, close up: for looking at its moves on a phone
+S.solo = /solo/.test(location.search + location.hash);
+function solo() {
+  stands[0].g.visible = stands[1].g.visible = !S.solo && !S.crowd; stands[2].g.position.x = S.solo ? 0 : SPACING;
+  $('solo').setAttribute('aria-pressed', S.solo); frame();
+}
+$('solo').onclick = () => { S.solo = !S.solo; solo(); };
 $('crowd').onclick = () => {
   S.crowd = !S.crowd;
   if (S.crowd) buildCrowd();
@@ -129,7 +136,7 @@ function frame() {
   if (S.crowd) { const k = Math.max(0.6, SZ); controls.target.set(0, 0.9, 0); const d = (ar < 1 ? 19 : 14) * k; camera.position.set(0, d * 0.5, d); }
   else {
     // all three stands in view: further back on a narrow (phone) screen
-    const need = (SPACING * 2 + 3.4 * SZ) / 2, fov = camera.fov * Math.PI / 180;
+    const need = S.solo ? 1.9 * SZ : (SPACING * 2 + 3.4 * SZ) / 2, fov = camera.fov * Math.PI / 180;
     const dist = Math.max(need / (Math.tan(fov / 2) * ar), 1.3 * SZ / Math.tan(fov / 2)) * 1.04;
     controls.target.set(0, 0.8 * SZ, 0); camera.position.set(0, (1.2 + dist * 0.16) * Math.sqrt(SZ), dist);
   }
@@ -193,7 +200,7 @@ function loop() {
   if (A.next) $('next').innerHTML = '<b>Still to come:</b> ' + A.next.replace(/</g, '&lt;'); else $('next').hidden = true;
   if (A.sculptUrl) $('sculptlink').href = A.sculptUrl; else $('sculptlink').hidden = true;
   document.title = 'Desert and Deep';
-  refresh(); resize();
+  refresh(); resize(); solo();
   if (new URLSearchParams(location.search).has('crowd')) $('crowd').onclick();
   window.__ready = true;
   loop();
