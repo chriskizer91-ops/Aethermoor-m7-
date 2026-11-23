@@ -101,6 +101,12 @@ about 25 MB).
   middle), `BANDS = {bone: w or (w, R)}` (a joint's blend: half-width and reach), `SMOOTH` (smoothing passes, default
   8) and `SPLIT = [('head', 'jaw')]` (cut two parts apart with no blend: a mouth that opens; the page then draws the
   model's inside too, so the open mouth shows the inside of the head).
+  `JAW_KEEP = {'jaw': ['chest']}`: parts a cut-free jaw may still blend with (a jaw that runs on into the belly).
+  `WELD_SAME_KIND = True`: weld only points of one kind, so a piece that merely touches the body (a fin, a crest
+  plate, a leg with its own coat, a vine on a leg) keeps its own weights (Briarmaw, the fish, the Leviathan).
+- **Bake reach.** `bake.reach` in foe.json: how far the bake looks for the sculpt's surface. The default (coat 0.07-0.2 m)
+  suits a furred coat; a smooth or furless foe wants a short one (e.g. `{"coat": [0.01, 0.025], "parts": [0.004,
+  0.01]}`) or a head that overhangs the belly gets painted onto it. The bake says so when it's missing.
 - **Gates.** In `weigh`, `+ 1000` on a bone means "never" for that point, and it holds through everything (labels,
   joint bands, smoothing). A value under 500 only steers the labels (smoothing may still blend a little in). A rig may
   also give `mask(P, idx) -> (n, bones)` in 0..1, a soft gate multiplied in at every step: give it soft edges a few cm

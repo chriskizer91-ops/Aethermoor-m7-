@@ -12,12 +12,15 @@ const N = ['n0', 'n1', 'n2', 'n3', 'n4', 'n5'];
 
 export const MOVES = [['idle', 'Loom'], ['walk', 'Swim'], ['coil', 'Coil'], ['tail-slap', 'Tail Slap'], ['sound', 'Sound'],
   ['breach', 'Breach'], ['swallow', 'Swallow'], ['undertow', 'Undertow'], ['harpoon-rage', 'Harpoon Rage'],
-  ['pearl-light', 'Pearl Light'], ['flood', 'Flood'], ['hurt', 'Hit'], ['ko', 'Fall']];
+  ['pearl-light', 'Pearl Light'], ['flood', 'Flood'], ['full', 'Full'], ['spit', 'Spit Out'], ['hurt', 'Hit'], ['ko', 'Fall']];
 export const DUR = { coil: 1.6, 'tail-slap': 1.4, sound: 2.2, breach: 1.8, swallow: 2.4, undertow: 2.4, 'harpoon-rage': 1.8,
-  'pearl-light': 2.2, flood: 2.2, hurt: 0.9, ko: 2.6 };
+  'pearl-light': 2.2, flood: 2.2, spit: 1.2, hurt: 0.9, ko: 2.6 };
 export const LUNGE = 'swallow';
 export const ALIAS = { bite: 'swallow', strike: 'flood', swipe: 'tail-slap', cast: 'pearl-light', roar: 'harpoon-rage', dive: 'sound' };
-export const EVENTS = { swallow: { gulp: 0.45 }, sound: { under: 0.55 }, breach: { out: 0.4 } };
+// for the Fight: the swallow's moment (jaw widest over the hero at u 0.45; reach: metres from his root to the hero
+// then, his root staying in the water); his sound takes him wholly under by itself, and his breach brings him up
+export const EVENTS = { swallow: { gulp: 0.45, reach: 1.05 }, sound: { under: 0.55 }, breach: { out: 0.4 } };
+export const SINKS = { sound: true, breach: true };
 
 function reset(B) {
   for (const b of Object.values(B.bones)) { b.rotation.set(0, 0, 0); b.position.copy(b.userData.p0); b.scale.set(1, 1, 1); }
@@ -77,7 +80,7 @@ export function pose(B, move, u, t, step = 0) {
     lift(b.base, 0, 0.05 * H * go);
     // the gulp goes down his neck: a swell travelling from the head to the water
     const g = seg(u, 0.6, 0.95);
-    N.forEach((n, i) => { b[n].rotation.x += 0.04 * bump((g * 7 - (5 - i)) / 2); });
+    N.forEach((n, i) => { b[n].rotation.x += 0.03 * bump((g * 7 - (5 - i)) / 2); });
     return;
   }
   if (move === 'undertow') {
@@ -108,6 +111,20 @@ export function pose(B, move, u, t, step = 0) {
     neck(-0.08 * up + 0.16 * down, 0, 0, 0.35, 1); b.head.rotation.x += -0.12 * up + 0.15 * down; b.jaw.rotation.x += 0.4 * up;
     lift(b.base, 0.06 * H * up - 0.08 * H * down, 0.05 * H * down);
     lift(b.r_coil, 0.15 * H * up - 0.05 * H * down); lift(b.l_coil, 0.15 * H * up - 0.05 * H * down);
+    return;
+  }
+  if (move === 'full') {
+    // someone is inside him: jaw shut, he sways heavy, and a slow swallow goes down his neck, again and again
+    const g = (t * 0.35) % 1;
+    b.jaw.rotation.x = 0.0; b.head.rotation.x += 0.04;
+    N.forEach((n, i) => { b[n].rotation.x += 0.035 * bump((g * 8 - (5 - i)) / 2); });
+    return;
+  }
+  if (move === 'spit') {
+    // his jaw flares wide and he throws you out, his neck snapping forward
+    const back = seg(u, 0, 0.25) * (1 - seg(u, 0.3, 0.45)), go = seg(u, 0.3, 0.45) * (1 - seg(u, 0.7, 1));
+    neck(-0.05 * back + 0.08 * go, 0, 0, 0.35, 1); b.head.rotation.x += -0.1 * back + 0.1 * go;
+    b.jaw.rotation.x += 0.75 * bump((u - 0.2) / 0.45);
     return;
   }
   if (move === 'hurt') {

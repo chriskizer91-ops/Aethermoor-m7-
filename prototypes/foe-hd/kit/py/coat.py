@@ -136,7 +136,7 @@ class Coat:
             if LV >= 2:
                 crack = np.abs(np.sin(P[:, None, 0] * 61 + P[:, None, 1] * 37 + 3 * np.sin(P[:, None, 2] * 23)))
                 h = h * (1 - 0.18 * np.exp(-(crack / 0.06) ** 2))
-                q = crack
+                q = np.broadcast_to(crack, h.shape)       # (n, 1) to (n, tufts): Places' want_id fix, November 23
         h = np.where(np.abs(nrm) < 0.25, h, 0); h = np.where(np.isfinite(dist), h, 0)
         j = np.argmax(h, 1); r = np.arange(len(P))
         if want_id: return h[r, j], idx[r, j], ss[r, j], q[r, j]

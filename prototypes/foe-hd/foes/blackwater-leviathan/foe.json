@@ -34,8 +34,8 @@
   "voxel": {
     "0": 0.016,
     "1": 0.01,
-    "2": 0.0065,
-    "3": 0.0042
+    "2": 0.0075,
+    "3": 0.0066
   },
   "view": {
     "center": [
@@ -82,6 +82,9 @@
   },
   "rig": "rig.py",
   "blurb": "The Blackwater Leviathan is a sea-serpent rising out of the black water, his neck in a slow S and two coils of his body humped out of the water at his sides: dark teal scales with pale edges and pale green plates down his throat, a dragon's head with orange eyes, a frill of fins and a ridge of spines, a great pearl set in his crown, an iron collar with a chain hanging from it into the water, a harpoon in his chest with red rags, and barnacles in clusters.",
-  "next": "his moves smoothed.",
-  "pages": {}
+  "next": "his scales bigger and leafier as the sheet paints them, his coils egg-shaped, and a closer camera on the phone page.",
+  "pages": {
+    "three": "https://claude.ai/artifact/3Px9mipuqrTBB8NFfehbj5",
+    "sculpt": "https://claude.ai/artifact/AqaNEJqebbVdKEtMv7SXE4"
+  }
 }

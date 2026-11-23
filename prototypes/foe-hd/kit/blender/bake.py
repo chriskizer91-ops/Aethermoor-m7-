@@ -27,6 +27,10 @@ SHAPE = os.path.join(FOE, 'build', f"high-{cfg['light']['level']}.npz")
 OUT = os.path.join(FOE, 'build', 'bake')
 RES = int(argv[1]) if len(argv) > 1 else cfg.get('bake', {}).get('res', 2048)
 REACH = cfg.get('bake', {}).get('reach', {'coat': [0.07, 0.2], 'parts': [0.02, 0.05]})
+if 'reach' not in cfg.get('bake', {}):     # (session 7, November 23) the default reaches a furred coat's tufts; on a
+    print('[bake] note: no bake.reach in foe.json: the coat is baked from up to 0.2 m away, right for a furred coat. '
+          'A smooth or furless foe wants a short one, e.g. "reach": {"coat": [0.01, 0.025], "parts": [0.004, 0.01]}, '
+          'or a head that overhangs the belly gets painted onto it.')
 os.makedirs(OUT, exist_ok=True)
 def log(*a): print('[bake]', *a, flush=True)
 # the rig: the foe's rig.py gives BONES, and may give weigh(D, P, idx) and rigid(kind, P, idx)

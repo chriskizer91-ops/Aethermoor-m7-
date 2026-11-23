@@ -5,6 +5,19 @@ shown side by side with the code-built model and a cut-out of Chris's sheet.
 
 ## Done
 
+- **The Blackwater Leviathan** (November 23), Champion of the Gloomfen, in full detail, **passing the stretch check**
+  (120 frames):
+  - Three ways, with the crowd test: https://claude.ai/artifact/3Px9mipuqrTBB8NFfehbj5
+  - The sculpt itself (laptop): https://claude.ai/artifact/AqaNEJqebbVdKEtMv7SXE4
+  - A sea-serpent rising 2.2 m out of the black water, his neck in a slow S, two coils humped out of the water at his
+    sides; dark teal scales, pale plates down his throat, a dragon's head with a jaw of its own, orange eyes, a frill and
+    horns, spines down his neck, the pearl in his crown; an iron collar with its chain into the water, a harpoon in his
+    chest with red rags, barnacles. Light model 48,759; sculpt 908k (3.7 MB saved).
+  - A new plan, `leviathan` (`kit/js/moves/leviathan.js`), his game moves by their ids: coil, tail-slap, sound (fully
+    under), breach (up from under), swallow, undertow, harpoon-rage, pearl-light, flood; and the Fight's full and spit.
+    For the Fight: `EVENTS.swallow = { gulp: 0.45, reach: 1.05 }`, `SINKS`, and bones `mouth`, `pearl`, `harpoon`
+    (no skin). The blackwater-gar and Old Jaws have the same (`fish`, `oldjaws`: swallow, full, spit, a `mouth` bone).
+
 - **Briarmaw lively again** (November 23), **passing the stretch check** (120 frames), pages republished (same links):
   - Three ways: https://claude.ai/artifact/5iUqJsPw3NGrvun4Ng73eh · the sculpt: https://claude.ai/artifact/AVSmLbEu3jz1NVnohgqT9P
   - His legs drawn out of his belly: the belly raised to the sheet's 0.46 m, and each leg a piece of its own with its
@@ -223,7 +236,7 @@ shown side by side with the code-built model and a cut-out of Chris's sheet.
    report that bind.py lets some neck weight onto the thornhound's ear root despite its weigh(): weigh gates need
    +1000 (an unseen bone costs 100), and a gate should also stop the bands and smoothing.
 1. My lane, each passing the stretch check before it's handed in: (briarling, glowcap, boglurcher, willow-wight,
-   Grandfather Willow done) the sparks (marsh-light, forge-spark), rockling, Mother Anvil: all done. (The wraiths moved
+   Grandfather Willow done) the sparks (marsh-light, forge-spark), rockling, Mother Anvil: all done. Then Briarmaw lively again and the Gloomfen's deep beasts (mire-leech, blackwater-gar, Old Jaws, the Blackwater Leviathan): all done. (The wraiths moved
    to Models, session 3.)
 2. Briarmaw's moves smoothed (weights round the shoulders and hips, a fuller walk), a hit flash.
 2. The face closer still to the sheet; the coat's brown zones placed as the sheet paints them.
