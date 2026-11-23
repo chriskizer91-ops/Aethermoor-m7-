@@ -32,7 +32,10 @@ import { arena, foeFigure, setBeastLook } from './battle/arena.js';
 import { standeeLook } from '../prototypes/bestiary/standee.js';
 import { buildBeast } from '../prototypes/bestiary/beasts.js';
 import { ready as hdReady } from '../prototypes/foe-hd/kit/js/loader.js';
-import { register as hdRegister, foeLook as hdFoeLook } from '../prototypes/foe-hd/kit/js/looks.js';
+import { register as hdRegister, foeLook as hdFoeLook, addMoves } from '../prototypes/foe-hd/kit/js/looks.js';
+// the lanes' own move sets, added before registering (session 6, November 23): the desert lane's scorpion and lizard
+import * as scorpionMoves from '../prototypes/foe-hd/pages/desert-deep/moves/scorpion.js';
+import * as lizardMoves from '../prototypes/foe-hd/pages/desert-deep/moves/lizard.js';
 import { FOES as HD_FOES, WALKERS as HD_WALKERS } from 'fight-foe-assets';
 // session 8's walkers (the Rotwarden, the sapwight) go in with their own bones and moves, as Together's game does
 import { registerWalkers } from '../prototypes/foe-hd/pages/walkers/register.js';
@@ -72,7 +75,7 @@ SCENES.den = encScene('briarmaw-den');
 const LOOKS = ['hd', '3d', 'cutout'];
 let look = LOOKS.includes(Q.get('foes')) ? Q.get('foes') : 'hd', hdLook = null;
 async function useLook(k) {
-  if (k === 'hd' && !hdLook) { await hdReady(); for (const A of HD_FOES) hdRegister(A, { res: Number(Object.keys(A.tex)[0]) }); registerWalkers(HD_WALKERS, hdRegister); hdLook = withWraiths(hdFoeLook(buildBeast)); }
+  if (k === 'hd' && !hdLook) { await hdReady(); addMoves('scorpion', scorpionMoves); addMoves('lizard', lizardMoves); for (const A of HD_FOES) hdRegister(A, { res: Number(Object.keys(A.tex)[0]) }); registerWalkers(HD_WALKERS, hdRegister); hdLook = withWraiths(hdFoeLook(buildBeast)); }
   setBeastLook(k === 'cutout' ? standeeLook : k === 'hd' ? hdLook : null);
 }
 let SC = Q.get('enc') && encScene(Q.get('enc')) || SCENES[Q.get('fight') === 'briarmaw' ? 'den' : 'road'];
