@@ -9,8 +9,13 @@ const seg = (u, a, b) => ease((u - a) / (b - a));
 const NOOP = { rotation: { x: 0, y: 0, z: 0, set() {} }, position: { x: 0, y: 0, z: 0, set() {}, copy() {} }, scale: { set() {} }, userData: { p0: { x: 0, y: 0, z: 0 } } };
 
 export const MOVES = [['idle', 'Hover'], ['walk', 'Swim'], ['bite', 'Bite'], ['leap', 'Leap'], ['dive', 'Dive'],
-  ['death-roll', 'Death Roll'], ['the-tooth', 'The Tooth'], ['hurt', 'Hit'], ['ko', 'Belly Up']];
-export const DUR = { bite: 1.0, leap: 1.6, dive: 1.8, 'death-roll': 2.0, 'the-tooth': 1.3, hurt: 0.8, ko: 2.2 };
+  ['death-roll', 'Death Roll'], ['the-tooth', 'The Tooth'], ['swallow', 'Swallow'], ['full', 'Full'], ['spit', 'Spit Out'],
+  ['hurt', 'Hit'], ['ko', 'Belly Up']];
+// for the Fight: the swallow's moment (jaw open over the hero at u 0.45; reach: metres from its root to the hero then);
+// its dive takes it under the ground by itself
+export const EVENTS = { swallow: { gulp: 0.45, reach: 1.1 } };
+export const SINKS = { dive: true };
+export const DUR = { bite: 1.0, leap: 1.6, dive: 1.8, 'death-roll': 2.0, 'the-tooth': 1.3, swallow: 1.6, spit: 1.0, hurt: 0.8, ko: 2.2 };
 export const LUNGE = 'bite';
 export const ALIAS = { strike: 'bite', swipe: 'bite', cast: 'leap', roar: 'leap' };
 
@@ -63,6 +68,28 @@ export function pose(B, move, u, t, step = 0) {
     const go = seg(u, 0, 0.3) * (1 - seg(u, 0.75, 1)), wrench = Math.sin(u * 28) * go * seg(u, 0.3, 0.4);
     at(0, -0.03 * L * go, 0.35 * L * go); b.head.rotation.x = 0.06 * go; b.head.rotation.y = 0.08 * wrench;
     b.body.rotation.y = -0.1 * wrench; tail(0.2 * go, u * 30);
+    return;
+  }
+  if (move === 'swallow') {
+    // it closes in with its jaws wide (widest at u 0.45: the gulp), snaps them shut on you, and swallows
+    const go = seg(u, 0.1, 0.45) * (1 - seg(u, 0.75, 1)), open = seg(u, 0.1, 0.42) * (1 - seg(u, 0.47, 0.53));
+    at(0, 0, 0.3 * L * go); b.jaw.rotation.x = 0.015 + 0.38 * open; b.head.rotation.x = -0.05 * open;
+    tail(0.08 + 0.12 * go, u * 25);
+    const g = bump((u - 0.55) / 0.35); b.body.rotation.x = 0.04 * g; b.t0.rotation.x = -0.04 * g;
+    return;
+  }
+  if (move === 'full') {
+    // something is inside it: jaw shut, it hangs heavy in the water and swallows, slowly
+    const g = 0.5 + 0.5 * Math.sin(t * 1.6);
+    b.jaw.rotation.x = 0.0; b.head.rotation.x = 0.03 * g; b.body.rotation.x = 0.03 * g; b.t0.rotation.x = -0.03 * g;
+    at(0, -0.03 * L, 0); tail(0.04, t * 1.2);
+    return;
+  }
+  if (move === 'spit') {
+    // it gapes and throws you out
+    const k = bump(u * 1.3), flare = bump((u - 0.15) / 0.4);
+    b.jaw.rotation.x = 0.015 + 0.42 * flare; b.head.rotation.x = -0.08 * flare; at(0, 0.02 * L * k, -0.15 * L * k);
+    tail(0.2 * k, u * 30);
     return;
   }
   if (move === 'hurt') {

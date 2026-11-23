@@ -98,6 +98,10 @@ def bind(RIG, P, kind, tris, height, mid, log=print):
         split |= {(idx[x_], idx[y_]), (idx[y_], idx[x_])}
     split_bones = {b for pr in split for b in pr}
     jaws = {idx[y_] for x_, y_ in getattr(RIG, 'SPLIT', ())}         # the second of each pair (the jaw) is cut free of
+    # JAW_KEEP = {'jaw': ['chest', ...]}: parts a cut-free jaw may still blend with (session 7's toad, whose jaw runs on
+    # into its belly: without this, the jaw two joints from the chest opened a slit across his throat)
+    jaw_keep = {(idx[j], idx[n]) for j, ns in getattr(RIG, 'JAW_KEEP', {}).items() for n in ns}
+    jaw_keep |= {(b_, a_) for a_, b_ in jaw_keep}
                                                                      # all but its partner: a beard on the chest lets go
     # the trunk: the root, the bones limbs branch from, and the bones between them
     def subtree_branches(b): return len(kids[b]) >= 2 or any(subtree_branches(c) for c in kids[b])
@@ -267,7 +271,7 @@ def bind(RIG, P, kind, tris, height, mid, log=print):
             a, b = lt[:, e], lt[:, (e + 1) % 3]
             dif = np.flatnonzero(a != b)
             far = np.array([(apart(x, y) >= 2 and x not in trunk and y not in trunk and not (x in helpers and y in helpers)) or (x, y) in split
-                            or ((x in jaws or y in jaws) and apart(x, y) >= 2)
+                            or ((x in jaws or y in jaws) and apart(x, y) >= 2 and (x, y) not in jaw_keep)
                             for x, y in zip(a[dif], b[dif])], bool)
             cut[dif[far]] = True
         return cut

@@ -17,6 +17,7 @@ PTS = np.array([p[:3] for p in SPINE]); RAD = np.array([p[3] for p in SPINE])
 HEAD = np.array([0.0, 0.34, 1.86]); SNOUT = np.array([0.0, 0.78, 1.8]); PEARL = np.array([0.0, 0.3, 2.04])
 HINGE = np.array([0.0, 0.26, 1.74])                     # where the jaw turns
 COLLAR_Z = 1.38
+WOUND = np.array([0.18, 0.2, 0.92]); HARPOON_OUT = np.array([0.62, 0.58, 1.22])   # the harpoon: in his chest, out
 COILS = {'r_coil': ((0.6, -0.22), 0.5), 'l_coil': ((-0.6, -0.55), -0.7)}   # (centre x, y), the arch's turn
 
 def along(P):
@@ -93,7 +94,6 @@ def build(K):
         wnd = np.clip(1 - np.linalg.norm((V - WOUND) / [0.08, 0.1, 0.25], axis=1) - 0.0 * (V[:, 2] > WOUND[2]), 0, 1)
         col = mix(col, RED, np.clip(wnd * 2, 0, 1)[:, None] * (V[:, 2] < WOUND[2] + 0.04)[:, None])
         return np.clip(col, 0, 1)
-    WOUND = np.array([0.18, 0.2, 0.92])
     log('neck and head')
     V, F = S.mc(neck_sdf, VOX, np.array([-0.5, -0.7, -0.01]), np.array([0.5, 0.9, 2.1]), band=band)
     M.add(V, F, skin(V), 0)
@@ -193,7 +193,7 @@ def build(K):
         ring = c + np.outer(np.cos(a), dvec * 0.045) + np.outer(np.sin(a), e1 * 0.028)
         V, F = G.tube(ring, np.full(20, 0.011), max(6, SIDES)); M.add(V, F, mix(IRON, RUST, 0.4 + 0.4 * rr.random()), 8)
     # the harpoon in his chest: a shaft, a gold barbed head on its end, red rags tied round it
-    out = np.array([0.62, 0.58, 1.22])
+    out = HARPOON_OUT
     V, F = G.tube(np.array([WOUND - (out - WOUND) * 0.15, out]), np.array([0.018, 0.018]), max(8, SIDES))
     M.add(V, F, np.array([0.35, 0.22, 0.12]), 8)
     dvec = (out - WOUND) / np.linalg.norm(out - WOUND)
@@ -220,6 +220,6 @@ def build(K):
         rho = np.hypot(P[:, 0], P[:, 1] + 0.15)
         rip = 0.006 * np.abs(np.sin(rho * 2 * math.pi / 0.25)) * (rho < 1.4)
         return np.maximum(np.abs(P[:, 2] - 0.01) - 0.004 - rip, rho - 1.45)
-    V, F = S.mc(water, 0.012, np.array([-1.5, -1.65, -0.03]), np.array([1.5, 1.35, 0.04]))
+    V, F = S.mc(water, 0.018, np.array([-1.5, -1.65, -0.03]), np.array([1.5, 1.35, 0.04]))
     M.add(V, F, mix(np.array([0.06, 0.12, 0.13]), FOAM, np.clip((V[:, 2] - 0.012) / 0.008, 0, 1)[:, None]), 8)
     return M

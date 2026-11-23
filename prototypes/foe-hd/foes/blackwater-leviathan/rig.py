@@ -6,7 +6,7 @@
 import os, sys
 import numpy as np
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from sculpt import PTS, HEAD, SNOUT, HINGE, COLLAR_Z, COILS
+from sculpt import PTS, HEAD, SNOUT, HINGE, COLLAR_Z, COILS, PEARL, WOUND, HARPOON_OUT
 p = [tuple(float(v) for v in q) for q in PTS]
 BONES = [('ground', None, (0, 0, 0.0), (0, 0, 0.05)), ('base', None, p[0], p[1])]
 prev = 'base'
@@ -16,10 +16,19 @@ BONES += [('head', 'n5', p[7], tuple(float(v) for v in SNOUT)),
           ('jaw', 'head', tuple(float(v) for v in HINGE), tuple(float(v) for v in SNOUT + [0, -0.03, -0.07]))]
 for name, ((cx, cy), _) in COILS.items():
     BONES.append((name, None, (cx, cy, 0.0), (cx, cy, 0.6)))
+# points the Fight reads (bones with no skin; +z, his forward, out of each): the back of his throat (the swallow), the
+# pearl in his crown (Pearl-Light's glow, Undertow's pulse), the harpoon's wound (Harpoon Rage's sparks)
+t3 = lambda v: tuple(float(x) for x in v)
+d_ = (HARPOON_OUT - WOUND) / np.linalg.norm(HARPOON_OUT - WOUND)
+BONES += [('mouth', 'head', t3(HINGE + [0, 0.02, 0.04]), t3(HINGE + [0, 0.14, 0.04])),
+          ('pearl', 'head', t3(PEARL), t3(PEARL + [0, 0.1, 0])),
+          ('harpoon', 'n1', t3(WOUND), t3(WOUND + d_ * 0.1))]
+POINTS = ('mouth', 'pearl', 'harpoon')
 TRUNK = ('base',)
 SMOOTH = 16
 BANDS = {f'n{i}': (0.12, 0.6) for i in range(6)}
-BANDS['head'] = (0.08, 0.4)
+BANDS['head'] = (0.14, 0.5)
+WELD_SAME_KIND = True
 ROLE = {}
 NECK = [f'n{i}' for i in range(6)]
 def neck_bone(z):
@@ -48,4 +57,5 @@ def part(P, kind, idx, piece):
 def mask(P, idx):
     M_ = np.ones((len(P), len(idx))); neck = ROLE['now'] == 'neck'
     for n in ('jaw', 'ground') + tuple(COILS): M_[neck, idx[n]] = 0
+    for n in POINTS: M_[:, idx[n]] = 0                                                # points only: no skin
     return M_
