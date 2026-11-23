@@ -136,6 +136,22 @@ export const arena = {
     // side by side, neither hiding the other); a move on itself from three-quarters; a wide one from a little round
     const back = tg ? F.home.clone().sub(tg.pos).setY(0).normalize().negate() : V3(-this.dir.x, 0, -this.dir.z);
     const turns = (tg ? [70, -70, 55, -55, 85, -85] : kind === 'wide' ? [30, -30, 15, -15, 45, -45] : [40, -40, 25, -25, 60, -60]).map((a) => a * Math.PI / 180);
+    // a swallow (any swallower; hub, November 23): over the hero's shoulder at the mouth, so on a tall phone screen the hero
+    // is in the foreground and the mouth looms over them; the shoulder whose line to the mouth no other hero blocks
+    if (tg && F.act?.kmove === 'swallow') {
+      const m = F.fig.beast?.bones?.mouth || F.fig.beast?.parts?.mouth, mp = m ? m.getWorldPosition(V3()) : F.pos.clone().setY(F.pos.y + F.size.h * 0.6);
+      const away = tg.pos.clone().sub(mp).setY(0).normalize(), perp = V3(away.z, 0, -away.x);
+      let bestS = -1e9, bp = null;
+      for (const back of [2.6, 3.4]) for (const sd of [1, -1, 1.6, -1.6]) {
+        const p = tg.pos.clone().addScaledVector(away, back).addScaledVector(perp, sd * 1.2); p.y = tg.pos.y + 2.3;
+        if (!open(p)) continue;
+        let sc = clear(p, mp) ? 10 : 0;
+        for (const o of this.heroes.values()) if (o !== tg && !o.held) { const a = o.pos.clone().setY(o.pos.y + 1.2), d = mp.clone().sub(p), u = Math.max(0, Math.min(1, a.clone().sub(p).dot(d) / d.lengthSq())); if (p.clone().addScaledVector(d, u).distanceTo(a) < 0.7) sc -= 4; }
+        sc -= Math.abs(sd) * 0.3 + (back - 2.6) * 0.5;
+        if (sc > bestS) { bestS = sc; bp = p; }
+      }
+      if (bp) { const lk = mp.clone().lerp(tg.pos.clone().setY(tg.pos.y + 1), 0.35); this.close = { t: 0, dur, pos: bp, q: new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().lookAt(bp, lk, UP)), fov: 42 }; this.stage?.host.classList.add('f3-close'); return; }
+    }
     const span = kind === 'wide' ? Math.max(6, F.pos.distanceTo(hc) * 1.2 + 3) : Math.max(4.5, F.size.h * 3.4 + F.size.d * 1.3) * (tg ? 1.3 : 1);
     let best = -1e9;
     for (const k of [1, 1.25]) for (const lift of [0, 1.5, 3]) for (const [ti, th] of turns.entries()) {
