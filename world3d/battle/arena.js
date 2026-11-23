@@ -133,7 +133,18 @@ export const arena = {
       const back = V3(-this.dir.x, 0, -this.dir.z), side = V3(this.dir.z, 0, -this.dir.x), r = Math.max(4.5, F.size.h * 3.4 + F.size.d * 1.3) * (tg ? 1.5 : 1);
       // (a charge: well round to the side, so the hero it's aimed at doesn't stand in the way, and high enough that the
       // ground right under the camera stays out of shot)
-      for (const sd of tg ? [1.7, -1.7, 1.2, -1.2, 1, -1, 0.4, -0.4] : [1, -1, 0.4, -0.4]) { const p = at.clone().addScaledVector(back, r).addScaledVector(side, sd * r * 0.6); p.y = F.pos.y + Math.max(F.size.h * 1.1 + 0.9, tg ? r * 0.85 : 0); pos = pos || p; if (clear(p, at)) { pos = p; break; } }
+      // each spot is scored by a fan of rays across the whole view (hub, November 21: one ray to the foe missed the rock
+      // or bush right beside the camera, and ground smeared across the lower half): the clearest view wins
+      let best = -1e9;
+      for (const k of [1, 1.25]) for (const lift of [0, 1.5, 3]) for (const sd of tg ? [1.7, -1.7, 1.2, -1.2, 1, -1, 0.4, -0.4] : [1, -1, 0.4, -0.4, 1.4, -1.4]) {
+        const p = at.clone().addScaledVector(back, r * k).addScaledVector(side, sd * r * k * 0.6); p.y = F.pos.y + Math.max(F.size.h * 1.1 + 0.9, tg ? r * 0.85 : 0) + lift;
+        if (!open(p)) continue;
+        const lk = at.clone(); lk.y -= p.distanceTo(at) * 0.07;
+        const sc = this.viewScore(p, lk, 36, p.distanceTo(at)) + (clear(p, at) ? 0 : -50) - lift * 0.15 - (k - 1);
+        if (sc > best) { best = sc; pos = p; }
+        if (sc >= 11.9) break;
+      }
+      pos = pos || at.clone().addScaledVector(back, r).setY(F.pos.y + F.size.h * 1.1 + 0.9);
     } else {
       // wide: straight back and a little up along the fight camera's own line, so the party stays at the bottom and the
       // foes in the stage's open upper part, only more of the field round them
@@ -153,10 +164,29 @@ export const arena = {
     }
     // close in: the foe stands in the stage's open upper part, not behind the turn strip across the screen's middle
     // (aimed a little under it: about 8 degrees, so it sits some 190 px above the middle of a phone's 844)
-    if (kind === 'close') { look = at.clone(); look.y -= pos.distanceTo(at) * 0.146; }
+    // (the action a little above the screen's middle: the middle of the 3D view, the party's cards over the bottom)
+    if (kind === 'close') { look = at.clone(); look.y -= pos.distanceTo(at) * 0.07; }
     const q = new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().lookAt(pos, look, UP));
     this.close = { t: 0, dur, pos, q, fov: kind === 'close' ? 36 : this.want.fov + 6 };
     this.stage?.host.classList.add('f3-close'); // close or wide: the foes' plates and intents step aside till it ends
+  },
+  // how clear a camera at `pos` looking at `look` would see (0 to 12): twelve rays across its view, each counted clear
+  // when nothing stands nearer than about half the distance `D` to what it frames: nothing built or rock (the place's
+  // sight test), no tree (the place's tree meshes) and no ground (a ray down onto ground right by the camera smears)
+  viewScore(pos, look, fov, D) {
+    const P = this.W.P, q = new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().lookAt(pos, look, UP));
+    const v = this.renderer.domElement.getBoundingClientRect(), asp = v.width / Math.max(1, v.height), th = Math.tan(fov * Math.PI / 360);
+    const rc = this._rc || (this._rc = new THREE.Raycaster()), trees = P.treeMeshes || [], L = D * 1.6, near = D * 0.55;
+    let n = 0;
+    for (const y of [0.7, 0.2, -0.3, -0.75]) for (const x of [-0.7, 0, 0.7]) {
+      const dir = V3(x * th * asp, y * th, -1).normalize().applyQuaternion(q);
+      let d = L;
+      try { d = Math.min(d, P.sight.hit(pos.x, pos.y, pos.z, pos.x + dir.x * L, pos.y + dir.y * L, pos.z + dir.z * L) * L); } catch (e) { /* none */ }
+      if (dir.y < 0) for (let t = 0.5; t < d; t += 0.5) { const px = pos.x + dir.x * t, pz = pos.z + dir.z * t; if (pos.y + dir.y * t <= this.heightAt(px, pz, this.center.y)) { d = t; break; } } // (water and the like: the field's own level)
+      if (trees.length && d > near) { rc.set(pos, dir); rc.far = near; const hit = rc.intersectObjects(trees, false)[0]; if (hit) d = Math.min(d, hit.distance); }
+      if (d >= near) n++;
+    }
+    return n;
   },
   // the Legend Strike close-up (step 3): the camera cuts in low and close on the hero, a little to the side, while they
   // raise the relic and M7's card slams; then back to the fight's camera
@@ -483,6 +513,8 @@ export const arena = {
     // the foes' plates and intents step aside while a Champion's named move plays (in place or with its own camera) or
     // a close-up or wide camera is on, and come back after (hub, November 21)
     { const clear = !!this.close || [...this.foes.values()].some((F) => F.act?.moment); if (clear !== this._clear) { this._clear = clear; this.stage?.host.classList.toggle('f3-close', clear); } }
+    // and while a close-up or wide camera is on, the turn strip across the middle fades too, so the moment fills the view
+    { const cine = !!this.close; if (cine !== this._cine) { this._cine = cine; document.body.classList.toggle('f3-cine', cine); } }
     for (const F of this.foes.values()) { stepFoe(this, F, d, t, heroCenter); if (F.root.visible && !F.sunk) placeBlob(this.blobs[bi++], F.pos, Math.max(0.6, F.size.w * 1.3)); }
     for (; bi < this.blobs.length; bi++) this.blobs[bi].visible = false;
     for (const h of this.heroes.values()) h.aura?.step(d, this.t);
