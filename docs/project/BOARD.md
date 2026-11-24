@@ -15,7 +15,7 @@ Where the 3D game stands. Written by the hub only. Last updated November 24, mor
 | 7 | Foes: beasts | `session_01DgbUKZ4qEpafSazysExsYV` | `job/foes-beasts` | its lane done and given a second pass (the Rot-Stag's crown, Old Snag, the Mire-King, the rotgrub, the rime-wolf; all pass); standing by for fixes (to spare the usage limit) | https://claude.ai/artifact/64Ukg3yQAAb8DWz69xqvxs |
 | 8 | Foes: walkers | `session_01DgbUKcTDUjKDVHw3sPhu7R` | `job/foes-walkers` | every walker built, passing, and given a second pass against the sheets (the trolls' real hands, the Rotwarden's root arm of 26 strands, the sapwight's bark); standing by for fixes (to spare the usage limit) | https://claude.ai/artifact/YBLUHaLG3bNdfcjBdeq3aj |
 
-**Every job's brief is done (November 24, morning):** all eight sessions stand by for Chris's word (his phone check of the full-pictures pages, his notes, batch 4's paintings for the Hearth Below, the open calls in `questions.md`).
+**Every job's brief is done (November 24, morning):** all eight sessions stand by for Chris's word (his phone check of the full-pictures pages, his notes, batch 4's paintings for the Hearth Below, the open calls in `questions.md`). Chris's playtest page (`docs/project/pages/playtest.html`; his marks and notes are kept in the page's store, `checks` and `calls`, which the hub reads and passes on): https://claude.ai/artifact/7BNj1rvFhus7KaBVYbGnxQ
 
 **All 93 foes are in full detail (November 24):** the 54 beasts (sessions 6, 7, 8, Places, Models) and the 39 people foes (Models), each passing the stretch check or built from rigid pieces.
 

@@ -1,0 +1,306 @@
+<title>Hearth &amp; Heirloom Playtest</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya+SC:wght@500;700&family=Alegreya+Sans:wght@400;500;700&display=swap">
+<style>
+/* Layout: one column, a quest log. Each thing to try is an entry with its link, what to look for, three marks and a note. */
+:root {
+  --bg: #eef0f3; --panel: #ffffff; --ink: #1d2129; --muted: #5b6372; --line: #d5dae2;
+  --ember: #a8501a; --ember-soft: #f6e4d6; --ok: #2f7a4b; --ok-soft: #dcefe2; --warn: #9a6a07; --warn-soft: #f6ebcf;
+  --bad: #a3322c; --bad-soft: #f5dcda;
+  --display: "Alegreya SC", "Palatino Linotype", Palatino, Georgia, serif;
+  --body: "Alegreya Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #15171c; --panel: #1e2128; --ink: #e9e6e1; --muted: #a3a8b3; --line: #343944;
+  --ember: #e98d4f; --ember-soft: #3a2619; --ok: #6cc08b; --ok-soft: #1c3426; --warn: #e2b54d; --warn-soft: #362d14;
+  --bad: #ec7d74; --bad-soft: #3b1f1d; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #15171c; --panel: #1e2128; --ink: #e9e6e1; --muted: #a3a8b3; --line: #343944;
+  --ember: #e98d4f; --ember-soft: #3a2619; --ok: #6cc08b; --ok-soft: #1c3426; --warn: #e2b54d; --warn-soft: #362d14;
+  --bad: #ec7d74; --bad-soft: #3b1f1d; color-scheme: dark }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 17px; line-height: 1.5; }
+.wrap { max-width: 720px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 28px 56px; display: grid; gap: 28px; }
+h1, h2, h3 { font-family: var(--display); font-weight: 700; text-wrap: balance; margin: 0; line-height: 1.15; }
+h1 { font-size: 2rem; }
+h2 { font-size: 1.45rem; color: var(--ember); }
+h3 { font-size: 1.15rem; font-weight: 500; }
+p { margin: 0; }
+.lede { color: var(--muted); max-width: 62ch; }
+header { display: grid; gap: 10px; }
+.eyebrow { font-size: .8rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+.tally { display: flex; flex-wrap: wrap; gap: 8px 18px; font-variant-numeric: tabular-nums; font-weight: 500; }
+.tally b { color: var(--ember); }
+.status { font-size: .9rem; color: var(--muted); min-height: 1.3em; }
+.status.err { color: var(--bad); }
+section { display: grid; gap: 14px; }
+.sec-head { display: grid; gap: 4px; }
+.sec-head p { color: var(--muted); }
+.entry { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px; display: grid; gap: 12px; border-left: 4px solid var(--line); min-width: 0; }
+.entry[data-state="works"], .entry[data-choice="yes"] { border-left-color: var(--ok); }
+.entry[data-state="off"] { border-left-color: var(--warn); }
+.entry[data-state="no-open"], .entry[data-choice="other"] { border-left-color: var(--bad); }
+.entry[data-choice="other"] { border-left-color: var(--warn); }
+.entry-top { display: flex; gap: 12px; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; }
+.entry-top > div { min-width: 0; flex: 1 1 220px; display: grid; gap: 4px; }
+.what { color: var(--muted); }
+.look { margin: 0; padding-left: 1.2em; color: var(--ink); display: grid; gap: 2px; }
+.look li::marker { color: var(--ember); }
+a.open { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 18px; border-radius: 8px; background: var(--ember); color: var(--panel); font-weight: 700; text-decoration: none; white-space: nowrap; }
+a.open:focus-visible, button:focus-visible, textarea:focus-visible { outline: 3px solid var(--ember); outline-offset: 2px; }
+.links { display: flex; flex-wrap: wrap; gap: 8px; }
+.links a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; border-radius: 8px; border: 1px solid var(--ember); color: var(--ember); text-decoration: none; font-weight: 500; }
+.marks { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.marks.two { grid-template-columns: repeat(2, 1fr); }
+.marks button { min-height: 44px; border-radius: 8px; border: 1px solid var(--line); background: transparent; color: var(--ink); font: 500 .95rem/1.2 var(--body); padding: 6px 8px; cursor: pointer; }
+.marks button[aria-pressed="true"][data-v="works"], .marks button[aria-pressed="true"][data-v="yes"] { background: var(--ok-soft); border-color: var(--ok); color: var(--ok); font-weight: 700; }
+.marks button[aria-pressed="true"][data-v="off"], .marks button[aria-pressed="true"][data-v="other"] { background: var(--warn-soft); border-color: var(--warn); color: var(--warn); font-weight: 700; }
+.marks button[aria-pressed="true"][data-v="no-open"] { background: var(--bad-soft); border-color: var(--bad); color: var(--bad); font-weight: 700; }
+textarea { width: 100%; box-sizing: border-box; min-height: 64px; resize: vertical; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); font: 400 1rem/1.4 var(--body); padding: 10px 12px; }
+.saved { font-size: .85rem; color: var(--muted); min-height: 1.2em; }
+.suggest { background: var(--ember-soft); border-radius: 8px; padding: 10px 12px; }
+.suggest b { color: var(--ember); }
+details.more { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 16px; }
+details.more summary { cursor: pointer; font-weight: 700; min-height: 32px; display: flex; align-items: center; }
+details.more ul { margin: 10px 0 0; padding-left: 1.2em; display: grid; gap: 6px; }
+details.more a { color: var(--ember); }
+.wanted { background: var(--panel); border: 1px dashed var(--ember); border-radius: 10px; padding: 16px; display: grid; gap: 6px; }
+code { font-size: .92em; background: var(--bg); padding: 1px 5px; border-radius: 4px; }
+@media (prefers-reduced-motion: no-preference) { .marks button { transition: background .15s, border-color .15s; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <span class="eyebrow">Aethermoor: Hearth &amp; Heirloom in 3D</span>
+    <h1>Your playtest</h1>
+    <p class="lede">You don't need to go into each session. Everything the eight sessions made is here, in the order worth trying. Open each one on your phone, tap how it went, and write a note if something's off. I read this page and send each note to the session that built that part.</p>
+    <div class="tally" aria-live="polite"><span><b id="n-tried">0</b> of <span id="n-items">0</span> tried</span><span><b id="n-chosen">0</b> of <span id="n-calls">0</span> choices made</span></div>
+    <p class="status" id="status">Loading your saved notes…</p>
+  </header>
+
+  <section aria-labelledby="h-play">
+    <div class="sec-head"><h2 id="h-play">Play the game</h2><p>Start with Act One. The other four pick up where the story reaches them, with a party ready.</p></div>
+    <div id="play"></div>
+    <details class="more">
+      <summary>The other full-picture pages (if Act One's opens)</summary>
+      <ul>
+        <li><a href="https://claude.ai/artifact/38JaigTBGjp1FiT4MHdVFh" target="_blank" rel="noopener">The Sunscorch, full pictures</a></li>
+        <li><a href="https://claude.ai/artifact/AC9dw4TH9VqT4P3UcarVLp" target="_blank" rel="noopener">The Ironspire, full pictures</a></li>
+        <li><a href="https://claude.ai/artifact/7f9UFQ93Dk1esA6ju6u8hL" target="_blank" rel="noopener">The Gloomfen, full pictures</a></li>
+        <li><a href="https://claude.ai/artifact/28QkrWfL1YqMUnGLki2s5w" target="_blank" rel="noopener">Act Three, full pictures</a></li>
+      </ul>
+    </details>
+  </section>
+
+  <section aria-labelledby="h-look">
+    <div class="sec-head"><h2 id="h-look">Look at the fights, heroes and foes</h2><p>Quicker than playing: each opens straight onto the thing to judge.</p></div>
+    <div id="look"></div>
+    <details class="more">
+      <summary>Every other fight page</summary>
+      <ul>
+        <li><a href="https://claude.ai/artifact/Q9T8quXCTVgiVUZoMuUaP4" target="_blank" rel="noopener">Act One: Thornhollow to the Den</a></li>
+        <li><a href="https://claude.ai/artifact/7Prqphh2mubkp2L2hTn2ZA" target="_blank" rel="noopener">Act One: Mossfall to the Heartroot</a></li>
+        <li><a href="https://claude.ai/artifact/AqSBbi7gYeRogHPsq24nAk" target="_blank" rel="noopener">Act Two's Champions</a></li>
+        <li><a href="https://claude.ai/artifact/TWtn8x7hcGjTMHAUpAWC5M" target="_blank" rel="noopener">The Sunscorch</a></li>
+        <li><a href="https://claude.ai/artifact/WhydqjmyNvuGQdrSadEXKD" target="_blank" rel="noopener">The Ironspire: the Lower Peaks</a></li>
+        <li><a href="https://claude.ai/artifact/EGV6SV4zR9EwXS2bB8m4g6" target="_blank" rel="noopener">The Ironspire: Ironhold and the Heights</a></li>
+        <li><a href="https://claude.ai/artifact/GGPe1k5K6g54kaUb49Y3bt" target="_blank" rel="noopener">The Gloomfen</a></li>
+        <li><a href="https://claude.ai/artifact/RLrMg73EPUxGCHRaQXfAZS" target="_blank" rel="noopener">The event fights: swallows, burrows, duels</a></li>
+      </ul>
+    </details>
+  </section>
+
+  <section aria-labelledby="h-calls">
+    <div class="sec-head"><h2 id="h-calls">Choices only you can make</h2><p>The game is built with the suggestion for each, and each is easy to change. Tap "Keep it" or write what you'd rather have.</p></div>
+    <div id="calls"></div>
+  </section>
+
+  <div class="wanted">
+    <h3>Still wanted from you</h3>
+    <p>Four paintings for the Hearth Below, the last of Act Three's maps. The prompts are in <code>art-requests/batch-4.md</code>. Send them in the chat as a zip, as before. The game uses stand-in paintings there until they come.</p>
+  </div>
+</div>
+
+<script>
+(() => {
+  const PLAY = [
+    { id: 'game-act1', title: 'The game, Act One', url: 'https://claude.ai/artifact/RaeSK5hezqb3qH7jmuM5aj',
+      what: 'Start here. A new game, from the prologue in the Great Hall through the Rotwarden and the Council.',
+      look: ['Does it open on your phone?', 'The party walking as a group, not in single file', 'A fight, then the spoils and the card reveal', 'The place map in the corner', 'How smooth it feels'] },
+    { id: 'game-act1-full', title: 'Act One with full pictures', url: 'https://claude.ai/artifact/9rGvzRh4eocZrz4RYPQLz6',
+      what: 'The same game with every picture at full size, kept beside the page. The big open question: does a page like this open on your phone at all?',
+      look: ['Does it open?', 'Is it sharper than the one above?', 'How long it takes to load'] },
+    { id: 'game-sunscorch', title: 'The Sunscorch', url: 'https://claude.ai/artifact/7dPEGKka7t1FyHF5SSLPAo',
+      what: 'Act Two’s desert: the Keep and ten Sunscorch places. All five of its foes are in full detail, the Sand Wyrm and Kharzul among them.',
+      look: ['The Sand Wyrm’s swallow', 'Your desert textures on the ground and walls'] },
+    { id: 'game-ironspire', title: 'The Ironspire', url: 'https://claude.ai/artifact/6jSwPVzbwwZWmmD6VsQ1sU',
+      what: 'Begins at the Keep’s east postern, where the story reaches it. Snow, ice, dwarf stone and forge brick.',
+      look: ['Old Horn and Mother Anvil', 'The townsfolk standing about'] },
+    { id: 'game-gloomfen', title: 'The Gloomfen', url: 'https://claude.ai/artifact/N2iCRiMardtJNbntUoXYsA',
+      what: 'Begins at level 15. Plank streets on stilts over bog water.',
+      look: ['Grandfather Willow and the willow-wights', 'The water and the boardwalks'] },
+    { id: 'game-act3', title: 'Act Three', url: 'https://claude.ai/artifact/U8tPe6ZcZKrYA1o7XJeTjp',
+      what: 'Begins at the Hollow Hall at level 20, then down the Ash Stair and the Chained Deep to the Worldforge and the ending you choose.',
+      look: ['The Unsmith’s fight', 'One of the three endings'] }
+  ];
+  const LOOK = [
+    { id: 'fight', title: 'One fight on Thornhollow’s road', url: 'https://claude.ai/artifact/NpeXL5Pf4RxNfkQsguTnEK',
+      what: 'The quickest way to judge the battles: M7’s battle screen over the 3D, the party on the field, 3D dice, Briarmaw in full detail.',
+      look: ['Nobody stretches when they move', 'The camera on the big moves', 'Is it the battle you wanted?'] },
+    { id: 'fights-act3', title: 'Act Three’s fights', url: 'https://claude.ai/artifact/5vCvi2woYF3WZVGNAKSLQf',
+      what: 'The Hollow Council, the Unsmith and his helpers, the unmade with their violet glow.',
+      look: ['Each Champion’s own moments', 'The unmade'] },
+    { id: 'gear-room', title: 'The heroes, in the Gear Room', url: 'https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL',
+      what: 'A hero whose outfit is built from M7’s own gear, in your textures and the four faces. Robes and boots were made richer this morning.',
+      look: ['Swap through the gear', 'The robes’ hems, panels and pleats'] },
+    { id: 'foes', title: 'The foes in full detail', links: [
+        ['Beasts', 'https://claude.ai/artifact/64Ukg3yQAAb8DWz69xqvxs'],
+        ['Walkers', 'https://claude.ai/artifact/YBLUHaLG3bNdfcjBdeq3aj'],
+        ['Winged', 'https://claude.ai/artifact/CmY9BHJzyVYCYgQtpboqBg'],
+        ['Wraiths', 'https://claude.ai/artifact/KiYfGSBcUQ6gU4WqVKGojD'],
+        ['Iron and forge', 'https://claude.ai/artifact/4WQXpMifD5GWsgCXTP4PVD'],
+        ['The Leviathan', 'https://claude.ai/artifact/3Px9mipuqrTBB8NFfehbj5']],
+      what: 'All 93 foes are built in full detail. These galleries show them turning beside your sheets, with every move.',
+      look: ['Do they look like your sheets?', 'Nobody stretches when they move', 'Anyone who needs another pass'] },
+    { id: 'places', title: 'Act One’s places, to wander', url: 'https://claude.ai/artifact/GBxRVSqwMwYUTy1xLNjATA',
+      what: 'The fourteen places of Act One with no story in the way, built from M7’s maps and your paintings. A Light switch turns on daylight.',
+      look: ['The place map in the corner', 'Trees swaying, water moving'] }
+  ];
+  const CALLS = [
+    { id: 'c1', q: 'Where do fights happen?', s: 'On the spot where the party meets the foes, so the land itself is the arena.', alt: 'Or in a separate arena.' },
+    { id: 'c2', q: 'Do the heroes stand on the field in a fight?', s: 'All four stand there and step forward on their turn.', alt: 'Or only the foes are shown, as in the 2D game.' },
+    { id: 'c3', q: 'Which dice?', s: 'Real 3D dice tumbling in the tray.', alt: 'Or M7’s 2D dice tray.' },
+    { id: 'c4', q: 'The card reveal after a fight', s: 'Kept exactly as you approved it, shown over the 3D.' },
+    { id: 'c5b', q: 'Small beasts on the field', s: 'Briarlings and hounds stand 1.3 times life size, so they read beside the heroes.' },
+    { id: 'c5c', q: 'Sizes of the big foes', s: 'The Rotwarden stands 2.5 m and the sapwight 2.0 m, beside the heroes’ 1.72 m.', alt: 'Or bigger, or smaller?' },
+    { id: 'c5', q: 'Frostmere, earlier in the story', s: 'On the atlas the frozen lake is on the road up to the peaks, so Hush and the Rime-Abbot come before Ironhold. Keep that.', alt: 'Or move Frostmere back past Stormwatch.' },
+    { id: 'c6', q: 'The Hearth Road’s name', s: 'M7’s “Hearth Road North” is now a boat from the Keep and a road west, so call it “the Hearth Road”.', alt: 'Or keep “North”.' },
+    { id: 'c7', q: 'Fawnrest and the Highfold', s: 'They no longer join, because the mountains are across the sea. That’s fine.' },
+    { id: 'c8', q: 'The Mother’s Hollow', s: 'Keep M7’s own name, though Envoi and Moon Faire retired it from their stories.' },
+    { id: 'c9', q: 'Envoi’s places with no M7 place', s: 'Dawnroost, the Warm Roads camp and the dead Moonwell stay as scenery.', alt: 'Or they become new stops.' },
+    { id: 'c10', q: 'Bring a party over from M7', s: 'The 3D game offers to start from an M7 save code (its party, gear and levels), reading it only. The 3D game keeps its own save.' }
+  ];
+
+  const state = { checks: {}, calls: {} };
+  let db = null, readOnly = false;
+  const statusEl = document.getElementById('status');
+  const setStatus = (t, err) => { statusEl.textContent = t; statusEl.classList.toggle('err', !!err); };
+
+  function el(tag, attrs, ...kids) {
+    const n = document.createElement(tag);
+    for (const [k, v] of Object.entries(attrs || {})) {
+      if (k === 'class') n.className = v; else if (k === 'text') n.textContent = v; else n.setAttribute(k, v);
+    }
+    for (const k of kids) if (k) n.append(k);
+    return n;
+  }
+
+  // one write at a time per document
+  const queues = {};
+  function save(coll, id, body, savedEl) {
+    state[coll === 'checks' ? 'checks' : 'calls'][id] = body;
+    tally();
+    if (!db || readOnly) { if (savedEl) savedEl.textContent = db ? 'Read only: notes can’t be saved by you here.' : 'Not saved: write this in the chat instead.'; return; }
+    if (savedEl) savedEl.textContent = 'Saving…';
+    const ref = db.doc(coll + '/' + id);
+    queues[coll + id] = (queues[coll + id] || Promise.resolve()).then(() => ref.set(body)).then(
+      () => { if (savedEl) savedEl.textContent = 'Saved'; },
+      (e) => {
+        if (e && e.code === 'invalid_argument') readOnly = true;
+        if (savedEl) savedEl.textContent = 'Couldn’t save (' + ((e && e.code) || 'error') + '). Write it in the chat instead.';
+      });
+  }
+
+  const views = {};
+  function entry(item, coll) {
+    const isCall = coll === 'calls';
+    const box = el('article', { class: 'entry', id: 'e-' + item.id });
+    const top = el('div', { class: 'entry-top' });
+    const head = el('div', {}, el('h3', { text: isCall ? item.q : item.title }));
+    if (!isCall) head.append(el('p', { class: 'what', text: item.what }));
+    top.append(head);
+    if (item.url) top.append(el('a', { class: 'open', href: item.url, target: '_blank', rel: 'noopener', text: 'Open' }));
+    box.append(top);
+    if (item.links) {
+      const l = el('div', { class: 'links' });
+      for (const [name, url] of item.links) l.append(el('a', { href: url, target: '_blank', rel: 'noopener', text: name }));
+      box.append(l);
+    }
+    if (item.look) {
+      const ul = el('ul', { class: 'look', 'aria-label': 'Look for' });
+      for (const t of item.look) ul.append(el('li', { text: t }));
+      box.append(ul);
+    }
+    if (isCall) {
+      const sg = el('p', { class: 'suggest' }, el('b', { text: 'Suggested: ' }), item.s);
+      box.append(sg);
+      if (item.alt) box.append(el('p', { class: 'what', text: item.alt }));
+    }
+    const opts = isCall ? [['yes', 'Keep it'], ['other', 'Something else']] : [['works', 'Works'], ['off', 'Something’s off'], ['no-open', 'Won’t open']];
+    const marks = el('div', { class: 'marks' + (isCall ? ' two' : ''), role: 'group', 'aria-label': isCall ? 'Your choice' : 'How it went' });
+    const ta = el('textarea', { id: 'n-' + item.id, placeholder: isCall ? 'What you’d rather have (optional)' : 'What you saw (optional)', 'aria-label': 'Note for ' + (isCall ? item.q : item.title) });
+    const saved = el('p', { class: 'saved', 'aria-live': 'polite' });
+    const key = isCall ? 'choice' : 'state';
+    const current = () => (state[coll][item.id] || {});
+    const body = (patch) => Object.assign({ [key]: current()[key] || '', note: current().note || '' }, patch, { at: new Date().toISOString() });
+    for (const [v, label] of opts) {
+      const b = el('button', { type: 'button', 'data-v': v, 'aria-pressed': 'false', text: label });
+      b.addEventListener('click', () => {
+        const now = current()[key] === v ? '' : v;
+        save(coll, item.id, body({ [key]: now, note: ta.value }), saved);
+        paint(item.id, coll);
+      });
+      marks.append(b);
+    }
+    let timer = 0;
+    ta.addEventListener('input', () => { clearTimeout(timer); saved.textContent = ''; timer = setTimeout(() => save(coll, item.id, body({ note: ta.value }), saved), 900); });
+    ta.addEventListener('blur', () => { if (timer) { clearTimeout(timer); timer = 0; if (ta.value !== (current().note || '')) save(coll, item.id, body({ note: ta.value }), saved); } });
+    box.append(marks, ta, saved);
+    views[coll + item.id] = { box, marks, ta, key };
+    return box;
+  }
+
+  function paint(id, coll) {
+    const v = views[coll + id]; if (!v) return;
+    const d = state[coll][id] || {};
+    const val = d[v.key] || '';
+    v.box.setAttribute(coll === 'calls' ? 'data-choice' : 'data-state', val);
+    for (const b of v.marks.querySelectorAll('button')) b.setAttribute('aria-pressed', String(b.dataset.v === val));
+    if (document.activeElement !== v.ta && typeof d.note === 'string' && v.ta.value !== d.note) v.ta.value = d.note;
+  }
+
+  function tally() {
+    const all = PLAY.concat(LOOK);
+    document.getElementById('n-items').textContent = all.length;
+    document.getElementById('n-calls').textContent = CALLS.length;
+    document.getElementById('n-tried').textContent = all.filter((i) => (state.checks[i.id] || {}).state).length;
+    document.getElementById('n-chosen').textContent = CALLS.filter((c) => (state.calls[c.id] || {}).choice).length;
+  }
+
+  const playBox = document.getElementById('play'), lookBox = document.getElementById('look'), callBox = document.getElementById('calls');
+  for (const box of [playBox, lookBox, callBox]) { box.style.display = 'grid'; box.style.gap = '14px'; }
+  PLAY.forEach((i) => playBox.append(entry(i, 'checks')));
+  LOOK.forEach((i) => lookBox.append(entry(i, 'checks')));
+  CALLS.forEach((c) => callBox.append(entry(c, 'calls')));
+  tally();
+
+  async function connect() {
+    const c = window.claude;
+    if (!c || !c.use) { setStatus('Notes can’t be saved in this view. Tap away, then tell me in the chat.'); return; }
+    db = await c.use('db');
+    if (!db) { setStatus('Notes can’t be saved in this view. Tap away, then tell me in the chat.'); return; }
+    try { const u = await c.use('user'); if (u && u.can) { const w = await u.can('data.write'); if (w === false) { readOnly = true; } } } catch (e) {}
+    let pending = 2;
+    const slow = setTimeout(() => setStatus('Your saved notes can’t be reached yet. Anything you tap now will save when they can.'), 10000);
+    const ready = (snap) => { if (!snap.metadata.fromCache && --pending <= 0) { clearTimeout(slow); setStatus(readOnly ? 'You can read the notes here, but not change them.' : 'Notes save as you go. I read them from here.'); } };
+    const fail = (e) => { clearTimeout(slow); setStatus('Saved notes couldn’t be loaded (' + ((e && e.code) || 'error') + '). Tell me in the chat instead.', true); };
+    for (const coll of ['checks', 'calls']) {
+      db.collection(coll).onSnapshot((snap) => {
+        for (const d of snap.docs) { state[coll][d.id] = d.data() || {}; paint(d.id, coll); }
+        tally(); ready(snap);
+      }, fail);
+    }
+  }
+  connect().catch(() => setStatus('Notes can’t be saved in this view. Tap away, then tell me in the chat.'));
+})();
+</script>
