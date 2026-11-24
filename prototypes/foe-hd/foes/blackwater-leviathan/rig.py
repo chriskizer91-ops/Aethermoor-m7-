@@ -42,7 +42,7 @@ def part(P, kind, idx, piece):
         m = piece == c
         if c == big: continue
         Q = P[m]; ctr = Q.mean(0); kd = np.bincount(kind[m]).argmax()
-        coil = next((n for n, ((cx, cy), _) in COILS.items() if np.hypot(ctr[0] - cx, ctr[1] - cy) < 0.55 and ctr[2] < 0.75), None)
+        coil = next((n for n, ((cx, cy), _) in COILS.items() if np.hypot(ctr[0] - cx, ctr[1] - cy) < 0.55 and ctr[2] < 0.95), None)
         if Q[:, 2].max() < 0.05 and kd == 8: n = 'ground'                              # the water
         elif coil: n = coil                                                            # a coil, its barnacles
         elif kd == 0 and ctr[1] > HINGE[1] and ctr[2] < HINGE[2] + 0.02: n = 'jaw'

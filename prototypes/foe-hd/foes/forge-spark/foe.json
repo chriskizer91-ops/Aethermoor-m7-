@@ -83,5 +83,6 @@
   "pages": {
     "three": "https://claude.ai/artifact/7sjTb3ubzrCxJJZ189YZBW",
     "sculpt": "https://claude.ai/artifact/M7NGzTZXnqPTVEHXtDeQUr"
-  }
+  },
+  "glow": "0xff8a3a"
 }

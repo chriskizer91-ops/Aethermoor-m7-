@@ -37,17 +37,18 @@ def build(K):
     TEAL = np.array([0.08, 0.2, 0.2]); TEAL2 = np.array([0.14, 0.32, 0.3]); EDGE = np.array([0.3, 0.46, 0.4])
     PALE = np.array([0.42, 0.52, 0.36]); PALE2 = np.array([0.3, 0.4, 0.27]); IRON = np.array([0.2, 0.2, 0.22])
     RUST = np.array([0.38, 0.24, 0.14]); GOLD = np.array([0.85, 0.6, 0.2]); RED = np.array([0.55, 0.06, 0.05])
-    BARN = np.array([0.72, 0.7, 0.6]); EYE = np.array([1.0, 0.55, 0.08]); FOAM = np.array([0.55, 0.7, 0.7])
+    OLIVE = np.array([0.24, 0.28, 0.12]); BARN = np.array([0.72, 0.7, 0.6]); EYE = np.array([1.0, 0.55, 0.08]); FOAM = np.array([0.55, 0.7, 0.7])
     band = 0.04 if LV >= 2 else None
     nt, npp = {0: (5, 8), 1: (6, 10), 2: (8, 12)}.get(LV, (10, 16))
     rr = np.random.default_rng(31)
 
     def scales(P, ang, s, L):
         """overlapping scales in rows round him: each a rounded plate, its lower edge lifted"""
-        u = s / 0.1; v = ang * 0.3 / 0.1
+        u = s / 0.14; v = ang * 0.3 / 0.14                                          # bigger scales (second pass)
         a, b = (u + v) % 1.0, (u - v) % 1.0
         e = np.minimum(np.minimum(a, 1 - a), np.minimum(b, 1 - b))
-        return 0.006 * sstep(0.0, 0.15, e) + 0.003 * (1 - a), e
+        rib = np.clip(1 - np.abs(a - b) * 6, 0, 1) * sstep(0.05, 0.3, e)            # a raised middle, like a leaf's vein
+        return 0.009 * sstep(0.0, 0.15, e) + 0.004 * (1 - a) + 0.0025 * rib, e
     def frame(P, C, T):
         ref = np.array([0, -1.0, 0.25])                                              # his back (behind him)
         up = ref - T * (T @ ref)[:, None]; up /= np.maximum(np.linalg.norm(up, axis=1, keepdims=True), 1e-9)
@@ -81,6 +82,7 @@ def build(K):
         _, s, C, T = along(V); ang = frame(V, C, T)
         sc, e = scales(V, ang, s, LV)
         col = mix(TEAL, TEAL2, fbm(V, 4.0)[:, None])
+        col = mix(col, OLIVE, np.clip(fbm(V, 6.0)[:, None] * 2.2 - 1.15, 0, 1))      # olive patches (sheet)
         col = mix(col, EDGE, sstep(0.08, 0.02, e)[:, None] * 0.0 + (sstep(0.25, 0.4, e) * 0.35)[:, None])
         col = col * (0.7 + 0.3 * sstep(0.0, 0.1, e))[:, None]
         front = np.clip((np.abs(ang) - 1.9) / 0.4, 0, 1) * (V[:, 2] < 1.68)            # pale plates down his throat
@@ -149,23 +151,24 @@ def build(K):
             L = LV if lv is None else lv
             Q = P - [cx, cy, 0.06]; along_ = Q @ ax; perp = Q - along_[:, None] * ax
             side = np.linalg.norm(perp[:, :2], axis=1) * np.sign(perp[:, :2] @ np.array([-ax[1], ax[0]]))
-            rho = np.hypot(along_, Q[:, 2]); ang = np.arctan2(Q[:, 2], along_)
+            rho = np.hypot(along_, Q[:, 2] / 1.3); ang = np.arctan2(Q[:, 2] / 1.3, along_)   # taller: egg-shaped, as the sheet (second pass)
             d = np.hypot(rho - 0.26, side) - (0.36 - 0.04 * np.abs(np.cos(ang)))
-            sc = 0.006 * sstep(0.0, 0.15, np.minimum(np.minimum((ang * 3 + side * 9) % 1, 1 - (ang * 3 + side * 9) % 1),
-                                                         np.minimum((ang * 3 - side * 9) % 1, 1 - (ang * 3 - side * 9) % 1)))
+            sc = 0.009 * sstep(0.0, 0.15, np.minimum(np.minimum((ang * 2.2 + side * 6.5) % 1, 1 - (ang * 2.2 + side * 6.5) % 1),
+                                                         np.minimum((ang * 2.2 - side * 6.5) % 1, 1 - (ang * 2.2 - side * 6.5) % 1)))
             d = d - sc
             if L >= 2: d = d - 0.003 * (fbm(P, 12.0, 2) - 0.5)
             return np.maximum(d, -P[:, 2])
         c3 = np.array([cx, cy, 0.3])
-        V, F = S.mc(coil, VOX, c3 - [0.8, 0.8, 0.32], c3 + [0.8, 0.8, 0.55], band=band)
+        V, F = S.mc(coil, VOX, c3 - [0.8, 0.8, 0.32], c3 + [0.8, 0.8, 0.75], band=band)
         col = mix(TEAL, TEAL2, fbm(V, 4.0)[:, None]) * (0.8 + 0.25 * fbm(V, 30.0)[:, None])
+        col = mix(col, OLIVE, np.clip(fbm(V, 6.0)[:, None] * 2.2 - 1.15, 0, 1))
         col = mix(col, FOAM, np.clip((0.06 - V[:, 2]) / 0.06, 0, 1)[:, None] * 0.6)
         M.add(V, F, np.clip(col, 0, 1), 0)
         for j in range(3):                                                             # barnacles on each coil
-            a = rr.uniform(0.6, 2.5); p = np.array([cx, cy, 0.06]) + ax * math.cos(a) * 0.26 + [0, 0, math.sin(a) * 0.26]
+            a = rr.uniform(0.6, 2.5); p = np.array([cx, cy, 0.06]) + ax * math.cos(a) * 0.26 + [0, 0, math.sin(a) * 0.26 * 1.3]
             nrm = ax * math.cos(a) + [0, 0, math.sin(a)]
             for q in range(5):
-                bp = p + nrm * 0.35 + rr.normal(0, 0.035, 3)
+                bp = p + nrm * 0.35 + [0, 0, 0.1 * math.sin(a)] + rr.normal(0, 0.035, 3)       # on the taller coil
                 V, F = G.horn(bp - nrm * 0.02, nrm + rr.normal(0, 0.2, 3), 0.035, 0.022, nrm, 0.0, seg=4, sides=7, tipR=0.01)
                 M.add(V, F, mix(BARN, BARN * 0.7, fbm(V, 80.0)[:, None]), 8)
     # ---- the collar, its chain, the harpoon, barnacles on his neck ------------------------------------------------

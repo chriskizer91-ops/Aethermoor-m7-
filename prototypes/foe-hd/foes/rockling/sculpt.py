@@ -40,27 +40,30 @@ def build(K):
         pitted. Returns its shape and the plane each face is (to shade the faces apart)"""
         g = np.random.default_rng(seed); c = np.asarray(c, np.float32); r = np.asarray(r, np.float32)
         n = g.normal(size=(18, 3)); n /= np.linalg.norm(n, axis=1, keepdims=True)
-        off = g.uniform(0.8, 0.93, 18)
+        off = g.uniform(0.74, 0.88, 18)                                              # bigger flat faces (second pass)
         def f(P, lv=None):
             Q = (P - c) / r
             d = np.linalg.norm(Q, axis=1) - 1.0
             pl = Q @ n.T - off                                                       # the chipped faces
-            k = 0.018
+            k = 0.008                                                                # sharper edges (second pass)
             m = pl.max(1); soft = m + k * np.log(np.exp((pl - m[:, None]) / k).sum(1))   # worn edges
-            d = smax(d, soft, 0.02) * r.min()
+            d = smax(d, soft, 0.01) * r.min()
             d = d - 0.002 * (fbm(P, 22.0, 2) - 0.5)                                 # lumpy
             L = LV if lv is None else lv
             if L >= 2: d = d - 0.0012 * (fbm(P, 90.0, 2) - 0.5)                      # pitted
             if L >= 3: d = d + 0.0006 * np.abs(np.sin(vnoise(P, 30.0) * 40))         # fine cracks and grain
             return np.maximum(d, -P[:, 2])                                           # flat on the ground
         face = lambda P: np.argmax(((P - c) / r) @ n.T - off, 1)
-        return f, face, g.uniform(0, 1, 18)
+        return f, face, np.clip(0.55 * g.uniform(0, 1, 18) + 0.55 * (n[:, 2] + 1) / 2 - 0.1, 0, 1)   # faces facing up are lighter
     def add(c, r, seed, kind=0, tone=None):
         f, face, shade = stone(c, r, seed)
         c = np.asarray(c, np.float32); pad = np.asarray(r, np.float32) * 1.15 + 0.01
         V, F = S.mc(f, VOX, c - pad, c + pad)
         sh = shade[face(V)][:, None]                                                 # each face its own grey
-        col = mix(DARK, MID, 0.35 + 0.5 * sh) if tone is None else tone
+        col = mix(DARK, mix(MID, PALE, 0.5), 0.15 + 0.85 * sh) if tone is None else tone
+        for sx in ((1, -1) if tone is None else ()):                                 # a dark hollow round each eye (not on the eyes)
+            dd = np.linalg.norm((V - [sx * 0.052, 0.14, 0.482]) / [0.04, 0.03, 0.036], axis=1)[:, None]
+            col = mix(col, DARK * 0.45, np.clip(1.5 - dd, 0, 1) * (V[:, 1:2] > 0.08))
         col = mix(col, PALE, 0.35 * np.clip(fbm(V, 40.0)[:, None] - 0.45, 0, 1) * 2)   # pale weathering
         col = col * (0.85 + 0.25 * np.clip((V[:, 2:3] - c[2]) / max(r[2], 1e-3), -1, 1) * 0.5 + 0.1)   # lighter on top
         M.add(V, F, np.clip(col, 0, 1), kind)
@@ -72,9 +75,7 @@ def build(K):
         shapes.append(add(c, r, 100 + i))
     # the eyes: two pale stones set in the head's face
     for sx in (1, -1):
-        V, F = G.ellipsoid((sx * 0.052, 0.138, 0.478), (0.017, 0.012, 0.019), nt, npp)
-        V += (fbm(V, 120.0)[:, None] - 0.5) * 0.003
-        M.add(V, F, np.tile(np.array([0.78, 0.8, 0.82]), (len(V), 1)) * (0.9 + 0.1 * fbm(V, 200.0)[:, None]), 8)
+        add((sx * 0.052, 0.138, 0.478), (0.016, 0.012, 0.021), 900 + sx, kind=8, tone=np.array([0.80, 0.82, 0.85]))   # chipped, like the sheet's diamonds
     # pebbles packed between the stones (not inside them, not floating off them)
     def two(P):
         D = np.sort(np.stack([s(P, 0) for s in shapes], 1), 1)

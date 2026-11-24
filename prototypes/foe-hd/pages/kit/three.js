@@ -117,8 +117,12 @@ function frame() {
   else {
     // all three stands in view: further back on a narrow (phone) screen
     const need = (SPACING * 2 + 3.4 * SZ) / 2, fov = camera.fov * Math.PI / 180;
-    const dist = Math.max(need / (Math.tan(fov / 2) * ar), 1.3 * SZ / Math.tan(fov / 2)) * 1.04;
-    controls.target.set(0, 0.8 * SZ, 0); camera.position.set(0, (1.2 + dist * 0.16) * Math.sqrt(SZ), dist);
+    let dist = Math.max(need / (Math.tan(fov / 2) * ar), 1.3 * SZ / Math.tan(fov / 2)) * 1.04;
+    let cx = 0;
+    if (ar < 1 && A.phoneClose) {   // a wide foe on a phone (foe.json "phoneClose"): the painted one and the full-detail one only, closer
+      cx = SPACING / 2; dist = Math.max((SPACING + 3.4 * SZ) / 2 / (Math.tan(fov / 2) * ar) * 1.04, 1.3 * SZ / Math.tan(fov / 2));
+    }
+    controls.target.set(cx, 0.8 * SZ, 0); camera.position.set(cx, (1.2 + dist * 0.16) * Math.sqrt(SZ), dist);
   }
   controls.update();
 }

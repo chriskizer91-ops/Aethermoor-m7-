@@ -67,7 +67,7 @@ export function pose(B, move, u, t, step = 0) {
     // he bursts up out of the water under you, high, and settles
     const up = seg(u, 0, 0.4), settle = seg(u, 0.5, 1);
     all(-1.25 * H * (1 - up) + 0.12 * H * bump((u - 0.3) / 0.4), 0);
-    neck(-0.06 * bump((u - 0.2) / 0.5)); b.head.rotation.x += -0.18 * bump((u - 0.25) / 0.45) * (1 - settle * 0.5);
+    neck(-0.06 * bump((u - 0.2) / 0.5)); b.head.rotation.x += -0.13 * bump((u - 0.25) / 0.45) * (1 - settle * 0.5);
     b.jaw.rotation.x += 0.5 * bump((u - 0.3) / 0.3);
     return;
   }

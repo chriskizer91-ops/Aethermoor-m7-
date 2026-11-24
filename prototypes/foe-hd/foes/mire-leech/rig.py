@@ -19,3 +19,4 @@ def part(P, kind, idx):
     return out
 # wide blends at every joint along the body, so a bend spreads over its rings
 BANDS = {n: (0.05, 0.25) for n in ('tail1', 'tail0', 'neck0', 'neck1', 'neck2', 'neck3', 'head')}
+
