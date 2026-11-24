@@ -2,6 +2,29 @@
 
 Written by the hub. His newer word beats anything older, here or anywhere in the repo.
 
+## November 24
+
+Chris went through everything on his phone (his playtest page, https://claude.ai/artifact/7BNj1rvFhus7KaBVYbGnxQ; his
+marks and notes are in its store, `checks` and `calls`).
+
+- **Every game page opens and plays on his phone,** Act One with full pictures too (pictures beside the page as files).
+  So pages may go past 16 MB that way; single-file pages stay for when a link must be one file.
+- **"I think polish of the 3D models needs to happen."** His notes:
+  - The winged foes "are flapping their wings too fast. I think like one flap a second or even slower would be good."
+  - "We need to come back to the wraiths' 3D models; they could all use a polish pass. Iron and forge as well."
+  - The Gear Room: "if all of the buttons were collapsible so I could see the model, that would be good."
+- **Fights are held in arenas that look like the land you are in** (his answer to call 1, instead of fighting on the
+  spot). It also ends what he saw in Act Three's fights: "the characters are phasing through the wall ... the character
+  furthest to the left was inside the wall even while it was attacking."
+- **The Mother's Hollow takes the name Envoi and Moon Faire use: the fen's dark heart** (call 8: "Use the lore name
+  from Moon Faire and Envoi"). The hub reads that as Envoi's and Coven's name for the same place, the fen's dark heart;
+  M7's other names there (the Lanternfen, the Lantern Mother) stay.
+- **Kept as suggested:** the heroes stand on the field and step forward on their turn (2); real 3D dice (3); the card
+  reveal as approved, over the 3D (4); Frostmere earlier on the road up (5); small beasts at 1.3 times life size (5b);
+  the Rotwarden 2.5 m and the sapwight 2.0 m (5c); "the Hearth Road" (6); Fawnrest and the Highfold no longer join (7);
+  Envoi's places with no M7 place stay scenery (9); the 3D game offers to start from an M7 save code, reading it only,
+  "yes, they keep their own saves" (10).
+
 ## November 21
 
 - **A place map** (Chris): "a mini map for a more detailed map than the Atlas continent map, a mini map that gives you

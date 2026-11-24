@@ -26,6 +26,17 @@ Rotwarden), then the rest of the Champions and Relic-Bearers, then the others. T
 builder from `game/src/art/foes.js` `foeLooks`) get the gear textures with step 1. Publish the Bestiary to its link
 (`prototypes/bestiary/README.md`).
 
+**Step 3 (from November 24): Chris's notes.**
+- **The winged flap slower:** one wing beat a second or slower (Chris: "flapping their wings too fast"), on every move
+  (the lamp-moth, the Gloamwing, the Thunder-Roc); glides and hovers between beats where a sheet allows.
+- **The Gear Room's buttons fold away** so the model can be seen: every panel collapsible, folded on a phone at the
+  start, a single tap to open or close each.
+- **Hand the wraiths and the iron and forge foes over** as session 8 (the wraiths) and session 6 (iron and forge)
+  finish them through the kit: `withWraiths` and `withArmoured` step aside for any foe whose kit folder passes
+  (`prototypes/foe-hd/foes/<key>/stretch.json`), so the full-detail version is the one the game and the Fight show.
+  Your versions stay as the stand-ins until then.
+- Then the winged ones' polish against their sheets, and anything Chris notes on the heroes.
+
 ## What others rely on (keep it working; add, never remove or rename)
 
 - `buildHero(heroKey, gear, o)` returns `{ group, rig, fx, looks }`; the Fight job moves `rig` (`legs`, `arms`, `armR`,

@@ -29,6 +29,12 @@ lands, put it in every game page and feed it the game's live marks from M7's sta
 are opened, the Hearthfire and whether it's kindled, shops, and the story's next goal (from the journal or the quest
 flags) as a star. Hide it in fights, talk, menus and the Atlas.
 
+**From November 24 (Chris's notes):** the game's fights in the arenas (the Fight's step 6, with Places' sets) once they
+land; M7's "Mother's Hollow" shown as "the fen's dark heart" in all the game's text (a display rename in `game3d/`,
+like `world3d/names.js`; never in `game/`, never in a save); the wraiths and the iron and forge foes in full detail as
+sessions 8 and 6 finish them; then rebuild and republish the ten pages. Chris's phone opens the full-pictures pages, so
+when a single page runs out of room, its full-pictures page carries everything.
+
 ## Your files
 
 - Yours: `game3d/**` (new), `docs/project/slips/together.md`. You may add flags to `world3d/build.mjs` (rule 7).

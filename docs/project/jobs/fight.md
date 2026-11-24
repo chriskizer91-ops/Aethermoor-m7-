@@ -78,6 +78,15 @@ turning in 3D.
   models land), proven by headless runs that play each move at least once.
 - No squash or stretch on the full-detail foes (Chris, November 21).
 
+**Step 6 (from November 24): arenas that look like the land you are in (Chris).** A fight no longer happens on the
+spot: when it starts, the party and the foes are moved to an open arena dressed as the land they are in, so nobody stands
+in a wall (Chris saw the leftmost hero inside the Hollow Hall's wall, attacking from inside it). Places builds the arena
+sets, one per kind of land (`world3d/m7/arenas/`, see `places.md` step 6); you put the fight in them: which set for
+which place (from the place's region and kind, with a per-place override), the party's and the foes' stands, the
+cameras, the swallows and the Champions' moments (re-check every big move's camera in its arena), a short fade in and
+out, and the spoils back on the place's own ground after. Keep the on-the-spot fight as a switch (`ARENA=0`). Every
+fight page rebuilt with it; Together switches the game to it.
+
 ## Your files
 
 - Yours: `world3d/battle/**` (new), `world3d/fight.js` (new, the page), `world3d/coven/pages/m7-fight.html` (new),

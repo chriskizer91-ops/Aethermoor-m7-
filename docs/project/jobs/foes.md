@@ -39,6 +39,20 @@ can share the screen with. The 39 people foes stay built by the heroes' builder 
 The body plans are the Bestiary's (`prototypes/bestiary/beasts.js` `BEASTS`); Chris's sheets are
 `art-in/3d/sheets/sheet-<key>.webp`.
 
+**The polish pass (from November 24, Chris: "polish of the 3D models needs to happen").** Through the kit, in full
+detail (a sculpt of 500k to 1M triangles kept to look at, baked to the light version, the stretch check passing on
+every move), against Chris's sheets, with each foe's own named moves for the Fight:
+- **Session 8: the wraiths** (Chris: "they could all use a polish pass"): drowned, bell-ringer, drowned-choir,
+  drowned-cantor, drowned-abbess, choir-wraith, rime-wraith, the Rime-Abbot, the Lantern Mother, mirage-wisp,
+  wisp-queen. Ghostly cloth that drifts, mist and weeds, lanterns, bells, books and staves as the sheets show; cloth
+  that hangs and sways rather than stretches (rigid panels or cloth bones within the stretch rule).
+- **Session 6: iron and forge** ("Iron and forge as well"): iron-sentinel, the Sentinel-Captain, the Ashen Warden, the
+  Unsmith, cinder-thrall, the Journeyman, forgeborn, forge-warden, thrall-overseer, bellows. Plates and stone that move
+  as rigid pieces, glowing cores and cracks (`emit`), aprons and tools.
+- Use the bestiary's ids as the kit keys, so Models' wrappers hand over by key. Models' versions stay as stand-ins until
+  each passes. Gallery pages as before; the hub needs each link.
+- Session 7 stands by as the reserve.
+
 ## The kit, and whose files are whose
 
 - `prototypes/foe-hd/` is session 6's. Its step 2: turn the Briarmaw scripts into a **shared kit**, the parts every

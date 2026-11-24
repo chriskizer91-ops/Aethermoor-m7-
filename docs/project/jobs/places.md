@@ -80,6 +80,17 @@ draws them, in Chris's textures, so the place reads as a diorama from any angle:
   Together so they match.
 - Act One first, then the regions; republish your pages and tell the hub when Act One is ready to rebuild.
 
+**Step 6 (from November 24): the arena sets (Chris: "arenas that look like the land you are in").** Open, walkable
+rounds about 30 m across with nothing in the middle, each dressed as one kind of land from the places you've built,
+in the same textures, painting light, sky and life: the road and wood (Thornhollow's), the thorns, the deep wood and
+the Heartroot, the fen and its boardwalks, the desert sands, the glass flats, the canyon and vaults, the snow road, the
+frozen lake, dwarf halls, the forge, the Keep's halls, the Hollow Hall, the Ash Stair, the Chained Deep, the Worldforge.
+Props and walls only round the edge, well clear of a 20 m middle. In `world3d/m7/arenas/`, each a place the engine
+loads like any other, and a table of which set suits each of M7's places (by region and kind, with your call per place).
+The Fight puts the fight in them. Then **the fen's dark heart**: M7's Mother's Hollow takes the name Envoi and Coven use
+(Chris, November 24): `world3d/names.js`, `docs/lore/places.json` and the story map page; Together renames it in the
+game's text.
+
 ## What others rely on (keep it working)
 
 - `W3D_PLACES['m7-<id>']` with its `anchors`, `exits` (`to`, `anchor`), `people`, `start`; the walk boxes in
