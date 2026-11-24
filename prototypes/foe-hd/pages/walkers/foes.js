@@ -334,5 +334,46 @@ const drowned = {
   },
 };
 
-export const FOES = { rotwarden, sapwight, 'old-horn': oldHorn, 'peak-troll': peakTroll, unmade, drowned };
+// the bell-ringer: a shroud on a ring of stones, coral for a head, a crook holding the bell; no hands show, so it moves
+// with its whole shroud, gliding, and works the crook
+const bellRinger = {
+  key: 'bell-ringer', name: 'The Bell-Ringer', tier: 'Veteran', act: 'Act Two, Misthollow', height: 2.1, weight: 0.9,
+  stiff: 0.6, knees: 0.3,
+  limits: { neck: 0.2, head: 0.5, spine: 0.35, chest: 0.35, hips: 0.5, l_upper: 0.7, l_fore: 0.5, l_hand: 0.6 },
+  text: 'A shroud on a ring of stones, coral where its head was, and a bell that answers from under the water.',
+  lunge: 'cold-hands',
+  idle(W, t) {
+    const b = W.bones, sw = Math.sin(t * 0.5);
+    W.body.rotation.z = 0.02 * sw; W.body.position.z = 0.012 * Math.sin(t * 0.9);       // drifting, a little off the ground
+    b.head.rotation.z = 0.05 * Math.sin(t * 0.4 + 1); b.l_hand.rotation.x = 0.15 * Math.sin(t * 1.1);   // the bell swinging
+  },
+  moves: {
+    'cold-hands': { label: 'Cold Hands', dur: 1.5, pose(W, u, t) {
+      // it surges at you, the shroud bowing forward over you
+      const b = W.bones, k = seg(u, 0.05, 0.4) * (1 - seg(u, 0.7, 1));
+      b.spine.rotation.x = 0.25 * k; b.chest.rotation.x = 0.25 * k; b.head.rotation.x = 0.3 * k; W.body.position.z = 0.25 * k;
+      b.l_upper.rotation.x = -0.3 * k;
+    } },
+    'drag-down': { label: 'Drag Down', dur: 1.8, pose(W, u, t) {
+      // it sinks, and the cloth closes round your feet and pulls
+      const b = W.bones, low = seg(u, 0.05, 0.45) * (1 - seg(u, 0.6, 0.9)), pull = seg(u, 0.45, 0.65) * (1 - seg(u, 0.85, 1));
+      W.body.position.y -= 0.18 * low; b.spine.rotation.x = 0.2 * low - 0.15 * pull; b.head.rotation.x = 0.25 * low;
+      W.body.position.z = 0.1 * low - 0.12 * pull;
+    } },
+    peal: { label: 'Peal', dur: 1.8, pose(W, u, t) {
+      // it hauls on the crook and the bell answers, swinging hard
+      const b = W.bones, haul = seg(u, 0.05, 0.3) * (1 - seg(u, 0.8, 1)), ring = Math.sin(u * 30) * seg(u, 0.25, 0.4) * (1 - seg(u, 0.75, 0.85));
+      b.l_upper.rotation.z = 0.35 * haul; b.l_upper.rotation.x = -0.25 * haul; b.l_hand.rotation.x = 0.55 * ring;
+      b.chest.rotation.z = -0.1 * haul; b.head.rotation.z = 0.12 * ring;
+    } },
+    'black-water': { label: 'Black Water', dur: 1.6, pose(W, u, t) {
+      // it heaves, and the channel pours out of the ring
+      const b = W.bones, wind = seg(u, 0, 0.3) * (1 - seg(u, 0.35, 0.45)), heave = seg(u, 0.35, 0.5) * (1 - seg(u, 0.8, 1));
+      b.spine.rotation.x = -0.1 * wind + 0.3 * heave; b.chest.rotation.x = -0.08 * wind + 0.25 * heave; b.head.rotation.x = 0.4 * heave;
+      W.body.position.z = 0.1 * heave;
+    } },
+  },
+};
+
+export const FOES = { rotwarden, sapwight, 'old-horn': oldHorn, 'peak-troll': peakTroll, unmade, drowned, 'bell-ringer': bellRinger };
 export const COMMON = [['idle', 'Breathe', 0], ['walk', 'Walk', 0], ['hurt', 'Hit', 0.9], ['ko', 'Fall', 2.6]];
