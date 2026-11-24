@@ -260,7 +260,10 @@ people are `people[].id` (the game's NPC ids).
 - **Full-picture place pages** (`--files`, every picture at its own size): Act One https://claude.ai/artifact/Bj4LCg53vgXUmjWVHg2zcS,
   the Sunscorch https://claude.ai/artifact/5f2RLeW2Rca4zLVp8TTVqu, the Ironspire https://claude.ai/artifact/V5CAGZ42du4T6R95qFDSX6,
   the Gloomfen https://claude.ai/artifact/6VVQYWfKGpZHg4axLT3bNR, Act Three https://claude.ai/artifact/1et94D5gmkV9kQe6wUBAbG
-  (pages 2.2-2.5 MB, with 10-19 MB of pictures beside them).
+  (pages 2.2-2.5 MB, with 10-19 MB of pictures beside them). All five opened over the web with their picture files
+  (headless, November 24: Act Three's Worldforge, Act One's Hearth Road, the Sunscorch's Dusthaven, the Ironspire's
+  Highfold, the Gloomfen's Lanternfen): full textures, no page errors. (Opened from disk the picture files are blocked;
+  served over the web, as claude.ai serves them, they load.)
 
 ## Next
 
