@@ -48,6 +48,8 @@ f.seen = { ...(f.seen || {}), ['card:' + region]: true };
 // already won on the way (road guards), so the run goes straight to the one being checked
 for (const id of (process.env.UNLOCK || '').split(',').filter(Boolean)) f.unlocked = { ...(f.unlocked || {}), [id]: true };
 for (const enc of (process.env.WON || '').split(',').filter(Boolean)) { f.done[enc] = true; f.cleared[enc] = true; f.beaten = { ...(f.beaten || {}), [enc]: 1 }; }
+// EXPECT=defeat: the party starts at 1 HP each, so the fight is lost
+if (process.env.EXPECT === 'defeat') for (const id of g.party.active) g.party.roster[id].hp = 1;
 const [ax, ay, af] = Object.values(MAPS[MAP].anchors)[0];
 g.progress.pos = { map: MAP, x: ax, y: ay, face: af || 's' };
 
