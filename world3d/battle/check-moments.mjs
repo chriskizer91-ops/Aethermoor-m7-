@@ -32,6 +32,7 @@ const hero = units.find((u) => u.side === 'hero')?.id;
 console.log(`${enc}: ${foe.family}${foe.variant ? '/' + foe.variant : ''}, ${Object.keys(mv).length} moves`);
 await p.evaluate(() => { const a = window.__fight.arena; a.manual = true; a.stepBy(1.2, 5); });
 let n = 0;
+const misses = [];
 const ONLY = process.env.ONLY ? process.env.ONLY.split(',') : null; // ONLY=drag-under,wallow: just those moves
 for (const [id, m] of Object.entries(mv)) {
   if (ONLY && !ONLY.includes(id)) { n++; continue; }
@@ -47,12 +48,23 @@ for (const [id, m] of Object.entries(mv)) {
   await p.evaluate(() => window.__fight.arena.stepBy(0.35, 10)); await p.screenshot({ path: path.join(out, `${tag}-b.png`) });
   await p.evaluate((cstep) => { const a = window.__fight.arena, G = a.movingFoe(); if (G) { G.act.bit = true; G.act.bitT = G.act.t; a.landed(G); } a.stepBy(cstep, 10); }, Number(process.env.CSTEP || 0.1));
   await p.screenshot({ path: path.join(out, `${tag}-c.png`) });
+  // is the foe in the shot as it lands (step 6, the arenas): its middle on screen, and nothing built between it and the camera
+  const seen = await p.evaluate((fid) => {
+    const a = window.__fight.arena, G = a.foes.get(fid), cam = a.cam, P = a.W.P; if (!G) return 'gone';
+    const m = G.pos.clone(); m.y += G.size.h * 0.55; const v = m.clone().project(cam);
+    const on = Math.abs(v.x) < 0.95 && Math.abs(v.y) < 0.95 && v.z < 1;
+    let clear = 1; try { clear = P.sight.hit(cam.position.x, cam.position.y, cam.position.z, m.x, m.y, m.z); } catch (e) { /* none */ }
+    return on && clear > 0.97 ? 'in shot' : `NOT IN SHOT (${on ? 'on screen' : 'off screen ' + v.x.toFixed(2) + ',' + v.y.toFixed(2)}${clear > 0.97 ? '' : ', blocked'})`;
+  }, foe.id);
+  if (seen.startsWith('NOT')) misses.push(`${id}: ${seen}`);
   // and a moment later (-d), for what builds as it lands: roots rising, a coil tightening, smoke rolling out
   await p.evaluate(() => window.__fight.arena.stepBy(0.3, 10)); await p.screenshot({ path: path.join(out, `${tag}-d.png`) });
   // done: the foe home, the effects cleared, the camera back
   await p.evaluate(() => { const a = window.__fight.arena; for (const G of a.foes.values()) G.act = null; a.fx.clear(); a.close = null; a.stage?.host.classList.remove('f3-close'); a.stepBy(1.0, 5); });
-  console.log(`  ${m.name} (${id}): ${r.moment ? 'moment' : 'NO MOMENT'}, body ${r.kmove}${r.cam ? ', camera ' + r.cam : ''}`);
+  console.log(`  ${m.name} (${id}): ${r.moment ? 'moment' : 'NO MOMENT'}, body ${r.kmove}${r.cam ? ', camera ' + r.cam : ''}, ${seen}`);
 }
+const place = await p.evaluate(() => window.__fight.arena.W.P.place?.id);
+console.log(`in ${place}; ${misses.length ? misses.length + ' moves with the foe out of shot' : 'the foe in shot on every move'}`);
 console.log(errs.length ? 'ERRORS:\n' + errs.join('\n') : 'no errors');
 await b.close();
 process.exit(errs.length ? 1 : 0);
