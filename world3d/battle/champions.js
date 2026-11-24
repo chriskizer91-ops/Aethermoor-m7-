@@ -232,7 +232,7 @@ export const MOMENTS = {
   },
   'rotstag:rotwood-crown': { // "Black sap weeps from the circlet: 2d6 blight to all, CON save for half, and the Stag drinks it."
     move: 'roar', camera: 'wide',
-    start: (c) => { c.fx.sparks(head(c), '#1a1408', 20, { spread: 0.4, up: -0.6 }); c.fx.pulse(head(c), '#3a4a1a', 1.4, 1.2); },
+    start: (c) => { const crown = bone(c, 'head', head(c)); c.fx.pulse(crown, '#ffd27a', 0.9, 1.0); c.fx.sparks(crown, '#ffe08a', 12, { spread: 0.3, up: 0.6 }); c.fx.sparks(head(c), '#1a1408', 20, { spread: 0.4, up: -0.6 }); c.fx.later(0.3, () => c.fx.pulse(head(c), '#3a4a1a', 1.4, 1.0)); }, // the circlet flares gold, then weeps black
     land: (c) => { for (const h of c.all) { c.fx.sparks(chest(h), '#2a2a10', 16, { spread: 0.7, up: -0.5 }); c.fx.thorn(chest(h), head(c), '#3a4a1a', 0.5, 0.35); } },
   },
 
