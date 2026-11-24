@@ -38,6 +38,12 @@ Models' wraiths, armoured and forge foes (the remade Ashen Warden and Unsmith) a
   Rekindle with M7's own late-game party (`PARTY_FROM`, from M7's balance sim): the Chained Deep crossed (the unmade
   beaten, Tamsin back), the forge-warden beaten, over the bridge; the Unsmith's fight runs over an hour headless and is
   being played out (the checks now wait up to 3 hours on a fight).
+- **Rekindle passes** (12 of 12, no page errors, on the published Act Three page): the forge-warden, the remade Unsmith
+  fought and won (about 1 h 45 min headless), the heart in front of the furnace mouth, Rekindle's card, the credits,
+  the last card, the Great Hall, saved. All three of M7's endings pass on built pages. The rotgrubs at hr1-grubs: in
+  view and won (3 of 3).
+- **Held**: the rebuild with the Fight's Act Three moments and Models' robes, until Models' robe pleats build at light
+  detail (they throw there, so townsfolk and phone followers in robes fail).
 
 ## Latest round (November 23): the endings, the foes back, chests, the wraiths, the save-code box
 
