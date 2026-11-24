@@ -90,8 +90,9 @@
   cheer on victory, worried at a quarter health or less.
 - Build the fight page: `FIGHT_HD=briarmaw,briarling,glowcap,rotwarden,sapwight node build.mjs --page=m7-fight
   --places=thornhollow,briarmaw-den,heartroot-1,heartroot-2 --tex=768 --herotex=256 --entry=fight.js --plugin=battle/swap.mjs`
-  (15.3 MB). Act One: `FIGHT_HD=briarmaw,briarling,glowcap,boglurcher FIGHT_STANDEES=none ... --out=fight-act1
-  --places=<its 13> --tex=320`. Act Two: `FIGHT_HD=willow-wight,grandfather-willow,glass-scorpion,glass-matriarch,sand-skink FIGHT_STANDEES=none ...
+  (15.3 MB). Act One A: `FIGHT_HD=briarmaw,briarling,glowcap,rotstag,oldsnag FIGHT_STANDEES=none ... --out=fight-act1a
+  --places=thornhollow,keep-hall,hearth-road,thornway,briarmaw-den --tex=448`. Act One B: `FIGHT_HD=boglurcher,mirelord,rotwarden,sapwight,
+  briarling,glowcap ... --out=fight-act1b --places=mossfall,mosswatch-1,mosswatch-2,hindwood,fawnrest,eldergrove,heartroot-1,heartroot-2 --tex=448`. Act Two: `FIGHT_HD=willow-wight,grandfather-willow,glass-scorpion,glass-matriarch,sand-skink FIGHT_STANDEES=none ...
   --out=fight-act2 --places=scorchgate-vaults,harrows-forge,frostmere-below,tidal-flats,mothers-hollow,willowmurk,dust-trail,deep-shaft-2
   --tex=448`. Ironspire: `FIGHT_HD=mother-anvil,peak-troll,old-horn,rockling ... --tex=384`. Gloomfen: `FIGHT_HD=marsh-light,blackwater-gar,old-jaws,
   blackwater-leviathan,mire-leech ... --tex=384`. Events: `FIGHT_HD=marsh-light FIGHT_STANDEES=sand-wyrm,kharzul,blackwater-gar,blackwater-leviathan`.
@@ -202,8 +203,10 @@
   (fight-stills/leviathan-swallow.png); Pearl-Light glows on his pearl, Harpoon Rage sparks from the wound.
 - **More full-detail foes on the pages** (November 23): Mother Anvil, the peak-troll, Old Horn and the rockling on the
   Ironspire page (384 px world textures; Mother Anvil's eight and Old Horn's six moves on their own bodies, no errors); the
-  mire-leech on the Gloomfen page (384 px). The Mirelord passes but Act One can't take him (16.39 MB even at 288 px): Act
-  One split across two pages would make room. The forge-spark isn't fought anywhere in M7. The kit's loader builds bones in
+  mire-leech on the Gloomfen page (384 px). Act One is now two pages (hub, November 24): **Thornhollow to the Den** (the old Act One link,
+  https://claude.ai/artifact/Q9T8quXCTVgiVUZoMuUaP4, 14.8 MB at 448 px; the Rot-Stag and Old Snag in full detail, their fights on the
+  Hearth Road and the Thornway) and **Mossfall to the Heartroot** (https://claude.ai/artifact/7Prqphh2mubkp2L2hTn2ZA, 14.5 MB at 448 px;
+  the Mirelord, boglurcher, Rotwarden and sapwight in full detail). The three newly full-detail big foes proven, no errors. The forge-spark isn't fought anywhere in M7. The kit's loader builds bones in
   any order (two passes), so session 7's serpent-chain note doesn't touch the Fight.
 - **Swallows** (agreed with Places, session 4, for the Sand Wyrm and the Leviathan): their `parts.mouth` and
   `SWALLOW_AT { u, reach }`; the hero shrinks into the mouth at that u and comes back out of it on release; the foe
