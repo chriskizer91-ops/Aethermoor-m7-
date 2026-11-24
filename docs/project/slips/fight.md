@@ -90,7 +90,7 @@
   cheer on victory, worried at a quarter health or less.
 - Build the fight page: `FIGHT_HD=briarmaw,briarling,glowcap,rotwarden,sapwight node build.mjs --page=m7-fight
   --places=thornhollow,briarmaw-den,heartroot-1,heartroot-2 --tex=768 --herotex=256 --entry=fight.js --plugin=battle/swap.mjs`
-  (15.3 MB). Act One: `FIGHT_HD=briarmaw,briarling,glowcap,boglurcher FIGHT_STANDEES=thornhound ... --out=fight-act1
+  (15.3 MB). Act One: `FIGHT_HD=briarmaw,briarling,glowcap,boglurcher FIGHT_STANDEES=none ... --out=fight-act1
   --places=<its 13> --tex=320`. Act Two: `FIGHT_HD=willow-wight,grandfather-willow,glass-scorpion,glass-matriarch,sand-skink FIGHT_STANDEES=none ...
   --out=fight-act2 --places=scorchgate-vaults,harrows-forge,frostmere-below,tidal-flats,mothers-hollow,willowmurk,dust-trail,deep-shaft-2
   --tex=448`. Ironspire: `FIGHT_HD=mother-anvil,peak-troll,old-horn,rockling ... --tex=384`. Gloomfen: `FIGHT_HD=marsh-light,blackwater-gar,old-jaws,
