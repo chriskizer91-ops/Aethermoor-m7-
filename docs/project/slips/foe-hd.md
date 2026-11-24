@@ -5,6 +5,25 @@ shown side by side with the code-built model and a cut-out of Chris's sheet.
 
 ## Done
 
+- **The polish pass: iron and forge** (November 24; Chris: "Iron and forge as well"), all ten in full detail, in act order,
+  each **passing the stretch check** (120 frames), each with its own named moves (M7's names, kit/js/moves/ironclad.js;
+  sets warden, sentinel, captain, forge, bellows, journeyman, thrall, overseer, kiln, unsmith in looks.js). Kit keys are
+  the bestiary ids, so Models' wrapper hands over by key. Gallery pages (one foe each, linked to each other):
+  - The Ashen Warden (`ashen-warden`, sculpt / light 973k / 47k): https://claude.ai/artifact/EzhJdoL53KTeUPUfHc2yyN
+  - Iron Sentinel (`iron-sentinel`, sculpt / light 1.02M / 28.7k): https://claude.ai/artifact/SVB9XRDbgnSTV9VSMr59Lz
+  - The Sentinel-Captain (`sentinel-captain`, sculpt / light 1.14M / 38k): https://claude.ai/artifact/7KxofYSMBpwrvZvHVjtiMX
+  - Forgeborn (`forgeborn`, sculpt / light 1.0M / 30k): https://claude.ai/artifact/WvKEeL7qFkK7K5kx2TZEuc
+  - The Bellows (`bellows`, sculpt / light 961k / 30k): https://claude.ai/artifact/CVwKJCkHZHyW9oyXWcrhtK
+  - Harrow's Journeyman (`journeyman`, sculpt / light 944k / 38.6k): https://claude.ai/artifact/MUFvyzwaifsf9HUnwuafq6
+  - Cinder-Thrall (`cinder-thrall`, sculpt / light light ~20k): https://claude.ai/artifact/WiTMDVCyHgqy9q9aLqRoHa
+  - Thrall-Overseer (`thrall-overseer`, sculpt / light 847k / 30k): https://claude.ai/artifact/A2CMDtaE2gbiSkGhsY1GFU
+  - Forge-Warden (`forge-warden`, sculpt / light 750k / 29.5k): https://claude.ai/artifact/TQtQi2jxUR391ZErWyNeMo
+  - The Unsmith (`unsmith`, sculpt / light 1.19M / 46.5k): https://claude.ai/artifact/B4yCqb6nesPQ2U4t4SDUSV
+  - How: kit/py/armour.py builds a suit of pieces, each its own mesh on one bone (build/pieces.json tells the rig), so
+    plates, slabs and stone move rigidly; chipped stones and cracks with a glowing slab just under the rock (kind 7),
+    baked into the rock with foe.json bake.coat_kinds [0, 7] (bake.py skips an empty parts pass). The Captain's and
+    the Unsmith's sculpts are a little over 1M.
+
 - **Second pass against the sheets** (November 24; the hub's list), every foe **still passing the stretch check** (120
   frames), every page republished at its same link:
   - Marsh-light: warmer yellow core. Willow-wight: fronds in clumps of three, lighter bark, moss in the grooves.

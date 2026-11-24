@@ -82,5 +82,9 @@
     ]
   },
   "rig": "rig.py",
-  "blurb": "One of Harrow's molten servants, Act Two's Ironspire: a hulking man-shape of black slag in chipped slabs with the fire showing through every crack, a furnace grille in its chest, an iron pauldron with burning slits on its left shoulder, a lump of a head sunk between its shoulders, a leather belt and a ragged leather apron, great stone fists and boots. Every slab moves whole on its own joint, so nothing stretches."
+  "blurb": "One of Harrow's molten servants, Act Two's Ironspire: a hulking man-shape of black slag in chipped slabs with the fire showing through every crack, a furnace grille in its chest, an iron pauldron with burning slits on its left shoulder, a lump of a head sunk between its shoulders, a leather belt and a ragged leather apron, great stone fists and boots. Every slab moves whole on its own joint, so nothing stretches.",
+  "pages": {
+    "three": "https://claude.ai/artifact/WvKEeL7qFkK7K5kx2TZEuc",
+    "sculpt": "https://claude.ai/artifact/PFnANRRo6hppJ81gM9vJ1r"
+  }
 }

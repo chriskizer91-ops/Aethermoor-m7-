@@ -82,5 +82,9 @@
     ]
   },
   "rig": "rig.py",
-  "blurb": "A forgeborn made into a bellows, Act Two's Ironspire: a swollen body of dark puffed leather strapped crosswise with brass-buckled belts, a round brass furnace grate burning in its chest, a brass-framed vent on its shoulder, glowing slits torn in the leather all over, a chimney of a hood for a head with a brass lantern cap, and a brass pipe curling up from its shoulder into the cap. Every part moves whole on its own joint, so nothing stretches."
+  "blurb": "A forgeborn made into a bellows, Act Two's Ironspire: a swollen body of dark puffed leather strapped crosswise with brass-buckled belts, a round brass furnace grate burning in its chest, a brass-framed vent on its shoulder, glowing slits torn in the leather all over, a chimney of a hood for a head with a brass lantern cap, and a brass pipe curling up from its shoulder into the cap. Every part moves whole on its own joint, so nothing stretches.",
+  "pages": {
+    "three": "https://claude.ai/artifact/CVwKJCkHZHyW9oyXWcrhtK",
+    "sculpt": "https://claude.ai/artifact/AYQ4g3bn3K1PjuAgMbojsj"
+  }
 }
