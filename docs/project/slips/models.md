@@ -492,6 +492,19 @@ https://claude.ai/artifact/KiYfGSBcUQ6gU4WqVKGojD republished.
   windows. It hangs on a short chain below her hand, like the sheet's.
 - Still open: the Rime-Abbot's cowl (squarer than the sheet's drooping hood).
 
+**The heroes in the Gear Room, beside the foes** (November 24). Gear Room republished:
+https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL
+- The plainest pieces beside the foes were the robes and the boots, so every robe and boot item gets these (all items
+  stay switchable; nothing is fixed on one hero):
+  - every robe: deeper folds at the hem; a deep hem band in the item's trim colour with a line of zigzag embroidery
+    above it; trimmed cuffs on its wide sleeves; a robe with a cloth trim also wears a fringed stole from the shoulders
+    down the front (Bryn's green);
+  - every boot: a heel, and a turned cuff at the top (unless the item already has a fold or a greave).
+- Checks: the item audit 458 items, 0 flags. Draw calls at High, Light and Lite are 226, 104 and 24 (were 218, 100,
+  24): the new pieces show at every level.
+- Still plainer than the foes: the robes' bodies between the hem and the belt, and the heads' storybook shape, which is
+  kept on purpose (Chris's choice).
+
 ## Next
 
 - Chris chose full detail for the beasts (November 20): sessions 6 to 8 build them (`docs/project/jobs/foes.md`;
