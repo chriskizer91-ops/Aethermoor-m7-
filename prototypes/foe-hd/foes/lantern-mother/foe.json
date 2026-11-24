@@ -1,0 +1,16 @@
+{
+ "key": "lantern-mother",
+ "name": "The Lantern Mother",
+ "plan": "walker",
+ "rank": "champion",
+ "height": 1.91,
+ "moves": "pages/walkers/foes.js",
+ "bake": {
+  "res": 2048,
+  "phone": 768
+ },
+ "rig": "rig.py",
+ "note": "a walker (session 8): its moves are pages/walkers/foes.js FOES[key] (walker.js movesFor); its own page assets are color.webp, orm.webp and phone/",
+ "glow": "0xffb050",
+ "glowIntensity": 0.9
+}

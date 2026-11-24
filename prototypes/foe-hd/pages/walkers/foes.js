@@ -686,7 +686,7 @@ const lanternMother = {
     'lead-them-down': { label: 'Lead Them Down', dur: 2.2, pose(W, u, t) {
       // she reaches out with the lantern-hand to take yours, and leads you down under the water
       const b = W.bones, reach = seg(u, 0.05, 0.35) * (1 - seg(u, 0.8, 1)), sink = seg(u, 0.45, 0.75) * (1 - seg(u, 0.88, 1));
-      b.l_upper.rotation.x = 0.25 * reach; b.l_fore.rotation.x = 0.4 * reach; b.spine.rotation.x = 0.08 * reach; b.head.rotation.x = 0.2 * reach;
+      b.l_upper.rotation.x = 0.45 * reach; b.l_fore.rotation.x = 0.08 * reach; b.spine.rotation.x = 0.08 * reach; b.head.rotation.x = 0.2 * reach;
       W.body.position.z = 0.15 * reach; W.body.position.y -= 0.16 * sink; b.chest.rotation.y = -0.1 * reach;
     } },
     moths: { label: 'Moths', dur: 2.4, pose(W, u, t) {
@@ -699,7 +699,7 @@ const lanternMother = {
       // she bows her head over her grief, then lifts it and lets you see
       const b = W.bones, bow = seg(u, 0.05, 0.3) * (1 - seg(u, 0.45, 0.6)), lift = seg(u, 0.5, 0.65) * (1 - seg(u, 0.85, 1));
       b.head.rotation.x = 0.4 * bow - 0.3 * lift; b.neck.rotation.x = 0.15 * bow - 0.1 * lift; b.chest.rotation.x = 0.12 * bow;
-      b.l_upper.rotation.x = 0.3 * bow; b.l_fore.rotation.x = 0.3 * bow; W.body.position.y -= 0.03 * bow;
+      b.l_upper.rotation.x = 0.35 * bow; b.l_fore.rotation.x = 0.06 * bow; W.body.position.y -= 0.03 * bow;
     } },
     snuff: { label: 'Snuff', dur: 2.2, pose(W, u, t) {
       // she reaches the pole's hook to the lamps and pinches them out one by one
@@ -717,7 +717,7 @@ const lanternMother = {
     'drown-the-light': { label: 'Drown the Light', dur: 2.2, pose(W, u, t) {
       // she plunges the lantern down into the black water, and the water comes up out of it at you
       const b = W.bones, down = seg(u, 0.05, 0.4) * (1 - seg(u, 0.55, 0.7)), up = seg(u, 0.55, 0.68) * (1 - seg(u, 0.85, 1));
-      b.l_upper.rotation.x = 0.55 * down - 0.4 * up; b.l_fore.rotation.x = 0.55 * down; b.spine.rotation.x = 0.12 * down; b.chest.rotation.x = 0.15 * down;
+      b.l_upper.rotation.x = 0.75 * down - 0.4 * up; b.l_fore.rotation.x = 0.1 * down; b.spine.rotation.x = 0.12 * down; b.chest.rotation.x = 0.15 * down;
       b.head.rotation.x = 0.3 * down - 0.1 * up; W.body.position.y -= 0.06 * down; W.body.position.z = 0.15 * up;
     } },
   },
