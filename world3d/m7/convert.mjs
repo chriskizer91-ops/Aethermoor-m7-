@@ -62,13 +62,16 @@ function findArtIn(id) {
 const fitted = (f, w, h) => execFileSync('python3', ['-I', '-c', 'import sys,io\nfrom PIL import Image\nim=Image.open(sys.argv[1]).convert("RGB").resize((int(sys.argv[2]),int(sys.argv[3])),Image.LANCZOS)\nb=io.BytesIO();im.save(b,"WEBP",quality=86,method=6);sys.stdout.buffer.write(b.getvalue())', f, String(w), String(h)], { maxBuffer: 64 << 20 });
 
 async function convert(id) {
-  const map = (await import(pathToFileURL(path.join(GAME, 'data/maps', id + '.js')))).default;
+  // (Places, step 6) an arena set (arena-<set>) is made by m7/arenas/make.mjs: its map and painting are there
+  const ARENA = id.startsWith('arena-');
+  const map = (await import(pathToFileURL(ARENA ? path.join(here, 'arenas/maps', id + '.js') : path.join(GAME, 'data/maps', id + '.js')))).default;
   // (Places) a map with no painting yet (the Hearth Below's four, Chris's batch 4) uses its stand-in, m7/standin.mjs
   // Chris's batch 4 goes into art-in/ (never game/): art-in/**/map-<id>.(png|webp|jpg), fitted to the map's tiles (32 px a
   // tile) and kept as WebP. Order: the game's own painting, then Chris's from art-in/, then the stand-in
   const paintFile = path.join(GAME, 'ui/assets/paint', id + '.js');
   const fromArtIn = findArtIn(id);
-  const paint = existsSync(paintFile) ? (await import(pathToFileURL(paintFile))).default
+  const paint = ARENA ? { src: 'data:image/webp;base64,' + readFileSync(path.join(here, 'arenas/paint', id + '.webp')).toString('base64') }
+    : existsSync(paintFile) ? (await import(pathToFileURL(paintFile))).default
     : fromArtIn ? { src: 'data:image/webp;base64,' + fitted(fromArtIn, map.w * 32, map.h * 32).toString('base64'), artIn: path.relative(ROOT, fromArtIn) }
     : { src: 'data:image/webp;base64,' + readFileSync(path.join(here, 'standins', id + '.webp')).toString('base64'), standin: true };
   const { w, h, rows } = map;
@@ -447,7 +450,8 @@ out.save(sys.argv[2],quality=80,method=6)`, webp, roofFile, JSON.stringify(roofJ
       return out;
     }) : undefined,
     falls: FALLS[id] ? FALLS[id].map(([x0, x1, y0, y1, drop]) => [(x0 + x1 + 1) / 2 * TX, y0 * TY, (y1 + 1) * TY, (x1 - x0 + 1) * TX, drop || 0]) : undefined,
-    light: LIGHT[id] || (!ACT2 ? (interior ? 'indoor' : 'day') : undefined),
+    arena: map.arena,   // (Places, step 6) an arena set: its set, sources and sizes
+    light: map.light || LIGHT[id] || (!ACT2 ? (interior ? 'indoor' : 'day') : undefined),
     tileH: rows.map((r, j) => [...r].map((c, i) => c === 'x' && !(GLOOM && !interior) ? 3 : c === 'w' ? 2 : WET[j][i] ? 1 : ACT2 && MASSC.includes(c) ? 4 : 0).join('')),
   };
   const mapsEntry = { walk, block: [] };
