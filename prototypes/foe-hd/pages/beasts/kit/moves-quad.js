@@ -18,16 +18,16 @@ function gait(b, step, amp = 1, trot = 1) {
   const P = { fl: 0, br: 0, fr: Math.PI, bl: Math.PI };
   for (const k of LEGS) {
     const ph = step + P[k], s = Math.sin(ph), lift = Math.max(0, Math.cos(ph)) * trot, front = k[0] === 'f';
-    rx(b, k + '_upper', -0.34 * s * amp);
-    if (front) { rx(b, k + '_lower', -0.55 * lift * amp); rx(b, k + '_foot', 0.75 * lift * amp); rx(b, k + '_paw', -0.2 * s * amp); }
-    else { rx(b, k + '_lower', 0.34 * lift * amp); rx(b, k + '_foot', -0.4 * lift * amp + 0.1 * s * amp); rx(b, k + '_paw', 0.3 * lift * amp); }
+    rx(b, k + '_upper', (front ? -0.3 : -0.34) * s * amp);
+    if (front) { rx(b, k + '_lower', -0.2 * lift * amp); rx(b, k + '_foot', 0.32 * lift * amp); rx(b, k + '_paw', -0.15 * s * amp); }
+    else { rx(b, k + '_lower', 0.24 * lift * amp); rx(b, k + '_foot', -0.3 * lift * amp + 0.1 * s * amp); rx(b, k + '_paw', 0.24 * lift * amp); }
   }
 }
 function crouch(b, k) {
   // all four legs folded, the body lowered (the caller lowers the body)
   for (const l of LEGS) {
-    if (l[0] === 'f') { rx(b, l + '_upper', 0.24 * k); rx(b, l + '_lower', -0.4 * k); rx(b, l + '_foot', 0.22 * k); }
-    else { rx(b, l + '_upper', -0.22 * k); rx(b, l + '_lower', 0.34 * k); rx(b, l + '_foot', -0.24 * k); }
+    if (l[0] === 'f') { rx(b, l + '_upper', 0.14 * k); rx(b, l + '_lower', -0.2 * k); rx(b, l + '_foot', 0.13 * k); }
+    else { rx(b, l + '_upper', -0.18 * k); rx(b, l + '_lower', 0.24 * k); rx(b, l + '_foot', -0.18 * k); }
   }
 }
 
@@ -42,8 +42,8 @@ export const quad = {
     const b = F.bones, B = F.body, br = Math.sin(t * 2.4), H = F.height;
     // breathing under everything: the chest swells, the head bobs, the tail sways, the ears flick now and then
     rx(b, 'spine', -0.012 * br); rx(b, 'chest', 0.018 * br);       // breathing as a small turn (bones are never scaled or slid)
-    rx(b, 'head', 0.03 * br); ry(b, 'head', 0.1 * Math.sin(t * 0.6));
-    tail(b, 0.16 * Math.sin(t * 1.6), 0.02 * br);
+    rx(b, 'head', 0.03 * br); ry(b, 'head', 0.08 * Math.sin(t * 0.6));
+    tail(b, 0.1 * Math.sin(t * 1.6), 0.02 * br);
     const flick = Math.max(0, Math.sin(t * 0.9) - 0.94) * 8;
     rz(b, 'ear_l', 0.12 * flick); rz(b, 'ear_r', -0.12 * Math.max(0, Math.sin(t * 0.9 + 2) - 0.94) * 8);
     rx(b, 'jaw', 0.02 + 0.015 * br);
@@ -52,13 +52,13 @@ export const quad = {
       gait(b, step);
       B.position.y = 0.02 * H * Math.abs(Math.sin(step));
       rz(b, 'hips', 0.04 * Math.sin(step)); rz(b, 'chest', -0.04 * Math.sin(step));
-      rx(b, 'neck', 0.05 * Math.sin(step * 2)); tail(b, 0.1 * Math.sin(step), 0.08);
+      rx(b, 'neck', 0.05 * Math.sin(step * 2)); tail(b, 0.06 * Math.sin(step), 0.05);
       return;
     }
     if (move === 'bite') {
       // a snap: head down and forward, jaw open, shut as he lands
       const go = seg(u, 0, 0.4), snap = seg(u, 0.42, 0.52), back = 1 - seg(u, 0.6, 1);
-      rx(b, 'chest', 0.08 * go * back); rx(b, 'neck', 0.26 * go * back); rx(b, 'head', -0.18 * go * back);
+      rx(b, 'chest', 0.12 * go * back); rx(b, 'neck', 0.14 * go * back); rx(b, 'head', -0.08 * go * back);
       rx(b, 'jaw', 0.5 * go * (1 - snap) * back);
       rx(b, 'hips', 0.05 * go * back); B.position.z = 0.22 * H * go * back;
       rx(b, 'fl_upper', -0.25 * go * back); rx(b, 'fr_upper', -0.25 * go * back);
@@ -72,33 +72,33 @@ export const quad = {
       const tremble = Math.sin(t * 60) * 0.01 * low;
       crouch(b, low); B.position.y = -0.14 * H * low + 0.32 * H * leap;
       B.position.z = 0.75 * H * leap * (1 - land) + 0.1 * H * low;
-      rx(b, 'neck', 0.25 * low - 0.2 * leap); rx(b, 'head', -0.1 * low + 0.1 * leap + tremble);
+      rx(b, 'neck', 0.13 * low - 0.1 * leap); rx(b, 'head', -0.06 * low + 0.06 * leap + tremble);
       rx(b, 'jaw', 0.5 * leap);
       // in the air: forelegs reach forward, hind legs kick back
-      for (const k of ['fl', 'fr']) { rx(b, k + '_upper', -0.45 * leap); rx(b, k + '_lower', 0.35 * leap); rx(b, k + '_foot', -0.2 * leap); }
-      for (const k of ['bl', 'br']) { rx(b, k + '_upper', 0.45 * leap); rx(b, k + '_lower', -0.2 * leap); rx(b, k + '_foot', 0.45 * leap); }
-      rz(b, 'ear_l', -0.2 * low); rz(b, 'ear_r', 0.2 * low);
-      tail(b, 0.05 * Math.sin(t * 20) * low, -0.12 * low + 0.18 * leap);
+      for (const k of ['fl', 'fr']) { rx(b, k + '_upper', -0.38 * leap); rx(b, k + '_lower', 0.17 * leap); rx(b, k + '_foot', -0.15 * leap); }
+      for (const k of ['bl', 'br']) { rx(b, k + '_upper', 0.3 * leap); rx(b, k + '_lower', -0.12 * leap); rx(b, k + '_foot', 0.25 * leap); }
+      rz(b, 'ear_l', -0.1 * low); rz(b, 'ear_r', 0.1 * low);
+      tail(b, 0.03 * Math.sin(t * 20) * low, -0.08 * low + 0.1 * leap);
       return;
     }
     if (move === 'howl') {
       // sit back on the haunches, muzzle to the sky, the jaw open, the throat working
       const up = seg(u, 0, 0.25), hold = 1 - seg(u, 0.8, 1), k = up * hold, quaver = Math.sin(u * 40) * 0.03 * k;
-      rx(b, 'hips', -0.18 * k); rx(b, 'spine', -0.08 * k); rx(b, 'chest', -0.1 * k);
-      rx(b, 'spine', -0.06 * k); rx(b, 'neck', -0.2 * k); rx(b, 'head', -0.3 * k + quaver);
+      rx(b, 'hips', -0.4 * k); rx(b, 'spine', -0.05 * k); rx(b, 'chest', -0.06 * k);     // he sits back and rears whole
+      rx(b, 'spine', -0.03 * k); rx(b, 'neck', -0.05 * k); rx(b, 'head', -0.05 * k + quaver * 0.3);
       rx(b, 'jaw', 0.32 * k + quaver);
-      for (const l of ['bl', 'br']) { rx(b, l + '_upper', -0.18 * k); rx(b, l + '_lower', 0.3 * k); rx(b, l + '_foot', -0.18 * k); }
-      for (const l of ['fl', 'fr']) rx(b, l + '_upper', 0.12 * k);
+      for (const l of ['bl', 'br']) { rx(b, l + '_upper', -0.12 * k); rx(b, l + '_lower', 0.2 * k); rx(b, l + '_foot', -0.12 * k); }
+      for (const l of ['fl', 'fr']) rx(b, l + '_upper', 0.07 * k);
       B.position.y = -0.04 * H * k;
       rz(b, 'ear_l', -0.12 * k); rz(b, 'ear_r', 0.12 * k);
       return;
     }
     if (move === 'hurt') {
       const a = bump(u * 1.6) * (1 - seg(u, 0.6, 1));
-      B.position.z = -0.16 * H * a; rx(b, 'spine', -0.08 * a); rx(b, 'chest', -0.12 * a); rx(b, 'neck', -0.2 * a); rx(b, 'head', -0.14 * a);
-      rz(b, 'head', 0.14 * a); rx(b, 'jaw', 0.25 * a);
+      B.position.z = -0.16 * H * a; rx(b, 'hips', -0.08 * a); rx(b, 'spine', -0.05 * a); rx(b, 'chest', -0.07 * a); rx(b, 'neck', -0.07 * a); rx(b, 'head', -0.05 * a);
+      rz(b, 'head', 0.07 * a); rx(b, 'jaw', 0.25 * a);
       rz(b, 'hips', 0.08 * Math.sin(u * 40) * a);
-      rz(b, 'ear_l', -0.08 * a); rz(b, 'ear_r', 0.08 * a); tail(b, 0, -0.25 * a);
+      rz(b, 'ear_l', -0.08 * a); rz(b, 'ear_r', 0.08 * a); tail(b, 0, -0.12 * a);
       return;
     }
     if (move === 'ko') {
@@ -106,7 +106,7 @@ export const quad = {
       const buckle = seg(u, 0, 0.35), roll = seg(u, 0.25, 0.75), drop = seg(u, 0.6, 1);
       crouch(b, buckle);
       B.position.y = -0.2 * H * buckle + 0.06 * H * roll; B.rotation.z = 1.45 * roll; B.position.x = -0.3 * H * roll;
-      rx(b, 'neck', 0.2 * drop); rz(b, 'head', -0.18 * drop); rx(b, 'jaw', 0.25 * drop);
+      rx(b, 'neck', 0.13 * drop); rz(b, 'head', -0.12 * drop); rx(b, 'jaw', 0.25 * drop);
       tail(b, 0, -0.2 * drop);
       return;
     }

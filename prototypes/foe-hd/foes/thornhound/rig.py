@@ -105,7 +105,7 @@ def mask0(P, idx=None):
     for i, (n, par, hd, tl) in enumerate(BONES):
         if is_helper(n): continue
         if n[:2] in ('fl', 'fr', 'bl', 'br') and not n.endswith('_upper'):
-            M[:, i] = ramp(hd[2] + 0.03 - z, 0, 0.03)               # nothing above its joint
+            M[:, i] = ramp(hd[2] + 0.06 - z, 0, 0.08)               # nothing well above its joint (a soft ramp: a hard one tears the elbow)
         if n.endswith('_upper'):
             M[:, i] = ramp(0.60 - z, 0, 0.05) * ramp(np.abs(x), 0.02, 0.05)   # below the back, and not the middle of the chest
         if n in ('tail2', 'tail3', 'tail4'):
@@ -114,10 +114,10 @@ def mask0(P, idx=None):
             M[:, i] = ramp(z, 0.72, 0.77) * ramp(np.sign(hd[0]) * x, 0.01, 0.025)
             continue
         if n in ('head', 'jaw', 'ear_l', 'ear_r'):
-            M[:, i] = np.maximum(ramp(sx_, 1110, 1150), ramp(z, 0.70, 0.73))   # the head, and all round the ear roots
+            M[:, i] = np.maximum(ramp(sx_, 1110, 1150), ramp(z, 0.70, 0.73)) * np.maximum(ramp(z, 0.6, 0.67), ramp(sx_, 1190, 1220))   # the head, all round the ear roots, not down the throat
 
         if n == 'neck':
-            M[:, i] = ramp(sx_, 1020, 1060) * ramp(430 - sy_, 0, 30) * ramp(0.68 - z, 0, 0.06)   # not up into the ears or the back of the skull
+            M[:, i] = ramp(sx_, 1020, 1060) * ramp(430 - sy_, 0, 30) * ramp(0.64 - z, 0, 0.07)   # not up into the ears or the back of the skull
     return M
 
 def rigid_root(P, kind):
@@ -162,7 +162,8 @@ BANDS = {k + p: ((0.085, 0.21) if p == '_lower' else (0.03, 0.08) if p in ('_paw
          for k in ('fl', 'fr', 'bl', 'br') for p in ('_upper', '_lower', '_foot', '_paw')}
 BANDS.update({'ear_l': (0.03, 0.06), 'ear_r': (0.03, 0.06)})
 BANDS.update({'bl_lower': (0.06, 0.16), 'br_lower': (0.06, 0.16), 'bl_upper': (0.05, 0.16), 'br_upper': (0.05, 0.16)})   # the hind knee (narrower now his legs are their own pieces: the thigh stays the thigh's)
-BANDS.update({'neck_base': (0.05, 0.15), 'neck': (0.05, 0.15), 'head': (0.04, 0.12)})   # the throat's turn spread out
+BANDS.update({'neck_base': (0.07, 0.18), 'neck': (0.1, 0.2), 'head': (0.1, 0.2)})
+BANDS.update({'fl_lower': (0.05, 0.14), 'fr_lower': (0.05, 0.14)})   # the front elbow (narrower: the upper arm stays the upper arm's)   # the throat's turn spread out
 SPLIT = [('head', 'jaw')]          # the mouth cut along the lips (the kit's bind), so the jaw opens without dragging the cheeks
 
 
@@ -195,3 +196,4 @@ def mask(P, idx=None):
             keep = [idx[n] for n in LEGBONES[k]]
             Mk = M[np.ix_(m, keep)].copy(); M[m] = 0; M[np.ix_(m, keep)] = np.maximum(Mk, 1e-3)
     return M
+BANDS.update({n: (0.04, 0.1) for n in ('tail1', 'tail2', 'tail3', 'tail4')})   # the tail's joints blended
