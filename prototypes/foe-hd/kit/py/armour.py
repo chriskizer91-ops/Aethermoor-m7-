@@ -59,6 +59,24 @@ def rivets(P, c, h, w, s, r, R=None):
     return out
 
 
+def chipped(c, r, seed, n=14, off=(0.76, 0.92), k=0.01):
+    """a stone chipped into flat faces (the rockling's): an ellipsoid cut by n planes, the edges a little worn"""
+    g = np.random.default_rng(seed); c = np.asarray(c, np.float64); r = np.asarray(r, np.float64)
+    nn = g.normal(size=(n, 3)); nn /= np.linalg.norm(nn, axis=1, keepdims=True); of = g.uniform(off[0], off[1], n)
+    def f(P):
+        Q = (np.asarray(P, np.float64) - c) / r
+        d = np.linalg.norm(Q, axis=1) - 1.0
+        pl = Q @ nn.T - of; m = pl.max(1); soft = m + k * np.log(np.exp((pl - m[:, None]) / k).sum(1))
+        return np.maximum(d, soft) * r.min()
+    return f
+
+
+def crack_depth(P, fbm, f=5.0, w=0.035, seed=0.0):
+    """0..1 along a web of cracks (the iso-lines of a noise): press a surface in by depth * this to open a crack"""
+    a = np.abs(fbm(np.asarray(P) + seed, f, 2) - 0.5); b = np.abs(fbm(np.asarray(P) * 1.7 + 3.1 + seed, f, 2) - 0.5)
+    return np.clip(1 - np.minimum(a, b * 1.3) / w, 0, 1)
+
+
 def cyl(P, a, b, r):
     """a flat-ended cylinder from a to b"""
     a = np.asarray(a, np.float64); b = np.asarray(b, np.float64); ab = b - a; L = np.linalg.norm(ab); u = ab / L
@@ -74,6 +92,20 @@ def along(P, a, b):
     return t, np.linalg.norm(P - (a + t[:, None] * ab), axis=1)
 
 
+def humanoid_bones(J):
+    """the biped skeleton from joints J (hip, waist, chest, neck, head, top; {r,l}_sh, _el, _wr, _fist; {r,l}_hip, _knee,
+    _ank, _toe): the bone names the walkers use (hips, spine, chest, neck, head, r_upper, r_fore, r_hand, r_thigh...)"""
+    B = [('hips', None, J['hip'], J['waist']), ('spine', 'hips', J['waist'], J['chest']), ('chest', 'spine', J['chest'], J['neck']),
+         ('neck', 'chest', J['neck'], J['head']), ('head', 'neck', J['head'], J['top'])]
+    for k in 'rl':
+        B += [(f'{k}_upper', 'chest', J[f'{k}_sh'], J[f'{k}_el']), (f'{k}_fore', f'{k}_upper', J[f'{k}_el'], J[f'{k}_wr']),
+              (f'{k}_hand', f'{k}_fore', J[f'{k}_wr'], J[f'{k}_fist'])]
+    for k in 'rl':
+        B += [(f'{k}_thigh', 'hips', J[f'{k}_hip'], J[f'{k}_knee']), (f'{k}_shin', f'{k}_thigh', J[f'{k}_knee'], J[f'{k}_ank']),
+              (f'{k}_foot', f'{k}_shin', J[f'{k}_ank'], J[f'{k}_toe'])]
+    return B
+
+
 class Suit:
     def __init__(s, K, M):
         s.K, s.M, s.items = K, M, []
@@ -86,7 +118,8 @@ class Suit:
     def build(s):
         K, out = s.K, []
         for it in s.items:
-            V, F = K.sdf.mc(it['fn'], K.VOX * it['vox'], it['lo'], it['hi'])
+            try: V, F = K.sdf.mc(it['fn'], K.VOX * it['vox'], it['lo'], it['hi'])
+            except ValueError: K.log('  (empty piece)', it['name']); continue
             if len(F) == 0: K.log('  (empty piece)', it['name']); continue
             col = it['colour'](V) if callable(it['colour']) else np.tile(np.asarray(it['colour'], float), (len(V), 1))
             s.M.add(V, F, np.clip(col, 0, 1), it['kind'], mat=it['mat'])
