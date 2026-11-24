@@ -540,6 +540,13 @@ https://claude.ai/artifact/CmY9BHJzyVYCYgQtpboqBg)
   galleries grow 4 KB from the import.
 - Fixed in passing: the winged gallery's crowd view shared a field name with the wing-beat counter (its time ran away).
 
+**Chris's notes, November 24: the Gear Room's panels fold away** (Gear Room republished:
+https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL)
+- Every panel has a fold button: the action buttons, the hero picker, the "In the game" picture, and the gear and
+  outfit panel. One tap opens or closes each. On a phone all four start folded, so the model is clear; on a laptop they
+  start open. The fold buttons are 44 px tall. Checked at 390 px: no horizontal scroll, no errors.
+- `model.js` unchanged (the fold is in the page's `main.js` and `shell.html`).
+
 ## Next
 
 - Chris chose full detail for the beasts (November 20): sessions 6 to 8 build them (`docs/project/jobs/foes.md`;

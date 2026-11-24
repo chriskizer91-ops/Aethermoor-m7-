@@ -500,6 +500,14 @@ const whoSel = $('who');
 window.__people = { foes: FOE_PEOPLE, npcs: PEOPLE, foe: k => { const { H, gear } = foeLooks(k, {}); return buildHero('warden', {}, { H, looks: gear }); }, npc: id => buildPerson(id) };
 window.__flags = { SCULPT, MACRO_ON, MASTER_ON };
 window.__gear = { renderer, scene, S, rebuild, setHero, rollFor, nextRelic, lookAt: w => lookAt(w), get hero() { return hero; }, camera, controls };
+// Chris (November 24): every panel folds away so the model can be seen; one tap opens or closes each, folded at the
+// start on a phone
+for (const [sel, name] of [['.acts', 'Buttons'], ['#heroes', 'Heroes'], ['.inset', 'In the game'], ['.panel', 'Gear and outfit']]) {
+  const box = document.querySelector(sel); if (!box) continue;
+  const b = document.createElement('button'); b.className = 'fold'; box.prepend(b);
+  const set = f => { box.classList.toggle('folded', f); b.textContent = (f ? '\u25B8 ' : '\u25BE ') + name; b.setAttribute('aria-expanded', String(!f)); };
+  b.onclick = () => set(!box.classList.contains('folded')); set(matchMedia('(max-width: 820px)').matches);
+}
 applyDetail();
 setHero('warden');
 resize();
