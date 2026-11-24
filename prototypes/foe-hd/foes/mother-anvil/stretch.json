@@ -3,7 +3,7 @@
  "limit": 1.3,
  "parts": {},
  "frames": 120,
- "triangles": 50391,
+ "triangles": 50393,
  "moves": {
   "idle": {
    "ok": true,
