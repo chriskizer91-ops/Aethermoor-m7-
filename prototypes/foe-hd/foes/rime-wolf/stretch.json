@@ -1,0 +1,230 @@
+{
+ "key": "rime-wolf",
+ "limit": 1.3,
+ "parts": {},
+ "frames": 48,
+ "triangles": 22584,
+ "moves": {
+  "idle": {
+   "ok": true,
+   "big": {
+    "worst": 1.141,
+    "limit": 1.3,
+    "part": "tail > tail_root",
+    "where": [
+     0.05,
+     -0.598,
+     0.618
+    ],
+    "restEdge": 0.0098,
+    "u": 0,
+    "trianglesOver": 0
+   },
+   "crease": {
+    "worst": 1.105,
+    "limit": 3,
+    "part": "tail_root",
+    "where": [
+     -0.081,
+     -0.548,
+     0.624
+    ],
+    "restEdge": 0.0076,
+    "u": 0,
+    "trianglesOver": 0
+   },
+   "framesOver": "0/48",
+   "bones": []
+  },
+  "walk": {
+   "ok": true,
+   "big": {
+    "worst": 1.275,
+    "limit": 1.3,
+    "part": "chest",
+    "where": [
+     0.07,
+     0.299,
+     0.331
+    ],
+    "restEdge": 0.0124,
+    "u": 0,
+    "trianglesOver": 0
+   },
+   "crease": {
+    "worst": 1.308,
+    "limit": 3,
+    "part": "neck_base",
+    "where": [
+     -0.117,
+     0.423,
+     0.513
+    ],
+    "restEdge": 0.0092,
+    "u": 0,
+    "trianglesOver": 0
+   },
+   "framesOver": "0/48",
+   "bones": []
+  },
+  "bite": {
+   "ok": true,
+   "big": {
+    "worst": 1.234,
+    "limit": 1.3,
+    "part": "neck",
+    "where": [
+     0.03,
+     0.273,
+     0.792
+    ],
+    "restEdge": 0.0112,
+    "u": 0.298,
+    "trianglesOver": 0
+   },
+   "crease": {
+    "worst": 1.243,
+    "limit": 3,
+    "part": "neck_base",
+    "where": [
+     0.065,
+     0.238,
+     0.748
+    ],
+    "restEdge": 0.0067,
+    "u": 0.298,
+    "trianglesOver": 0
+   },
+   "framesOver": "0/48",
+   "bones": []
+  },
+  "lunge": {
+   "ok": true,
+   "big": {
+    "worst": 1.292,
+    "limit": 1.3,
+    "part": "spine",
+    "where": [
+     -0.081,
+     0.191,
+     0.343
+    ],
+    "restEdge": 0.0119,
+    "u": 0.66,
+    "trianglesOver": 0
+   },
+   "crease": {
+    "worst": 1.423,
+    "limit": 3,
+    "part": "fr_blade",
+    "where": [
+     -0.021,
+     0.268,
+     0.311
+    ],
+    "restEdge": 0.0075,
+    "u": 0.66,
+    "trianglesOver": 0
+   },
+   "framesOver": "0/48",
+   "bones": []
+  },
+  "circle": {
+   "ok": true,
+   "big": {
+    "worst": 1.225,
+    "limit": 1.3,
+    "part": "chest",
+    "where": [
+     0.07,
+     0.299,
+     0.331
+    ],
+    "restEdge": 0.0124,
+    "u": 0.426,
+    "trianglesOver": 0
+   },
+   "crease": {
+    "worst": 1.342,
+    "limit": 3,
+    "part": "neck_base",
+    "where": [
+     -0.145,
+     0.4,
+     0.512
+    ],
+    "restEdge": 0.0065,
+    "u": 0.298,
+    "trianglesOver": 0
+   },
+   "framesOver": "0/48",
+   "bones": []
+  },
+  "hurt": {
+   "ok": true,
+   "big": {
+    "worst": 1.245,
+    "limit": 1.3,
+    "part": "tail_root",
+    "where": [
+     0.147,
+     -0.378,
+     0.505
+    ],
+    "restEdge": 0.0148,
+    "u": 0.298,
+    "trianglesOver": 0
+   },
+   "crease": {
+    "worst": 1.324,
+    "limit": 3,
+    "part": "bl_haunch",
+    "where": [
+     0.025,
+     -0.325,
+     0.339
+    ],
+    "restEdge": 0.0088,
+    "u": 0.298,
+    "trianglesOver": 0
+   },
+   "framesOver": "0/48",
+   "bones": []
+  },
+  "ko": {
+   "ok": true,
+   "big": {
+    "worst": 1.218,
+    "limit": 1.3,
+    "part": "fl_blade > fl_upper",
+    "where": [
+     0.105,
+     0.257,
+     0.333
+    ],
+    "restEdge": 0.0132,
+    "u": 0.83,
+    "trianglesOver": 0
+   },
+   "crease": {
+    "worst": 1.377,
+    "limit": 3,
+    "part": "neck_base",
+    "where": [
+     -0.117,
+     0.423,
+     0.513
+    ],
+    "restEdge": 0.0092,
+    "u": 0.404,
+    "trianglesOver": 0
+   },
+   "framesOver": "0/48",
+   "bones": []
+  }
+ },
+ "ok": true,
+ "worstMove": "lunge",
+ "bigEdge": 0.0095,
+ "crease": 3
+}

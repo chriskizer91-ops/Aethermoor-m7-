@@ -13,9 +13,10 @@ import { stag } from '../kit/moves-stag.js';
 import { boar } from '../kit/moves-boar.js';
 import { frog } from '../kit/moves-frog.js';
 import { grub } from '../kit/moves-grub.js';
+import { wolf } from '../kit/moves-wolf.js';
 import { FOES, WITH_HEROES } from 'virtual:foes';
 
-const MOVESETS = { quad, stag, boar, frog, grub };
+const MOVESETS = { quad, stag, boar, frog, grub, wolf };
 const $ = (id) => document.getElementById(id);
 const phone = Math.min(screen.width, screen.height) < 820 || /Mobi|Android|iPhone/i.test(navigator.userAgent);
 const S = { foe: null, turn: true, move: 'idle', moveT: 0, pack: false };
