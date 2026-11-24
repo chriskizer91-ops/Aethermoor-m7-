@@ -1,5 +1,8 @@
 // game3d/tools/kit.mjs: what the headless checks share (Together, November 20): a player's hands on the built page.
 //   const K = kit(page, log); K.settle(), K.walkTo(x, y, o), K.useThing(id, o), K.playDialogue(), K.state()
+// a fight runs as long as it runs: wait it out, up to 3 hours (the Unsmith takes over an hour headless, at 1 frame a
+// second); FIGHT_MAX=<ms> to change it
+const FIGHT_MAX = Number(process.env.FIGHT_MAX) || 3 * 3600000;
 export function kit(page, log, shot = async () => {}) {
 const E = (fn, a) => page.evaluate(fn, a);
 const state = () => E(() => { const w = window.__g3.world; return w && w.walk ? { map: w.walk.map, x: w.walk.x, y: w.walk.y, busy: w.busy, fighting: document.body.classList.contains('fighting') && !document.querySelector('#fight.spoils'), away: !document.getElementById('screen').hidden || !!document.querySelector('#fight.spoils') } : null; });
@@ -23,7 +26,7 @@ async function settle({ fight = true, rest = false, max = 400, pick } = {}) {
   for (let i = 0; i < max; i++) {
     const s = await state();
     // a fight runs as long as it runs (a hard one takes many minutes headless): wait it out, up to 45 minutes
-    if (s && s.fighting) { if (!fightT0) fightT0 = Date.now(); if (Date.now() - fightT0 < 2700000) i--; await page.waitForTimeout(800); continue; }
+    if (s && s.fighting) { if (!fightT0) fightT0 = Date.now(); if (Date.now() - fightT0 < FIGHT_MAX) i--; await page.waitForTimeout(800); continue; }
     fightT0 = 0;
     if (await page.$('.ov-dialogue')) { await playDialogue(pick); continue; }
     if (await page.$('.ov-reveal .cont')) { await page.click('.ov-reveal .cont').catch(() => {}); await page.waitForTimeout(300); continue; }
