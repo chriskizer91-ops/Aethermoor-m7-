@@ -116,7 +116,14 @@ Eleven, in Act order, through the kit like the walkers; the bestiary ids are the
   Toll, Black Water, Hit, Fall. Passes, full and phone. Its hands are clasped, so its arms only ever swing together
   (new `clasped: true` in walker.js: the generic moves' arm swings become one forward-and-back swing for both arms);
   below the waist everything rides its hips.
-- Next: the drowned cantor, the drowned cantor, the drowned abbess, the choir-wraith, the rime-wraith,
+- **The drowned cantor** (done; on the second wraiths page, https://claude.ai/artifact/6qxqnJRLVEcJXtaqT21Hkw): a
+  black hood and cowl, a white cracked mask with a yellow sun-flower over its left eye, a coral tree spreading out of
+  the hood; two rows of pearls over its shoulders; a sea-green cope to the ground, open in front, edged in gold braid,
+  coral embroidered on it; a black robe under; grey gloved hands; the Cantor's Staff in its left hand (black, gold
+  bands, branching coral round a teal orb, pearls hanging, a glass drop at its foot). Sculpt 1,736,112 triangles;
+  light model 39,694; phone 0.64 MB (relic-bearer). Moves: Breathe, Walk, Cold Hands, Drag Down, The Hymn, Beat Time
+  (the staff on the flagstones), Downbeat (the staff high, then down), Hit, Fall. Passes, full and phone.
+- Next: the drowned abbess, the drowned cantor, the drowned abbess, the choir-wraith, the rime-wraith,
   the Rime-Abbot, the Lantern Mother, the mirage-wisp, the wisp-queen.
 
 ## Links

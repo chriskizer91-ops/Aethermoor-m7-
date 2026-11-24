@@ -1,0 +1,292 @@
+{
+ "key": "drowned-cantor",
+ "limit": 1.3,
+ "parts": {},
+ "frames": 48,
+ "triangles": 39694,
+ "moves": {
+  "idle": {
+   "ok": true,
+   "big": {
+    "worst": 1.051,
+    "limit": 1.3,
+    "part": "r_fore > r_upper",
+    "where": [
+     0.221,
+     -0.088,
+     1.063
+    ],
+    "restEdge": 0.0271,
+    "u": 0,
+    "trianglesOver": 0
+   },
+   "crease": {
+    "worst": 1.068,
+    "limit": 3,
+    "part": "r_fore",
+    "where": [
+     0.183,
+     -0.058,
+     0.857
+    ],
+    "restEdge": 0.0033,
+    "u": 0,
+    "trianglesOver": 0
+   },
+   "framesOver": "0/48",
+   "bones": []
+  },
+  "walk": {
+   "ok": true,
+   "big": {
+    "worst": 1.176,
+    "limit": 1.3,
+    "part": "r_shin > r_thigh",
+    "where": [
+     0.077,
+     0.093,
+     0.456
+    ],
+    "restEdge": 0.0228,
+    "u": 0,
+    "trianglesOver": 0
+   },
+   "crease": {
+    "worst": 1.614,
+    "limit": 3,
+    "part": "l_shin",
+    "where": [
+     -0.04,
+     0.042,
+     0.402
+    ],
+    "restEdge": 0.0091,
+    "u": 0,
+    "trianglesOver": 0
+   },
+   "framesOver": "0/48",
+   "bones": []
+  },
+  "cold-hands": {
+   "ok": true,
+   "big": {
+    "worst": 1.248,
+    "limit": 1.3,
+    "part": "r_fore > r_upper",
+    "where": [
+     0.221,
+     -0.088,
+     1.063
+    ],
+    "restEdge": 0.0271,
+    "u": 0.702,
+    "trianglesOver": 0
+   },
+   "crease": {
+    "worst": 1.859,
+    "limit": 3,
+    "part": "hips",
+    "where": [
+     -0.168,
+     -0.19,
+     1.001
+    ],
+    "restEdge": 0.0005,
+    "u": 0.468,
+    "trianglesOver": 0
+   },
+   "framesOver": "0/48",
+   "bones": []
+  },
+  "drag-down": {
+   "ok": true,
+   "big": {
+    "worst": 1.218,
+    "limit": 1.3,
+    "part": "chest > spine",
+    "where": [
+     -0.103,
+     -0.183,
+     1.373
+    ],
+    "restEdge": 0.0304,
+    "u": 0.468,
+    "trianglesOver": 0
+   },
+   "crease": {
+    "worst": 2.314,
+    "limit": 3,
+    "part": "hips",
+    "where": [
+     -0.168,
+     -0.19,
+     1.001
+    ],
+    "restEdge": 0.0005,
+    "u": 0.404,
+    "trianglesOver": 0
+   },
+   "framesOver": "0/48",
+   "bones": []
+  },
+  "the-hymn": {
+   "ok": true,
+   "big": {
+    "worst": 1.055,
+    "limit": 1.3,
+    "part": "chest > neck",
+    "where": [
+     -0.128,
+     0.159,
+     1.376
+    ],
+    "restEdge": 0.0228,
+    "u": 0.681,
+    "trianglesOver": 0
+   },
+   "crease": {
+    "worst": 1.097,
+    "limit": 3,
+    "part": "neck",
+    "where": [
+     0.002,
+     0.202,
+     1.386
+    ],
+    "restEdge": 0.0075,
+    "u": 0.787,
+    "trianglesOver": 0
+   },
+   "framesOver": "0/48",
+   "bones": []
+  },
+  "beat-time": {
+   "ok": true,
+   "big": {
+    "worst": 1.063,
+    "limit": 1.3,
+    "part": "l_fore",
+    "where": [
+     -0.23,
+     0.098,
+     1.222
+    ],
+    "restEdge": 0.0215,
+    "u": 0.787,
+    "trianglesOver": 0
+   },
+   "crease": {
+    "worst": 1.209,
+    "limit": 3,
+    "part": "l_fore > l_upper",
+    "where": [
+     -0.167,
+     0.095,
+     1.244
+    ],
+    "restEdge": 0.0094,
+    "u": 0.787,
+    "trianglesOver": 0
+   },
+   "framesOver": "0/48",
+   "bones": []
+  },
+  "downbeat": {
+   "ok": true,
+   "big": {
+    "worst": 1.198,
+    "limit": 1.3,
+    "part": "chest > spine",
+    "where": [
+     -0.103,
+     -0.183,
+     1.373
+    ],
+    "restEdge": 0.0304,
+    "u": 0.787,
+    "trianglesOver": 0
+   },
+   "crease": {
+    "worst": 1.859,
+    "limit": 3,
+    "part": "hips",
+    "where": [
+     -0.168,
+     -0.19,
+     1.001
+    ],
+    "restEdge": 0.0005,
+    "u": 0.553,
+    "trianglesOver": 0
+   },
+   "framesOver": "0/48",
+   "bones": []
+  },
+  "hurt": {
+   "ok": true,
+   "big": {
+    "worst": 1.1,
+    "limit": 1.3,
+    "part": "chest > neck",
+    "where": [
+     -0.153,
+     0.15,
+     1.37
+    ],
+    "restEdge": 0.0322,
+    "u": 0.319,
+    "trianglesOver": 0
+   },
+   "crease": {
+    "worst": 1.556,
+    "limit": 3,
+    "part": "spine",
+    "where": [
+     -0.228,
+     -0.165,
+     1.002
+    ],
+    "restEdge": 0.001,
+    "u": 0.319,
+    "trianglesOver": 0
+   },
+   "framesOver": "0/48",
+   "bones": []
+  },
+  "ko": {
+   "ok": true,
+   "big": {
+    "worst": 1.166,
+    "limit": 1.3,
+    "part": "r_shin > r_thigh",
+    "where": [
+     0.077,
+     0.093,
+     0.456
+    ],
+    "restEdge": 0.0228,
+    "u": 0.383,
+    "trianglesOver": 0
+   },
+   "crease": {
+    "worst": 1.451,
+    "limit": 3,
+    "part": "l_shin",
+    "where": [
+     -0.04,
+     0.042,
+     0.402
+    ],
+    "restEdge": 0.0091,
+    "u": 0.66,
+    "trianglesOver": 0
+   },
+   "framesOver": "0/48",
+   "bones": []
+  }
+ },
+ "ok": true,
+ "worstMove": "cold-hands",
+ "bigEdge": 0.021,
+ "crease": 3
+}

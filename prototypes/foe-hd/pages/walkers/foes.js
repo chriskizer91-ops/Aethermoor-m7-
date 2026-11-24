@@ -414,5 +414,50 @@ const drownedChoir = {
   },
 };
 
-export const FOES = { rotwarden, sapwight, 'old-horn': oldHorn, 'peak-troll': peakTroll, unmade, drowned, 'bell-ringer': bellRinger, 'drowned-choir': drownedChoir };
+// the drowned cantor: the choir's master, its staff in its left hand; it beats time, and brings the staff down
+const drownedCantor = {
+  key: 'drowned-cantor', name: 'The Drowned Cantor', tier: 'Relic-Bearer', act: 'Act Two, Misthollow', height: 2.1, weight: 0.9,
+  stiff: 0.65, knees: 0.5,
+  limits: { neck: 0.35, head: 0.7, spine: 0.3, chest: 0.35, l_shin: 0.45, r_shin: 0.45, l_fore: 0.55, r_fore: 0.5, l_upper: 0.7, r_upper: 0.6, l_hand: 0.6 },
+  text: 'The choir\'s master, drowned with it; it still beats time on the flagstones with its staff.',
+  lunge: 'cold-hands',
+  idle(W, t) {
+    const b = W.bones, sw = Math.sin(t * 0.5);
+    W.body.rotation.z = 0.02 * sw; b.head.rotation.z = 0.05 * Math.sin(t * 0.4); b.l_upper.rotation.x = 0.04 * Math.sin(t * 0.9);
+  },
+  moves: {
+    'cold-hands': { label: 'Cold Hands', dur: 1.5, pose(W, u, t) {
+      // its free hand comes out of the cope and closes on yours
+      const b = W.bones, k = seg(u, 0.05, 0.45) * (1 - seg(u, 0.75, 1)), grip = seg(u, 0.4, 0.55) * (1 - seg(u, 0.75, 1));
+      b.r_upper.rotation.x = -1.1 * k; b.r_fore.rotation.x = -0.25 * k - 0.35 * grip; b.spine.rotation.x = 0.12 * k; b.head.rotation.x = 0.15 * k;
+      W.body.position.z = 0.15 * k;
+    } },
+    'drag-down': { label: 'Drag Down', dur: 1.8, pose(W, u, t) {
+      const b = W.bones, low = seg(u, 0.05, 0.4) * (1 - seg(u, 0.55, 0.8)), haul = seg(u, 0.45, 0.65) * (1 - seg(u, 0.85, 1));
+      crouch(W, 0.35 * low); b.spine.rotation.x = 0.18 * low - 0.06 * haul; b.chest.rotation.x = 0.22 * low;
+      b.r_upper.rotation.x = -0.7 * low - 0.2 * haul; b.r_fore.rotation.x = -0.5 * haul; b.head.rotation.x = 0.25 * low;
+      W.body.position.z = 0.1 * low - 0.12 * haul;
+    } },
+    'the-hymn': { label: 'The Hymn', dur: 2.4, pose(W, u, t) {
+      // it lifts its masked face and leads the hymn, the staff held up
+      const b = W.bones, k = seg(u, 0.05, 0.3) * (1 - seg(u, 0.8, 1)), sway = Math.sin(u * 12) * k;
+      b.head.rotation.x = -0.3 * k; b.neck.rotation.x = -0.15 * k; b.l_upper.rotation.x = -0.35 * k; b.r_upper.rotation.x = -0.3 * k; b.r_upper.rotation.z = 0.25 * k;
+      W.body.rotation.z = 0.04 * sway; b.head.rotation.z = 0.07 * sway;
+    } },
+    'beat-time': { label: 'Beat Time', dur: 2.0, pose(W, u, t) {
+      // it beats time on the flagstones with the staff, and the choir sings faster
+      const b = W.bones, k = seg(u, 0.05, 0.2) * (1 - seg(u, 0.85, 1)), beat = Math.max(0, Math.sin(u * 26)) * k;
+      b.l_upper.rotation.x = -0.25 * k + 0.2 * beat; b.l_fore.rotation.x = 0.15 * beat; b.head.rotation.x = 0.1 * beat; W.body.position.y -= 0.015 * beat;
+    } },
+    downbeat: { label: 'Downbeat', dur: 1.8, pose(W, u, t) {
+      // it lifts the Cantor's Staff high and brings it down on the downbeat: the whole drowned hall rings with it
+      const b = W.bones, up = seg(u, 0.05, 0.4) * (1 - seg(u, 0.45, 0.55)), down = seg(u, 0.45, 0.55) * (1 - seg(u, 0.8, 1));
+      b.l_upper.rotation.x = -1.1 * up + 0.25 * down; b.l_upper.rotation.z = -0.25 * up; b.l_fore.rotation.x = -0.4 * up;
+      b.chest.rotation.x = -0.12 * up + 0.2 * down; b.spine.rotation.x = 0.12 * down; b.head.rotation.x = -0.2 * up + 0.2 * down;
+      crouch(W, 0.25 * down);
+    } },
+  },
+};
+
+export const FOES = { rotwarden, sapwight, 'old-horn': oldHorn, 'peak-troll': peakTroll, unmade, drowned, 'bell-ringer': bellRinger, 'drowned-choir': drownedChoir, 'drowned-cantor': drownedCantor };
 export const COMMON = [['idle', 'Breathe', 0], ['walk', 'Walk', 0], ['hurt', 'Hit', 0.9], ['ko', 'Fall', 2.6]];
