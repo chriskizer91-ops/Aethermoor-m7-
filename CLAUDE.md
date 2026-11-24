@@ -21,14 +21,15 @@
   (never their witches, battle or story); keep M7's lore, combat, loot and gear. Plan: `docs/3d-world-plan.md`.
 - When copying assets or code from another repo, note the source repo and path in the commit message.
 
-## Several sessions at once (Chris, November 20)
+## Several sessions at once (Chris, November 20; paused November 24)
 
-Eight sessions build the 3D game: the hub (session one, branch `claude/brave-davinci-790efm`), three jobs alongside it
-(the Fight, Models, Places, each on `job/<name>`), a fresh fifth that puts it together (Together), and three building
-the foes in full detail (One Foe, Foes: beasts, Foes: walkers; `docs/project/jobs/foes.md`). **Every session reads
-`docs/project/README.md` (the rules), `docs/project/BOARD.md` and its own brief in `docs/project/jobs/` before
-working.** Only the hub writes the board, Chris's decisions (`docs/project/decisions.md`), his open calls
-(`docs/project/questions.md`) and this file; each job writes its own slip in `docs/project/slips/`.
+Eight sessions built the 3D game: the hub (branch `claude/brave-davinci-790efm`) and jobs on `job/<name>` branches (the
+Fight, Models, Places, Together, and three building the foes in full detail). On November 24 Chris stopped them all at a
+good point to cut usage. **A fresh hub starts with `docs/project/HANDOFF.md`** (where the game stands, what's left to a
+finished game, how the hub works, how to start fresh job sessions). Every session reads `docs/project/README.md` (the
+rules), `docs/project/BOARD.md` and its own brief in `docs/project/jobs/` and slip in `docs/project/slips/`. Only the
+hub writes the board, Chris's decisions (`docs/project/decisions.md`), his open calls (`docs/project/questions.md`) and
+this file; each job writes its own slip.
 
 ## Where things are
 

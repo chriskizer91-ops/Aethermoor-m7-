@@ -1,6 +1,6 @@
 # The board
 
-Where the 3D game stands. Written by the hub only. Last updated November 24, evening (UTC).
+Where the 3D game stands. Written by the hub only. Last updated November 24, evening (UTC). **Every session is stopping at a good point to be refreshed (Chris, November 24): a fresh hub starts with `HANDOFF.md`.**
 
 ## The sessions
 
