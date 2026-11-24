@@ -123,7 +123,15 @@ Eleven, in Act order, through the kit like the walkers; the bestiary ids are the
   bands, branching coral round a teal orb, pearls hanging, a glass drop at its foot). Sculpt 1,736,112 triangles;
   light model 39,694; phone 0.64 MB (relic-bearer). Moves: Breathe, Walk, Cold Hands, Drag Down, The Hymn, Beat Time
   (the staff on the flagstones), Downbeat (the staff high, then down), Hit, Fall. Passes, full and phone.
-- Next: the drowned abbess, the drowned cantor, the drowned abbess, the choir-wraith, the rime-wraith,
+- **The drowned abbess** (done; second wraiths page): a woman's face blue with the cold, eyes burning pale blue and
+  weeping blue; a white wimple with a silver medallion at each ear, its edge falling in waves; a long dark veil to her
+  waist behind; a sea-green habit tier on tier, each flounce edged in paler water, wide as a bell at the ground; a belt
+  of big pale beads, a strand hanging; the Drowned Censer on its chain in her left hand, silver, eight arched windows
+  burning blue. Sculpt 1,873,768 triangles; light model 36,207; phone 0.62 MB (relic-bearer). Moves: Breathe (the
+  censer swaying), Walk, Drowned Grasp, Dirge, Pull Under, Last Rites, Censer Swing, Hit, Fall. Passes, full and phone.
+  Her wide sleeves hang past the elbow, so each arm point is the upper arm's above the elbow and the forearm's below;
+  her hand only past the wrist; her long veil rides her head, so her head turns only a little.
+- Next: the choir-wraith, the drowned cantor, the drowned abbess, the choir-wraith, the rime-wraith,
   the Rime-Abbot, the Lantern Mother, the mirage-wisp, the wisp-queen.
 
 ## Links
