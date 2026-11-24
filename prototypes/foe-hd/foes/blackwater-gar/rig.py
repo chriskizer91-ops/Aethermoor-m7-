@@ -48,7 +48,7 @@ def make(C):
         M_[:, idx['mouth']] = 0
         return M_
     bw = 0.05 * k * C.get('deep', 1.0)                                                # the blend widens with a thicker fish
-    return BONES, part, mask, {n: (bw, 0.2 * k * C.get('deep', 1.0)) for n in ('t0', 't1', 't2', 'head')}
+    return BONES, part, mask, {n: (bw * (1.4 if n == 't1' else 1.0), 0.2 * k * C.get('deep', 1.0)) for n in ('t0', 't1', 't2', 'head')}   # t1 wider (second pass: deeper plates)
 
 BONES, part, mask, BANDS = make(dict(DEFAULTS))
 TRUNK = ('body',)

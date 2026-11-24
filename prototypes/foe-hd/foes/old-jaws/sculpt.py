@@ -8,7 +8,7 @@ import math, os, sys
 import numpy as np
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'blackwater-gar'))
 from fish import build_fish, layout, DEFAULTS
-C = dict(DEFAULTS, length=1.8, swim=0.3, arch=0.36, arch_front=0.6, seed=19, snout=0.62, snout_w=1.45, crest=22, deep=1.45, crest_h=0.45, wide=1.45,
+C = dict(DEFAULTS, length=1.8, swim=0.3, arch=0.36, arch_front=0.6, seed=19, snout=0.62, snout_w=1.45, crest=22, deep=1.6, crest_h=0.45, wide=1.65, tail=1.35,   # rounder, a longer fan (second pass)
          green=(0.2, 0.3, 0.1), dark=(0.06, 0.1, 0.04), eye=(0.85, 0.85, 0.78), spot=(0.3, 0.42, 0.16))
 
 def build(K):

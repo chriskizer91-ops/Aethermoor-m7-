@@ -3,33 +3,33 @@
  "limit": 1.3,
  "parts": {},
  "frames": 120,
- "triangles": 35366,
+ "triangles": 35371,
  "moves": {
   "idle": {
    "ok": true,
    "big": {
-    "worst": 1.05,
+    "worst": 1.056,
     "limit": 1.3,
-    "part": "t0",
+    "part": "t0 > t1",
     "where": [
-     -0.085,
-     -0.284,
-     0.611
+     -0.121,
+     -0.419,
+     0.702
     ],
-    "restEdge": 0.0115,
+    "restEdge": 0.0104,
     "u": 0,
     "trianglesOver": 0
    },
    "crease": {
-    "worst": 1.134,
+    "worst": 1.234,
     "limit": 3,
-    "part": "body",
+    "part": "t1",
     "where": [
-     0.103,
-     -0.135,
-     0.911
+     -0.114,
+     -0.425,
+     0.732
     ],
-    "restEdge": 0.001,
+    "restEdge": 0.002,
     "u": 0,
     "trianglesOver": 0
    },
@@ -39,28 +39,28 @@
   "walk": {
    "ok": true,
    "big": {
-    "worst": 1.147,
+    "worst": 1.168,
     "limit": 1.3,
-    "part": "t0",
+    "part": "t0 > t1",
     "where": [
-     -0.085,
-     -0.284,
-     0.611
+     -0.121,
+     -0.419,
+     0.702
     ],
-    "restEdge": 0.0115,
+    "restEdge": 0.0104,
     "u": 0,
     "trianglesOver": 0
    },
    "crease": {
-    "worst": 1.415,
+    "worst": 1.7,
     "limit": 3,
-    "part": "body",
+    "part": "t1",
     "where": [
-     0.103,
-     -0.135,
-     0.911
+     -0.114,
+     -0.425,
+     0.732
     ],
-    "restEdge": 0.001,
+    "restEdge": 0.002,
     "u": 0,
     "trianglesOver": 0
    },
@@ -70,29 +70,29 @@
   "bite": {
    "ok": true,
    "big": {
-    "worst": 1.221,
+    "worst": 1.24,
     "limit": 1.3,
-    "part": "body > head",
+    "part": "head",
     "where": [
-     -0.061,
-     0.385,
-     0.626
+     -0.102,
+     0.388,
+     0.684
     ],
-    "restEdge": 0.01,
+    "restEdge": 0.0179,
     "u": 0.395,
     "trianglesOver": 0
    },
    "crease": {
-    "worst": 1.529,
+    "worst": 2.325,
     "limit": 3,
     "part": "body > head",
     "where": [
-     -0.073,
+     -0.09,
      0.385,
-     0.638
+     0.636
     ],
-    "restEdge": 0.0026,
-    "u": 0.588,
+    "restEdge": 0.001,
+    "u": 0.555,
     "trianglesOver": 0
    },
    "framesOver": "0/120",
@@ -101,29 +101,29 @@
   "leap": {
    "ok": true,
    "big": {
-    "worst": 1.138,
+    "worst": 1.158,
     "limit": 1.3,
-    "part": "t0",
+    "part": "t0 > t1",
     "where": [
-     -0.085,
-     -0.284,
-     0.611
+     -0.121,
+     -0.419,
+     0.702
     ],
-    "restEdge": 0.0115,
+    "restEdge": 0.0104,
     "u": 0.597,
     "trianglesOver": 0
    },
    "crease": {
-    "worst": 1.442,
+    "worst": 1.656,
     "limit": 3,
-    "part": "t0",
+    "part": "t1",
     "where": [
-     0.078,
-     -0.313,
-     0.599
+     -0.114,
+     -0.425,
+     0.732
     ],
-    "restEdge": 0.0024,
-    "u": 0.479,
+    "restEdge": 0.002,
+    "u": 0.597,
     "trianglesOver": 0
    },
    "framesOver": "0/120",
@@ -132,29 +132,29 @@
   "dive": {
    "ok": true,
    "big": {
-    "worst": 1.163,
+    "worst": 1.187,
     "limit": 1.3,
-    "part": "t0",
+    "part": "t0 > t1",
     "where": [
-     -0.085,
-     -0.284,
-     0.611
+     -0.121,
+     -0.419,
+     0.702
     ],
-    "restEdge": 0.0115,
+    "restEdge": 0.0104,
     "u": 0.101,
     "trianglesOver": 0
    },
    "crease": {
-    "worst": 1.466,
+    "worst": 1.777,
     "limit": 3,
-    "part": "body",
+    "part": "t1",
     "where": [
-     0.103,
-     -0.135,
-     0.911
+     -0.114,
+     -0.425,
+     0.732
     ],
-    "restEdge": 0.001,
-    "u": 0.941,
+    "restEdge": 0.002,
+    "u": 0.101,
     "trianglesOver": 0
    },
    "framesOver": "0/120",
@@ -163,29 +163,29 @@
   "death-roll": {
    "ok": true,
    "big": {
-    "worst": 1.109,
+    "worst": 1.124,
     "limit": 1.3,
-    "part": "t0",
+    "part": "t0 > t1",
     "where": [
-     -0.085,
-     -0.284,
-     0.611
+     -0.121,
+     -0.419,
+     0.702
     ],
-    "restEdge": 0.0115,
+    "restEdge": 0.0104,
     "u": 0.714,
     "trianglesOver": 0
    },
    "crease": {
-    "worst": 1.333,
+    "worst": 1.515,
     "limit": 3,
-    "part": "body",
+    "part": "t1",
     "where": [
-     0.103,
-     -0.135,
-     0.911
+     -0.114,
+     -0.425,
+     0.732
     ],
-    "restEdge": 0.001,
-    "u": 0.79,
+    "restEdge": 0.002,
+    "u": 0.714,
     "trianglesOver": 0
    },
    "framesOver": "0/120",
@@ -194,29 +194,29 @@
   "the-tooth": {
    "ok": true,
    "big": {
-    "worst": 1.234,
+    "worst": 1.284,
     "limit": 1.3,
     "part": "head",
     "where": [
-     -0.081,
-     0.378,
-     0.647
+     -0.102,
+     0.387,
+     0.672
     ],
-    "restEdge": 0.0125,
+    "restEdge": 0.0113,
     "u": 0.504,
     "trianglesOver": 0
    },
    "crease": {
-    "worst": 2.814,
+    "worst": 2.986,
     "limit": 3,
-    "part": "body",
+    "part": "body > head",
     "where": [
-     0.031,
+     -0.09,
      0.385,
-     0.607
+     0.636
     ],
-    "restEdge": 0.0014,
-    "u": 0.613,
+    "restEdge": 0.001,
+    "u": 0.504,
     "trianglesOver": 0
    },
    "framesOver": "0/120",
@@ -225,29 +225,29 @@
   "swallow": {
    "ok": true,
    "big": {
-    "worst": 1.163,
+    "worst": 1.187,
     "limit": 1.3,
-    "part": "t0",
+    "part": "t0 > t1",
     "where": [
-     -0.085,
-     -0.284,
-     0.611
+     -0.121,
+     -0.419,
+     0.702
     ],
-    "restEdge": 0.0115,
+    "restEdge": 0.0104,
     "u": 0.605,
     "trianglesOver": 0
    },
    "crease": {
-    "worst": 1.696,
+    "worst": 1.775,
     "limit": 3,
-    "part": "body",
+    "part": "t1",
     "where": [
-     0.103,
-     -0.135,
-     0.911
+     -0.114,
+     -0.425,
+     0.732
     ],
-    "restEdge": 0.001,
-    "u": 0.689,
+    "restEdge": 0.002,
+    "u": 0.605,
     "trianglesOver": 0
    },
    "framesOver": "0/120",
@@ -256,28 +256,28 @@
   "full": {
    "ok": true,
    "big": {
-    "worst": 1.058,
+    "worst": 1.067,
     "limit": 1.3,
     "part": "head",
     "where": [
-     -0.081,
-     0.378,
-     0.647
+     0.095,
+     0.379,
+     0.641
     ],
-    "restEdge": 0.0125,
+    "restEdge": 0.0106,
     "u": 0,
     "trianglesOver": 0
    },
    "crease": {
-    "worst": 1.542,
+    "worst": 1.495,
     "limit": 3,
-    "part": "body",
+    "part": "body > head",
     "where": [
-     0.031,
+     -0.01,
      0.385,
-     0.607
+     0.587
     ],
-    "restEdge": 0.0014,
+    "restEdge": 0.0019,
     "u": 0,
     "trianglesOver": 0
    },
@@ -287,29 +287,29 @@
   "spit": {
    "ok": true,
    "big": {
-    "worst": 1.177,
+    "worst": 1.217,
     "limit": 1.3,
-    "part": "body > head",
+    "part": "head",
     "where": [
-     -0.033,
-     0.124,
-     0.599
+     -0.102,
+     0.388,
+     0.684
     ],
-    "restEdge": 0.0097,
+    "restEdge": 0.0179,
     "u": 0.353,
     "trianglesOver": 0
    },
    "crease": {
-    "worst": 1.463,
+    "worst": 1.724,
     "limit": 3,
-    "part": "body",
+    "part": "t1",
     "where": [
-     0.103,
-     -0.135,
-     0.911
+     -0.114,
+     -0.425,
+     0.732
     ],
-    "restEdge": 0.001,
-    "u": 0.37,
+    "restEdge": 0.002,
+    "u": 0.294,
     "trianglesOver": 0
    },
    "framesOver": "0/120",
@@ -318,29 +318,29 @@
   "hurt": {
    "ok": true,
    "big": {
-    "worst": 1.192,
+    "worst": 1.221,
     "limit": 1.3,
-    "part": "t0",
+    "part": "t0 > t1",
     "where": [
-     -0.085,
-     -0.284,
-     0.611
+     -0.121,
+     -0.419,
+     0.702
     ],
-    "restEdge": 0.0115,
+    "restEdge": 0.0104,
     "u": 0.378,
     "trianglesOver": 0
    },
    "crease": {
-    "worst": 1.576,
+    "worst": 1.916,
     "limit": 3,
-    "part": "body",
+    "part": "t1",
     "where": [
-     0.103,
-     -0.135,
-     0.911
+     -0.114,
+     -0.425,
+     0.732
     ],
-    "restEdge": 0.001,
-    "u": 0.277,
+    "restEdge": 0.002,
+    "u": 0.378,
     "trianglesOver": 0
    },
    "framesOver": "0/120",
@@ -349,29 +349,29 @@
   "ko": {
    "ok": true,
    "big": {
-    "worst": 1.031,
+    "worst": 1.034,
     "limit": 1.3,
-    "part": "body",
+    "part": "t1",
     "where": [
-     -0.14,
-     -0.093,
-     0.758
+     0.034,
+     -0.428,
+     0.502
     ],
-    "restEdge": 0.0113,
-    "u": 0.134,
+    "restEdge": 0.0108,
+    "u": 0.017,
     "trianglesOver": 0
    },
    "crease": {
-    "worst": 1.087,
+    "worst": 1.131,
     "limit": 3,
-    "part": "t0",
+    "part": "t1",
     "where": [
-     0.078,
-     -0.313,
-     0.599
+     -0.114,
+     -0.425,
+     0.732
     ],
-    "restEdge": 0.0024,
-    "u": 0,
+    "restEdge": 0.002,
+    "u": 0.218,
     "trianglesOver": 0
    },
    "framesOver": "0/120",
