@@ -1,0 +1,86 @@
+{
+  "plan": "biped",
+  "rank": "relic-bearer",
+  "crops": [
+    [
+      60,
+      680
+    ],
+    [
+      700,
+      1090
+    ],
+    [
+      1110,
+      1740
+    ]
+  ],
+  "voxel": {
+    "0": 0.014,
+    "1": 0.009,
+    "2": 0.0075,
+    "3": 0.0068
+  },
+  "sculpt": {
+    "level": 3
+  },
+  "bake": {
+    "res": 1024,
+    "phone": 512,
+    "ao": 32,
+    "reach": {
+      "coat": [
+        0.008,
+        0.02
+      ],
+      "parts": [
+        0.004,
+        0.01
+      ]
+    }
+  },
+  "rig": "rig.py",
+  "key": "sentinel-captain",
+  "name": "The Sentinel-Captain",
+  "moves": "captain",
+  "height": 2.1,
+  "sheet": "art-in/3d/sheets/sheet-sentinel-captain.webp",
+  "bounds": [
+    [
+      -0.85,
+      -0.42,
+      -0.01
+    ],
+    [
+      0.72,
+      0.7,
+      2.12
+    ]
+  ],
+  "view": {
+    "center": [
+      0,
+      0,
+      1.03
+    ],
+    "width": 2.4,
+    "head": [
+      0,
+      0,
+      1.75
+    ],
+    "headWidth": 0.7
+  },
+  "light": {
+    "level": 0,
+    "coat": 37000,
+    "kinds": {
+      "7": 1000
+    }
+  },
+  "blurb": "The Sentinels' captain, Relic-Bearer of Ironwall: a domed visored helm with bolted cheeks and a golden plume, two burning eyes, a fleur on his breast, his fist raised, and Ironwall, his tall riveted shield with a diamond boss, brought down like a portcullis. Every plate moves whole on its own joint, so nothing stretches.",
+  "pages": {
+    "three": "https://claude.ai/artifact/7KxofYSMBpwrvZvHVjtiMX",
+    "sculpt": "https://claude.ai/artifact/4tyXBcUemDjqCNKeE32jgi"
+  }
+}
