@@ -326,6 +326,26 @@
   Unsmith and Hollow Miravel in their sets; the Wyrm's swallow over the shoulder in the Canyon set.
   Stills: fight-stills/arena-*.png.
 
+### Step 6 checks (hub, November 24 evening)
+
+- **A lost fight in an arena**: Thornhollow's patrol with `?lose=1`, lost in the Road and Wood set. The party comes back
+  out to Thornhollow's own ground, nobody is left in the set, and the fade clears. M7's "You wake at the Hearthfire"
+  screen plays as it does on the spot. Fixed: for a moment on the way back the camera stood on the ground (the
+  move back put the camera at ground height like the fighters); it keeps its height now. A won fight there and back
+  re-checked too.
+- **Every fight on every page** (94) loaded with `battle/check-stands.mjs`: fights ran in all eighteen sets (90 fights
+  in sets, the 4 water fights on the spot). Every stand in every set is on clear floor; the only flags are the gars and
+  the Leviathan standing in their own water.
+- **Every big foe's moves where it fights** (49 fights with a Champion, Relic-Bearer, Hollow or the Unsmith):
+  `check-moments.mjs` now says whether the foe is in the shot as each move lands. In 48 of the 49 fights it is, on
+  every move, with no errors. The one miss: the Leviathan on the events page, lying far out in his water, fell off the
+  phone's narrow screen on three wide moves. The camera's choice now requires the foe in the frame, and he's in shot
+  on all nine moves on both pages he's on.
+- **The swallows**: the Sand Wyrm's in the Canyon set (Sunscorch page, his full model) and the Leviathan's in his water
+  (Gloomfen page): over the shoulder, the foe in shot.
+- All ten pages rebuilt (15.1 to 15.7 MB; Act Three 10.7). **Not yet republished**: the account reached its daily
+  limit of page publishes; they go up after midnight UTC.
+
 ## For Together: starting a fight from outside
 
 `world3d/battle/run.js` exports one function. It pauses the walk, swings the camera round, plays M7's battle screen
