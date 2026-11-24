@@ -1,0 +1,83 @@
+{
+ "key": "rime-wolf",
+ "name": "Rime Wolf",
+ "plan": "quad",
+ "rank": "rabble",
+ "height": 0.95,
+ "length": 1.36,
+ "sheet": "art-in/3d/sheets/sheet-rime-wolf.webp",
+ "crops": [
+  [
+   120,
+   540
+  ],
+  [
+   570,
+   1590
+  ],
+  [
+   1660,
+   2040
+  ]
+ ],
+ "bounds": [
+  [
+   -0.32,
+   -0.86,
+   -0.01
+  ],
+  [
+   0.32,
+   0.72,
+   1.0
+  ]
+ ],
+ "voxel": {
+  "0": 0.0085,
+  "1": 0.0075,
+  "2": 0.0048,
+  "3": 0.0034
+ },
+ "view": {
+  "center": [
+   0,
+   0,
+   0.48
+  ],
+  "width": 1.6,
+  "head": [
+   0,
+   0.55,
+   0.75
+  ],
+  "headWidth": 0.45
+ },
+ "light": {
+  "level": 0,
+  "coat": 18000
+ },
+ "sculpt": {
+  "level": 3
+ },
+ "bake": {
+  "res": 2048,
+  "phone": 1024,
+  "ao": 48,
+  "reach": {
+   "coat": [
+    0.05,
+    0.14
+   ],
+   "parts": [
+    0.015,
+    0.04
+   ]
+  }
+ },
+ "rig": "rig.py",
+ "moves": "wolf",
+ "what": "Rabble of the high passes, met in threes and fours. Rime Bite, Lunge, Circle.",
+ "about": "Grey wolves of the high passes with frost in their ruffs. Dark grey-blue fur, a pale ruff, chest and tail, ice crystals grown into the ruff, pale blue eyes. 0.95 m to the ear tips, 1.36 m from nose to tail.",
+ "pack": 5,
+ "sculptTriangles": 605902
+}

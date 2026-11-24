@@ -61,7 +61,8 @@ def build(K):
     xo, sx, sy = topx(V)
     col = mix(CREAM, CREAM2, np.clip(fbm(V * 18, 3.0) * 1.5 - 0.3, 0, 1)[:, None])
     col = mix(col, TAN, (sstep(0.45, 0.65, fbm(V * 9 + 4, 3.0)) * 0.8)[:, None])                 # tan smudges
-    spots = sstep(0.60, 0.66, fbm(V * 75 + 1, 2.0)) * sstep(470, 380, sy)                       # dark brown flecks
+    spots = np.maximum(sstep(0.63, 0.68, fbm(V * 75 + 1, 2.0)),                                  # dark brown flecks,
+                       sstep(0.66, 0.71, fbm(V * 32 + 9, 2.0))) * sstep(470, 380, sy)          # and bigger blotches
     col = mix(col, SPOT, (spots * 0.9)[:, None])
     # the creases between rings a little darker
     cr = np.zeros(len(V))

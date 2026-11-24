@@ -21,7 +21,8 @@ def build(K):
     S, G, LV, VOX, SIDES, log = K.sdf, K.geom, K.LV, K.VOX, K.SIDES, K.log
     smin, smax, cap, fbm, mix, vnoise = S.smin, S.smax, S.cap, S.fbm, S.mix, S.vnoise
     M = K.Mesh()
-    IRON = np.array([0.17, 0.17, 0.21]); IRON2 = np.array([0.30, 0.29, 0.33]); RUST = np.array([0.33, 0.2, 0.13])
+    IRON = np.array([0.24, 0.23, 0.28]); IRON2 = np.array([0.40, 0.38, 0.44]);   # (November 24: the sheet's lighter, purplish grey)
+    RUST = np.array([0.33, 0.2, 0.13])
     BRASS = np.array([0.78, 0.52, 0.2]); COPPER = np.array([0.62, 0.3, 0.12]); FIRE = np.array([1.0, 0.55, 0.12])
     HOTC = np.array([1.0, 0.82, 0.38])
     band = 0.03 if LV >= 2 else None
@@ -69,6 +70,17 @@ def build(K):
         return worn(P, d, L)
     log('body')
     mesh(body_sdf, (-0.56, -0.62, 0.4), (0.56, 0.92, 1.0), lambda V: iron_col(V, HEART), 0)
+    # (November 24) the horn's root: a big faceted boss of its own on her front, under the top (the sheet's pyramid)
+    BC = np.array([0.0, 0.47, 0.835])
+    def boss_sdf(P, lv=None):
+        Q = P - BC
+        d = np.maximum.reduce([np.abs(Q[:, 0]) * 0.8 + np.abs(Q[:, 2]) * 0.55 + Q[:, 1] * 0.75 - 0.095,
+                               np.abs(Q[:, 0]) - 0.13, np.abs(Q[:, 2]) - 0.14, -Q[:, 1] - 0.05,
+                               (np.abs(Q[:, 0]) + np.abs(Q[:, 2])) * 0.62 + Q[:, 1] * 0.5 - 0.105])
+        return worn(P, d, LV if lv is None else lv)
+    V, F = S.mc(boss_sdf, VOX, BC - 0.2, BC + 0.2)
+    facet = np.clip((V - BC) @ np.array([0.3, 0.6, 0.6]) * 6, -1, 1)[:, None]          # the facets catch the light
+    M.add(V, F, np.clip(mix(IRON, IRON2 * 1.15, 0.45 + 0.4 * facet), 0, 1), 4)
     # the fire inside, glowing through the grates
     V, F = G.ellipsoid(HEART, (0.27, 0.39, 0.15), nt + 4, npp + 6)
     M.add(V, F, mix(FIRE, HOTC, 0.6 * fbm(V, 14.0)[:, None]), 7)

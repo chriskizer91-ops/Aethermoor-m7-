@@ -69,6 +69,26 @@ light model that can share the screen with the party, rigged, moving through its
     `kit/standard.py` for the page and the phone version), so its eyes are violet, not amber; the walkers' binder takes
     session 6's `WELD_SAME_KIND` switch.
 
+## Second pass against the sheets (November 24)
+
+All five still pass the stretch check, full and phone (checked after every change). Republished: Act One (version 7),
+Act Two (version 3), and the laptop sculpt pages for Acts One and Two.
+
+- **Old Horn and the peak-troll: real hands.** They had mittens. Now each has a broad palm, four thick fingers and a
+  thumb: the right hand hangs half curled, the left closes round the club with its knuckles showing.
+- **The peak-troll's shoulder moss** hangs in long strands where it ends over his shoulders. Still rounder than the
+  sheet's: on the sheet it drapes down his upper arms, and moss there would clip through his arm whenever he lifts it.
+- **The Rotwarden:** his root arm is now 26 thin strands with short rootlets splitting off down its length (it was a
+  few thick smooth twists); his moss is olive and finer (it read as bright green peas); the plate over his thigh comes
+  to a point, as on the sheet.
+- **The sapwight:** its bark is broad, lighter strips of uneven width with narrower gaps of sap (it was even stripes).
+- **The unmade:** compared with its sheet; left as it is.
+- Fixes on the way, so each still passes: the trolls' arms carry more triangles and smooth their weights over fewer
+  passes (the fingers had taken the arms' share, and forearm weight crept up to the armpit); Old Horn's cape stitches
+  now ride his chest (they had picked up weight from his arm); his and the peak-troll's ankles blend only near the
+  ankle; the Rotwarden's root arm has more triangles and its second root joint bends a little less; the sapwight's
+  hands bend a little less.
+
 ## Links
 
 - Act Two (Old Horn and the peak-troll): https://claude.ai/artifact/PosCApXURcQF2S8qyicNaY (13.8 MB)

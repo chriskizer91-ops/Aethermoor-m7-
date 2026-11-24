@@ -7,7 +7,7 @@ const { ease, bump, seg, crouch, roots } = tools;
 const rotwarden = {
   key: 'rotwarden', name: 'The Rotwarden', tier: 'Champion', act: 'Act One, the Heartroot', height: 2.5, weight: 1.4,
   stiff: 0.45, knees: 0.6,          // plate armour: his trunk barely twists, his knees fold only so far
-  limits: { hips: 0.6, spine: 0.4, chest: 0.7, l_shin: 0.36, r_shin: 0.36, l_thigh: 0.55, r_thigh: 0.55, root2: 0.7, root3: 0.8, l_foot: 0.7, r_foot: 0.7 },
+  limits: { hips: 0.6, spine: 0.4, chest: 0.7, l_shin: 0.36, r_shin: 0.36, l_thigh: 0.55, r_thigh: 0.55, root2: 0.52, root3: 0.8, l_foot: 0.7, r_foot: 0.7 },
   text: "A First-Age warden of the root, bark grown through its plate, wearing a smith's mask that is not its face.",
   lunge: 'rootlash',
   moves: {
@@ -116,7 +116,7 @@ const rotwarden = {
 const sapwight = {
   key: 'sapwight', name: 'Sapwight', tier: 'Veteran', act: 'Act One, the Heartroot', height: 2.0, weight: 0.8,
   stiff: 0.8, knees: 0.7,           // wound in bark: it bends, but stiffly
-  limits: { neck: 0.24, head: 0.4, l_fore: 0.52, r_fore: 0.52, l_shin: 0.55, r_shin: 0.55, spine: 0.8 },
+  limits: { neck: 0.24, head: 0.4, l_fore: 0.52, r_fore: 0.52, l_shin: 0.55, r_shin: 0.55, spine: 0.8, l_hand: 0.6, r_hand: 0.6 },
   text: 'A ghoul of bark and black sap. It used to be someone the Heartroot drank.',
   lunge: 'sap-leech',
   idle(W, t) {

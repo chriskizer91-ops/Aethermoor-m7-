@@ -5,6 +5,17 @@ shown side by side with the code-built model and a cut-out of Chris's sheet.
 
 ## Done
 
+- **The thornhound** (November 24; taken over from session 7), **passing the stretch check** (120 frames):
+  - His page (with the pack round the heroes): https://claude.ai/artifact/9zji17squ3DQjFians9iVE · the sculpt
+    (laptop): https://claude.ai/artifact/5QSWUvvWZigZBP2DAgLJix
+  - On session 7's own pipeline (pages/beasts/kit): his legs pieces of their own (their own coat, kind 1) set into his
+    body with a crease; the hind thighs re-shaped to end above the knee (they hung past it and stretched at every
+    bend); his rig keeps each leg's coat on its own bones and the body off them (`part()`/`mask()`, WELD_SAME_KIND),
+    the blades and haunches still; the neck kept off the back of the skull, the head off the throat, softer limits on
+    the lower leg bones, wider blends at the throat and the tail. His moves (pages/beasts/kit/moves-quad.js, his
+    alone) trimmed where his throat and elbows tore; the howl now rears him whole. Worst edge 1.28x.
+  - Light model 20,249; sculpt 669k.
+
 - **Briarmaw's head drawn out** (November 23), **passing the stretch check** (120 frames), pages republished (same links):
   - His head and face are a piece of their own now (their own coat, kind 4, baked as coat: `bake.coat_kinds` in
     foe.json, new in the kit), set into his shoulders like his legs; the head piece moves whole with the head (its jaw

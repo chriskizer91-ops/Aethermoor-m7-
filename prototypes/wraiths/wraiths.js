@@ -384,49 +384,70 @@ B['rime-abbot'] = (G, o) => {
   // the frosty capelet over it, to the elbows, edged in rime and hung with tassels
   const cap = robe(R.chest, navy, { y0: 0.78, y1: 0.18, w: wsh(0.12, 0.31, 0.44, 0.2), folds: 0.06, k: 7, drape: 0.05, scallop: 0.03, scallopN: 9, seed: 84, steps: 9 }, 'embroid');
   hemTrim(R.chest, cap, frost, 0.014);
+  // frost embroidery: zigzags of rime along the hems (the sheet's white frost edging)
+  const zig = (y, rx, rz, n, h) => { const pts = []; for (let i = 0; i <= n * 2; i++) { const a = i / (n * 2) * Math.PI * 2; pts.push(V(Math.cos(a) * rx, y + (i % 2 ? h : 0), Math.sin(a) * rz)); } return pts; };
+  add(fitMaster(tube(zig(-0.8, 0.535, 0.44, 30, 0.05), 0.006, { n: 4 }), 'braid'), frost, R.chest);
+  add(fitMaster(tube(zig(-0.73, 0.525, 0.435, 30, 0.035), 0.005, { n: 4 }), 'braid'), frost, R.chest);
+  { const ring = cap.userData.rings.at(-1), pts = []; for (let i = 0; i <= ring.length; i++) { const p = ring[i % ring.length].clone().multiplyScalar(1.015); pts.push(p.setY(p.y + 0.03 + (i % 2) * 0.035)); } add(fitMaster(tube(pts, 0.005, { n: 4 }), 'braid'), frost, R.chest); }
+  { const sf = new THREE.Group(); sf.position.set(0, 0.48, -0.36); R.chest.add(sf); for (let i = 0; i < 6; i++) { const a = i / 6 * Math.PI * 2, d = V(Math.sin(a), Math.cos(a), 0); add(fitMaster(tube([V(), d.clone().multiplyScalar(0.07)], 0.005, { n: 4 }), 'braid'), frost, sf); add(fitMaster(tube([d.clone().multiplyScalar(0.04), d.clone().multiplyScalar(0.04).add(V(Math.sin(a + 0.8), Math.cos(a + 0.8), 0).multiplyScalar(0.02))], 0.004, { n: 4 }), 'braid'), frost, sf); add(fitMaster(tube([d.clone().multiplyScalar(0.04), d.clone().multiplyScalar(0.04).add(V(Math.sin(a - 0.8), Math.cos(a - 0.8), 0).multiplyScalar(0.02))], 0.004, { n: 4 }), 'braid'), frost, sf); } }
   { const ring = cap.userData.rings.at(-1); for (let i = 0; i < ring.length; i += 4) { const p = ring[i].clone().multiplyScalar(1.02); add(fitMaster(tube([p, p.clone().add(V(0, -0.09, 0))], t => 0.005 + t * 0.011, { n: 6 }), 'braid'), frost, R.chest); } }
   for (let i = 0; i < 9; i++) { const a = i / 9 * Math.PI * 2; add(cone(0.012, 0.05, 5), iceM, R.chest, Math.cos(a) * 0.5, -0.85, Math.sin(a) * 0.41).rotation.x = Math.PI; }
   for (let i = 0; i < 7; i++) { const a = Math.PI * 0.62 + i / 6 * Math.PI * 0.76; const p = V(Math.cos(a) * 0.36, 0.25, Math.sin(a) * 0.3); add(fitMaster(tube([p, p.clone().add(V(0, -0.12, 0))], t => 0.006 + t * 0.012, { n: 6 }), 'braid'), frost, R.chest); }
   for (const s of [-1, 1]) add(fitMaster(tube(curve([V(s * 0.05, 0.62, 0.21), V(s * 0.06, 0.4, 0.25), V(s * 0.05, 0.2, 0.27)], 8), 0.01, { n: 6 }), 'braid'), frost, R.chest);
-  add(ico(0.03, 1), glow('#7fd8ff', 1.6), R.chest, 0, 0.6, 0.23);
+  // the brooch at the throat (a ring of silver round a blue stone) and strands of beads and tassels hanging from it
+  add(tor(0.04, 0.01, 6, 18), solid('silver', '#8eaac0'), R.chest, 0, 0.62, 0.235); add(ico(0.034, 1), glow('#7fd8ff', 1.6), R.chest, 0, 0.62, 0.24);
+  for (const s of [-1, 1]) { for (let j = 0; j < 7; j++) add(sph(0.011, 8, 6), frost, R.chest, s * (0.03 + j * 0.004), 0.57 - j * 0.045, 0.255 + j * 0.003); add(fitMaster(lathe([[0, 0], [0.012, -0.01], [0.018, -0.05], [0.02, -0.08], [0, -0.085]], { n: 10 }), 'braid'), frost, R.chest, s * 0.06, 0.25, 0.28); }
   for (const a of R.arms) { sleeve(a.sh, a.el, a.side, navy, { L1: 0.32, L2: 0.31, r: 0.07, flare: 1.6 }); hand(a.hand, a.side, skin, { closed: a.side === -1, len: 1.35 }); }
   armLengths(R, 0.32, 0.31);
   // the braided cowl, and the grille of ice where a face should be
-  hood(R.head, cowl, { r: 0.14, k: 1.3, open: 0.8, inner: '#04080e' });
+  hood(R.head, cowl, { r: 0.15, k: 1.3, open: 0.8, inner: '#04080e' });
   // the cowl's braids: thick plaits round the face and back over the crown (two strands twisted round each other)
   const plait = (pts, rr) => { const c = new THREE.CatmullRomCurve3(pts), L = 60; for (const ph of [0, Math.PI]) { const q = []; for (let i = 0; i <= L; i++) { const t = i / L, p = c.getPoint(t), tg = c.getTangent(t), side = new THREE.Vector3(0, 1, 0).cross(tg).normalize(), up = tg.clone().cross(side).normalize(), a = t * 22 + ph; q.push(p.clone().addScaledVector(side, Math.cos(a) * rr * 0.6).addScaledVector(up, Math.sin(a) * rr * 0.6)); } add(fitMaster(tube(q, rr * 0.75, { n: 6 }), 'braid'), cowl, R.head); } };
-  const hr = 0.14 * 1.3;
-  for (const k of [0.98, 1.05]) plait([0.95, 0.6, 0.25, 0, -0.25, -0.6, -0.95].map(t => V(Math.sin(t * 1.2) * hr * k * 0.95, hr * (0.35 + Math.cos(t * 1.4) * 0.45), Math.cos(t * 1.2) * hr * k)), 0.022);
-  for (const x of [-0.5, 0, 0.5]) plait([V(x * hr * 0.5, hr * 1.05, hr * 0.55), V(x * hr * 0.55, hr * 1.12, 0), V(x * hr * 0.6, hr * 0.9, -hr * 0.65), V(x * hr * 0.6, hr * 0.4, -hr * 0.95)], 0.02);
-  const grille = solid('silver', '#b8d4e4');
-  for (let i = 0; i < 5; i++) add(fitMaster(tube([V((i - 2) * 0.03, 0.07, 0.16), V((i - 2) * 0.028, -0.09, 0.15)], 0.007, { n: 6 }), 'rim'), grille, R.head);
-  add(fitMaster(tube(curve([V(-0.08, 0.08, 0.14), V(0, 0.11, 0.17), V(0.08, 0.08, 0.14)], 10), 0.008, { n: 6 }), 'rim'), grille, R.head);
+  const hr = 0.15 * 1.3;
+  for (const k of [0.98, 1.05]) plait([0.95, 0.6, 0.25, 0, -0.25, -0.6, -0.95].map(t => V(Math.sin(t * 1.2) * hr * k * 0.95, hr * (0.35 + Math.cos(t * 1.4) * 0.45), Math.cos(t * 1.2) * hr * k)), 0.034);
+  for (const x of [-0.5, 0, 0.5]) plait([V(x * hr * 0.5, hr * 1.05, hr * 0.55), V(x * hr * 0.55, hr * 1.12, 0), V(x * hr * 0.6, hr * 0.9, -hr * 0.65), V(x * hr * 0.6, hr * 0.4, -hr * 0.95)], 0.03);
+  // the mask: a pale plate of rime where the face should be, behind a grille of icicles under pointed arches (the sheet's)
+  const grille = solid('silver', '#7e9cb4'), maskM = ghost('#9eb2c2', { glow: '#6a9cbc', k: 0.06, opacity: 1 });
+  add(fitMaster(sph(0.1, 18, 14, 0, Math.PI * 2, 0, Math.PI * 0.62), 'head'), maskM, R.head, 0, 0.0, 0.1).scale.set(0.92, 1.25, 0.55);
+  for (let i = 0; i < 7; i++) { const x = (i - 3) * 0.022, top = 0.085 - Math.abs(i - 3) * 0.012; add(fitMaster(tube([V(x, top, 0.155 - Math.abs(i - 3) * 0.006), V(x * 0.95, -0.1 + Math.abs(i - 3) * 0.008, 0.148 - Math.abs(i - 3) * 0.006)], t => 0.006 * (1 - t * 0.6), { n: 6 }), 'rim'), grille, R.head); }
+  for (let i = 0; i < 3; i++) { const x0 = (i - 1) * 0.044; add(fitMaster(tube(curve([V(x0 - 0.022, 0.06, 0.155), V(x0, 0.1, 0.16), V(x0 + 0.022, 0.06, 0.155)], 8), 0.006, { n: 5 }), 'rim'), grille, R.head); }
+  add(fitMaster(tube(curve([V(-0.085, 0.07, 0.13), V(0, 0.125, 0.165), V(0.085, 0.07, 0.13)], 10), 0.009, { n: 6 }), 'rim'), grille, R.head);
   add(sph(0.05, 12, 8), glow('#4ab0ff', 0.7), R.head, 0, 0, 0.08).scale.set(1.4, 1.2, 0.4);
   // the Rime Crozier, lit blue
-  const iceMetal = solid('silver', '#9cc0d8');
+  const iceMetal = solid('iron', '#5a7890');
   const S = staff(R.armR.hand, iceMetal, { len: 1.85, r: 0.022, grip: 0.45, head: top => {
     add(fitMaster(tube(curve([V(0, 0, 0), V(0, 0.12, 0), V(0.06, 0.22, 0), V(0.16, 0.22, 0), V(0.18, 0.12, 0)], 14), 0.016, { n: 8 }), 'rim'), iceMetal, top);
     const L = lantern(top, solid('silver', '#b8c8d8'), glow('#6ad0ff', 2.8), { r: 0.04, h: 0.1 }); L.group.position.set(0.18, 0.11, 0); R.glows.push(L.core.material);
     for (let i = 0; i < 6; i++) add(cone(0.012, 0.05, 5), iceM, top, Math.cos(i) * 0.05, 0.25, Math.sin(i) * 0.05).rotation.z = (i - 2.5) * 0.3; } });
-  for (let i = 0; i < 4; i++) add(fitMaster(tube(ringAt(0.25 + i * 0.4, 0.026, 0.026, 12), 0.008, { closed: true, n: 5 }), 'rim'), solid('silver', '#c8d4e0'), S.group);
+  const bandM = ghost('#5c8cb4', { glow: '#3c78b0', k: 0.12, opacity: 1 });
+  for (let i = 0; i < 6; i++) { add(fitMaster(lathe([[0.03, -0.05], [0.036, -0.04], [0.036, 0.04], [0.03, 0.05]], { n: 12 }), 'forged'), bandM, S.group, 0, 0.2 + i * 0.28, 0); add(fitMaster(tube(ringAt(0.15 + i * 0.28, 0.03, 0.03, 12), 0.008, { closed: true, n: 5 }), 'rim'), solid('iron', '#8aa4b8'), S.group); }
   S.group.position.set(0.02, -0.06, 0.02); R.props.staff = S;
   R.base.armR = [-0.3, -0.05, -0.8]; R.base.armL = [0.05, 0.05, -0.1];
   return R;
 };
 
 B['lantern-mother'] = (G, o) => {
-  const R = rigOf(G, { shY: 1.62, shX: 0.2, headY: 1.8 , headK: 1.45 }), black = cloth('#1e1a1c'), coat = cloth('#262024'), shawl = cloth('#3a3236'), apron = cloth('#5a5650'), brass = solid('bronze', '#b08a3a'), skin = solid('skin', '#9ea2a6');
+  const R = rigOf(G, { shY: 1.62, shX: 0.2, headY: 1.8 , headK: 1.45 }), black = cloth('#1e1a1c'), coat = cloth('#262024'), shawl = cloth('#3a3236'), apron = cloth('#45413c'), brass = solid('bronze', '#b08a3a'), skin = solid('skin', '#9ea2a6');
   robe(R.chest, coat, { y0: 1.74 - 1.0, y1: 0.0, w: wsh(0.065, 0.19, 0.19), d: 0.8, seed: 91 }, 'torso');
-  robe(R.hem, black, { y0: 0.0, y1: 0.0 - 1.0, w: t => lerp(0.2, 0.5, smooth(t)), folds: 0.08, k: 11, seed: 92 });
+  robe(R.hem, black, { y0: 0.0, y1: 0.0 - 1.0, w: t => lerp(0.2, 0.52, smooth(t)), folds: 0.11, k: 14, seed: 92 });
   // the coat's buttons, the belt and pouch, the apron
-  for (const s of [-1, 1]) for (let i = 0; i < 3; i++) add(sph(0.012, 8, 6), brass, R.chest, s * 0.05, 0.42 - i * 0.1, 0.165 + i * 0.002);
+  for (const s of [-1, 1]) for (let i = 0; i < 4; i++) { add(sph(0.016, 10, 8), brass, R.chest, s * 0.055, 0.36 - i * 0.085, 0.17 + i * 0.003).scale.set(1, 1, 0.6); }
   add(fitMaster(loft([ringAt(0.04, 0.205, 0.17, 32), ringAt(-0.01, 0.21, 0.175, 32)]), 'belt'), solid('leather', '#5a3e28'), R.chest);
   add(new THREE.BoxGeometry(0.04, 0.032, 0.012), brass, R.chest, 0, 0.015, 0.18);
   add(fitMaster(tube([V(0.15, 0.0, 0.1), V(0.16, -0.08, 0.12)], [0.035, 0.03], { n: 10 }), 'strap'), solid('leather', '#5a3e28'), R.chest);
-  add(fitMaster(tube([V(0, -0.02, 0.19), V(0, -0.35, 0.26), V(0, -0.62, 0.36)], t => [0.004, lerp(0.09, 0.13, t)], { n: 8, up: V(0, 0, 1) }), 'tabard'), apron, R.hem);
+  // the apron: long, embroidered with a stem of leaves, lace at its hem
+  const apP = [V(0, -0.02, 0.2), V(0, -0.3, 0.265), V(0, -0.58, 0.36), V(0, -0.78, 0.43)], apC = new THREE.CatmullRomCurve3(apP), apW = t => lerp(0.1, 0.16, t);
+  add(fitMaster(tube(apC.getPoints(12), t => [0.004, apW(t)], { n: 8, up: V(0, 0, 1) }), 'embroid'), apron, R.hem);
+  const thread = cloth('#6e6a60');
+  { const pts = []; for (let i = 2; i <= 16; i++) pts.push(apC.getPoint(i / 18).add(V(0, 0, 0.007))); add(fitMaster(tube(pts, 0.004, { n: 4 }), 'braid'), thread, R.hem); }
+  for (let i = 0; i < 6; i++) { const t = 0.2 + i * 0.12, p = apC.getPoint(t).add(V(0, 0, 0.008)), L = 0.035 + 0.01 * Math.sin(i); for (const sd of [-1, 1]) { const lf = add(sph(L, 8, 6), thread, R.hem, p.x + sd * L * 0.9, p.y + L * 0.5, p.z); lf.scale.set(1, 0.35, 0.15); lf.rotation.z = sd * 0.6; } }
+  { const q = apC.getPoint(1), w = apW(1); for (let i = 0; i < 9; i++) { const x = lerp(-w, w, i / 8); add(sph(0.013, 8, 6), thread, R.hem, x, q.y - 0.006, q.z + 0.004).scale.set(1, 0.7, 0.4); } }
   // the fringed shawl
-  add(fitMaster(loft(robeRings({ y0: 0.72, y1: 0.38, w: t => lerp(0.15, 0.3, t), steps: 6, folds: 0.04, seed: 93 })), 'mantle'), shawl, R.chest);
-  for (let i = 0; i < 18; i++) { const a = i / 18 * Math.PI * 2; const p = V(Math.cos(a) * 0.3, 0.37, Math.sin(a) * 0.26); add(fitMaster(tube([p, p.clone().add(V(0, -0.06, 0))], t => 0.005 + t * 0.008, { n: 5 }), 'braid'), shawl, R.chest); }
+  // the knitted shawl: draped over the shoulders to a point in front and behind, fringed with long tassels
+  const shR = robeRings({ y0: 0.74, y1: 0.42, w: t => lerp(0.15, 0.31, Math.sqrt(t)), steps: 8, folds: 0.05, k: 11, seed: 93 });
+  shR.forEach((ring, i) => { const t = i / (shR.length - 1); for (const p of ring) { const a = Math.atan2(p.z, p.x), sn = Math.abs(Math.sin(a)); p.y -= 0.2 * t * sn * sn * (Math.sin(a) > 0 ? 1 : 0.8); } });
+  add(fitMaster(loft(shR), 'embroid'), shawl, R.chest);
+  { const hem = shR.at(-1); for (let i = 0; i < hem.length; i += (Q.d > 1 ? 2 : 3)) { const p = hem[i].clone().multiplyScalar(1.02); add(fitMaster(tube([p, p.clone().add(V(0, -0.1, 0))], t => 0.004 + t * 0.012, { n: 5 }), 'braid'), shawl, R.chest); add(sph(0.01, 6, 4), shawl, R.chest, p.x, p.y - 0.01, p.z); } }
   for (const a of R.arms) { sleeve(a.sh, a.el, a.side, coat, { L1: 0.3, L2: 0.29, r: 0.052, flare: 1.25 }); hand(a.hand, a.side, skin, { closed: true, len: 1.2 }); }
   armLengths(R, 0.3, 0.29);
   // her face, white hair, hood and crown of flowers
@@ -440,7 +461,7 @@ B['lantern-mother'] = (G, o) => {
     add(fitMaster(tube(curve([V(0, 0, 0), V(0, 0.08, 0), V(0.03, 0.16, 0), V(0.1, 0.17, 0), V(0.13, 0.1, 0)], 14), 0.013, { n: 8 }), 'rim'), brass, top);
     const bh = new THREE.Group(); bh.position.set(0.13, 0.09, 0); top.add(bh); bell(bh, brass, { r: 0.03, h: 0.045 }); R.props.bell = bh; R.swing.push(bh); } });
   S.group.position.set(0.02, -0.06, 0.02); R.props.staff = S;
-  R.base.armL = [-0.75, -0.2, -0.9]; R.base.armR = [-0.3, -0.05, -0.75];
+  R.base.armL = [-2.0, -0.15, -0.55]; R.base.armR = [-0.3, -0.05, -0.75];
   return R;
 };
 

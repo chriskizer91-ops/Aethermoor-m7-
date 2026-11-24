@@ -22,7 +22,7 @@ def build(K):
 
     def body_sdf(P):
         d = ell(P, BODY_C, (0.185, 0.125, 0.12))
-        d = smin(d, ell(P, BODY_C + [0, 0, 0.06], (0.12, 0.10, 0.09)), 0.05)      # rising to the sprout (a diamond, front view)
+        d = smin(d, ell(P, BODY_C + [0, 0, 0.075], (0.10, 0.088, 0.11)), 0.05)     # rising to a point under the sprout (the sheet's diamond)
         d = smax(d, -ell(P, EYE_C + [0, 0.01, 0], (0.078, 0.045, 0.06)), 0.01)    # the eye's hole, big (0.15 wide, front view)
         return d
 
@@ -97,7 +97,7 @@ def build(K):
         pts = np.stack([sgn * u * 0.19, -np.full_like(u, 0.16), BODY_C[2] - u * 0.12], 1)
         vine(lay(pts, 0.017), 0.017, strands=2, twist=0.025)
     # ---- the sprout: a twisted stem up from the top, two leaves ---------------------------------------------------
-    stem = G.resample(np.array([[0, -0.01, 0.41], [0.012, 0.0, 0.45], [-0.012, 0.01, 0.49], [0.006, 0.0, 0.525]]), 30)
+    stem = G.resample(np.array([[0, -0.01, 0.42], [0.016, 0.0, 0.46], [-0.014, 0.01, 0.5], [0.008, 0.0, 0.535]]), 30)
     vine(stem, 0.014, strands=2, twist=0.02)
     def leaf(base, d, up, length, width, col, kind=1, curl=0.25):
         """a leaf blade with a midrib and a serrated edge, both sides"""
@@ -121,8 +121,8 @@ def build(K):
         C = np.clip(col * (0.85 + 0.3 * (rib < 0.12)[:, None] * 0.5) * (0.8 + 0.2 * np.concatenate([U.ravel()] * 2))[:, None], 0, 1)
         M.add(V, FF, C, kind)
     tip = stem[-1]
-    leaf(tip, [0.75, 0.0, 0.65], [0, 0.3, 1], 0.09, 0.055, LEAF * 1.1)
-    leaf(tip, [-0.75, 0.1, 0.7], [0, 0.3, 1], 0.085, 0.052, LEAF)
+    leaf(tip, [0.72, 0.0, 0.7], [0, 0.3, 1], 0.1, 0.064, LEAF * 1.1)
+    leaf(tip, [-0.72, 0.1, 0.72], [0, 0.3, 1], 0.095, 0.06, LEAF)
     # ---- leaves standing out round the outline (front and back views show them), and little twigs with berries --------
     for i in range(56):
         a = rr.random() * 2 * math.pi; el = rr.uniform(-0.9, 1.0)

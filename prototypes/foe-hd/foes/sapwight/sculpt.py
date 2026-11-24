@@ -27,7 +27,7 @@ SIDES = {1: 6, 2: 9, 3: 12}[LV]
 S = 2.0 / 936
 def sz(py): return (962 - py) * S
 
-BARK = np.array([0.42, 0.29, 0.17]); BARK_D = np.array([0.22, 0.14, 0.08]); BARK_L = np.array([0.58, 0.42, 0.26])
+BARK = np.array([0.47, 0.32, 0.19]); BARK_D = np.array([0.25, 0.16, 0.09]); BARK_L = np.array([0.64, 0.47, 0.29])   # lighter (second pass, the sheet)
 SAP = np.array([0.035, 0.028, 0.025]); AMBER = np.array([1.0, 0.62, 0.16]); MOSS = np.array([0.38, 0.38, 0.13])
 MOSS_D = np.array([0.26, 0.28, 0.08]); CLAW = np.array([0.16, 0.11, 0.07])
 MAT = {'bark': (0.85, 0.0), 'sap': (0.12, 0.0), 'moss': (0.9, 0.0), 'amber': (0.3, 0.0), 'claw': (0.6, 0.0)}
@@ -128,10 +128,13 @@ def strips(P, want=False):
         # strips run diagonally: the coordinate across them goes along the limb and round it
         u = (s_along + sense * th / (2 * np.pi) / max(abs(turns), 1e-3) * np.sign(turns)) / w
         k = np.floor(u); f = u - k
+        # strips of uneven width (second pass: the sheet's are broad and irregular, not even stripes)
+        wk = 0.75 + 0.6 * hashf(k, i + 0.21)
+        f = np.clip(f / wk, 0, 1.5)
         # each strip's own lip: ragged, a little higher or lower than its neighbours, some torn away to the sap
         rag = 0.08 * (vnoise(np.stack([th * 3.0, k * 1.7, np.full_like(th, i * 3.3)], 1).astype(F32), 2.0) - 0.5)
         if LV >= 2: rag += 0.035 * (vnoise(np.stack([th * 5.0, k * 2.3, np.full_like(th, i * 1.1)], 1).astype(F32), 2.0) - 0.5)
-        edge = 0.86 + rag
+        edge = 0.93 + rag                                                   # the sap shows in narrower gaps
         hk = 0.55 + 0.45 * hashf(k, i)
         torn = (hashf(k + 0.5, i * 2 + 1) < 0.10) & (np.cos(th * 2 + k) > 0.3)
         H = 0.016 * (1 + 0.6 * (ra / 0.1))

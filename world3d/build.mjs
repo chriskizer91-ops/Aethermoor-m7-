@@ -30,12 +30,21 @@ const PIC = /"((?:art\/|\.\/)[^"\n]+\.(webp|png|jpe?g|avif))"/g;
 let pics = 0, bytes = 0; const left = new Set();
 // --files: pictures as files beside the page (written to dist/<name>.files/, listed in dist/<name>.files.json for publishing)
 const FILES = process.argv.includes('--files'), fileList = [];
+// --lean (Places, November 23): the same page in fewer bytes, nothing changed on screen: big scripts packed (deflate,
+// unpacked in their place, in order, by a 5 KB reader), the continent's ground textures at the 256 px squares a phone
+// draws them at (the Atlas cuts them to that size on a phone anyway), and its data PNGs as lossless WebP (same pixels)
+const LEAN = process.argv.includes('--lean');
 // a smaller copy of a texture (never of the land's data pictures), made once into .cache/
 // (Places, November 20) --paint=0.75: the game's paintings (coven/art/m7/) at that scale and quality 70, for a page with many
 function sized(f) {
   if (PAINTK && /\/art\/m7\//.test(f)) {
     const st = statSync(f), out = path.join(here, '.cache', 'paint' + PAINTK, Math.round(st.mtimeMs) + '-' + st.size + '-' + path.basename(f));   // (Places) a changed painting is shrunk again
     if (!existsSync(out)) { mkdirSync(path.dirname(out), { recursive: true }); execFileSync('python3', ['-I', '-c', `import sys\nfrom PIL import Image\nim=Image.open(sys.argv[1]);im.load();w,h=im.size;k=${PAINTK}\nif k<1: im=im.resize((round(w*k),round(h*k)),Image.LANCZOS)\nim.save(sys.argv[2],quality=70,method=6)`, f, out]); }
+    return out;
+  }
+  if (LEAN && /continent\/art\/aethermoor-(ground-layers\.webp|[a-z-]+\.png)$/.test(f)) {
+    const st = statSync(f), lossless = f.endsWith('.png'), out = path.join(here, '.cache', 'lean', Math.round(st.mtimeMs) + '-' + path.basename(f).replace(/\.png$/, '.webp'));
+    if (!existsSync(out)) { mkdirSync(path.dirname(out), { recursive: true }); execFileSync('python3', ['-I', '-c', `import sys\nfrom PIL import Image\nim=Image.open(sys.argv[1]);im.load()\nif sys.argv[3]=='1': im.save(sys.argv[2],lossless=True,exact=True,quality=100,method=6)\nelse:\n  w,h=im.size;im=im.resize((w//2,h//2),Image.LANCZOS);im.save(sys.argv[2],quality=82,method=6)`, f, out, lossless ? '1' : '0']); }
     return out;
   }
   if (!TEX || /\/m7\/|terrain|height|kinds|grounds|place-layers|building-layers|ground-layers/.test(f) || f.endsWith('.png')) return f;
@@ -48,7 +57,7 @@ const inline = (code, dir) => code.replace(PIC, (m, p, ext) => {
   const f = tries.map((q) => path.normalize(q)).find(existsSync);
   if (!f) { left.add(p); return m; }
   // each picture goes into the page once (window.__PIC, before every script) and is named by its number where it is used
-  const key = sized(f);
+  const key = sized(f); ext = path.extname(key).slice(1) || ext;   // (a --lean data PNG is a WebP now)
   if (!seen.has(key)) {
     const d = readFileSync(key); seen.set(key, table.length);
     // --files (hub, November 20): the picture goes beside the page as its own file (a claude.ai page holds 16 MB, but
@@ -104,6 +113,17 @@ if (NAME) html = html.replace(/Act One/g, () => NAME.replace(/&/g, '&amp;'));
 html = html.replace('<!--M7PLACES-->', () => M7.map((id) => `<script src="${PLACES_SRC}/m7-${id}.js"></script>`).join('\n'));
 html = html.replace(/<script src="([^"]+)"><\/script>/g, (m, src) => { const f = path.normalize(path.join(PAGES, src)); return '<script>' + inline(readFileSync(f, 'utf8'), path.dirname(f)).replace(/<\/script/gi, '<\\/script') + '</script>'; });
 html = html.replace('<!--HEROES-->', () => (entryCss ? '<style>' + entryCss.replace(/<\/style/gi, '<\\/style') + '</style>' : '') + '<script>window.__PIC=[' + table.join(',') + '];</script><script>' + heroes + '</script>');
+if (LEAN) {
+  const { deflateRawSync } = await import('node:zlib');
+  const z = await build({ entryPoints: [path.join(here, 'm7/lean-z.js')], bundle: true, minify: true, format: 'iife', write: false });
+  let packed = 0, before = Buffer.byteLength(html);
+  html = html.replace(/<script>([\s\S]*?)<\/script>/g, (m, code) => {
+    if (code.length < 40000 || code.startsWith('window.__PIC=')) return m;
+    packed++; return '<script>__z("' + deflateRawSync(Buffer.from(code, 'utf8'), { level: 9 }).toString('base64') + '")</script>';
+  });
+  html = '<script>' + z.outputFiles[0].text + '</script>' + html;
+  console.log(`--lean: ${packed} scripts packed, ${((before - Buffer.byteLength(html)) / 1048576).toFixed(1)} MB lighter`);
+}
 mkdirSync(path.join(here, 'dist'), { recursive: true });
 const full = '<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">\n</head>\n<body>\n' + html + '</body>\n</html>\n';
 const base = OUT || (PAGE_ID === 'aethermoor' ? 'aethermoor-3d' : PAGE_ID), name = TEX ? `${base}-${TEX}` : base;
@@ -117,4 +137,6 @@ if (FILES) {
   for (const [pub, src] of fileList) { mkdirSync(path.join(here, 'dist', path.dirname(pub)), { recursive: true }); writeFileSync(path.join(here, 'dist', pub), readFileSync(src)); }
 }
 writeFileSync(path.join(here, `dist/${name}.artifact.html`), html);
+// (Places, November 23) what weighs what: every picture in the page with its source and size, biggest first
+writeFileSync(path.join(here, `dist/${name}.pics.json`), JSON.stringify([...seen].map(([f, i]) => [statSync(f).size, i, path.relative(here, f)]).sort((a, b) => b[0] - a[0]), null, 0).replace(/\],\[/g, '],\n['));
 console.log(`built dist/${name}.html (${(Buffer.byteLength(full) / 1048576).toFixed(1)} MB, ${pics} pictures, ${(bytes / 1048576).toFixed(1)} MB of pictures; ${left.size} stand-in paths left as they are)`);
