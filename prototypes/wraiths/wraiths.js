@@ -98,11 +98,13 @@ function hand(h, side, m, { closed = false, len = 1 } = {}) {
   add(fitMaster(tube(curve([V(med * 0.01, -0.02 * s, 0.02 * s), V(med * 0.02, -0.05 * s, 0.03 * s), V(med * 0.014, -0.075 * s, 0.03 * s)], 6), t => 0.007 * s * (1 - t * 0.3), { n: 7 }), 'finger'), m, h);
 }
 // a hood: a crown of cloth over the head and a drape opening at the front (open: half-width of the face opening)
-function hood(head, m, { r = 0.13, k = 1.25, point = 0, open = 0.95, drape = true, inner = '#05070a' } = {}) {
+function hood(head, m, { r = 0.13, k = 1.25, point = 0, open = 0.95, drape = true, inner = '#05070a', flare = 0, droop = 0 } = {}) {
   const prof = [[0, r * (1.12 + point) * k], [r * 0.3 * k, r * (1.09 + point * 0.6) * k], [r * 0.6 * k, r * (0.98 + point * 0.2) * k], [r * 0.85 * k, r * 0.8 * k], [r * 0.98 * k, r * 0.55 * k], [r * 1.0 * k, r * 0.4 * k]];
   add(fitMaster(lathe(prof, { n: 40, sx: 0.95 }), 'hood', { v1: 0.3 }), m, head);
-  add(fitMaster(lathe([[r * 1.0 * k, r * 0.4 * k], [r * 1.06 * k, r * 0.0], [r * 1.02 * k, -r * 0.6 * k], [r * 0.98 * k, -r * 1.05 * k]], { n: 32, sx: 0.95, phi0: open, phiLen: Math.PI * 2 - open * 2 }), 'hood', { u0: open / (Math.PI * 2), u1: 1 - open / (Math.PI * 2), v0: 0.3 }), m, head);
+  add(fitMaster(lathe([[r * 1.0 * k, r * 0.4 * k], [r * 1.06 * k, r * 0.0], [r * (1.02 + flare) * k, -r * 0.6 * k], [r * (0.98 + flare * 1.8) * k, -r * 1.05 * k]], { n: 32, sx: 0.95, phi0: open, phiLen: Math.PI * 2 - open * 2 }), 'hood', { u0: open / (Math.PI * 2), u1: 1 - open / (Math.PI * 2), v0: 0.3 }), m, head);
   add(sph(r * 0.98, 20, 14), glowless(inner), head, 0, 0, -r * 0.08).scale.set(0.95, 1.05, 0.9);
+  // a drooping point: the hood's tip falling back from the crown and down behind (the Rime-Abbot's)
+  if (droop) add(fitMaster(tube(curve([V(0, r * 1.0 * k, -r * 0.2 * k), V(0, r * 1.15 * k, -r * 0.75 * k), V(0, r * 0.75 * k, -r * 1.2 * k), V(0, r * 0.1 * k, -r * 1.3 * k * droop)], 14), t => r * k * 0.55 * (1 - t * 0.92), { n: 16 }), 'hood'), m, head);
 }
 const VOID = new Map();
 function glowless(h) { if (VOID.has(h)) return VOID.get(h); const m = new THREE.MeshStandardMaterial({ color: new THREE.Color(h), roughness: 1 }); m.userData.kind = 'void'; VOID.set(h, m); return m; }
@@ -400,7 +402,7 @@ B['rime-abbot'] = (G, o) => {
   for (const a of R.arms) { sleeve(a.sh, a.el, a.side, navy, { L1: 0.32, L2: 0.31, r: 0.07, flare: 1.6 }); hand(a.hand, a.side, skin, { closed: a.side === -1, len: 1.35 }); }
   armLengths(R, 0.32, 0.31);
   // the braided cowl, and the grille of ice where a face should be
-  hood(R.head, cowl, { r: 0.15, k: 1.3, open: 0.8, inner: '#04080e' });
+  hood(R.head, cowl, { r: 0.15, k: 1.3, open: 0.8, inner: '#04080e', flare: 0.14, droop: 1 });
   // the cowl's braids: thick plaits round the face and back over the crown (two strands twisted round each other)
   const plait = (pts, rr) => { const c = new THREE.CatmullRomCurve3(pts), L = 60; for (const ph of [0, Math.PI]) { const q = []; for (let i = 0; i <= L; i++) { const t = i / L, p = c.getPoint(t), tg = c.getTangent(t), side = new THREE.Vector3(0, 1, 0).cross(tg).normalize(), up = tg.clone().cross(side).normalize(), a = t * 22 + ph; q.push(p.clone().addScaledVector(side, Math.cos(a) * rr * 0.6).addScaledVector(up, Math.sin(a) * rr * 0.6)); } add(fitMaster(tube(q, rr * 0.75, { n: 6 }), 'braid'), cowl, R.head); } };
   const hr = 0.15 * 1.3;

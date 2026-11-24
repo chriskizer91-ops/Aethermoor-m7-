@@ -505,6 +505,27 @@ https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL
 - Still plainer than the foes: the robes' bodies between the hem and the belt, and the heads' storybook shape, which is
   kept on purpose (Chris's choice).
 
+**The robes' bodies, and the Rime-Abbot's drooping hood** (November 24). Gear Room
+https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL and wraiths gallery
+https://claude.ai/artifact/KiYfGSBcUQ6gU4WqVKGojD republished.
+- Every robe's skirt:
+  - is sewn from panels: four seams in the trim's colour run down from the belt to the hem band;
+  - is pleated from the belt down (the folds start at the waist instead of only at the hem).
+- The Rime-Abbot's cowl:
+  - its sides flare out onto the shoulders;
+  - its tip rises from the crown and droops back and down behind, like the sheet's.
+
+  At Light 24k.
+- Checks: item audit 458 items, 0 flags; no horizontal scroll at 390 px.
+- `model.js` goes into every page, so its size is counted.
+
+  | `model.js`                 | Source        | Minified      |
+  |----------------------------|---------------|---------------|
+  | Before the robes and boots | 107,516 bytes | 62,249 bytes  |
+  | After the robes and boots  | 110,533 bytes | 63,931 bytes  |
+  | Now                        | 110,858 bytes | 64,071 bytes  |
+  | Change across both steps   | +3,342 bytes  | +1,822 bytes  |
+
 ## Next
 
 - Chris chose full detail for the beasts (November 20): sessions 6 to 8 build them (`docs/project/jobs/foes.md`;

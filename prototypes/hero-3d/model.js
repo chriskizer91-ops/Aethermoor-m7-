@@ -411,7 +411,7 @@ export function buildHero(heroKey, gear, o = {}) {
     const steps = 10, y0 = S.waistY, rings = [];
     for (let i = 0; i <= steps; i++) {
       const t = i / steps, y = lerp(y0, hemY, t), yt = Math.max(y, S.keys[0][0]);
-      const [w, d] = torsoAt(S, yt), fl = robe ? t * t * 0.17 * u + t * 0.03 * u : t * (kind === 'mail' ? 0.03 : 0.02) * u, fold = (robe ? t * 0.085 : t * 0.02) * (SCULPT.on && kind !== 'mail' ? 1.9 : 1);
+      const [w, d] = torsoAt(S, yt), fl = robe ? t * t * 0.17 * u + t * 0.03 * u : t * (kind === 'mail' ? 0.03 : 0.02) * u, fold = (robe ? 0.02 + t * 0.075 : t * 0.02) * (SCULPT.on && kind !== 'mail' ? 1.9 : 1);
       rings.push(ellipse(V(0, y, 0), V(1, 0, 0), V(0, 0, 1), w + 0.012 * u + fl, w * d + 0.012 * u + fl * 0.85, robe ? 40 : 32, a => squarish(a) * (1 + fold * Math.cos(a * (robe ? 11 : 9)) + (robe ? fold * 0.35 * Math.sin(a * 23 + 1) : 0))));
     }
     add(fitMaster(loft(rings), 'skirt'), hemMat, skirt);
@@ -424,6 +424,8 @@ export function buildHero(heroKey, gear, o = {}) {
       add(fitMaster(loft(bandRings), 'embroid'), mat(tk, { side: true }), skirt);
       const zz = rings[rings.length - 2].map((p, j) => { const q = rings[rings.length - 1][j], k = 0.62 + (j % 2) * 0.12, c = V(0, 0, 0); const z = q.clone().lerp(p, k); return z.multiplyScalar(1).add(V(0, 0, 0)).setX(z.x * 1.012).setZ(z.z * 1.012); });
       add(fitMaster(tube(zz, 0.0035 * u, { closed: true, n: 4 }), 'braid'), mat(tk), skirt);
+      // panels: the skirt sewn from panels, its seams (in the trim's colour) running down from the belt either side
+      for (const j of [7, 13, 27, 33]) add(fitMaster(tube(rings.slice(0, -1).map(rr => { const p = rr[j]; return V(p.x * 1.012, p.y, p.z * 1.012); }), 0.0028 * u, { n: 4 }), 'braid'), mat(tk), skirt);
     }
   }
   // the garment on the chest
