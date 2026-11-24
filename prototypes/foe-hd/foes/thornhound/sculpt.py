@@ -98,7 +98,7 @@ def legs_only(P):
             d = chain(P, J, [40 * S, 28 * S, 20 * S, 21 * S], 0.012)
             d = smin(d, ell(P, J[0] + r(-np.sign(J[0][0]) * 10, 0, -10), r(34, 58, 75)), 0.03)   # shoulder, upper arm
         else:
-            d = ell(P, (J[0] + J[1]) * 0.5 + r(-np.sign(J[0][0]) * 8, -18, 6), r(48, 82, 98))     # the thigh
+            d = ell(P, (J[0] + J[1]) * 0.5 + r(-np.sign(J[0][0]) * 8, -14, 22), r(46, 72, 78))    # the thigh (ending above the knee, November 23)
             d = smin(d, chain(P, J, [40 * S, 29 * S, 19 * S, 20 * S], 0.01), 0.03)
         sx = 1 if J[0][0] > 0 else -1
         c = J[3] + r(sx * 4, 24, -16)
