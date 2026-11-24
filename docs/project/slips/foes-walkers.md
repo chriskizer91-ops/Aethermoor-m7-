@@ -89,6 +89,21 @@ Act Two (version 3), and the laptop sculpt pages for Acts One and Two.
   ankle; the Rotwarden's root arm has more triangles and its second root joint bends a little less; the sapwight's
   hands bend a little less.
 
+## The wraiths' polish pass (from November 24, Chris: "they could all use a polish pass")
+
+Eleven, in Act order, through the kit like the walkers; the bestiary ids are the kit keys, so Models' stand-ins
+(`prototypes/wraiths/`) hand over as each passes. Gallery: https://claude.ai/artifact/CFyNjDe1jeuSKytxKdfiVM
+
+- **The drowned** (done): a long black coat torn into tatters at hem and sleeves, open over a teal tabard with four
+  green-gold studs; a pale striped collar; baggy brown trousers into black boots; blue-grey hands; for a head, long
+  flat ribbons of kelp rising and blowing back, with drowned lights in them (they glow); a green bronze bell on a
+  chain in its left hand. Sculpt 1,199,058 triangles; light model 30,894 at 1024 px; phone 20,124 at 512 px, 0.53 MB.
+  Moves: Breathe, Walk, Cold Hands, Drag Down, Toll (it lifts the bell and rings it), Black Water (it doubles over and
+  coughs the channel up), Hit, Fall. Passes the stretch check, full and phone. Its arms, legs and head are pieces of
+  their own; the coat and tabard ride its trunk, the coat's skirt its hips, the weed its head, the bell its hand.
+- Next: the bell-ringer, the drowned choir, the drowned cantor, the drowned abbess, the choir-wraith, the rime-wraith,
+  the Rime-Abbot, the Lantern Mother, the mirage-wisp, the wisp-queen.
+
 ## Links
 
 - Act Two (Old Horn and the peak-troll): https://claude.ai/artifact/PosCApXURcQF2S8qyicNaY (13.8 MB)
