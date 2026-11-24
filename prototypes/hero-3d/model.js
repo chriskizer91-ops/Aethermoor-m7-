@@ -425,7 +425,7 @@ export function buildHero(heroKey, gear, o = {}) {
       const zz = rings[rings.length - 2].map((p, j) => { const q = rings[rings.length - 1][j], k = 0.62 + (j % 2) * 0.12, c = V(0, 0, 0); const z = q.clone().lerp(p, k); return z.multiplyScalar(1).add(V(0, 0, 0)).setX(z.x * 1.012).setZ(z.z * 1.012); });
       add(fitMaster(tube(zz, 0.0035 * u, { closed: true, n: 4 }), 'braid'), mat(tk), skirt);
       // panels: the skirt sewn from panels, its seams (in the trim's colour) running down from the belt either side
-      for (const j of [7, 13, 27, 33]) add(fitMaster(tube(rings.slice(0, -1).map(rr => { const p = rr[j]; return V(p.x * 1.012, p.y, p.z * 1.012); }), 0.0028 * u, { n: 4 }), 'braid'), mat(tk), skirt);
+      for (const k of [7, 13, 27, 33]) add(fitMaster(tube(rings.slice(0, -1).map(rr => { const p = rr[Math.round(k * rr.length / 40) % rr.length]; return V(p.x * 1.012, p.y, p.z * 1.012); }), 0.0028 * u, { n: 4 }), 'braid'), mat(tk), skirt);
     }
   }
   // the garment on the chest
@@ -664,7 +664,7 @@ function buildFoeLooks({ H, rig, S, u, r, head, chest, root, look, wrap, kind, r
   if (H.mask) { const m = mat(H.mask, { side: true }); add(sph(r * 1.05, 28, 16, Math.PI / 2 - 1.15, 2.3, Math.PI * 0.28, Math.PI * 0.5), m, head); for (const s of [-1, 1]) add(new THREE.BoxGeometry(r * 0.28, r * 0.06, r * 0.08), H.maskEyes ? glow(H.maskEyes) : mat('dark'), head, eyeAt(s).x, eyeAt(s).y, eyeAt(s).z + r * 0.06).rotation.y = s * 0.45; }
   if (H.shade && !H.mask) for (const s of [-1, 1]) { const p = eyeAt(s); add(sph(r * 0.07, 10, 8), glow(H.shadeEyes || 'amber', 2.2), head, p.x, p.y, p.z).scale.set(1.3, 0.7, 0.6); }
   // antlers from the brow
-  if (H.antlers) { const am = mat('bone'), size = H.antlers > 1 ? 1.3 : 1; for (const s of [-1, 1]) { const pts = curve([V(s * r * 0.35, r * 0.75, -r * 0.1), V(s * r * 0.8, r * 1.4 * size, -r * 0.3), V(s * r * 1.3, r * 2.0 * size, -r * 0.2), V(s * r * 1.2, r * 2.5 * size, r * 0.2)], 12); add(tube(pts, t => r * 0.09 * (1 - t * 0.6), { n: 6 }), am, head); for (const k of [4, 7, 10]) add(tube([pts[k], pts[k].clone().add(V(s * r * 0.15, r * 0.45, r * 0.25))], r * 0.04, { n: 5 }), am, head); } }
+  if (H.antlers) { const am = mat('bone'), size = H.antlers > 1 ? 1.3 : 1; for (const s of [-1, 1]) { const pts = curve([V(s * r * 0.35, r * 0.75, -r * 0.1), V(s * r * 0.8, r * 1.4 * size, -r * 0.3), V(s * r * 1.3, r * 2.0 * size, -r * 0.2), V(s * r * 1.2, r * 2.5 * size, r * 0.2)], 12); add(tube(pts, t => r * 0.09 * (1 - t * 0.6), { n: 6 }), am, head); for (const f of [0.33, 0.58, 0.83]) { const k = Math.round(f * (pts.length - 1)); add(tube([pts[k], pts[k].clone().add(V(s * r * 0.15, r * 0.45, r * 0.25))], r * 0.04, { n: 5 }), am, head); } } }
   // a feather in the hat or the hair
   if (H.feather) add(wedge([[0, 0], [r * 0.12, r * 0.4], [0, r * 1.1], [-r * 0.1, r * 0.45]], 0.003 * u), mat(H.feather, { side: true }), head, r * 0.8, r * 0.7, -r * 0.3).rotation.set(-0.5, 0.4, -0.5);
   // an emblem on the chest
