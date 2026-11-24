@@ -163,10 +163,16 @@ async function main() {
     fighting = true;
     arena.speed = settings.battleSpeed || 1;
     window.__g3.battle = info.battle; window.__g3.fights = (window.__g3.fights || 0) + 1;
-    let r;
-    try { r = await runFight({ ...world.fightSetup(info), battle: info.battle, ctx, host: fhost, auto: Q.get('auto') === '1', resume: false, keep: true }); }
-    catch (e) { console.error(e); fighting = false; world.afterFight(); go('world'); return; }
+    let r, back = null;
+    try {
+      const setup = world.fightSetup(info);
+      // the fight moves to the arena set for this place, and comes back to this spot for the spoils (walk.js toArena)
+      try { back = await world.toArena(setup); } catch (e) { console.error(e); back = null; }
+      const at = back ? { center: back.arena.center, yaw: back.arena.yaw } : {};
+      r = await runFight({ ...setup, ...at, battle: info.battle, ctx, host: fhost, auto: Q.get('auto') === '1', resume: false, keep: true });
+    } catch (e) { console.error(e); fighting = false; if (back) await world.fromArena(back, arena).catch(() => {}); world.afterFight(); go('world'); return; }
     window.__g3.lastResult = r.result;
+    if (back) { try { await world.fromArena(back, arena); } catch (e) { console.error(e); } }
     const items = r.result === 'victory' ? [...(r.outcome?.claimed || []), ...(r.outcome?.drops || [])] : [];
     let params = {};
     try {
