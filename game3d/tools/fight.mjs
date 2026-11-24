@@ -88,10 +88,19 @@ await page.waitForTimeout(6000); await shot('the-fight');
 const inArena = await E(() => ({ n: window.__g3.arenas || 0, set: window.__g3.arenaSet || null, place: window.__g3.world.W && window.__g3.world.W.P && window.__g3.world.W.P.place && window.__g3.world.W.P.place.id }));
 log('the fight stands in:', JSON.stringify(inArena));
 await settle();
-check((await E(() => window.__g3.fights || 0)) > f0 && (await E(() => window.__g3.lastResult)) === 'victory', `${ENCOUNTERS[ENC].name} fought in 3D, to the end (${await E(() => window.__g3.lastResult)})`);
+// EXPECT=defeat: a fight meant to be lost (a weak party), to see where M7 sends a beaten party
+const WANT = process.env.EXPECT || 'victory';
+check((await E(() => window.__g3.fights || 0)) > f0 && (await E(() => window.__g3.lastResult)) === WANT, `${ENCOUNTERS[ENC].name} fought in 3D, to the end (${await E(() => window.__g3.lastResult)}; meant: ${WANT})`);
 await shot('after');
 const backAt = await state();
-if (process.env.ARENA !== '0') check(inArena.n > 0 && backAt.map === MAP, `the fight in its arena (${inArena.set}), and back on ${MAP}'s own ground after (${backAt.map} ${backAt.x},${backAt.y})`);
+const seen = await E(() => window.__g3.world.seen());
+const saved = await E(() => { const g = JSON.parse(localStorage.getItem('aethermoor.save.3d') || 'null'); return g && g.progress.pos; });
+if (process.env.ARENA !== '0') {
+  if (WANT === 'victory') check(inArena.n > 0 && backAt.map === MAP, `the fight in its arena (${inArena.set}), and back on ${MAP}'s own ground after (${backAt.map} ${backAt.x},${backAt.y})`);
+  else check(inArena.n > 0, `the fight in its arena (${inArena.set}); after the defeat the party is where M7 sends it (${backAt.map} ${backAt.x},${backAt.y})`);
+  check(!String(seen.place).includes('arena') && seen.fade === 0 && seen.place === 'm7-' + backAt.map, `out of the set: the walk drawn on ${seen.place}, the fade done (${seen.fade})`);
+  check(saved && !String(saved.map).includes('arena') && saved.map === backAt.map, `the save after the fight is on the place's own ground (${JSON.stringify(saved)})`);
+}
 console.log('\n' + results.map(([ok, w]) => (ok ? 'PASS ' : 'FAIL ') + w).join('\n'));
 console.log(`${results.filter((r) => r[0]).length} of ${results.length} passed in ${((Date.now() - t0) / 1000).toFixed(0)} s`);
 console.log(errs.length ? 'page errors:\n' + errs.slice(0, 20).join('\n') : 'no page errors');

@@ -787,6 +787,8 @@ export function createWorld(o) {
       window.__g3.arenas = (window.__g3.arenas || 0) + 1; window.__g3.arenaSet = k;
       return { ...home, arena: { center: stand, yaw: ay } };
     },
+    // the checks' look at where the walk is drawn (a set or the place) and the fade (tools/fight.mjs)
+    seen() { return { place: Wk && Wk.P && Wk.P.place && Wk.P.place.id, fade: Number(fadeEl.style.opacity || 0) }; },
     // and back: the walk returns to the place's own ground where the party stood, the fighters and their spoils with it
     async fromArena(b, arena) {
       await fade(true);
