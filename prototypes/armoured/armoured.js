@@ -157,9 +157,123 @@ function construct(G, { iron, gold, dark, glowC, emblem, helm, shield, crown, pl
 }
 B['iron-sentinel'] = G => construct(G, { iron: solid('iron', '#56607e'), gold: solid('bronze', '#c8902a'), dark: solid('iron', '#3a3c52'), glowC: '#ffb02a', emblem: 'gear', helm: 'castle', shield: 'round' });
 B['sentinel-captain'] = G => construct(G, { iron: solid('iron', '#525e88'), gold: solid('gold', '#d4a030'), dark: solid('iron', '#36385a'), glowC: '#ffc040', emblem: 'fleur', helm: 'visor', shield: 'tower', plume: true });
-B['ashen-warden'] = G => { const R = construct(G, { iron: solid('bronze', '#6a4a30'), gold: solid('gold', '#c8962e'), dark: solid('iron', '#3e2c20'), glowC: '#ff7a1a', emblem: 'warden', helm: 'great', crown: true, shield: 'heater', blade: true, cape: true });
+// the Ashen Warden (second look, November 23): not a construct but a knight, in shaped plate like its sheet: a curved
+// cuirass with a keel and gold edging and the gate-and-flame on its breast, faulds and belts, tassets on the thighs,
+// pauldrons of three lames, couters and poleyns, greaves and pointed sabatons, a rounded great helm with a burning slit
+// under a crown of towers, a long tattered cloak of ash, the Ashen Aegis and the burning sword. Every piece rigid.
+const seRing = (y, w, d, z0 = 0, p = 2.6, n = 32) => { const N = Math.round(n * (Q.d > 1 ? 1.5 : 1)), r = []; for (let j = 0; j < N; j++) { const a = j / N * Math.PI * 2, c = Math.cos(a), s = Math.sin(a); r.push(V(Math.sign(c) * Math.pow(Math.abs(c), 2 / p) * w / 2, y, Math.sign(s) * Math.pow(Math.abs(s), 2 / p) * d / 2 + z0)); } return r; };
+const shellOf = (spec, o = {}) => loft(spec.map(([y, w, d, z0, p]) => seRing(y, w, d, z0, p)), o);
+const frontZ = (spec, y) => { for (let i = 1; i < spec.length; i++) if (y <= spec[i][0]) { const a = spec[i - 1], b = spec[i], t = (y - a[0]) / (b[0] - a[0]); return lerp(a[2] / 2 + a[3], b[2] / 2 + b[3], t); } return spec.at(-1)[2] / 2; };
+function lames(parent, iron, gold, { y0, n, h, w0, w1, d0, d1, z0 = 0, kind = 'lame' }) {   // overlapping bands, each a little wider, gold-edged at its foot
+  for (let i = 0; i < n; i++) {
+    const t = i / Math.max(1, n - 1), w = lerp(w0, w1, t), d = lerp(d0, d1, t), y = y0 - i * h * 0.8;
+    add(fitMaster(shellOf([[y + h * 0.5, w * 0.94, d * 0.94, z0], [y - h * 0.5, w, d, z0]]), kind), iron, parent);
+    add(fitMaster(tube(seRing(y - h * 0.5, w * 1.01, d * 1.01, z0, 2.6, 28), 0.008, { closed: true, n: 5 }), 'rim'), gold, parent);
+  }
+}
+function knight(G, { iron, gold, dark, leather, glowC, capeC }) {
+  const R = rigOf(G, { hipY: 0.9, chestY: 1.15, headY: 1.62, shX: 0.31, shY: 1.43, hipX: 0.13, legL: 0.84 }), core = glow(glowC, 2.2), slit = glowless('#0a0806');
+  // the cuirass
+  const cu = [[-0.2, 0.44, 0.29, 0.0], [-0.1, 0.46, 0.31, 0.01], [0.0, 0.52, 0.34, 0.025], [0.1, 0.57, 0.36, 0.03], [0.2, 0.58, 0.35, 0.02], [0.27, 0.48, 0.31, 0.0], [0.31, 0.26, 0.22, 0.0]];
+  add(fitMaster(shellOf(cu, { capB: true }), 'battered'), iron, R.chest);
+  add(fitMaster(tube([-0.18, -0.05, 0.08, 0.2, 0.27].map(y => V(0, y, frontZ(cu, y) + 0.004)), 0.012, { n: 6 }), 'rim'), gold, R.chest);
+  for (const y of [-0.2, 0.27]) add(fitMaster(tube(seRing(y, (y < 0 ? 0.44 : 0.48) * 1.02, (y < 0 ? 0.29 : 0.31) * 1.02, y < 0 ? 0 : 0.0, 2.6, 30), 0.012, { closed: true, n: 5 }), 'rim'), gold, R.chest);
+  for (const s of [-1, 1]) {   // gold scrollwork over the breast, rivets down the sides
+    add(fitMaster(tube(curve([V(s * 0.04, 0.24, frontZ(cu, 0.24)), V(s * 0.16, 0.2, frontZ(cu, 0.2) - 0.03), V(s * 0.23, 0.1, frontZ(cu, 0.1) - 0.08), V(s * 0.19, 0.02, frontZ(cu, 0.02) - 0.06), V(s * 0.14, 0.06, frontZ(cu, 0.06) - 0.035)], 14), 0.009, { n: 5 }), 'rim'), gold, R.chest);
+    for (let i = 0; i < 5; i++) add(sph(0.009, 6, 5), gold, R.chest, s * 0.27, -0.12 + i * 0.07, 0.02);
+  }
+  const em = new THREE.Group(); em.position.set(0, 0.06, frontZ(cu, 0.06) + 0.004); R.chest.add(em);
+  add(fitMaster(plate([[-0.085, -0.1], [0.085, -0.1], [0.085, 0.05], [0.05, 0.09], [0, 0.13], [-0.05, 0.09], [-0.085, 0.05]], () => 0.012), 'forged', { planar: true }), gold, em);
+  add(fitMaster(plate([[-0.045, -0.085], [0.045, -0.085], [0.045, 0.02], [0, 0.065], [-0.045, 0.02]], () => 0.016), 'forged', { planar: true }), slit, em);
+  for (const s of [-1, 1]) add(new THREE.BoxGeometry(0.022, 0.07, 0.012), gold, em, s * 0.03, -0.045, 0.02);
+  add(cone(0.02, 0.07, 6), core, em, 0, -0.02, 0.02);
+  // faulds, belts, tassets
+  lames(R.body, iron, gold, { y0: 0.0, n: 3, h: 0.07, w0: 0.46, w1: 0.54, d0: 0.31, d1: 0.35, z0: 0.01 });
+  add(fitMaster(shellOf([[0.045, 0.475, 0.32, 0.012], [-0.005, 0.475, 0.32, 0.012]]), 'strap'), leather, R.body);
+  add(fitMaster(plate([[-0.045, -0.04], [0.045, -0.04], [0.045, 0.04], [-0.045, 0.04]], () => 0.006), 'forged', { planar: true }), gold, R.body, 0, 0.02, 0.175);
+  const b2 = add(fitMaster(shellOf([[0.02, 0.55, 0.36, 0.012], [-0.02, 0.55, 0.36, 0.012]]), 'strap'), leather, R.body, 0, -0.12, 0); b2.rotation.z = 0.08;
+  add(new THREE.BoxGeometry(0.06, 0.05, 0.012), gold, R.body, 0.02, -0.115, 0.19);
+  for (const l of R.legs) {
+    for (let i = 0; i < 2; i++) {
+      const tp = plate([[-0.1, -0.065], [0.1, -0.065], [0.105, 0.055], [-0.105, 0.055]], (x, y) => 0.025 - x * x * 1.0, { rings: 6, seg: 24 });
+      const o = add(fitMaster(tp, 'plate', { planar: true }), iron, l.hip, l.side * 0.015, -0.12 - i * 0.095, 0.13 - i * 0.008); o.rotation.set(-0.12, 0, -l.side * 0.08);
+      const rim = add(fitMaster(tube(tp.userData.rim.map(([x, y]) => V(x, y, 0.025 - x * x * 1.0)), 0.006, { closed: true, n: 4 }), 'rim'), gold, l.hip, l.side * 0.015, -0.12 - i * 0.095, 0.13 - i * 0.008); rim.rotation.copy(o.rotation);
+    }
+    // cuisse, poleyn, greave, sabaton
+    add(fitMaster(lathe([[0.095, -0.38], [0.105, -0.28], [0.118, -0.12], [0.115, -0.01]], { n: 22, sz: 1.05 }), 'plate'), iron, l.hip);
+    add(fitMaster(tube(ringAt(-0.35, 0.106, 0.112, 22), 0.008, { closed: true, n: 5 }), 'rim'), gold, l.hip);
+    l.knee.position.y = -0.42;
+    add(fitMaster(sph(0.095, 16, 10, 0, Math.PI * 2, 0, Math.PI * 0.55), 'pauldron'), iron, l.knee, 0, 0.0, 0.045).rotation.x = Math.PI / 2;
+    const fan = add(fitMaster(plate([[-0.0, -0.05], [0.06, -0.03], [0.07, 0.03], [0.0, 0.05]], () => 0.005, { rings: 4, seg: 16 }), 'plate', { planar: true }), iron, l.knee, l.side * 0.09, 0, 0.0); fan.rotation.y = l.side * Math.PI / 2; fan.scale.x = l.side;
+    add(fitMaster(tube(ringAt(0, 0.097, 0.1, 20).map(p => p.setY(-0.005)), 0.008, { closed: true, n: 4 }), 'rim'), gold, l.knee, 0, 0, 0.045).rotation.x = Math.PI / 2;
+    add(fitMaster(lathe([[0.07, -0.4], [0.078, -0.32], [0.1, -0.15], [0.096, -0.05], [0.086, -0.02]], { n: 22, sz: 1.1 }), 'plate'), iron, l.knee);
+    add(fitMaster(tube([V(0, -0.05, 0.107), V(0, -0.2, 0.112), V(0, -0.37, 0.082)], 0.007, { n: 5 }), 'rim'), gold, l.knee);
+    add(fitMaster(tube(ringAt(-0.37, 0.08, 0.087, 20), 0.008, { closed: true, n: 5 }), 'rim'), gold, l.knee);
+    for (let i = 0; i < 4; i++) { const z = 0.0 + i * 0.06, w = 0.15 - i * 0.014, h = 0.08 - i * 0.009; add(fitMaster(block(w, h, 0.11, { round: 0.6, p: 2.4 }), 'lame'), i === 0 ? dark : iron, l.knee, 0, -0.44 - h * 0.1 + i * 0.004, z); add(fitMaster(tube([V(-w * 0.45, -0.44 + h * 0.45, z + 0.04), V(0, -0.44 + h * 0.5, z + 0.046), V(w * 0.45, -0.44 + h * 0.45, z + 0.04)], 0.005, { n: 4 }), 'rim'), gold, l.knee); }
+    add(cone(0.045, 0.09, 8), dark, l.knee, 0, -0.465, 0.25).rotation.x = Math.PI / 2;
+    add(fitMaster(block(0.16, 0.04, 0.32, { round: 0.5 }), 'forged'), dark, l.knee, 0, -0.485, 0.07);
+  }
+  // arms: three-lame pauldrons, rerebrace, couter, vambrace, gauntlet
+  for (const a of R.arms) {
+    const pg = pauldron(a.sh, a.side, iron, gold, 0.22);
+    for (let i = 1; i < 3; i++) { const g = new THREE.Group(); g.position.set(a.side * (0.05 + i * 0.015), -0.05 - i * 0.08, 0); g.rotation.z = -a.side * (0.5 + i * 0.1); a.sh.add(g); add(fitMaster(sph(0.205 - i * 0.01, 20, 8, 0, Math.PI * 2, Math.PI * 0.32, Math.PI * 0.2), 'lame'), iron, g).scale.set(1.15, 1, 1); const rr = (0.205 - i * 0.01) * Math.sin(Math.PI * 0.52); add(fitMaster(tube(ringAt((0.205 - i * 0.01) * Math.cos(Math.PI * 0.52), rr * 1.15, rr, 26), 0.008, { closed: true, n: 5 }), 'rim'), gold, g); }
+    add(cone(0.03, 0.11, 4), gold, pg, 0, 0.18, 0.0);
+    add(fitMaster(lathe([[0.075, -0.27], [0.085, -0.15], [0.09, -0.02]], { n: 20 }), 'vambrace'), iron, a.sh);
+    a.el.position.y = -0.3;
+    add(fitMaster(sph(0.08, 14, 10), 'pauldron'), iron, a.el, 0, 0, 0);
+    const cf = add(fitMaster(plate([[0, -0.05], [0.06, -0.03], [0.065, 0.04], [0, 0.05]], () => 0.004, { rings: 4, seg: 16 }), 'plate', { planar: true }), iron, a.el, a.side * 0.07, 0, -0.01); cf.rotation.y = a.side * Math.PI / 2; cf.scale.x = a.side;
+    add(fitMaster(lathe([[0.064, -0.25], [0.074, -0.16], [0.078, -0.04]], { n: 20 }), 'vambrace'), iron, a.el);
+    for (const y of [-0.06, -0.23]) add(fitMaster(tube(ringAt(y, 0.078, 0.078, 18), 0.008, { closed: true, n: 5 }), 'rim'), gold, a.el);
+    a.hand.position.y = -0.27;
+    add(fitMaster(lathe([[0.095, -0.07], [0.086, -0.03], [0.066, 0.02]], { n: 18 }), 'plate'), iron, a.hand);
+    add(fitMaster(tube(ringAt(-0.07, 0.096, 0.096, 18), 0.007, { closed: true, n: 4 }), 'rim'), gold, a.hand);
+    add(fitMaster(block(0.125, 0.115, 0.095, { round: 0.5 }), 'glove'), dark, a.hand, 0, -0.12, 0.0);
+    for (let f = 0; f < 4; f++) add(fitMaster(tube(curve([V((f - 1.5) * 0.03, -0.17, 0.025), V((f - 1.5) * 0.03, -0.215, 0.055), V((f - 1.5) * 0.028, -0.225, 0.09)], 6), 0.016, { n: 6 }), 'lame'), dark, a.hand);
+  }
+  // the head: gorget, a rounded great helm with a burning slit and a gold ridge, a crown of towers
+  add(fitMaster(lathe([[0.2, -0.2], [0.165, -0.15], [0.135, -0.1], [0.13, -0.05]], { n: 24 }), 'lame'), iron, R.head);
+  add(fitMaster(lathe([[0.115, -0.15], [0.14, -0.12], [0.152, -0.05], [0.153, 0.06], [0.142, 0.13], [0.1, 0.165], [0, 0.175]], { n: 28, sz: 1.08 }), 'battered'), iron, R.head);
+  add(new THREE.BoxGeometry(0.22, 0.03, 0.03), slit, R.head, 0, 0.035, 0.152);
+  for (const s of [-1, 1]) add(new THREE.BoxGeometry(0.045, 0.012, 0.01), core, R.head, s * 0.045, 0.035, 0.166);
+  add(fitMaster(tube([V(0, 0.17, 0.02), V(0, 0.14, 0.125), V(0, 0.06, 0.166), V(0, -0.06, 0.166), V(0, -0.14, 0.14)], 0.009, { n: 5 }), 'rim'), gold, R.head);
+  add(fitMaster(tube([V(-0.15, 0.055, 0.05), V(-0.09, 0.058, 0.148), V(0, 0.06, 0.168), V(0.09, 0.058, 0.148), V(0.15, 0.055, 0.05)], 0.008, { n: 5 }), 'rim'), gold, R.head);
+  for (let i = 0; i < 6; i++) add(sph(0.007, 6, 4), slit, R.head, 0.03 + (i % 3) * 0.022, -0.04 - Math.floor(i / 3) * 0.025, 0.16);
+  add(fitMaster(tube(ringAt(0.13, 0.146, 0.16, 28), [0.03, 0.008], { closed: true, n: 6, up: V(0, 1, 0) }), 'forged'), gold, R.head);
+  for (let i = 0; i < 7; i++) {
+    const a = (i / 7) * Math.PI * 2, tall = 0.08 + 0.06 * Math.max(0, Math.cos(a)) + (i % 2) * 0.02, x = Math.sin(a) * 0.143, z = Math.cos(a) * 0.156;
+    const tw = add(fitMaster(block(0.058, tall, 0.03, { round: 0.1, p: 6 }), 'forged'), gold, R.head, x, 0.15 + tall * 0.5, z); tw.rotation.y = a;
+    for (const o of [-0.016, 0.016]) { const c = add(new THREE.BoxGeometry(0.014, 0.02, 0.03), gold, R.head, x + Math.cos(a) * o, 0.15 + tall + 0.01, z - Math.sin(a) * o); c.rotation.y = a; }
+  }
+  add(sph(0.024, 10, 8), core, R.head, 0, 0.165, 0.17);
+  // the cloak of ash: long, ragged, from the shoulders
+  const cm = cloth(capeC);
+  for (const [i, seed] of [[0, 7], [1, 8]]) { const rings = robeRings({ y0: 0.3, y1: -0.98 + i * 0.12, w: t => lerp(0.42, 0.5 + i * 0.03, Math.sqrt(t)), d: 0.6, folds: 0.09, k: 9, tatter: 0.3 + i * 0.08, seed, steps: 14, n: 52 }).map(r => r.slice(Math.floor(r.length / 2) - 3).concat([r[0], r[1], r[2], r[3]])); add(fitMaster(loft(rings, { closed: false }), 'cape'), cm, R.chest, 0, 0, -0.07 - i * 0.012); }
+  // the Ashen Aegis: a heater with the gate and the flame
+  const sh = new THREE.Group(); sh.position.set(0.1, -0.14, 0.13); R.armL.el.add(sh); R.props.shield = sh;
+  const out = [[-0.24, 0.32], [0.24, 0.32]]; for (let i = 0; i <= 12; i++) { const t = i / 12; out.push([lerp(0.24, 0, t * t), lerp(0.32, -0.42, Math.sin(t * Math.PI / 2))]); } for (let i = 11; i >= 1; i--) { const t = i / 12; out.push([-lerp(0.24, 0, t * t), lerp(0.32, -0.42, Math.sin(t * Math.PI / 2))]); }
+  const bz = (x, y) => 0.035 - (x * x + y * y) * 0.12, face = plate(out, bz);
+  add(fitMaster(face, 'shield'), dark, sh);
+  add(fitMaster(tube(face.userData.rim.map(([x, y]) => V(x, y, bz(x, y))), 0.022, { closed: true, n: 6 }), 'rim'), gold, sh);
+  add(fitMaster(tube(face.userData.rim.map(([x, y]) => V(x * 0.84, y * 0.84 - 0.01, bz(x, y) + 0.008)), 0.008, { closed: true, n: 5 }), 'rim'), gold, sh);
+  for (const s of [-1, 1]) { add(fitMaster(block(0.05, 0.2, 0.02, { round: 0.1, p: 6 }), 'forged'), gold, sh, s * 0.075, -0.06, 0.045); for (const o of [-0.012, 0.012]) add(new THREE.BoxGeometry(0.012, 0.02, 0.02), gold, sh, s * 0.075 + o, 0.05, 0.045); }
+  add(fitMaster(lathe([[0.05, 0], [0.05, 0.08], [0.035, 0.12], [0, 0.135]], { n: 14, phiLen: Math.PI, phi0: -Math.PI / 2 }), 'forged'), slit, sh, 0, -0.16, 0.035).rotation.x = -Math.PI / 2;
+  add(fitMaster(block(0.13, 0.03, 0.02, { round: 0.2 }), 'forged'), gold, sh, 0, 0.055, 0.045);
+  add(cone(0.035, 0.11, 7), core, sh, 0, -0.07, 0.05); add(cone(0.02, 0.07, 6), core, sh, -0.025, -0.09, 0.05); add(cone(0.02, 0.07, 6), core, sh, 0.025, -0.09, 0.05);
+  // the burning sword
+  const bl = new THREE.Group(); bl.position.set(0, -0.15, 0.06); R.armR.hand.add(bl); R.props.blade = bl;
+  add(fitMaster(tube([V(0, -0.1, 0), V(0, 0.08, 0)], 0.02, { n: 8 }), 'grip'), leather, bl);
+  add(fitMaster(tube(curve([V(-0.17, 0.12, 0), V(-0.09, 0.09, 0), V(0, 0.095, 0), V(0.09, 0.09, 0), V(0.17, 0.12, 0)], 12), t => 0.02 + 0.012 * Math.abs(t - 0.5), { n: 8 }), 'rim'), gold, bl);
+  add(sph(0.038, 12, 10), gold, bl, 0, -0.12, 0);
+  const sword = new THREE.Group(); sword.position.y = 0.12; bl.add(sword);
+  add(fitMaster(bladeGeo(1.0, t => 0.055 * (t < 0.82 ? 1 - t * 0.15 : (1 - 0.123) * (1 - (t - 0.82) / 0.18 * 0.95)), t => 0.012 * (1 - t * 0.5), { fuller: 0.3, rings: 22 }), 'blade'), solid('iron', '#3a3430'), sword);
+  for (let i = 0; i < 7; i++) { const y0 = 0.06 + i * 0.12; for (const s of [-1, 1]) add(tube(curve([V(-0.015 * s, y0 + (s > 0 ? 0 : 0.03), 0.012 * s), V(0.012 * s, y0 + 0.05, 0.013 * s), V(-0.006 * s, y0 + 0.1, 0.012 * s)], 6), 0.0045, { n: 4 }), core, sword); }
+  R.glows.push(core);
+  R.base.armR = [-0.35, 0.1, -1.0]; R.base.armL = [-0.25, 0.08, -1.1];
+  return R;
+}
+B['ashen-warden'] = G => { const R = knight(G, { iron: solid('bronze', '#5e3e26'), gold: solid('gold', '#c8962e'), dark: solid('iron', '#3a281c'), leather: solid('leather', '#4a2e1c'), glowC: '#ff7a1a', capeC: '#4c4540' });
   const ember = glow('#ff6a1a', 1.2), rnd = rngOf(77);
-  for (let i = 0; i < 26; i++) { const a = rnd() * Math.PI * 2, y = -0.25 + rnd() * 0.5, c = Math.cos(a), s2 = Math.sin(a); add(sph(0.006 + rnd() * 0.006, 6, 4), ember, R.chest, Math.sign(c) * Math.sqrt(Math.abs(c)) * 0.33, y, Math.sign(s2) * Math.sqrt(Math.abs(s2)) * 0.235); }
+  for (let i = 0; i < 22; i++) { const y = -0.18 + rnd() * 0.44, a = rnd() * Math.PI * 2, ring = seRing(y, 0.56, 0.35, 0.02, 2.6, 16), p = ring[Math.floor(a / (Math.PI * 2) * ring.length)]; add(sph(0.005 + rnd() * 0.005, 6, 4), ember, R.chest, p.x * 1.01, y, p.z * 1.01); }
   R.glows.push(ember); return R; };
 
 /* ------------------------------------------------------------------ the stone and forge constructs */
@@ -325,7 +439,7 @@ B['forge-warden'] = G => {
 
 /* ------------------------------------------------------------------ the Unsmith: a person, by the heroes' builder */
 function buildUnsmith(o) {
-  const H = { build: 'brute', skin: 'skinTan', hairMat: 'hairCopper', hair: 'none', eye: '#3a2a20', tunic: 'leatherDark', pants: 'wool', boots: 'leatherDark', gloves: 'skinTan', apron: 'leather', cloak: 'leatherDark', buckle: 'bronze' };
+  const H = { build: 'brute', skin: 'skinTan', hairMat: 'hairCopper', hair: 'none', eye: '#3a2a20', tunic: 'leatherDark', pants: 'leather', pantsTint: C('#4e3626'), boots: 'leather', bootsTint: C('#5e3c22'), gloves: 'skinTan', apron: 'leatherDark', apronTint: C('#3a2014'), apronW: 1.9, apronDrop: 0.22, cloak: 'wool', cloakTint: C('#1e1c22'), buckle: 'bronze' };
   const h = buildHero('warden', {}, { H, looks: {} });
   const R = h.rig, S = R.S, r = S.headR;
   // broad shoulders: a wider chest, the arms set further out (set once, as built: nothing scales as he moves)
@@ -355,13 +469,26 @@ function buildUnsmith(o) {
   bake(fg, new Set([fg]));
   // a heavy ragged mantle over the shoulders (the sheet's cloak), torn in layers
   { const u = S.unit, w0 = S.shX * 1.05, cm = cloth('#26242a');
-    robe(R.chest, cm, { y0: S.neckY + 0.02 * u, y1: S.shY - 0.26 * u, w: t => lerp(w0 * 0.42, w0 * 1.55, Math.sqrt(t)), d: 0.78, folds: 0.09, k: 8, tatter: 0.08 * u, seed: 31, steps: 9, rags: 2 }, 'mantle'); }
-  // the Unmaking Hammer, cracked with violet fire, in his right hand
+    // open at the front (like the sheet's cloak, so the apron shows): each ring without its front arc
+    const openRings = o => robeRings(o).map(r => { const n = r.length, c = Math.round(n * 0.13), st = Math.round(n / 4) + c; const out = []; for (let j = 0; j <= n - 2 * c; j++) out.push(r[(st + j) % n]); return out; });
+    const base = { y0: S.neckY + 0.02 * u, y1: S.shY - 0.34 * u, w: t => lerp(w0 * 0.45, w0 * 1.65, Math.sqrt(t)), d: 0.8, folds: 0.1, k: 9, tatter: 0.12 * u, seed: 31, steps: 9 };
+    add(fitMaster(loft(openRings(base), { closed: false }), 'mantle'), cm, R.chest);
+    for (let i = 1; i <= 3; i++) { const lift = (base.y0 - base.y1) * 0.16 * i; add(fitMaster(loft(openRings({ ...base, y1: base.y1 + lift, w: t => base.w(t) + 0.012 * i * t, tatter: base.tatter * (1.25 + i * 0.25), seed: 31 * 7 + i, steps: 7 }), { closed: false }), 'mantle'), cm, R.chest); } }
+  // his apron (the builder's, made full: a bib to below the knee): the gold anvil on the bib, a pocket, rivets
+  { const pts = R.chest.userData.apron, u = S.unit, gm = solid('gold', '#c8962e'), am = solid('leather', '#3e2414'), at = i => pts[i].clone().add(V(0, 0, 0.008 * u));
+    const an = new THREE.Group(); an.position.copy(at(1)).add(V(0, -0.01 * u, 0)); R.chest.add(an);
+    add(fitMaster(block(0.11 * u, 0.026 * u, 0.012 * u, { round: 0.3 }), 'forged'), gm, an, 0, 0.02 * u, 0); add(cone(0.016 * u, 0.04 * u, 4), gm, an, -0.07 * u, 0.02 * u, 0).rotation.z = Math.PI / 2;
+    add(fitMaster(block(0.035 * u, 0.03 * u, 0.012 * u, { round: 0.2 }), 'forged'), gm, an, 0, -0.008 * u, 0); add(fitMaster(block(0.08 * u, 0.02 * u, 0.012 * u, { round: 0.3 }), 'forged'), gm, an, 0, -0.03 * u, 0);
+    for (const sd of [-1, 1]) { add(sph(0.012 * u, 8, 6), gm, R.chest, at(0).x + sd * 0.12 * u, at(0).y + 0.005 * u, at(0).z); add(sph(0.012 * u, 8, 6), gm, R.chest, at(0).x + sd * 0.07 * u, at(0).y - 0.05 * u, at(0).z); }
+    const pk = at(5); add(fitMaster(block(0.12 * u, 0.09 * u, 0.012 * u, { round: 0.2 }), 'strap'), am, R.chest, pk.x, pk.y, pk.z + 0.004 * u); add(new THREE.BoxGeometry(0.03 * u, 0.02 * u, 0.006 * u), gm, R.chest, pk.x, pk.y + 0.03 * u, pk.z + 0.012 * u); }
+  // the Unmaking Hammer, a great stone-iron head across the haft, cracked with violet fire, in his right hand
   const vio = glow('#b060ff', 2.2), ham = new THREE.Group(); R.armR.grip.add(ham);
-  add(fitMaster(tube([V(0, -0.12, 0), V(0, 0.42, 0)], 0.018, { n: 8 }), 'haft'), solid('iron', '#3a2e4a'), ham);
-  for (const y of [0.0, 0.14, 0.28]) add(tor(0.022, 0.006, 6, 12), solid('bronze', '#a0782a'), ham, 0, y, 0).rotation.x = Math.PI / 2;
-  add(fitMaster(block(0.32, 0.17, 0.17, { round: 0.3, p: 3 }), 'forged', { planar: true }), solid('stone', '#3a3048'), ham, 0, 0.5, 0).rotation.z = Math.PI / 2;
-  for (let i = 0; i < 5; i++) add(tube(curve([V(-0.06 + i * 0.03, 0.44, 0.088), V(-0.03 + i * 0.03, 0.5, 0.09), V(-0.05 + i * 0.03, 0.56, 0.088)], 6), 0.005, { n: 4 }), vio, ham);
+  add(fitMaster(tube([V(0, -0.14, 0), V(0, 0.46, 0)], 0.021, { n: 8 }), 'haft'), solid('iron', '#3a2e4a'), ham);
+  for (const y of [-0.12, 0.0, 0.16, 0.3]) add(tor(0.026, 0.008, 6, 12), solid('bronze', '#a0782a'), ham, 0, y, 0).rotation.x = Math.PI / 2;
+  add(fitMaster(lumpy(block(0.3, 0.17, 0.17, { round: 0.22, p: 4 }), 0.007, 5, 7), 'slag'), solid('stone', '#6a6078'), ham, 0, 0.5, 0);
+  for (const sd of [-1, 1]) add(fitMaster(block(0.045, 0.185, 0.185, { round: 0.2, p: 4 }), 'battered'), solid('iron', '#4a4258'), ham, sd * 0.155, 0.5, 0);
+  { const rc = rngOf(91); for (const z of [-0.09, 0.09]) for (let i = 0; i < 4; i++) { let p = V(-0.12 + i * 0.07 + rc() * 0.02, 0.43 + rc() * 0.03, z); const pts = [p.clone()]; for (let k = 0; k < 4; k++) { p = p.clone().add(V((rc() - 0.5) * 0.05, 0.028 + rc() * 0.012, 0)); pts.push(p.clone()); } add(tube(pts, 0.005, { n: 4 }), vio, ham); } }
+  for (const sd of [-1, 1]) for (let i = 0; i < 2; i++) add(tube([V(sd * 0.18, 0.45 + i * 0.06, -0.05), V(sd * 0.181, 0.48 + i * 0.045, 0.0), V(sd * 0.18, 0.46 + i * 0.06, 0.05)], 0.005, { n: 4 }), vio, ham);
   bake(ham, new Set([ham]));
   // the Worldforge Heart burning through his shirt
   const core = glow('#ff7a2a', 2.4); add(sph(0.03, 12, 10), core, R.chest, 0, R.S.shY - 0.12 * R.S.unit, 0.12 * R.S.unit).scale.set(1, 1, 0.5);
