@@ -745,6 +745,9 @@ export function createWorld(o) {
     // after the arena hands the land back: the heroes stand up straight, the leftover figures go
     afterFight() {
       for (const A of [leader, ...followers]) { if (!A) continue; A.hero.group.rotation.set(0, 0, 0); A.hero.group.position.set(0, 0, 0); A.root.visible = true; }
+      // the arena leaves its pose on the heroes' rigs (arms held out), which the walk doesn't fully undo: the figures it
+      // used are forgotten, and back() dresses the party afresh (dressParty)
+      for (const k of Object.keys(made)) delete made[k];
       dropRoamers();
       for (const s of [...standing.values()]) { if (!Wk.P.scene.children.includes(s.fig.root)) standing.delete(s.e.id); }
     },
