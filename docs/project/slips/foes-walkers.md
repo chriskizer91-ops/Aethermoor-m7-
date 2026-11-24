@@ -101,7 +101,14 @@ Eleven, in Act order, through the kit like the walkers; the bestiary ids are the
   Moves: Breathe, Walk, Cold Hands, Drag Down, Toll (it lifts the bell and rings it), Black Water (it doubles over and
   coughs the channel up), Hit, Fall. Passes the stretch check, full and phone. Its arms, legs and head are pieces of
   their own; the coat and tabard ride its trunk, the coat's skirt its hips, the weed its head, the bell its hand.
-- Next: the bell-ringer, the drowned choir, the drowned cantor, the drowned abbess, the choir-wraith, the rime-wraith,
+- **The bell-ringer** (done): no arms, legs or face: a tall dark shroud in deep folds, torn into three layers at
+  the hem, falling from a ring of barnacled stones to the ground among seaweed and barnacles; seaweed hanging from the
+  ring; a branching coral tree where a head should be; a dark crook curving up from its left shoulder, a rope at its
+  end, holding a bronze bell with glowing green eyes and a green flame for a clapper. Sculpt 824,380 triangles; light
+  model 27,818; phone 0.61 MB. Moves: Breathe (it drifts, the bell swinging), Walk (it glides), Cold Hands, Drag Down,
+  Peal (it hauls on the crook and the bell swings hard), Black Water, Hit, Fall. Passes, full and phone. Its crook is
+  its left arm; the shroud bends with its trunk, its lowest part rides its hips.
+- Next: the drowned choir, the drowned cantor, the drowned abbess, the choir-wraith, the rime-wraith,
   the Rime-Abbot, the Lantern Mother, the mirage-wisp, the wisp-queen.
 
 ## Links
