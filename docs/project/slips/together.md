@@ -18,8 +18,8 @@ no missing files.
 | The Sunscorch, full pictures (new) | https://claude.ai/artifact/38JaigTBGjp1FiT4MHdVFh | 1 | all 5 |
 | The Ironspire | https://claude.ai/artifact/6jSwPVzbwwZWmmD6VsQ1sU | 4 | 4 of 6 (Old Horn, Mother Anvil, rockling, rime-wolf) |
 | The Ironspire, full pictures (new) | https://claude.ai/artifact/AC9dw4TH9VqT4P3UcarVLp | 1 | all 6 |
-| The Gloomfen | https://claude.ai/artifact/N2iCRiMardtJNbntUoXYsA | 4 | 7 of 9 |
-| The Gloomfen, full pictures (new) | https://claude.ai/artifact/7f9UFQ93Dk1esA6ju6u8hL | 1 | all 9 (the Leviathan has no stretch check yet) |
+| The Gloomfen | https://claude.ai/artifact/N2iCRiMardtJNbntUoXYsA | 4 | 7 of 10 |
+| The Gloomfen, full pictures (new) | https://claude.ai/artifact/7f9UFQ93Dk1esA6ju6u8hL | 1 | all 10 (the Blackwater Leviathan too) |
 | Act Three | https://claude.ai/artifact/U8tPe6ZcZKrYA1o7XJeTjp | 3 | the unmade |
 | Act Three, full pictures | https://claude.ai/artifact/28QkrWfL1YqMUnGLki2s5w | 3 | the unmade |
 
