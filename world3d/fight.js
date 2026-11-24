@@ -71,7 +71,9 @@ for (const m of Object.values(MAPS)) for (const e of m.entities || []) if (e.kin
 // where the party comes in, for a fight whose spot from M7's facing isn't open ground in 3D (agreed with Places):
 // the Thunder-Roc's eyrie: 4.5 tiles east of the nest is inside the crevasse, so the party stands on the plateau's east
 // lip where the crossing comes in, facing the nest
-const START = { 'roc-eyrie': [6.3, 15] };
+// and the rotgrubs at Heartroot's south tunnel mouth (November 24): 4.5 tiles south is down the tunnel, nine metres below
+// the hall floor in 3D, so the party stands in the hall north of them, facing the knot they guard
+const START = { 'roc-eyrie': [6.3, 15], 'hr1-grubs': [13, 16] };
 function encScene(id) {
   const { map, e } = ENC_AT[id] || {}; if (!map) return null;
   const E = ENCOUNTERS[id], sp = E.spawns || [], n = Math.max(1, sp.length);
