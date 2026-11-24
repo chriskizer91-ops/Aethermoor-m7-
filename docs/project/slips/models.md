@@ -429,6 +429,30 @@ https://claude.ai/artifact/4WQXpMifD5GWsgCXTP4PVD
   gold bead; one binding near the top.
 - At Light 38k (Relic-Bearer ~40k); the sculpt about 1.0M. Same draws at High and Light.
 
+**Back over the foes against their sheets: the Ashen Warden and the Unsmith** (November 24). Ironclad gallery
+republished: https://claude.ai/artifact/4WQXpMifD5GWsgCXTP4PVD
+- The Ashen Warden is no longer a box robot but a stocky knight in shaped plate, like its sheet:
+  - a curved cuirass with a keel, gold edging and scrollwork, and the gate-and-flame on its breast;
+  - three faulds, two belts with gold buckles, and tassets on the thighs;
+  - pauldrons of three lames, couters, vambraces, and gauntlets with curled fingers;
+  - cuisses, poleyns, greaves, and pointed sabatons of four lames;
+  - a rounded great helm with a burning slit and a gold ridge, under a crown of towers;
+  - a long, ragged cloak of ash, the Ashen Aegis (gate, towers and flame), and the burning sword.
+
+  At Light 39k (Champion ~50k).
+- The Unsmith:
+  - brown trousers and boots;
+  - his leather apron made full (a bib to below the knee) and dark, with the gold anvil, rivets and a pocket;
+  - the ragged black mantle now open at the front so the apron shows;
+  - the Unmaking Hammer's head now lies across the haft like the sheet's: a lumpy stone-iron block with iron faces and
+    violet cracks.
+
+  At Light 29k.
+- `model.js` takes optional `pantsTint`, `bootsTint`, `cloakTint`, `apronTint`, `apronW` and `apronDrop` in a look's
+  `H`. The heroes don't use them, so the heroes are unchanged; the Gear Room loads with no errors.
+- Still open: the Unsmith has 51 draws at High and 47 at Light. The 4-draw gap was already there before this pass, and
+  I haven't tracked it down yet.
+
 ## Next
 
 - Chris chose full detail for the beasts (November 20): sessions 6 to 8 build them (`docs/project/jobs/foes.md`;

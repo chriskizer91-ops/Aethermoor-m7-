@@ -57,7 +57,7 @@ Where the 3D game stands. Written by the hub only. Last updated November 23, lat
 | The walkers in full detail: the Rotwarden and the sapwight | `prototypes/foe-hd/pages/walkers/` | https://claude.ai/artifact/YBLUHaLG3bNdfcjBdeq3aj |
 | The walkers of Act Two: Old Horn and the peak-troll (every move; phone and full) | `prototypes/foe-hd/pages/walkers/` | https://claude.ai/artifact/PosCApXURcQF2S8qyicNaY |
 | The walkers of Act Three: the unmade (every move; phone and full) | `prototypes/foe-hd/pages/walkers/` | https://claude.ai/artifact/1fd2Ko7CSdQQD6hL2fKZcW |
-| The walkers' sculpts, for a laptop | `prototypes/foe-hd/foes/` | https://claude.ai/artifact/JCdvpAPKT781gZiU49jTh2 |
+| The walkers' sculpts, for a laptop, one page per act | `prototypes/foe-hd/foes/` | Act One https://claude.ai/artifact/JCdvpAPKT781gZiU49jTh2 · Act Two https://claude.ai/artifact/EGKt3nEVvxuz9gJ3BzzA4p · Act Three https://claude.ai/artifact/AZUi3tVEEpBk4iCchS21kP |
 | Briarmaw's full sculpt (982,634 triangles) beside his light version, for a laptop | `prototypes/foe-hd/` | https://claude.ai/artifact/AVSmLbEu3jz1NVnohgqT9P |
 | The winged: the lamp-moth, the Gloamwing (the Dawnbell), the Thunder-Roc, beside Chris's sheets, every move, their sculpts | `prototypes/winged/` | https://claude.ai/artifact/CmY9BHJzyVYCYgQtpboqBg |
 | The ironclad and forge foes (iron-sentinel, the Sentinel-Captain, the Ashen Warden, the Unsmith, the cinder-thrall, the thrall-overseer, forgeborn, bellows, the Journeyman, the forge-warden) beside Chris's sheets, every move, their sculpts | `prototypes/armoured/` | https://claude.ai/artifact/4WQXpMifD5GWsgCXTP4PVD |
