@@ -5,6 +5,22 @@ shown side by side with the code-built model and a cut-out of Chris's sheet.
 
 ## Done
 
+- **Second pass against the sheets** (November 24; the hub's list), every foe **still passing the stretch check** (120
+  frames), every page republished at its same link:
+  - Marsh-light: warmer yellow core. Willow-wight: fronds in clumps of three, lighter bark, moss in the grooves.
+    Grandfather Willow: mossier, more twisted and gnarled trunk (still smoother than the painting's roots).
+  - Mother Anvil: a faceted boss on the front, lighter iron. Briarling: fuller body, bigger leaves. Glowcap: flatter,
+    wider cap (its build box widened: it was cutting the edge warts open), the crotch's middle on the hips.
+  - Rockling: sharper stones, faces that point up lighter, chipped diamond eyes in dark hollows. Forge-spark: glowing
+    windows between the cage's bands, three small spikes round one tall twisted spike, an orange glow on its page.
+  - Boglurcher: lumpier mud, moss in patches down the heap, amber eyes, browner stones.
+  - Leviathan: bigger leafy scales, egg-shaped coils, olive patches, and a closer camera on a phone (foe.json
+    "phoneClose", new in the kit: the painted one and the full-detail one side by side). Mire-leech: foot flared into a
+    wide bell. Blackwater gar: bigger plates, each lit on its front half. Old Jaws: rounder, a longer tail fan
+    (fish.py "tail", new).
+  - Fixes on the way: the leech's first neck bone bends least; the gar rig's second tail joint blends wider; the
+    Leviathan's breach tilts the head a little less.
+
 - **The thornhound** (November 24; taken over from session 7), **passing the stretch check** (120 frames):
   - His page (with the pack round the heroes): https://claude.ai/artifact/9zji17squ3DQjFians9iVE · the sculpt
     (laptop): https://claude.ai/artifact/5QSWUvvWZigZBP2DAgLJix

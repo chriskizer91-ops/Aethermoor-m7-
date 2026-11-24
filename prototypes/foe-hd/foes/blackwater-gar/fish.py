@@ -9,7 +9,7 @@ import numpy as np
 
 DEFAULTS = dict(length=1.3, swim=0.28, arch=0.17, seed=7,
                 green=(0.24, 0.34, 0.12), dark=(0.08, 0.12, 0.05), light=(0.46, 0.50, 0.22), belly=(0.55, 0.54, 0.30),
-                spot=(0.88, 0.55, 0.16), eye=(0.92, 0.66, 0.12), crest=11, ripple=True, snout=1.0, snout_w=1.0, deep=1.0, crest_h=1.0, wide=1.0, arch_front=0.35)
+                spot=(0.88, 0.55, 0.16), eye=(0.92, 0.66, 0.12), crest=11, ripple=True, snout=1.0, snout_w=1.0, deep=1.0, crest_h=1.0, wide=1.0, arch_front=0.35, tail=1.0)
 # the body's outline along its length, for a 1.3 m gar: (y, half height, half width)
 PROFILE = [(-0.53, 0.026, 0.018), (-0.45, 0.036, 0.026), (-0.3, 0.06, 0.045), (-0.15, 0.074, 0.057), (0.0, 0.08, 0.062),
            (0.12, 0.077, 0.06), (0.2, 0.068, 0.055), (0.27, 0.055, 0.047), (0.33, 0.04, 0.037), (0.38, 0.03, 0.03),
@@ -44,11 +44,11 @@ def build_fish(K, C):
     def plates(P, L):
         """ganoid scales: diamond plates in slanting rows, raised, their back edges lifted"""
         y = P[:, 1]; zc = mid(y); ang = np.arctan2(P[:, 2] - zc, P[:, 0])
-        u = y / (0.055 * k); v = ang * (0.07 * k) / (0.055 * k) * 1.6
+        u = y / (0.072 * k); v = ang * (0.07 * k) / (0.072 * k) * 1.6                  # bigger plates (second pass)
         a, b = (u + v) % 1.0, (u - v) % 1.0
         e = np.minimum(np.minimum(a, 1 - a), np.minimum(b, 1 - b))                    # 0 on the groove, 0.5 mid-plate
         on = sstep(0.2 * k, 0.15 * k, y) * sstep(Lo['tail'] + 0.02, Lo['tail'] + 0.08 * k, y)
-        return on * (0.0028 * k * sstep(0.0, 0.12, e) + 0.0009 * k * a), e, on
+        return on * (0.0036 * k * sstep(0.0, 0.12, e) + 0.0016 * k * a), e, on            # each plate's back edge lifted more
     def upper_sdf(P, lv=None):
         L = LV if lv is None else lv
         d = shape(P)
@@ -75,10 +75,12 @@ def build_fish(K, C):
         y = V[:, 1]; zc = mid(y); h = hy(np.clip(y, Lo['tail'], Lo['tip']))
         up = (V[:, 2] - zc) / h
         _, e, on = plates(V, LV)
+        aa = ((y / (0.072 * k)) + np.arctan2(V[:, 2] - zc, V[:, 0]) * (0.07 / 0.072) * 1.6) % 1.0   # where on its plate, front to back
         col = mix(GREEN, DARK, np.clip(up * 0.6 + 0.2, 0, 1)[:, None] * 0.7)            # darker along the back
         col = mix(col, DARK * 0.8, (fbm(V, 9.0 / k) > 0.6)[:, None] * 0.5)              # mottled
         col = mix(col, BELLY, np.clip(-up - 0.25, 0, 1)[:, None])                         # a pale belly
-        col = mix(col, LIGHT, (on * sstep(0.12, 0.3, e) * (up > -0.3))[:, None] * 0.35)   # the plates catch the light
+        col = mix(col, LIGHT, (on * sstep(0.08, 0.25, e) * (1 - aa) ** 0.7 * (up > -0.4))[:, None] * 0.6)   # each plate catches the light on its front half (sheet)
+        col = col * (1 - 0.25 * (on * aa ** 2 * (up > -0.4))[:, None])                  # and shades toward its back edge
         col = col * (1 - 0.45 * (on * (1 - sstep(0.02, 0.08, e)))[:, None])              # dark grooves between them
         return np.clip(col, 0, 1)
     log('body')
@@ -129,7 +131,7 @@ def build_fish(K, C):
     fin([0, y - 0.02 * k, mid(y) + 0.85 * hy(y)], [0, -0.6, 0.8], [0, 1, 0], 0.09 * k, 0.045 * k)       # the soft dorsal
     # the tail: a fan, its upper lobe longer
     ty = Lo['tail'] + 0.02 * k
-    fin([0, ty, mid(ty) + 0.004 * k], [0, -1.0, -0.12], [0, 0, 1], 0.19 * k, 0.085 * k,
+    fin([0, ty, mid(ty) + 0.004 * k], [0, -1.0, -0.12], [0, 0, 1], 0.19 * k * C['tail'], 0.085 * k * C['tail'] ** 0.5,
         shape_=lambda u: (0.35 + 0.65 * np.clip(u, 0, 1) ** 0.6) * (1 - 0.25 * np.clip(u - 0.85, 0, 1) / 0.15))
     # the crest: a sawtooth of plates down its back, pointing back
     for i, y in enumerate(np.linspace(-0.42 * k, 0.24 * k, C['crest'])):
