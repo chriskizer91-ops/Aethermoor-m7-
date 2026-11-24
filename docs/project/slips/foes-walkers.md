@@ -137,7 +137,13 @@ Eleven, in Act order, through the kit like the walkers; the bestiary ids are the
   end in the air; blue hands holding an open hymnal (brass corners, three hooded singers on its cover). Sculpt
   1,051,870 triangles; light model 32,787; phone 0.49 MB. Moves: Breathe (floating, bobbing), Walk, Drowned Grasp, The
   Note, Dirge, Hit, Fall. Passes, full and phone. Its hands hold the hymnal together (`clasped`).
-- Next: the rime-wraith, the drowned cantor, the drowned abbess, the choir-wraith, the rime-wraith,
+- **The rime-wraith** (done; third wraiths page, https://claude.ai/artifact/BfKMgJSha56yyZxXXfLaSF): a hood feathered
+  with frost, icicles at its sides; a pale blue face, eyes shut, mouth open, water running from its chin; a short cape
+  torn into points, frosted and hung with icicles; a dark robe, an embroidered stole in two panels from a knotted rope
+  belt; its left hand reaching out, dripping; no feet: the robe darkens into water at the hem, curling in glowing waves,
+  drops rising. Sculpt 1,142,730 triangles; light model 34,395; phone 0.58 MB. Moves: Breathe, Walk, Drowned Grasp,
+  Dirge, Pull Under (it sinks into the water and reaches up), Hit, Fall. Passes, full and phone.
+- Next: the Rime-Abbot, the drowned cantor, the drowned abbess, the choir-wraith, the rime-wraith,
   the Rime-Abbot, the Lantern Mother, the mirage-wisp, the wisp-queen.
 
 ## Links

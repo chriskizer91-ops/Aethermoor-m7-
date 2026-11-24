@@ -538,5 +538,41 @@ const choirWraith = {
   },
 };
 
-export const FOES = { rotwarden, sapwight, 'old-horn': oldHorn, 'peak-troll': peakTroll, unmade, drowned, 'bell-ringer': bellRinger, 'drowned-choir': drownedChoir, 'drowned-cantor': drownedCantor, 'drowned-abbess': drownedAbbess, 'choir-wraith': choirWraith };
+// the rime-wraith: a drowned monk of Frostmere, still wet under the frost, its left hand reaching; it stands in water
+const rimeWraith = {
+  key: 'rime-wraith', name: 'The Rime-Wraith', tier: 'Veteran', act: 'Act Three, Frostmere', height: 1.85, weight: 0.8,
+  stiff: 0.65, knees: 0.25,
+  limits: { neck: 0.25, head: 0.5, spine: 0.3, chest: 0.35, hips: 0.4, l_fore: 0.5, r_fore: 0.5, l_upper: 0.6, r_upper: 0.6, l_hand: 0.4 },
+  text: 'A drowned monk of Frostmere, still wet under the frost and still singing. It remembers the office, and nothing else.',
+  lunge: 'drowned-grasp',
+  idle(W, t) {
+    const b = W.bones;
+    W.body.position.y = 0.015 * Math.sin(t * 0.8); W.body.rotation.z = 0.02 * Math.sin(t * 0.5);
+    b.l_upper.rotation.x = 0.05 * Math.sin(t * 0.9); b.l_hand.rotation.x = 0.1 * Math.sin(t * 1.3);   // the reaching hand, trembling
+    b.head.rotation.z = 0.05 * Math.sin(t * 0.4);
+  },
+  moves: {
+    'drowned-grasp': { label: 'Drowned Grasp', dur: 1.6, pose(W, u, t) {
+      // its reaching hand closes on yours, cold as the lake-bed
+      const b = W.bones, k = seg(u, 0.05, 0.45) * (1 - seg(u, 0.75, 1)), grip = seg(u, 0.4, 0.55) * (1 - seg(u, 0.75, 1));
+      b.l_upper.rotation.x = -0.6 * k; b.l_fore.rotation.x = 0.2 * k - 0.3 * grip; b.l_hand.rotation.x = 0.4 * grip;
+      b.spine.rotation.x = 0.12 * k; b.head.rotation.x = 0.15 * k; W.body.position.z = 0.2 * k;
+    } },
+    dirge: { label: 'Dirge', dur: 2.4, pose(W, u, t) {
+      // it sings the office for the drowned, face lifted, mouth open
+      const b = W.bones, k = seg(u, 0.05, 0.3) * (1 - seg(u, 0.8, 1)), sw = Math.sin(u * 9) * k;
+      b.head.rotation.x = -0.35 * k; b.neck.rotation.x = -0.15 * k; b.chest.rotation.x = -0.1 * k;
+      b.l_upper.rotation.x = -0.3 * k; b.r_upper.rotation.x = -0.25 * k; W.body.rotation.z = 0.04 * sw;
+    } },
+    'pull-under': { label: 'Pull Under', dur: 1.9, pose(W, u, t) {
+      // it sinks into the water and reaches up for your ankles
+      const b = W.bones, low = seg(u, 0.05, 0.4) * (1 - seg(u, 0.55, 0.85)), pull = seg(u, 0.45, 0.65) * (1 - seg(u, 0.85, 1));
+      W.body.position.y -= 0.22 * low; b.spine.rotation.x = 0.1 * low; b.chest.rotation.x = 0.14 * low;
+      b.l_upper.rotation.x = -0.4 * low - 0.2 * pull; b.r_upper.rotation.x = -0.7 * low; b.r_fore.rotation.x = -0.4 * pull;
+      W.body.position.z = 0.15 * low - 0.12 * pull;
+    } },
+  },
+};
+
+export const FOES = { rotwarden, sapwight, 'old-horn': oldHorn, 'peak-troll': peakTroll, unmade, drowned, 'bell-ringer': bellRinger, 'drowned-choir': drownedChoir, 'drowned-cantor': drownedCantor, 'drowned-abbess': drownedAbbess, 'choir-wraith': choirWraith, 'rime-wraith': rimeWraith };
 export const COMMON = [['idle', 'Breathe', 0], ['walk', 'Walk', 0], ['hurt', 'Hit', 0.9], ['ko', 'Fall', 2.6]];
