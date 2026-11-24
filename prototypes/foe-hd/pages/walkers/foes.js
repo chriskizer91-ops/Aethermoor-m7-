@@ -462,7 +462,7 @@ const drownedCantor = {
 // the drowned abbess: tier on tier of habit, the Drowned Censer in her left hand; her long veil rides her head, so her head
 // turns only a little
 const drownedAbbess = {
-  key: 'drowned-abbess', name: 'The Drowned Abbess', tier: 'Relic-Bearer', act: 'Act Three, Frostmere', height: 1.9, weight: 1.0,
+  key: 'drowned-abbess', name: 'The Drowned Abbess', tier: 'Relic-Bearer', act: 'Act Two, Frostmere', height: 1.9, weight: 1.0,
   stiff: 0.6, knees: 0.35,
   limits: { neck: 0.25, head: 0.3, spine: 0.3, chest: 0.35, l_shin: 0.4, r_shin: 0.4, l_fore: 0.5, r_fore: 0.5, l_upper: 0.6, r_upper: 0.6, l_hand: 0.28 },
   text: 'She says the last rites over her choir, as she did every night for thirty years.',
@@ -507,7 +507,7 @@ const drownedAbbess = {
 
 // the choir-wraith: a chorister of Frostmere, still singing; it floats, and holds its hymnal in both hands
 const choirWraith = {
-  key: 'choir-wraith', name: 'The Choir-Wraith', tier: 'Veteran', act: 'Act Three, Frostmere', height: 1.95, weight: 0.7,
+  key: 'choir-wraith', name: 'The Choir-Wraith', tier: 'Veteran', act: 'Act Two, Frostmere', height: 1.95, weight: 0.7,
   stiff: 0.7, knees: 0.2, clasped: true,
   limits: { neck: 0.22, head: 0.5, spine: 0.3, chest: 0.35, hips: 0.4, l_fore: 0.5, r_fore: 0.5, l_upper: 0.6, r_upper: 0.6 },
   text: 'It sings one long note under the ice, and the cold gets into you.',
@@ -540,7 +540,7 @@ const choirWraith = {
 
 // the rime-wraith: a drowned monk of Frostmere, still wet under the frost, its left hand reaching; it stands in water
 const rimeWraith = {
-  key: 'rime-wraith', name: 'The Rime-Wraith', tier: 'Veteran', act: 'Act Three, Frostmere', height: 1.85, weight: 0.8,
+  key: 'rime-wraith', name: 'The Rime-Wraith', tier: 'Veteran', act: 'Act Two, Frostmere', height: 1.85, weight: 0.8,
   stiff: 0.65, knees: 0.25,
   limits: { neck: 0.25, head: 0.5, spine: 0.3, chest: 0.35, hips: 0.4, l_fore: 0.5, r_fore: 0.5, l_upper: 0.6, r_upper: 0.6, l_hand: 0.4 },
   text: 'A drowned monk of Frostmere, still wet under the frost and still singing. It remembers the office, and nothing else.',
@@ -576,7 +576,7 @@ const rimeWraith = {
 
 // the Rime-Abbot: Brother Aurel of Peak's Veil, who went down to listen to Hush; the Rime Crozier frozen to his left hand
 const rimeAbbot = {
-  key: 'rime-abbot', name: 'The Rime-Abbot', tier: 'Champion', act: 'Act Three, Frostmere', height: 2.15, weight: 1.0,
+  key: 'rime-abbot', name: 'The Rime-Abbot', tier: 'Champion', act: 'Act Two, Frostmere', height: 2.15, weight: 1.0,
   stiff: 0.7, knees: 0.2,
   limits: { neck: 0.25, head: 0.5, spine: 0.22, chest: 0.35, hips: 0.4, l_fore: 0.6, r_fore: 0.6, l_upper: 0.7, r_upper: 0.7, l_hand: 0.4 },
   text: "Brother Aurel of Peak's Veil, who went down to listen to Hush and did not come up. The Crozier froze to his hand.",
@@ -646,7 +646,7 @@ const rimeAbbot = {
 
 // the Lantern Mother: the last lamplighter of Misthollow, her lamp-pole in her right hand, her lantern raised in her left
 const lanternMother = {
-  key: 'lantern-mother', name: 'The Lantern Mother', tier: 'Champion', act: 'Act Three, Misthollow', height: 1.91, weight: 0.8,
+  key: 'lantern-mother', name: 'The Lantern Mother', tier: 'Champion', act: 'Act Two, Misthollow', height: 1.91, weight: 0.8,
   stiff: 0.65, knees: 0.25,
   limits: { neck: 0.25, head: 0.5, spine: 0.22, chest: 0.35, hips: 0.4, l_fore: 0.6, r_fore: 0.6, l_upper: 0.7, r_upper: 0.7, l_hand: 0.4, r_hand: 0.4 },
   text: 'The last lamplighter of Misthollow, who led its children out the night the city sank, and went back for the last of them. She is leading children out again, to the drowned city, where she thinks they are safe.',
@@ -723,5 +723,40 @@ const lanternMother = {
   },
 };
 
-export const FOES = { rotwarden, sapwight, 'old-horn': oldHorn, 'peak-troll': peakTroll, unmade, drowned, 'bell-ringer': bellRinger, 'drowned-choir': drownedChoir, 'drowned-cantor': drownedCantor, 'drowned-abbess': drownedAbbess, 'choir-wraith': choirWraith, 'rime-wraith': rimeWraith, 'rime-abbot': rimeAbbot, 'lantern-mother': lanternMother };
+// the mirage-wisp: a little spirit of well-water that walks on its own, a crystal at its heart
+const mirageWisp = {
+  key: 'mirage-wisp', name: 'The Mirage Wisp', tier: 'Veteran', act: 'Act Two, the Glass Flats', height: 1.30, weight: 0.4,
+  stiff: 0.5, knees: 0.5,
+  limits: { neck: 0.25, head: 0.5, spine: 0.3, chest: 0.35, l_fore: 0.6, r_fore: 0.6, l_upper: 0.7, r_upper: 0.7 },
+  text: 'A shimmer that walks on its own. It looks like water until it bites, and it bites cold.',
+  lunge: 'cold-touch',
+  idle(W, t) {
+    const b = W.bones;
+    W.body.position.y = 0.015 * Math.sin(t * 1.3); W.body.rotation.z = 0.03 * Math.sin(t * 0.7);   // rippling where it stands
+    b.head.rotation.z = 0.06 * Math.sin(t * 0.9); b.head.rotation.x = 0.04 * Math.sin(t * 0.6);
+    b.l_upper.rotation.z = -0.05 * Math.sin(t * 1.1); b.r_upper.rotation.z = 0.05 * Math.sin(t * 1.1 + 1);
+  },
+  moves: {
+    'cold-touch': { label: 'Cold Touch', dur: 1.4, pose(W, u, t) {
+      // a touch like well-water at midnight
+      const b = W.bones, k = seg(u, 0.05, 0.4) * (1 - seg(u, 0.7, 1));
+      b.r_upper.rotation.x = -0.9 * k; b.r_upper.rotation.z = -0.2 * k; b.r_fore.rotation.x = -0.2 * k; b.spine.rotation.x = 0.12 * k;
+      b.head.rotation.x = 0.15 * k; b.chest.rotation.y = 0.15 * k; W.body.position.z = 0.15 * k;
+    } },
+    blink: { label: 'Blink', dur: 1.4, pose(W, u, t) {
+      // it blinks out and back a step to the left, and your blow finds shimmer
+      const b = W.bones, out = seg(u, 0.1, 0.22) * (1 - seg(u, 0.75, 0.9)), wob = Math.sin(u * 40) * (seg(u, 0.05, 0.2) * (1 - seg(u, 0.3, 0.45)));
+      W.body.position.x = 0.35 * out; W.body.rotation.z = 0.05 * wob; b.head.rotation.z = 0.1 * wob;
+      b.l_upper.rotation.z = -0.3 * out; b.r_upper.rotation.z = 0.3 * out;
+    } },
+    beguile: { label: 'Beguile', dur: 2.2, pose(W, u, t) {
+      // it shows you water where there is none, arms open, swaying
+      const b = W.bones, k = seg(u, 0.05, 0.3) * (1 - seg(u, 0.8, 1)), sw = Math.sin(u * 9) * k;
+      b.l_upper.rotation.z = -0.5 * k; b.r_upper.rotation.z = 0.5 * k; b.l_upper.rotation.x = -0.3 * k; b.r_upper.rotation.x = -0.3 * k;
+      b.head.rotation.z = 0.2 * sw; W.body.rotation.z = 0.06 * sw; b.chest.rotation.x = -0.08 * k;
+    } },
+  },
+};
+
+export const FOES = { rotwarden, sapwight, 'old-horn': oldHorn, 'peak-troll': peakTroll, unmade, drowned, 'bell-ringer': bellRinger, 'drowned-choir': drownedChoir, 'drowned-cantor': drownedCantor, 'drowned-abbess': drownedAbbess, 'choir-wraith': choirWraith, 'rime-wraith': rimeWraith, 'rime-abbot': rimeAbbot, 'lantern-mother': lanternMother, 'mirage-wisp': mirageWisp };
 export const COMMON = [['idle', 'Breathe', 0], ['walk', 'Walk', 0], ['hurt', 'Hit', 0.9], ['ko', 'Fall', 2.6]];
