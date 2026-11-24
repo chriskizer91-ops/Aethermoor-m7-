@@ -1,13 +1,13 @@
 # The board
 
-Where the 3D game stands. Written by the hub only. Last updated November 24, afternoon (UTC).
+Where the 3D game stands. Written by the hub only. Last updated November 24, evening (UTC).
 
 ## The sessions
 
 | # | Job | Session | Branch | State | Latest link |
 |---|---|---|---|---|---|
 | 1 | the hub | `session_01DgbUKb6orvjjc1cMgBGPJK` | `claude/brave-davinci-790efm` | running | (the board) |
-| 2 | The Fight | `session_01DgbUKYR9qmKyBdACUWGViw` | `job/fight` | step 6 done (Chris, November 24): every fight moves to the arena that looks like the land (Places' sets and table), with a fade there and back and the spoils on the place's own ground; water foes stay on the spot; ?arena=0 keeps all on the spot; stands kept off walls everywhere (battle/check-stands.mjs, 72 fights clear); ten fight pages republished | https://claude.ai/artifact/Q9T8quXCTVgiVUZoMuUaP4 |
+| 2 | The Fight | `session_01DgbUKYR9qmKyBdACUWGViw` | `job/fight` | step 6 done (Chris, November 24): every fight moves to the arena that looks like the land (Places' sets and table), with a fade there and back and the spoils on the place's own ground; water foes stay on the spot; ?arena=0 keeps all on the spot; stands kept off walls everywhere (battle/check-stands.mjs, 72 fights clear); ten fight pages republished; now checking a lost fight in an arena, one fight in each of the eighteen sets, the swallows and big-move cameras in their sets | https://claude.ai/artifact/Q9T8quXCTVgiVUZoMuUaP4 |
 | 3 | Models | `session_01DgbUKcWh5MEvjHnxzp4HHo` | `job/models` | Chris's four notes done (November 24): the winged beat once a second or slower and are polished against their sheets (moths' wings spread lower, the lamp-moth's legs and fur, the Gloamwing grey), the Gear Room's panels fold away, the stand-in wrappers hand over to the kit's finished foes; standing by | https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL |
 | 4 | Places | `session_01DgbUKZVFBfm1dVautXEw5f` | `job/places` | step 6 done (November 24): the eighteen arena sets and the table for all 60 places (https://claude.ai/artifact/VCCwofQnbEaDBN5SwsowAW); the Mother's Hollow shows as the fen's dark heart in the places, the Atlas and the story map; standing by | https://claude.ai/artifact/GBxRVSqwMwYUTy1xLNjATA |
 | 5 | Together | `session_01DgbUKbyjzZFe1BXHHxzHBn` | `job/together` | the game's fights in the arenas (a fade into the place's set, back to the spot for the spoils; water foes on the spot; ?arena=0), the fen's dark heart in the text, the first polished foes (the Ashen Warden, the two sentinels, the drowned, the bell-ringer on the Gloomfen's full page); ten pages republished (single pages 11.2-16.4 MB, near the 16 MiB line); standing by for the next batch | https://claude.ai/artifact/RaeSK5hezqb3qH7jmuM5aj |
