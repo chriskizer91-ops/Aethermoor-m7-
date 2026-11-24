@@ -15,6 +15,7 @@ def weigh(D, P, idx):
         D[:, idx[n]] += 10.0          # the arms are their leaves only (part() below); the body's skin never follows them
     for n in ('r_thigh', 'r_foot', 'l_thigh', 'l_foot'):
         D[:, idx[n]] *= np.where(z > 0.12, 4.0, 1.0)
+        D[:, idx[n]] *= np.where((np.abs(x) < 0.03) & (z > 0.08), 3.0, 1.0)            # the middle of the crotch goes with the hips, not one boot (November 24)
         D[:, idx[n]] += np.where(np.sign(x) != (1 if n[0] == 'r' else -1), 400.0, 0.0)     # not the other side (400 steers the labels; 1000 would be a hard gate)
     return D
 

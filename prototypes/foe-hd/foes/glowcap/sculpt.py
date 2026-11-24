@@ -29,14 +29,14 @@ def build(K):
 
     def cap_sdf(P, lv=None):
         Q = to_cap(P)
-        dome = ell(Q, (0, 0, 0.045), (0.285, 0.29, 0.225))                                # widest a little above the rim
+        dome = ell(Q, (0, 0, 0.04), (0.305, 0.31, 0.2))                                   # widest a little above the rim (November 24: flatter, wider, as the sheet)
         dome = smax(dome, -(Q[:, 2] + 0.035), 0.035)                                     # the rim rolls under
-        dome = smax(dome, -ell(Q, (0, 0, -0.045), (0.235, 0.24, 0.07)), 0.025)           # hollow under it, for the gills
+        dome = smax(dome, -ell(Q, (0, 0, -0.05), (0.245, 0.25, 0.06)), 0.025)            # hollow under it, for the gills
         rim = cap(Q, (0, 0, 0.02), (0, 0, 0.03), 0.0, 0.0)
         d = dome
         for th, el, r in warts:                                                         # the warts, lumpy clusters
             dirn = np.array([math.cos(th) * math.cos(el - 0.2) * 0.98, math.sin(th) * math.cos(el - 0.2), math.sin(el - 0.2) * 1.0])
-            c = np.array([0, 0, 0.045]) + dirn * np.array([0.285, 0.29, 0.225])
+            c = np.array([0, 0, 0.04]) + dirn * np.array([0.305, 0.31, 0.2])
             lump = ell(Q, c, (r, r, r * 0.55))
             for k in range(5):                                                           # popcorn: lumps round a lump
                 off = np.array([math.cos(k * 1.3 + th), math.sin(k * 1.3 + th), 0.2 * math.sin(k * 2.7)]) * r * (0.7 + 0.15 * (k % 2))
@@ -48,7 +48,7 @@ def build(K):
     def gill_sdf(P):
         Q = to_cap(P)
         th = np.arctan2(Q[:, 1], Q[:, 0]); r = np.hypot(Q[:, 0], Q[:, 1])
-        d = ell(Q, (0, 0, -0.03), (0.25, 0.255, 0.035))                                  # bulging below the rim (front view)
+        d = ell(Q, (0, 0, -0.038), (0.27, 0.275, 0.042))                                 # bulging below the rim (front view)
         d = np.maximum(d, Q[:, 2] - 0.0)
         d = np.maximum(d, -(r - 0.075))                                                  # round the stem
         n = 56
@@ -86,10 +86,10 @@ def build(K):
     Qc = to_cap(Vc)
     mott = fbm(Vc, 9.0)[:, None]
     col = mix(CAPC, CAPD, np.clip(mott * 1.6 - 0.4, 0, 1))
-    wart = np.clip((cap_sdf(Vc, 1) - (ell(Qc, (0, 0, 0.045), (0.285, 0.29, 0.225)))) * -60, 0, 1)[:, None]
+    wart = np.clip((cap_sdf(Vc, 1) - (ell(Qc, (0, 0, 0.04), (0.305, 0.31, 0.2)))) * -60, 0, 1)[:, None]
     col = mix(col, WART * (0.85 + 0.3 * fbm(Vc, 30.0)[:, None]), wart)
-    under = (Qc[:, 2] < -0.045)[:, None] & (np.hypot(Qc[:, 0], Qc[:, 1]) < 0.24)[:, None]
-    col = np.where(under, mix(GILL * 0.5, CAPD, 0.5), col)
+    under = (Qc[:, 2] < -0.03)[:, None] & (np.hypot(Qc[:, 0], Qc[:, 1]) < 0.26)[:, None]
+    col = np.where(under, GILL * 0.45, col)
     M.add(Vc, Fc, np.clip(col, 0, 1), 0)
     Vg, Fg = S.mc(gill_sdf, VOX * 1.4, K.lo, K.hi)
     Qg = to_cap(Vg); rg = np.hypot(Qg[:, 0], Qg[:, 1])
