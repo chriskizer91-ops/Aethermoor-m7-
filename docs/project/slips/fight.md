@@ -215,6 +215,11 @@
   page (Thornhollow's road; 640 px world textures) and both Act One pages; the rime-wolf (session 7, its 'wolf' set added
   by addMoves from pages/beasts/kit/moves-wolf.js, the module's `wolf` export) on the Ironspire page (320 px). Fights
   start with no errors; fight-stills/thornhounds-poachers-holm.png.
+- **Every page built lean** (November 24): Places' `--lean` (scripts packed losslessly, nothing changed on screen) saves
+  about 2.4 MB a page; spent on sharper world textures. All nine fight pages are built by one script,
+  `world3d/battle/build-pages.sh` (the page list: places, full-detail foes, texture size); sizes now: the fight page 896 px,
+  Act One both 640, events 640, Act Two 512 (Kharzul in full detail again), Sunscorch 640, Ironspire both 768, Gloomfen 640;
+  every one 14.4-15.7 MB, every one started headless with no errors.
 - **Swallows** (agreed with Places, session 4, for the Sand Wyrm and the Leviathan): their `parts.mouth` and
   `SWALLOW_AT { u, reach }`; the hero shrinks into the mouth at that u and comes back out of it on release; the foe
   stops at `reach`; a `full` idle while a hero is inside, `spit` on release. One Foe (session 6) builds the
