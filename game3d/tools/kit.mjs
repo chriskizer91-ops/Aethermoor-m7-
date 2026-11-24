@@ -25,7 +25,7 @@ async function settle({ fight = true, rest = false, max = 400, pick } = {}) {
   let fightT0 = 0;
   for (let i = 0; i < max; i++) {
     const s = await state();
-    // a fight runs as long as it runs (a hard one takes many minutes headless): wait it out, up to 45 minutes
+    // a fight runs as long as it runs: wait it out (FIGHT_MAX)
     if (s && s.fighting) { if (!fightT0) fightT0 = Date.now(); if (Date.now() - fightT0 < FIGHT_MAX) i--; await page.waitForTimeout(800); continue; }
     fightT0 = 0;
     if (await page.$('.ov-dialogue')) { await playDialogue(pick); continue; }
