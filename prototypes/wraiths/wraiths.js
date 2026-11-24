@@ -14,6 +14,7 @@
 //   WRAITHS: the eleven keys in Act order;  WRAITH_INFO[key]: { name, height, act, blurb }
 import * as THREE from 'three';
 import { V, lerp, smooth, clamp01, loft, ellipse, tube, curve, lathe, plate, mat, fitMaster, withMaster, add, bake, sph, tor, cone, ico, Q, TEXTURES, rngOf } from '../hero-3d/kit.js';
+import { registered } from '../foe-hd/kit/js/looks.js';
 import { BEASTS } from '../bestiary/beasts.js';
 
 export const WRAITHS = ['drowned', 'bell-ringer', 'drowned-choir', 'drowned-cantor', 'drowned-abbess', 'choir-wraith', 'rime-wraith', 'rime-abbot', 'lantern-mother', 'mirage-wisp', 'wisp-queen'];
@@ -643,8 +644,9 @@ function poseRig(R, S, t, step, move) {
 }
 
 /* ------------------------------------------------------------------ for the Fight */
+// a foe the kit has in full detail (its stretch check passed, so the page registered it) shows that instead: this steps aside
 export function wraithLook(key, sprite, opts = {}) {
-  if (!B[key]) return null;
+  if (!B[key] || registered(key)) return null;
   return buildWraith(key, { detail: opts.detail === 'high' ? 'high' : 'light' });
 }
 export const withWraiths = fallback => (key, sprite, opts) => wraithLook(key, sprite, opts) || fallback(key, sprite, opts);

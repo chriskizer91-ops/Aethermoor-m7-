@@ -15,6 +15,7 @@ import * as THREE from 'three';
 import { V, lerp, smooth, clamp01, loft, ellipse, tube, curve, lathe, plate, blade as bladeGeo, mat, fitMaster, add, bake, sph, tor, cone, ico, Q, rngOf } from '../hero-3d/kit.js';
 import { buildHero, setPose } from '../hero-3d/model.js';
 import { BEASTS } from '../bestiary/beasts.js';
+import { registered } from '../foe-hd/kit/js/looks.js';   // the kit's full-detail foes this page registered (passing their stretch check)
 import { C, cloth, solid, glow, ghost, glowless, robeRings, robe, wsh, hemTrim, ringAt, beads, mist, SHAPES, env, rise, face } from '../wraiths/wraiths.js';
 
 export const ARMOURED = ['iron-sentinel', 'sentinel-captain', 'ashen-warden', 'cinder-thrall', 'thrall-overseer', 'forgeborn', 'bellows', 'journeyman', 'forge-warden', 'unsmith'];
@@ -663,5 +664,5 @@ function heroLook(key, group, h, height) {
 }
 
 /* ------------------------------------------------------------------ for the Fight */
-export function armouredLook(key, sprite, opts = {}) { if (!ARMOURED_INFO[key]) return null; return buildArmoured(key, { detail: opts.detail === 'high' ? 'high' : 'light' }); }
+export function armouredLook(key, sprite, opts = {}) { if (!ARMOURED_INFO[key] || registered(key)) return null; return buildArmoured(key, { detail: opts.detail === 'high' ? 'high' : 'light' }); }
 export const withArmoured = fallback => (key, sprite, opts) => armouredLook(key, sprite, opts) || fallback(key, sprite, opts);

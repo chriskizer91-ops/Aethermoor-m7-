@@ -526,6 +526,20 @@ https://claude.ai/artifact/KiYfGSBcUQ6gU4WqVKGojD republished.
   | Now                        | 110,858 bytes | 64,071 bytes  |
   | Change across both steps   | +3,342 bytes  | +1,822 bytes  |
 
+**Chris's notes, November 24: the winged flap slower; the hand-over** (winged gallery republished:
+https://claude.ai/artifact/CmY9BHJzyVYCYgQtpboqBg)
+- The winged flap slower: one wing beat a second or slower on every move of the Lamp-Moth, the Gloamwing and the
+  Thunder-Roc, capped in the pose itself. Each beat is a stroke (about 60% of the cycle) and then a glide with the wings
+  held open. Measured headless over every move: the fastest is 1.0 beats a second. Wing Gale is one great beat over
+  1.6 s (it was two).
+- The hand-over: `withWraiths`, `withArmoured` and `withWinged` now step aside (fall through to the kit's look) for any
+  foe the page has registered with the kit (`registered(key)` from `prototypes/foe-hd/kit/js/looks.js`). Pages register
+  exactly the finished foes whose `stretch.json` passes (`game3d/foes-hd.mjs`, `world3d/fight.js`), so a foe finished
+  by session 8 or 6 shows in full detail automatically, with no change to any caller. Mine stay as the stand-ins until
+  then. Checked with a test page: three registered keys go to the kit, an unregistered one keeps Models' look. My
+  galleries grow 4 KB from the import.
+- Fixed in passing: the winged gallery's crowd view shared a field name with the wing-beat counter (its time ran away).
+
 ## Next
 
 - Chris chose full detail for the beasts (November 20): sessions 6 to 8 build them (`docs/project/jobs/foes.md`;
