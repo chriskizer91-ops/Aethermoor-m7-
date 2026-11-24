@@ -1,0 +1,90 @@
+{
+  "key": "unsmith",
+  "name": "The Unsmith",
+  "plan": "biped",
+  "moves": "unsmith",
+  "rank": "champion",
+  "height": 1.9,
+  "sheet": "art-in/3d/sheets/sheet-unsmith.webp",
+  "crops": [
+    [
+      30,
+      500
+    ],
+    [
+      590,
+      970
+    ],
+    [
+      1000,
+      1500
+    ]
+  ],
+  "bounds": [
+    [
+      -0.62,
+      -0.5,
+      -0.01
+    ],
+    [
+      0.6,
+      0.45,
+      1.95
+    ]
+  ],
+  "voxel": {
+    "0": 0.012,
+    "1": 0.008,
+    "2": 0.006,
+    "3": 0.0052
+  },
+  "view": {
+    "center": [
+      0,
+      0,
+      0.98
+    ],
+    "width": 2.3,
+    "head": [
+      0,
+      0.04,
+      1.65
+    ],
+    "headWidth": 0.55
+  },
+  "light": {
+    "level": 0,
+    "coat": 45000,
+    "kinds": {
+      "7": 1500
+    }
+  },
+  "sculpt": {
+    "level": 3
+  },
+  "bake": {
+    "res": 1024,
+    "phone": 512,
+    "ao": 32,
+    "coat_kinds": [
+      0,
+      7
+    ],
+    "reach": {
+      "coat": [
+        0.008,
+        0.02
+      ],
+      "parts": [
+        0.004,
+        0.01
+      ]
+    }
+  },
+  "rig": "rig.py",
+  "blurb": "Harrow Ironvein, Hilda's twin, the last foe: a broad dwarf smith, red hair and a great red beard in gold-beaded braids, a ragged black cloak, a dark leather apron studded with brass with a gold anvil on its bib, a gold chain across his chest, bare forearms, cuffed boots, and the Unmaking Hammer, its stone head cracked with violet fire. Every part moves whole on its own joint, so nothing stretches.",
+  "pages": {
+    "three": "https://claude.ai/artifact/B4yCqb6nesPQ2U4t4SDUSV",
+    "sculpt": "https://claude.ai/artifact/MPwJpG1i7T2sSaB7NAzVx1"
+  }
+}

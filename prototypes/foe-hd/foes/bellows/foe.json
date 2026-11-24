@@ -1,0 +1,90 @@
+{
+  "key": "bellows",
+  "name": "The Bellows",
+  "plan": "biped",
+  "moves": "bellows",
+  "rank": "veteran",
+  "height": 2.0,
+  "sheet": "art-in/3d/sheets/sheet-bellows.webp",
+  "crops": [
+    [
+      40,
+      540
+    ],
+    [
+      590,
+      920
+    ],
+    [
+      1010,
+      1500
+    ]
+  ],
+  "bounds": [
+    [
+      -0.68,
+      -0.42,
+      -0.01
+    ],
+    [
+      0.68,
+      0.45,
+      2.02
+    ]
+  ],
+  "voxel": {
+    "0": 0.014,
+    "1": 0.009,
+    "2": 0.0075,
+    "3": 0.0068
+  },
+  "view": {
+    "center": [
+      0,
+      0,
+      1.0
+    ],
+    "width": 2.35,
+    "head": [
+      0,
+      0.05,
+      1.65
+    ],
+    "headWidth": 0.7
+  },
+  "light": {
+    "level": 0,
+    "coat": 25000,
+    "kinds": {
+      "7": 5000
+    }
+  },
+  "sculpt": {
+    "level": 3
+  },
+  "bake": {
+    "res": 1024,
+    "phone": 512,
+    "ao": 32,
+    "reach": {
+      "coat": [
+        0.008,
+        0.02
+      ],
+      "parts": [
+        0.004,
+        0.01
+      ]
+    },
+    "coat_kinds": [
+      0,
+      7
+    ]
+  },
+  "rig": "rig.py",
+  "blurb": "A forgeborn made into a bellows, Act Two's Ironspire: a swollen body of dark puffed leather strapped crosswise with brass-buckled belts, a round brass furnace grate burning in its chest, a brass-framed vent on its shoulder, glowing slits torn in the leather all over, a chimney of a hood for a head with a brass lantern cap, and a brass pipe curling up from its shoulder into the cap. Every part moves whole on its own joint, so nothing stretches.",
+  "pages": {
+    "three": "https://claude.ai/artifact/CVwKJCkHZHyW9oyXWcrhtK",
+    "sculpt": "https://claude.ai/artifact/AYQ4g3bn3K1PjuAgMbojsj"
+  }
+}

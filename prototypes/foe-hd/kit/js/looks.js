@@ -26,12 +26,19 @@ import * as oldjaws from './moves/oldjaws.js';
 import * as warden from './moves/warden.js';
 import * as sentinel from './moves/sentinel.js';
 import * as captain from './moves/captain.js';
+import * as forge from './moves/forge.js';
+import * as bellows from './moves/bellows.js';
+import * as journeyman from './moves/journeyman.js';
+import * as thrall from './moves/thrall.js';
+import * as overseer from './moves/overseer.js';
+import * as kiln from './moves/kiln.js';
+import * as unsmith from './moves/unsmith.js';
 // the walkers (session 8): plan 'walker', their moves per foe in pages/walkers/foes.js, made into the kit's moves shape
 // by movesFor (with each foe's joint limits); so the Fight and Together get them with no special case
 import { FOES as WALKERS } from '../../pages/walkers/foes.js';
 import { movesFor } from '../../pages/walkers/walker.js';
 
-export const PLANS = { quad, biped, sapling, serpent, frog, winged, mushroom, mound, willow, spark, heap, anvil, bear, leech, fish, leviathan, oldjaws, warden, sentinel, captain };          // more as the lanes add them (serpent, frog, winged, wraith...)
+export const PLANS = { quad, biped, sapling, serpent, frog, winged, mushroom, mound, willow, spark, heap, anvil, bear, leech, fish, leviathan, oldjaws, warden, sentinel, captain, forge, bellows, journeyman, thrall, overseer, kiln, unsmith };          // more as the lanes add them (serpent, frog, winged, wraith...)
 const reg = new Map();
 export function addMoves(name, set) { PLANS[name] = set; }        // a lane's own moves set, by name
 

@@ -1,0 +1,90 @@
+{
+  "key": "cinder-thrall",
+  "name": "Cinder-Thrall",
+  "plan": "biped",
+  "moves": "thrall",
+  "rank": "rabble",
+  "height": 1.7,
+  "sheet": "art-in/3d/sheets/sheet-cinder-thrall.webp",
+  "crops": [
+    [
+      60,
+      530
+    ],
+    [
+      640,
+      930
+    ],
+    [
+      1020,
+      1490
+    ]
+  ],
+  "bounds": [
+    [
+      -0.42,
+      -0.3,
+      -0.01
+    ],
+    [
+      0.42,
+      0.32,
+      1.72
+    ]
+  ],
+  "voxel": {
+    "0": 0.011,
+    "1": 0.008,
+    "2": 0.006,
+    "3": 0.0045
+  },
+  "view": {
+    "center": [
+      0,
+      0,
+      0.86
+    ],
+    "width": 2.0,
+    "head": [
+      0,
+      0.05,
+      1.5
+    ],
+    "headWidth": 0.45
+  },
+  "light": {
+    "level": 0,
+    "coat": 16500,
+    "kinds": {
+      "7": 3500
+    }
+  },
+  "sculpt": {
+    "level": 3
+  },
+  "bake": {
+    "res": 1024,
+    "phone": 512,
+    "ao": 32,
+    "coat_kinds": [
+      0,
+      7
+    ],
+    "reach": {
+      "coat": [
+        0.008,
+        0.02
+      ],
+      "parts": [
+        0.004,
+        0.01
+      ]
+    }
+  },
+  "rig": "rig.py",
+  "blurb": "One of the Unsmith's ash-men, the Hearth Below: lanky and long in the arm, packed ash laid on it in overlapping flakes, a rag tied over eyes that burn through it, a coal for a heart, fire in its cracks. Every limb moves whole on its own joint, so nothing stretches.",
+  "pages": {
+    "three": "https://claude.ai/artifact/WiTMDVCyHgqy9q9aLqRoHa",
+    "sculpt": "https://claude.ai/artifact/ESaa9RWCUhGAUyyFV2jAin"
+  }
+}

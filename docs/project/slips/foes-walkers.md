@@ -108,7 +108,42 @@ Eleven, in Act order, through the kit like the walkers; the bestiary ids are the
   model 27,818; phone 0.61 MB. Moves: Breathe (it drifts, the bell swinging), Walk (it glides), Cold Hands, Drag Down,
   Peal (it hauls on the crook and the bell swings hard), Black Water, Hit, Fall. Passes, full and phone. Its crook is
   its left arm; the shroud bends with its trunk, its lowest part rides its hips.
-- Next: the drowned choir, the drowned cantor, the drowned abbess, the choir-wraith, the rime-wraith,
+- **The drowned choir** (done): a red cassock to the ground, torn and holed at its hem; a white lace surplice to the
+  thigh, streaked green, its hem scalloped and cut through with four-petalled eyelets; a red-brown shoulder cape; its
+  hands clasped at its breast round a brass bell with a green tassel; for a head a tall gnarl of dark wood crusted with
+  little skulls, yellow-green weed rising out of it. Sculpt 1,426,344 triangles; light model 31,442; phone 0.55 MB.
+  Moves: Breathe, Walk, Cold Hands (its clasped hands thrust out), The Hymn (it lifts its head and sings, swaying),
+  Toll, Black Water, Hit, Fall. Passes, full and phone. Its hands are clasped, so its arms only ever swing together
+  (new `clasped: true` in walker.js: the generic moves' arm swings become one forward-and-back swing for both arms);
+  below the waist everything rides its hips.
+- **The drowned cantor** (done; on the second wraiths page, https://claude.ai/artifact/6qxqnJRLVEcJXtaqT21Hkw): a
+  black hood and cowl, a white cracked mask with a yellow sun-flower over its left eye, a coral tree spreading out of
+  the hood; two rows of pearls over its shoulders; a sea-green cope to the ground, open in front, edged in gold braid,
+  coral embroidered on it; a black robe under; grey gloved hands; the Cantor's Staff in its left hand (black, gold
+  bands, branching coral round a teal orb, pearls hanging, a glass drop at its foot). Sculpt 1,736,112 triangles;
+  light model 39,694; phone 0.64 MB (relic-bearer). Moves: Breathe, Walk, Cold Hands, Drag Down, The Hymn, Beat Time
+  (the staff on the flagstones), Downbeat (the staff high, then down), Hit, Fall. Passes, full and phone.
+- **The drowned abbess** (done; second wraiths page): a woman's face blue with the cold, eyes burning pale blue and
+  weeping blue; a white wimple with a silver medallion at each ear, its edge falling in waves; a long dark veil to her
+  waist behind; a sea-green habit tier on tier, each flounce edged in paler water, wide as a bell at the ground; a belt
+  of big pale beads, a strand hanging; the Drowned Censer on its chain in her left hand, silver, eight arched windows
+  burning blue. Sculpt 1,873,768 triangles; light model 36,207; phone 0.62 MB (relic-bearer). Moves: Breathe (the
+  censer swaying), Walk, Drowned Grasp, Dirge, Pull Under, Last Rites, Censer Swing, Hit, Fall. Passes, full and phone.
+  Her wide sleeves hang past the elbow, so each arm point is the upper arm's above the elbow and the forearm's below;
+  her hand only past the wrist; her long veil rides her head, so her head turns only a little.
+- **The choir-wraith** (done; second wraiths page): it floats, no feet; a hood and a grey singing mask (sad brows,
+  shut eyes, a round open mouth) with its song coming out as a curl of glowing blue breath; a short hooded cape, ragged,
+  two brass tags at its sides; a robe pieced in pointed arches, brass studs where they meet, flaring to tongues that
+  end in the air; blue hands holding an open hymnal (brass corners, three hooded singers on its cover). Sculpt
+  1,051,870 triangles; light model 32,787; phone 0.49 MB. Moves: Breathe (floating, bobbing), Walk, Drowned Grasp, The
+  Note, Dirge, Hit, Fall. Passes, full and phone. Its hands hold the hymnal together (`clasped`).
+- **The rime-wraith** (done; third wraiths page, https://claude.ai/artifact/BfKMgJSha56yyZxXXfLaSF): a hood feathered
+  with frost, icicles at its sides; a pale blue face, eyes shut, mouth open, water running from its chin; a short cape
+  torn into points, frosted and hung with icicles; a dark robe, an embroidered stole in two panels from a knotted rope
+  belt; its left hand reaching out, dripping; no feet: the robe darkens into water at the hem, curling in glowing waves,
+  drops rising. Sculpt 1,142,730 triangles; light model 34,395; phone 0.58 MB. Moves: Breathe, Walk, Drowned Grasp,
+  Dirge, Pull Under (it sinks into the water and reaches up), Hit, Fall. Passes, full and phone.
+- Next: the Rime-Abbot, the drowned cantor, the drowned abbess, the choir-wraith, the rime-wraith,
   the Rime-Abbot, the Lantern Mother, the mirage-wisp, the wisp-queen.
 
 ## Links

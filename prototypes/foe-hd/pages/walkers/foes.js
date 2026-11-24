@@ -375,5 +375,204 @@ const bellRinger = {
   },
 };
 
-export const FOES = { rotwarden, sapwight, 'old-horn': oldHorn, 'peak-troll': peakTroll, unmade, drowned, 'bell-ringer': bellRinger };
+// the drowned choir: a chorister, its hands clasped round the bell; both arms always move together (the hands never part)
+const both = (b, ax, v) => { b.r_upper.rotation[ax] = v; b.l_upper.rotation[ax] = ax === 'x' ? v : -v; };
+const both2 = (b, ax, v) => { b.r_fore.rotation[ax] = v; b.l_fore.rotation[ax] = ax === 'x' ? v : -v; };
+const drownedChoir = {
+  key: 'drowned-choir', name: 'The Drowned Choir', tier: 'Veteran', act: 'Act Two, Misthollow', height: 1.95, weight: 0.8,
+  stiff: 0.7, knees: 0.5, clasped: true,
+  limits: { neck: 0.35, head: 0.7, spine: 0.3, chest: 0.35, l_shin: 0.45, r_shin: 0.45, l_fore: 0.5, r_fore: 0.5, l_upper: 0.6, r_upper: 0.6 },
+  text: 'They sing the hymn that has kept something asleep under Misthollow for a thousand years.',
+  lunge: 'cold-hands',
+  idle(W, t) {
+    const b = W.bones, sw = Math.sin(t * 0.55);
+    W.body.rotation.z = 0.02 * sw; b.head.rotation.z = 0.06 * Math.sin(t * 0.4); b.head.rotation.x = -0.04 + 0.04 * Math.sin(t * 0.7);
+    both(b, 'x', 0.03 * Math.sin(t * 1.1));                                         // the bell rising and falling with its breath
+  },
+  moves: {
+    'cold-hands': { label: 'Cold Hands', dur: 1.5, pose(W, u, t) {
+      // its clasped hands thrust out at you
+      const b = W.bones, k = seg(u, 0.05, 0.4) * (1 - seg(u, 0.7, 1));
+      both(b, 'x', -0.6 * k); both2(b, 'x', 0.35 * k); b.spine.rotation.x = 0.15 * k; b.head.rotation.x = 0.2 * k; W.body.position.z = 0.2 * k;
+    } },
+    'the-hymn': { label: 'The Hymn', dur: 2.4, pose(W, u, t) {
+      // it lifts its head and sings, swaying, the bell held up before it
+      const b = W.bones, k = seg(u, 0.05, 0.3) * (1 - seg(u, 0.8, 1)), sway = Math.sin(u * 12) * k;
+      b.head.rotation.x = -0.35 * k; b.neck.rotation.x = -0.2 * k; b.chest.rotation.x = -0.1 * k;
+      both(b, 'x', -0.35 * k); W.body.rotation.z = 0.05 * sway; b.head.rotation.z = 0.08 * sway;
+    } },
+    toll: { label: 'Toll', dur: 1.7, pose(W, u, t) {
+      // it raises the bell and rings it
+      const b = W.bones, up = seg(u, 0.05, 0.3) * (1 - seg(u, 0.8, 1)), ring = up * Math.sin(u * 40) * seg(u, 0.25, 0.4) * (1 - seg(u, 0.7, 0.8));
+      both(b, 'x', -0.7 * up); both2(b, 'x', -0.2 * up + 0.12 * ring); b.head.rotation.x = -0.15 * up;
+    } },
+    'black-water': { label: 'Black Water', dur: 1.6, pose(W, u, t) {
+      const b = W.bones, wind = seg(u, 0, 0.3) * (1 - seg(u, 0.35, 0.45)), heave = seg(u, 0.35, 0.5) * (1 - seg(u, 0.8, 1));
+      b.spine.rotation.x = -0.1 * wind + 0.35 * heave; b.chest.rotation.x = -0.08 * wind + 0.25 * heave; b.neck.rotation.x = 0.3 * heave;
+      b.head.rotation.x = -0.2 * wind + 0.4 * heave; W.body.position.z = 0.08 * heave;
+    } },
+  },
+};
+
+// the drowned cantor: the choir's master, its staff in its left hand; it beats time, and brings the staff down
+const drownedCantor = {
+  key: 'drowned-cantor', name: 'The Drowned Cantor', tier: 'Relic-Bearer', act: 'Act Two, Misthollow', height: 2.1, weight: 0.9,
+  stiff: 0.65, knees: 0.5,
+  limits: { neck: 0.35, head: 0.7, spine: 0.3, chest: 0.35, l_shin: 0.45, r_shin: 0.45, l_fore: 0.55, r_fore: 0.5, l_upper: 0.7, r_upper: 0.6, l_hand: 0.6 },
+  text: 'The choir\'s master, drowned with it; it still beats time on the flagstones with its staff.',
+  lunge: 'cold-hands',
+  idle(W, t) {
+    const b = W.bones, sw = Math.sin(t * 0.5);
+    W.body.rotation.z = 0.02 * sw; b.head.rotation.z = 0.05 * Math.sin(t * 0.4); b.l_upper.rotation.x = 0.04 * Math.sin(t * 0.9);
+  },
+  moves: {
+    'cold-hands': { label: 'Cold Hands', dur: 1.5, pose(W, u, t) {
+      // its free hand comes out of the cope and closes on yours
+      const b = W.bones, k = seg(u, 0.05, 0.45) * (1 - seg(u, 0.75, 1)), grip = seg(u, 0.4, 0.55) * (1 - seg(u, 0.75, 1));
+      b.r_upper.rotation.x = -1.1 * k; b.r_fore.rotation.x = -0.25 * k - 0.35 * grip; b.spine.rotation.x = 0.12 * k; b.head.rotation.x = 0.15 * k;
+      W.body.position.z = 0.15 * k;
+    } },
+    'drag-down': { label: 'Drag Down', dur: 1.8, pose(W, u, t) {
+      const b = W.bones, low = seg(u, 0.05, 0.4) * (1 - seg(u, 0.55, 0.8)), haul = seg(u, 0.45, 0.65) * (1 - seg(u, 0.85, 1));
+      crouch(W, 0.35 * low); b.spine.rotation.x = 0.18 * low - 0.06 * haul; b.chest.rotation.x = 0.22 * low;
+      b.r_upper.rotation.x = -0.7 * low - 0.2 * haul; b.r_fore.rotation.x = -0.5 * haul; b.head.rotation.x = 0.25 * low;
+      W.body.position.z = 0.1 * low - 0.12 * haul;
+    } },
+    'the-hymn': { label: 'The Hymn', dur: 2.4, pose(W, u, t) {
+      // it lifts its masked face and leads the hymn, the staff held up
+      const b = W.bones, k = seg(u, 0.05, 0.3) * (1 - seg(u, 0.8, 1)), sway = Math.sin(u * 12) * k;
+      b.head.rotation.x = -0.3 * k; b.neck.rotation.x = -0.15 * k; b.l_upper.rotation.x = -0.35 * k; b.r_upper.rotation.x = -0.3 * k; b.r_upper.rotation.z = 0.25 * k;
+      W.body.rotation.z = 0.04 * sway; b.head.rotation.z = 0.07 * sway;
+    } },
+    'beat-time': { label: 'Beat Time', dur: 2.0, pose(W, u, t) {
+      // it beats time on the flagstones with the staff, and the choir sings faster
+      const b = W.bones, k = seg(u, 0.05, 0.2) * (1 - seg(u, 0.85, 1)), beat = Math.max(0, Math.sin(u * 26)) * k;
+      b.l_upper.rotation.x = -0.25 * k + 0.2 * beat; b.l_fore.rotation.x = 0.15 * beat; b.head.rotation.x = 0.1 * beat; W.body.position.y -= 0.015 * beat;
+    } },
+    downbeat: { label: 'Downbeat', dur: 1.8, pose(W, u, t) {
+      // it lifts the Cantor's Staff high and brings it down on the downbeat: the whole drowned hall rings with it
+      const b = W.bones, up = seg(u, 0.05, 0.4) * (1 - seg(u, 0.45, 0.55)), down = seg(u, 0.45, 0.55) * (1 - seg(u, 0.8, 1));
+      b.l_upper.rotation.x = -1.1 * up + 0.25 * down; b.l_upper.rotation.z = -0.25 * up; b.l_fore.rotation.x = -0.4 * up;
+      b.chest.rotation.x = -0.12 * up + 0.2 * down; b.spine.rotation.x = 0.12 * down; b.head.rotation.x = -0.2 * up + 0.2 * down;
+      crouch(W, 0.25 * down);
+    } },
+  },
+};
+
+// the drowned abbess: tier on tier of habit, the Drowned Censer in her left hand; her long veil rides her head, so her head
+// turns only a little
+const drownedAbbess = {
+  key: 'drowned-abbess', name: 'The Drowned Abbess', tier: 'Relic-Bearer', act: 'Act Three, Frostmere', height: 1.9, weight: 1.0,
+  stiff: 0.6, knees: 0.35,
+  limits: { neck: 0.25, head: 0.3, spine: 0.3, chest: 0.35, l_shin: 0.4, r_shin: 0.4, l_fore: 0.5, r_fore: 0.5, l_upper: 0.6, r_upper: 0.6, l_hand: 0.28 },
+  text: 'She says the last rites over her choir, as she did every night for thirty years.',
+  lunge: 'drowned-grasp',
+  idle(W, t) {
+    const b = W.bones, sw = Math.sin(t * 0.5);
+    W.body.rotation.z = 0.015 * sw; W.body.position.z = 0.01 * Math.sin(t * 0.8);
+    b.l_hand.rotation.x = 0.12 * Math.sin(t * 1.0); b.l_hand.rotation.z = 0.06 * Math.sin(t * 0.7);   // the censer swaying on its chain
+  },
+  moves: {
+    'drowned-grasp': { label: 'Drowned Grasp', dur: 1.6, pose(W, u, t) {
+      // a hand as cold as the lake-bed comes out of her sleeve and closes on yours
+      const b = W.bones, k = seg(u, 0.05, 0.45) * (1 - seg(u, 0.75, 1)), grip = seg(u, 0.4, 0.55) * (1 - seg(u, 0.75, 1));
+      b.r_upper.rotation.x = -1.1 * k; b.r_fore.rotation.x = -0.2 * k - 0.35 * grip; b.spine.rotation.x = 0.12 * k; W.body.position.z = 0.18 * k;
+    } },
+    dirge: { label: 'Dirge', dur: 2.4, pose(W, u, t) {
+      // she lifts her weeping face and sings the office for the drowned, the censer swinging slow
+      const b = W.bones, k = seg(u, 0.05, 0.3) * (1 - seg(u, 0.8, 1));
+      b.head.rotation.x = -0.35 * k; b.neck.rotation.x = -0.2 * k; b.chest.rotation.x = -0.1 * k;
+      b.l_hand.rotation.x = 0.3 * Math.sin(u * 9) * k; W.body.rotation.z = 0.03 * Math.sin(u * 7) * k;
+    } },
+    'pull-under': { label: 'Pull Under', dur: 1.9, pose(W, u, t) {
+      // she sinks, and reaches up out of the ice for your ankles
+      const b = W.bones, low = seg(u, 0.05, 0.4) * (1 - seg(u, 0.55, 0.85)), pull = seg(u, 0.45, 0.65) * (1 - seg(u, 0.85, 1));
+      W.body.position.y -= 0.16 * low; b.spine.rotation.x = 0.2 * low; b.chest.rotation.x = 0.2 * low; b.r_upper.rotation.x = -0.8 * low - 0.2 * pull;
+      b.r_fore.rotation.x = -0.5 * pull; W.body.position.z = 0.15 * low - 0.15 * pull;
+    } },
+    'last-rites': { label: 'Last Rites', dur: 2.4, pose(W, u, t) {
+      // she raises the censer over her drowned choir and swings it in blessing
+      const b = W.bones, up = seg(u, 0.05, 0.3) * (1 - seg(u, 0.8, 1)), sw = Math.sin(u * 14) * up;
+      b.l_upper.rotation.x = -0.75 * up; b.l_upper.rotation.z = -0.15 * up; b.l_fore.rotation.x = -0.2 * up; b.l_hand.rotation.z = 0.35 * sw;
+      b.r_upper.rotation.x = -0.4 * up; b.head.rotation.x = 0.2 * up;
+    } },
+    'censer-swing': { label: 'Censer Swing', dur: 1.8, pose(W, u, t) {
+      // the Drowned Censer swings out at you in a great arc, and the smoke smells of lake-water
+      const b = W.bones, back = seg(u, 0.05, 0.35) * (1 - seg(u, 0.4, 0.55)), out = seg(u, 0.42, 0.58) * (1 - seg(u, 0.8, 1));
+      b.l_upper.rotation.x = 0.35 * back - 1.0 * out; b.l_upper.rotation.z = -0.2 * out; b.l_hand.rotation.x = 0.22 * back - 0.28 * out;
+      b.chest.rotation.y = -0.2 * back + 0.25 * out; b.spine.rotation.y = -0.08 * back + 0.1 * out; W.body.position.z = 0.12 * out;
+    } },
+  },
+};
+
+// the choir-wraith: a chorister of Frostmere, still singing; it floats, and holds its hymnal in both hands
+const choirWraith = {
+  key: 'choir-wraith', name: 'The Choir-Wraith', tier: 'Veteran', act: 'Act Three, Frostmere', height: 1.95, weight: 0.7,
+  stiff: 0.7, knees: 0.2, clasped: true,
+  limits: { neck: 0.22, head: 0.5, spine: 0.3, chest: 0.35, hips: 0.4, l_fore: 0.5, r_fore: 0.5, l_upper: 0.6, r_upper: 0.6 },
+  text: 'It sings one long note under the ice, and the cold gets into you.',
+  lunge: 'drowned-grasp',
+  idle(W, t) {
+    const b = W.bones;
+    W.body.position.y = 0.04 * Math.sin(t * 0.9); W.body.rotation.z = 0.02 * Math.sin(t * 0.5);      // floating, bobbing
+    b.head.rotation.x = -0.05 + 0.04 * Math.sin(t * 0.7); b.r_upper.rotation.x = 0.03 * Math.sin(t * 1.1);
+  },
+  moves: {
+    'drowned-grasp': { label: 'Drowned Grasp', dur: 1.6, pose(W, u, t) {
+      // it lunges, the hymnal thrust out, and the cold closes on you
+      const b = W.bones, k = seg(u, 0.05, 0.4) * (1 - seg(u, 0.7, 1));
+      b.r_upper.rotation.x = -0.5 * k; b.r_fore.rotation.x = 0.3 * k; b.spine.rotation.x = 0.2 * k; b.head.rotation.x = 0.2 * k;
+      W.body.position.z = 0.25 * k;
+    } },
+    'the-note': { label: 'The Note', dur: 2.4, pose(W, u, t) {
+      // it lifts its face and sings one long note under the ice
+      const b = W.bones, k = seg(u, 0.05, 0.3) * (1 - seg(u, 0.8, 1)), q = Math.sin(u * 40) * k;
+      b.head.rotation.x = -0.4 * k; b.neck.rotation.x = -0.2 * k; b.chest.rotation.x = -0.12 * k; b.r_upper.rotation.x = -0.3 * k;
+      W.body.position.y += 0.06 * k; b.head.rotation.z = 0.02 * q;
+    } },
+    dirge: { label: 'Dirge', dur: 2.4, pose(W, u, t) {
+      // it sings the office for the drowned, swaying over the hymnal
+      const b = W.bones, k = seg(u, 0.05, 0.25) * (1 - seg(u, 0.85, 1)), sw = Math.sin(u * 10) * k;
+      b.head.rotation.x = 0.2 * k; b.spine.rotation.x = 0.1 * k; W.body.rotation.z = 0.05 * sw; b.head.rotation.z = 0.08 * sw;
+    } },
+  },
+};
+
+// the rime-wraith: a drowned monk of Frostmere, still wet under the frost, its left hand reaching; it stands in water
+const rimeWraith = {
+  key: 'rime-wraith', name: 'The Rime-Wraith', tier: 'Veteran', act: 'Act Three, Frostmere', height: 1.85, weight: 0.8,
+  stiff: 0.65, knees: 0.25,
+  limits: { neck: 0.25, head: 0.5, spine: 0.3, chest: 0.35, hips: 0.4, l_fore: 0.5, r_fore: 0.5, l_upper: 0.6, r_upper: 0.6, l_hand: 0.4 },
+  text: 'A drowned monk of Frostmere, still wet under the frost and still singing. It remembers the office, and nothing else.',
+  lunge: 'drowned-grasp',
+  idle(W, t) {
+    const b = W.bones;
+    W.body.position.y = 0.015 * Math.sin(t * 0.8); W.body.rotation.z = 0.02 * Math.sin(t * 0.5);
+    b.l_upper.rotation.x = 0.05 * Math.sin(t * 0.9); b.l_hand.rotation.x = 0.1 * Math.sin(t * 1.3);   // the reaching hand, trembling
+    b.head.rotation.z = 0.05 * Math.sin(t * 0.4);
+  },
+  moves: {
+    'drowned-grasp': { label: 'Drowned Grasp', dur: 1.6, pose(W, u, t) {
+      // its reaching hand closes on yours, cold as the lake-bed
+      const b = W.bones, k = seg(u, 0.05, 0.45) * (1 - seg(u, 0.75, 1)), grip = seg(u, 0.4, 0.55) * (1 - seg(u, 0.75, 1));
+      b.l_upper.rotation.x = -0.6 * k; b.l_fore.rotation.x = 0.2 * k - 0.3 * grip; b.l_hand.rotation.x = 0.4 * grip;
+      b.spine.rotation.x = 0.12 * k; b.head.rotation.x = 0.15 * k; W.body.position.z = 0.2 * k;
+    } },
+    dirge: { label: 'Dirge', dur: 2.4, pose(W, u, t) {
+      // it sings the office for the drowned, face lifted, mouth open
+      const b = W.bones, k = seg(u, 0.05, 0.3) * (1 - seg(u, 0.8, 1)), sw = Math.sin(u * 9) * k;
+      b.head.rotation.x = -0.35 * k; b.neck.rotation.x = -0.15 * k; b.chest.rotation.x = -0.1 * k;
+      b.l_upper.rotation.x = -0.3 * k; b.r_upper.rotation.x = -0.25 * k; W.body.rotation.z = 0.04 * sw;
+    } },
+    'pull-under': { label: 'Pull Under', dur: 1.9, pose(W, u, t) {
+      // it sinks into the water and reaches up for your ankles
+      const b = W.bones, low = seg(u, 0.05, 0.4) * (1 - seg(u, 0.55, 0.85)), pull = seg(u, 0.45, 0.65) * (1 - seg(u, 0.85, 1));
+      W.body.position.y -= 0.22 * low; b.spine.rotation.x = 0.1 * low; b.chest.rotation.x = 0.14 * low;
+      b.l_upper.rotation.x = -0.4 * low - 0.2 * pull; b.r_upper.rotation.x = -0.7 * low; b.r_fore.rotation.x = -0.4 * pull;
+      W.body.position.z = 0.15 * low - 0.12 * pull;
+    } },
+  },
+};
+
+export const FOES = { rotwarden, sapwight, 'old-horn': oldHorn, 'peak-troll': peakTroll, unmade, drowned, 'bell-ringer': bellRinger, 'drowned-choir': drownedChoir, 'drowned-cantor': drownedCantor, 'drowned-abbess': drownedAbbess, 'choir-wraith': choirWraith, 'rime-wraith': rimeWraith };
 export const COMMON = [['idle', 'Breathe', 0], ['walk', 'Walk', 0], ['hurt', 'Hit', 0.9], ['ko', 'Fall', 2.6]];
