@@ -216,10 +216,23 @@
   by addMoves from pages/beasts/kit/moves-wolf.js, the module's `wolf` export) on the Ironspire page (320 px). Fights
   start with no errors; fight-stills/thornhounds-poachers-holm.png.
 - **Every page built lean** (November 24): Places' `--lean` (scripts packed losslessly, nothing changed on screen) saves
-  about 2.4 MB a page; spent on sharper world textures. All nine fight pages are built by one script,
+  about 2.4 MB a page; spent on sharper world textures. All ten fight pages are built by one script,
   `world3d/battle/build-pages.sh` (the page list: places, full-detail foes, texture size); sizes now: the fight page 896 px,
   Act One both 640, events 640, Act Two 512 (Kharzul in full detail again), Sunscorch 640, Ironspire both 768, Gloomfen 640;
   every one 14.4-15.7 MB, every one started headless with no errors.
+- **Act Three** (hub, November 24): **the Act Three page**, https://claude.ai/artifact/5vCvi2woYF3WZVGNAKSLQf (10.4 MB at
+  768 px; the Hollow Hall, the Ash Stair, the Chained Deep, the Worldforge). Hand-made moments for the Hollow Council
+  (Miravel 7, Qasim 7, Brundar 6, Gretch 7) and the Unsmith (8, on his own body from Models' armoured set): all 35 play,
+  no errors. The Unsmith's companions move with their own moves now: the forge-warden's Hammer Arm, Bellows Breath, Hold
+  the Bridge and Stoke; the cinder-thrall's and the overseer's Cinder Fist, Ash in the Eyes, Reform, Hot Chain, Drive
+  Them (the arena now uses any foe's own move by M7's id, not only a big foe's). The unmade in full detail in the Chained
+  Deep with its violet glow, on its own four moves. Stills: fight-stills/act3-*.png.
+- **The rotgrub** in full detail on the Act One B page (Heartroot), its fights hr1-grubs and hr1-sapwight, no errors. Its
+  party spot was down the south tunnel, nine metres under the hall floor in 3D (the grubs were up in the roots out of
+  sight): the party now stands in the hall north of them (`START` in fight.js, as for the Eyrie). Places: please check.
+- **The Rot-Stag's Rotwood Crown**: the gold flare now sits on his antlers (fight-stills/rotstag-crown-flare.png).
+- **Cameras in halls** (November 24): a moment's camera also counts the place's own meshes standing between it and the
+  foe (pillars, statues the sight test doesn't hold), up to most of the way to the foe.
 - **Swallows** (agreed with Places, session 4, for the Sand Wyrm and the Leviathan): their `parts.mouth` and
   `SWALLOW_AT { u, reach }`; the hero shrinks into the mouth at that u and comes back out of it on release; the foe
   stops at `reach`; a `full` idle while a hero is inside, `spit` on release. One Foe (session 6) builds the

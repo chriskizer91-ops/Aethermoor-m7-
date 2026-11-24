@@ -153,6 +153,7 @@ export const arena = {
       if (bp) { const lk = mp.clone().lerp(tg.pos.clone().setY(tg.pos.y + 1), 0.35); this.close = { t: 0, dur, pos: bp, q: new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().lookAt(bp, lk, UP)), fov: 42 }; this.stage?.host.classList.add('f3-close'); return; }
     }
     const span = kind === 'wide' ? Math.max(6, F.pos.distanceTo(hc) * 1.2 + 3) : Math.max(4.5, F.size.h * 3.4 + F.size.d * 1.3) * (tg ? 1.3 : 1);
+    this._near = this.staticsNear(at, span * 1.7); // (pillars, statues and the like the sight test doesn't hold: the Hollow Hall)
     let best = -1e9;
     for (const k of [1, 1.25]) for (const lift of [0, 1.5, 3]) for (const [ti, th] of turns.entries()) {
       const p = at.clone().addScaledVector(back.clone().applyAxisAngle(UP, th), span * k);
@@ -170,6 +171,28 @@ export const arena = {
     this.close = { t: 0, dur, pos, q, fov: kind === 'close' ? 36 : 44 };
     this.stage?.host.classList.add('f3-close'); // close or wide: the foes' plates and intents step aside till it ends
   },
+  // the place's own solid meshes within `r` of `at` (November 24): what a camera could sit behind that the place's sight
+  // test doesn't hold (in the Hollow Hall, the rows of pillars). Everything standing still in the scene, gathered once a
+  // place, less the fighters, their effects and anything see-through; the trees are counted already
+  staticsNear(at, r) {
+    const P = this.W.P;
+    if (this._statics?.P !== P) {
+      const skip = new Set([...this.heroes.values()].map((h) => h.A.root).concat([...this.foes.values()].map((F) => F.root), this.guests, this.blobs || [], P.treeMeshes || [], this.fx.list.map((e) => e.o)));
+      const list = []; this.scene.updateMatrixWorld(true);
+      const walk = (o) => {
+        if (skip.has(o) || o.visible === false) return;
+        if ((o.isMesh || o.isInstancedMesh) && !o.isSkinnedMesh && o.geometry && !(Array.isArray(o.material) ? o.material.every((m) => m.transparent) : o.material?.transparent)) {
+          if (!o.geometry.boundingSphere) o.geometry.computeBoundingSphere();
+          if (o.isInstancedMesh && !o.boundingSphere) o.computeBoundingSphere();
+          const sp = (o.isInstancedMesh ? o.boundingSphere : o.geometry.boundingSphere).clone().applyMatrix4(o.matrixWorld);
+          if (Number.isFinite(sp.radius)) list.push({ o, c: sp.center, r: sp.radius });
+        }
+        for (const ch of o.children) walk(ch);
+      };
+      walk(this.scene); this._statics = { P, list };
+    }
+    return this._statics.list.filter((s) => s.c.distanceTo(at) < r + s.r).map((s) => s.o);
+  },
   // how clear a camera at `pos` looking at `look` would see (0 to 12): twelve rays across its view, each counted clear
   // when nothing stands nearer than about half the distance `D` to what it frames: nothing built or rock (the place's
   // sight test), no tree (the place's tree meshes) and no ground (a ray down onto ground right by the camera smears)
@@ -177,6 +200,10 @@ export const arena = {
     const P = this.W.P, q = new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().lookAt(pos, look, UP));
     const v = this.renderer.domElement.getBoundingClientRect(), asp = v.width / Math.max(1, v.height), th = Math.tan(fov * Math.PI / 360);
     const rc = this._rc || (this._rc = new THREE.Raycaster()), trees = P.treeMeshes || [], L = D * 1.6, near = D * 0.55;
+    // the place's own meshes (staticsNear): a pillar standing between is counted up to most of the way to the foe, not just
+    // the near half (November 24: the Hollow Hall's pillars, eight metres off on a ten-metre shot, filled half the frame);
+    // what is hit at the floor's own level (the floor, a step) is the ground march's business
+    const built = (this._near || []).filter((o) => o.name !== 'ground' && o.name !== 'sky'), far = D * 0.82, floor = this.center.y + 0.35;
     let n = 0;
     for (const y of [0.7, 0.2, -0.3, -0.75]) for (const x of [-0.7, 0, 0.7]) {
       const dir = V3(x * th * asp, y * th, -1).normalize().applyQuaternion(q);
@@ -184,6 +211,7 @@ export const arena = {
       try { d = Math.min(d, P.sight.hit(pos.x, pos.y, pos.z, pos.x + dir.x * L, pos.y + dir.y * L, pos.z + dir.z * L) * L); } catch (e) { /* none */ }
       if (dir.y < 0) for (let t = 0.5; t < d; t += 0.5) { const px = pos.x + dir.x * t, pz = pos.z + dir.z * t; if (pos.y + dir.y * t <= this.heightAt(px, pz, this.center.y)) { d = t; break; } } // (water and the like: the field's own level)
       if (trees.length && d > near) { rc.set(pos, dir); rc.far = near; const hit = rc.intersectObjects(trees, false)[0]; if (hit) d = Math.min(d, hit.distance); }
+      if (built.length && d >= near) { rc.set(pos, dir); rc.far = far; for (const hit of rc.intersectObjects(built, false)) if (hit.point.y > floor) { if (hit.distance < far) d = -1; break; } }
       if (d >= near) n++;
     }
     return n;
@@ -456,7 +484,7 @@ export const arena = {
     const M = momentFor(unit?.family || F.key, it.move, unit?.variant || null);
     if (h) F.lastTarget = h.id;
     F.act = { kind: 'attack', t: 0, target: h ? h.id : null, bit: false, bitT: null, self, moment: M,
-      kmove: (M && F.fig.beast?.pose && ownMove(F, M.move)) || kitMove(F, it.move || it.name || '', self) };
+      kmove: (M && F.fig.beast?.pose && ownMove(F, M.move)) || (F.fig.beast?.pose && it.move && F.fig.beast.moves?.MOVES?.some(([k]) => k === it.move) && it.move) || kitMove(F, it.move || it.name || '', self) }; // (any foe's own move by M7's id: the forge-warden's Hammer Arm, a thrall's Cinder Fist)
     // every named move has its camera (hub, November 23): a three-quarter view with the foe large, wide ones taking in the
     // whole party, the rest the one it's aimed at
     if (M) { try { M.start?.(this.momentCtx(F)); } catch (e) { console.warn(e); } this.momentCam(F, M.camera === 'wide' ? 'wide' : 'close'); }
