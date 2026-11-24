@@ -41,7 +41,11 @@ import * as kharzulMoves from '../prototypes/foe-hd/pages/desert-deep/moves/khar
 import * as wolfMoves from '../prototypes/foe-hd/pages/beasts/kit/moves-wolf.js';      // the beasts lane's rime-wolf (session 7)
 // a foe whose own set its files don't name (Kharzul's say 'scorpion'): registered with it by key
 const OWN_MOVES = { kharzul: kharzulMoves };
-import { FOES as HD_FOES, WALKERS as HD_WALKERS } from 'fight-foe-assets';
+import { FOES as HD_FOES, WALKERS as HD_WALKERS, ARENA, ARENA_SETS as ARENA_OVERRIDE } from 'fight-foe-assets';
+// which arena set suits each place (Places, step 6), and the build's own overrides on top (ARENA_SETS='{"m7-x": "arena-y"}')
+import { ARENA_SET } from './m7/arenas/table.js';
+const ARENA_SETS = { ...ARENA_SET, ...ARENA_OVERRIDE };
+const WATER_FOES = ['blackwater-gar', 'blackwater-leviathan'];
 // session 8's walkers (the Rotwarden, the sapwight) go in with their own bones and moves, as Together's game does
 import { registerWalkers } from '../prototypes/foe-hd/pages/walkers/register.js';
 // Models' eleven wraiths (rigid pieces, so they never stretch): first in line for their keys, the kit for the rest
@@ -223,11 +227,16 @@ async function main() {
     if (PHONE) { stand = get('warden', 'lite'); stand.root.position.copy(leader.root.position); stand.root.rotation.copy(leader.root.rotation); W.P.scene.add(stand.root); leader.root.visible = false; }
     const heroes = { warden: stand || leader }; for (const f of followers) heroes[f.id] = f;
     for (const F of pack.figs) F.pos.copy(F.root.position);
+    // step 6 (Chris: "arenas that look like the land you are in"): the fight moves to the open arena set for this place,
+    // after a short fade; the spoils come back to this spot after
+    const back = await toArena(L, yaw, heroes);
+    const at = back ? back.arena : { L, yaw };
     let resP;
     for (const [id] of H.HEROES) worn[id] = gearKey(id);
-    try { resP = runFight({ W, battle, center: L, yaw, heroes, foes: pack.figs, ctx, host, auto: Q.get('auto') === '1', resume: false, keep: true }); } catch (e) { console.error(e); fighting = false; W.pause(false); return; }
+    try { resP = runFight({ W, battle, center: at.L, yaw: at.yaw, heroes, foes: pack.figs, ctx, host, auto: Q.get('auto') === '1', resume: false, keep: true }); } catch (e) { console.error(e); fighting = false; W.pause(false); return; }
     const { result, outcome, battle: done, end } = await resP;
     window.__fight.result = result;
+    if (back) await fromArena(back);
     // the spoils: what the foes dropped lies where they fell, then M7's own after-fight screen over the field (XP and
     // levels, gold, a chest for each drop opening into M7's card reveal; equipping re-dresses the hero there and then)
     const items = result === 'victory' ? [...(outcome?.claimed || []), ...(outcome?.drops || [])] : [];
@@ -248,6 +257,48 @@ async function main() {
     W.pause(false); party.set(leader, followers);
     window.__fight.ended = (window.__fight.ended || 0) + 1;
     setTimeout(() => { if (!pack && !fighting) { spawnPack(); toast(SC.again); } }, 6000);
+  }
+
+  // ---- the arenas (step 6) ----
+  // which set: ?arenaset=<place> (a try-out), else the table's set for this place (ARENA_SETS: by place, '*' for any);
+  // none with ?arena=0 or a page built with ARENA=0 (the fight on the spot), or when the page doesn't carry the set
+  const arenaOf = (place) => {
+    if (!ARENA || Q.get('arena') === '0') return null;
+    const k = Q.get('arenaset') || ARENA_SETS[place] || ARENA_SETS['*'];
+    return k && PL[k] && k !== place ? k : null;
+  };
+  const fadeEl = Object.assign(document.createElement('div'), { id: 'f3-fade' });
+  fadeEl.style.cssText = 'position:fixed;inset:0;background:#000;opacity:0;pointer-events:none;transition:opacity .35s ease;z-index:40';
+  document.body.append(fadeEl);
+  const fade = (on) => new Promise((r) => { fadeEl.style.opacity = on ? 1 : 0; setTimeout(r, Q.get('test') ? 0 : 380); });
+  // into the set: the walk moves there (the fighters come with it), the party stands before its centre facing across it
+  // and the pack beyond; gives where to come back to, and the arena's centre and way
+  async function toArena(L, yaw, heroes) {
+    const k = arenaOf(SC.place); if (!k) return null;
+    // the water foes (the gars, Old Jaws, the Leviathan) fight from their own water, and every set's middle is dry floor:
+    // their fights stay on the spot
+    if (SC.foes().some((f) => WATER_FOES.includes(f)) || pack.figs.some((F) => ['fish', 'leviathan'].includes(F.fig?.beast?.plan || F.plan))) return null;
+    const home = { place: W.P.place, px: W.io.px, py: W.io.py, wyaw: W.io.yaw, L: L.clone(), yaw };
+    W.pause(true); await fade(true);
+    const A = PL[k], c = A.anchors?.centre;
+    await W.switchTo(A, c ? c.at[0] : 0, c ? c.at[1] : 0, c ? c.face : yaw);
+    const M = W.P.M, T = window.THREE;
+    let px = c ? c.at[0] : M.W / 2, py = c ? c.at[1] : M.H / 2; [px, py] = W.nearestFit(px, py);
+    const ay = c ? c.face : yaw, dir = new T.Vector3(Math.sin(ay), 0, Math.cos(ay)), side = new T.Vector3(Math.cos(ay), 0, -Math.sin(ay));
+    const mid = new T.Vector3(M.x(px), W.P.walkH(px, py), M.z(py)), stand = mid.clone().addScaledVector(dir, -4);
+    stand.y = W.P.walkH(M.px(stand.x), M.py(stand.z));
+    W.setIo(M.px(stand.x), M.py(stand.z), ay);
+    Object.values(heroes).forEach((A2, i) => { A2.root.position.copy(stand).addScaledVector(side, (i - 1.5) * 0.9); A2.root.rotation.set(0, ay, 0); });
+    pack.figs.forEach((F, i) => { F.pos.copy(mid).addScaledVector(dir, 4).addScaledVector(side, (i - (pack.figs.length - 1) / 2) * 1.2); F.pos.y = W.P.walkH(M.px(F.pos.x), M.py(F.pos.z)); F.home.copy(F.pos); F.root.position.copy(F.pos); F.face = ay + Math.PI; });
+    await fade(false);
+    return { ...home, arena: { L: stand, yaw: ay } };
+  }
+  // and back: the walk returns to the place's own ground where the party stood, the fighters and their spoils with it
+  async function fromArena(b) {
+    await fade(true);
+    await W.switchTo(b.place, b.px, b.py, b.wyaw);
+    arena.moveTo(b.L, b.yaw);
+    await fade(false);
   }
 
   // M7's after-fight screen, over the field; it hands back when the player taps on (its own button)

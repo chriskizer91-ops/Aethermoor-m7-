@@ -303,6 +303,29 @@
   - Hollow Gretch (`hollow-gretch`): `gavel`, `mayors-word`, `counted-twice`, `too-tight`, `call-in-a-favour`, `fear`, `every-favour-owed`
   - The Unsmith (`unsmith`): `hammer-blow`, `ring-the-anvil`, `unmake`, `forge-apron`, `nothing-left`, `worldfire`, `hearts-pull`, `heart-flare`
 
+## Step 6: arenas that look like the land you are in (Chris, November 24)
+
+- **Every fight page now fights in Places' arena sets.** All ten pages have been rebuilt and republished at their usual
+  links. When a fight starts there's a short fade, and the fight moves to the open round dressed as the land it's in
+  (Places' table, world3d/m7/arenas/table.js: the Road and the Wood for Thornhollow, the Thorns for the Den, the Hollow Hall
+  set for the Hollow Hall, and so on). The party stands 4 m before the set's centre, facing across it, and the foes
+  4 m beyond. After the fight there's a fade back, and the party is on the place's own ground where it stood, for M7's
+  spoils screen and the chests.
+- The water foes (the gars, Old Jaws, the Leviathan) fight from their own water, and every set's middle is dry floor,
+  so their fights stay on the spot.
+- `?arena=0` on a page (or building with `ARENA=0`) keeps every fight on the spot. `?arenaset=<place>` tries a set.
+  Build overrides: `ARENA_SETS='{"m7-x":"arena-y"}'`. `build-pages.sh` adds each page's sets to its places
+  (world textures one step lower on six pages to stay under 16 MB).
+- **No one stands in a wall**, even on the spot (Chris saw the leftmost hero inside the Hollow Hall's wall: all four
+  Hollow Council fights had it). A stand whose spot, or a ring its width round it, isn't walkable floor moves to the
+  nearest clear spot not already taken. `battle/check-stands.mjs` tests every fighter against the floor: 72 fights on the
+  spot all clear, except the water foes, who stand in their water as they should.
+- Proven headless, no errors: a whole fight there and back (Thornhollow's patrol: the Road and Wood set, victory, spoils
+  on Thornhollow's ground); stands in the sets for the Den, the Heartroot, the Keep, the Rot-Stag's glade, the Deep Wood
+  (twice), the Canyon (the Sand Wyrm), the Snow Road (the Roc), the Fen (the Cantor); every move of Briarmaw, the
+  Unsmith and Hollow Miravel in their sets; the Wyrm's swallow over the shoulder in the Canyon set.
+  Stills: fight-stills/arena-*.png.
+
 ## For Together: starting a fight from outside
 
 `world3d/battle/run.js` exports one function. It pauses the walk, swings the camera round, plays M7's battle screen
