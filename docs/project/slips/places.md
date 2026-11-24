@@ -1,5 +1,53 @@
 # Slip: Places (session 4, branch `job/places`)
 
+## Handoff (November 24)
+
+For a fresh session taking Places. Everything is committed and pushed on `job/places` (last: 7dd9334 and this slip).
+Read CLAUDE.md, docs/project/README.md, BOARD.md and docs/project/jobs/places.md first; `game/` is frozen, `art-in/`
+is read-only, engine changes are additive and marked "Aethermoor, Places".
+
+**Where I stopped.** Step 6 is done: the eighteen arena sets, the place-to-set table and the fen's dark heart. The
+Fight is wiring fights into the sets. Nothing of mine is half-done. Next is batch 4 (below).
+
+**How a place is made and checked** (all from `world3d/`):
+- `node m7/convert.mjs <ids>`: an M7 map (`game/src/data/maps/<id>.js`) and its painting become
+  `coven/places/m7-<id>.js` and `coven/art/m7/<id>.webp`. Small things read off the paintings: `m7/dress/*.json`
+  (regions) and `m7/dressing.mjs` (Act One), kit pieces in `coven/places/m7-kit.js`. Life (flames, smoke, birds...):
+  `m7/life.js`. Names Chris changed: `m7/our-names.mjs` (and `names.js` for the borrowed world).
+- Pages: `sh m7/pages.sh` builds all five region pages plus the Atlas (`--tex=512 --herotex=256 --paint=0.75`).
+  `--lean` packs the scripts (about 1 MB less; the game pages use it). `--files --out=<name>-full` keeps every picture
+  at full size beside the page (publish with `dist/<name>.files.json` as the files map: `root` = that folder, `files` =
+  its keys). Every build writes `dist/<name>.pics.json` (each picture and its size).
+- Checks (headless, `NODE_PATH=$(npm root -g)`): `m7/check.mjs <page> <out> [ids]` (stills from above, the walk and
+  behind; page errors), `m7/reach.mjs <page> <out> [ids]` (can the party reach every chest, foe, person, sign and way
+  out), `node m7/exits.mjs [ids]` (ways out land on walkable ground), `m7/probe.mjs <page> <ids> --phone [--detail]`
+  (draw calls and triangles), `m7/check-map.mjs`, `m7/check-life.mjs`, `m7/check-atlas.mjs`. A `--files` page must be
+  served over http to load its pictures (`python3 -m http.server` in its folder), not opened from disk.
+
+**How an arena set is made and checked:** `world3d/m7/arenas/sets.mjs` says what each is made of (ground, near,
+edge, outer, path, in M7's tile letters, and the source places); `node m7/arenas/make.mjs [sets]` writes its map
+(`arenas/maps/`) and painting (`arenas/paint/`, patched tile by tile by `paint.py`); `node m7/convert.mjs arena-<set>`
+makes the place. `arenas/table.js` (ES module): ARENA_SET by `m7-<place>`, ARENA_DEFAULT, ARENA_LOOK. Checked: middle
+20 m flat at 0 m, walkable and clear of sight lines; phone cost 22-33 draws.
+
+**Pages** (all private claude.ai links):
+- Act One places https://claude.ai/artifact/GBxRVSqwMwYUTy1xLNjATA; the Sunscorch https://claude.ai/artifact/Awn5YJ761bD7rPyp4AkEdf;
+  the Ironspire https://claude.ai/artifact/BPcAuRLL3njp1Q3ZHPTUWQ; the Gloomfen https://claude.ai/artifact/RkoGBME3ANqwAVLnwKLbj8;
+  Act Three https://claude.ai/artifact/HMZiN2rDQThhvvsJqwmE56; the Atlas https://claude.ai/artifact/MXyu3A9zTjoCavHFKXCbpi.
+- Full pictures: Act One https://claude.ai/artifact/Bj4LCg53vgXUmjWVHg2zcS, the Sunscorch https://claude.ai/artifact/5f2RLeW2Rca4zLVp8TTVqu,
+  the Ironspire https://claude.ai/artifact/V5CAGZ42du4T6R95qFDSX6, the Gloomfen https://claude.ai/artifact/6VVQYWfKGpZHg4axLT3bNR,
+  Act Three https://claude.ai/artifact/1et94D5gmkV9kQe6wUBAbG.
+- The arena sets https://claude.ai/artifact/VCCwofQnbEaDBN5SwsowAW; the story map https://claude.ai/artifact/XTicYjY9EcZ4V54cjSzJcZ.
+- Foes (desert and deep lane): https://claude.ai/artifact/EwHdrinmmvPGCqF48sjdFP (skink, scorpions),
+  https://claude.ai/artifact/2r6Q5RAfU9MqqaLsQvH2KF (the Sand Wyrm, Kharzul); slip `foes-desert-deep.md`.
+
+**What's next:** batch 4, the Hearth Below's four paintings (the Hollow Hall, the Ash Stair, the Chained Deep, the
+Worldforge), when Chris sends them. `art-requests/take_in.py <zips>` files them; convert.mjs takes
+`art-in/**/map-<id>.(png|webp|jpg)` before the stand-in (`m7/standins/`) on its own: run `node m7/convert.mjs
+hollow-hall ash-stair chained-deep worldforge`, rebuild Act Three (pages.sh), check (check.mjs, reach.mjs), and
+re-make the four Hearth Below arena sets (`make.mjs hollow-hall ash-stair chained-deep worldforge`, then convert)
+since they are painted from those places. Then switch pages to full pictures if the hub asks.
+
 ## Done
 
 - **The Sunscorch** (all ten: the Sun Road, Sandspire, the Dust Trail, Dusthaven, the Deep Shaft, the Glass Heart, the
@@ -285,10 +333,9 @@ people are `people[].id` (the game's NPC ids).
 
 ## Next
 
-- Waiting for the hub.
-
-- Merged the hub's branch (39fe4ab and on) and rebuilt all four pages with the heroes in Chris's textures; each
-  still loads with no errors and is under 16 MB.
+- Batch 4: the Hearth Below's four paintings, when Chris sends them (see the Handoff above for the steps).
+- On the hub's word: the region pages switched to their full-picture versions.
+- Answer the Fight on the arena sets as it wires fights into them (sizes, anchors, any set that reads wrong).
 
 ## Changed outside my files
 
