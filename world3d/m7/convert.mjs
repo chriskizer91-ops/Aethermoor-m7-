@@ -29,6 +29,7 @@ const { SHOPS } = await import(pathToFileURL(path.join(GAME, 'data/shops.js')));
 const { ENCOUNTERS } = await import(pathToFileURL(path.join(GAME, 'data/encounters.js')));
 // (step 5) the set dressing read from each painting, per place (m7/dressing.mjs)
 const { DRESS } = await import(pathToFileURL(path.join(here, 'dressing.mjs')));
+const { nameOf } = await import(pathToFileURL(path.join(here, 'our-names.mjs')));   // (Places, November 24) Chris's renames
 const TX = 50, TY = 40, PAD = 9;
 const cl0 = (v, a, b) => Math.max(a, Math.min(b, v));
 // (Places, step 3) each Act One place's light, as the 2D game has it: by day, unless it's indoors, underground or in deep
@@ -406,7 +407,7 @@ out.save(sys.argv[2],quality=80,method=6)`, webp, roofFile, JSON.stringify(roofJ
   // (Places, step 3) each Hearthfire's stand, as an anchor of its own, so a journey chosen on the Atlas lands there
   for (const e of map.entities || []) if (e.kind === 'hearthfire' && e.stand && !anchors['hearthfire:' + e.id]) anchors['hearthfire:' + e.id] = { at: [(e.stand[0] + 0.5) * TX, (e.stand[1] + 0.5) * TY], face: FACE[e.stand[2]] ?? 0 };
   const first = anchors['from-road'] || anchors[Object.keys(anchors)[0]] || { at: [w * TX / 2, h * TY / 2], face: 0 };
-  const names = {}; if (MAPS) for (const m of Object.values(MAPS)) if (m && m.id) names[m.id] = m.name;
+  const names = {}; if (MAPS) for (const m of Object.values(MAPS)) if (m && m.id) names[m.id] = nameOf(m.id, m.name);
   const exits = (map.exits || []).filter((e) => e.to).map((e) => {
     let [a, b, c, d] = e.area;
     let r = [a * TX, b * TY, (c + 1) * TX, (d + 1) * TY];
@@ -426,7 +427,7 @@ out.save(sys.argv[2],quality=80,method=6)`, webp, roofFile, JSON.stringify(roofJ
   const STALLS = (DRESS[id] || []).filter((e) => e[0] === 'stall' || (typeof e[e.length - 1] === 'object' && e[e.length - 1].replace)).map((e) => [e[1] * TX, e[2] * TY]);
   const keptB = buildings.filter((b) => { const [x0, y0, x1, y1] = b.fp; return (x1 - x0) * (y1 - y0) > 4.5 * TX * TY || !STALLS.some(([sx, sy]) => sx > x0 - 60 && sx < x1 + 60 && sy > y0 - 60 && sy < y1 + 60); });
   const place = {
-    id: 'm7-' + id, m7: id, name: map.name, region, biome: map.biome, interior, dark: !!map.dark || undefined,
+    id: 'm7-' + id, m7: id, name: nameOf(id, map.name), region, biome: map.biome, interior, dark: !!map.dark || undefined,
     ...(ACT2 ? { stand, smalls, faces, texFiles: Object.fromEntries((REGION_TEX[region] || []).map(AW)) } : {}), pillars, palisades, cliffs, roots, firsts, glows, size: [w * TX, h * TY], tiles: [w, h],
     painting: `art/m7/${id}.webp`, roofPainting: roofJobs.length ? `art/m7/${id}-roofs.webp` : undefined, standin: paint.standin || undefined, artIn: paint.artIn, extent: [-PAD * TX, -PAD * TY, (w + PAD) * TX, (h + PAD) * TY],
     start: first.at, startFace: first.face, anchors, exits, people,
