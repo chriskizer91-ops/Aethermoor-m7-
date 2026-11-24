@@ -98,13 +98,13 @@ const rod = (pts, r, kind = 'haft', n = 6) => fitMaster(tube(pts, r, { n }), kin
 // a moth's wing: a stiff membrane the shape of `ctrl` (a closed outline in its own plane: x out along the span, y along
 // the body), scalloped on its outer edge, cupped back toward the tip, painted by paint(x, y, t, a) (t 0 at the middle to
 // 1 at the rim, a round the rim), on its veins (rigid with it). Built on the wing's own hinge node.
-function mothWing(parent, side, ctrl, paint, m, veinM, veins, { cup = 0.07, scallops = 18, depth = 0.025 } = {}) {
+function mothWing(parent, side, ctrl, paint, m, veinM, veins, { cup = 0.07, scallops = 18, depth = 0.025, fine = 1 } = {}) {
   const curve = new THREE.CatmullRomCurve3(ctrl.map(([x, y]) => V(x, y, 0)), true, 'centripetal');
   const N = 180, raw = curve.getSpacedPoints(N).slice(0, N);
   const c = raw.reduce((a, p) => a.add(p), V()).multiplyScalar(1 / N);
   const outline = raw.map((p, i) => { const far = smooth((p.length() - 0.4) / 0.35), k = 1 - depth * far * (0.5 + 0.5 * Math.cos(i / N * Math.PI * 2 * scallops)); return [side * (c.x + (p.x - c.x) * k), c.y + (p.y - c.y) * k]; });
   const bulge = (x, y) => -cup * (x * x + y * y);
-  const g = plate(outline, bulge, { rings: 16, seg: 64 });
+  const g = plate(outline, bulge, { rings: Math.round(16 * fine), seg: Math.round(64 * fine) });
   const P = g.attributes.position, seg = g.userData.rim.length, rings = Math.round((P.count - 1) / seg), col = new Float32Array(P.count * 3);
   for (let k = 0; k < P.count; k++) { const i = k === 0 ? 0 : Math.floor((k - 1) / seg) + 1, j = k === 0 ? 0 : (k - 1) % seg; col.set(paint(Math.abs(P.getX(k)), P.getY(k), i / rings, j / seg), k * 3); }
   g.setAttribute('color', new THREE.BufferAttribute(col, 3));
@@ -130,7 +130,7 @@ function antenna(head, side, base, L, shaftM, barbM, { n = 14, barb = 0.16, comb
 const MOTH = {
   gloamwing: {
     t: 0.22, span: 1.0, head: 0.13, ant: 0.6, legs: 0.16, abd: [4, 0.17, 0.14],
-    fur: '#bcb6c6', fur2: '#8e889e', belly: '#857f99', leg: '#7e7890', vein: '#7c7694', eye: '#16141c', antC: '#c8aa62',
+    fur: '#a6a0b2', fur2: '#7a7488', belly: '#857f99', leg: '#7e7890', vein: '#7c7694', eye: '#16141c', antC: '#c8aa62',
     fore: [[0.02, 0.06], [0.32, 0.28], [0.66, 0.47], [0.95, 0.57], [1.09, 0.5], [1.12, 0.32], [1.04, 0.12], [0.88, -0.03], [0.6, -0.09], [0.3, -0.09], [0.06, -0.04]],
     hind: [[0.04, -0.03], [0.34, -0.07], [0.64, -0.14], [0.86, -0.32], [0.9, -0.55], [0.76, -0.74], [0.54, -0.82], [0.32, -0.74], [0.16, -0.52], [0.05, -0.26]],
     foreV: [[1.02, 0.53, 0.008], [1.08, 0.34], [1.0, 0.15], [0.84, 0.0], [0.55, -0.07]], hindV: [[0.84, -0.3], [0.86, -0.54], [0.68, -0.74], [0.42, -0.77], [0.18, -0.54]],
@@ -156,24 +156,24 @@ const MOTH = {
   },
   'lamp-moth': {
     t: 0.2, span: 0.95, head: 0.13, ant: 0.42, legs: 0.42, abd: [5, 0.15, 0.12],
-    fur: '#a08c68', fur2: '#6e5c42', belly: '#6a5640', leg: '#4a3a28', vein: '#7a6a54', eye: '#b87a1c', antC: '#a87a30', lamp: '#ffbe50',
-    fore: [[0.02, 0.05], [0.18, 0.4], [0.36, 0.76], [0.56, 0.98], [0.78, 1.0], [0.92, 0.84], [0.92, 0.55], [0.78, 0.25], [0.56, 0.06], [0.3, -0.04], [0.08, -0.04]],
-    hind: [[0.04, -0.02], [0.34, -0.05], [0.64, -0.12], [0.8, -0.3], [0.78, -0.52], [0.6, -0.64], [0.4, -0.62], [0.2, -0.46], [0.06, -0.22]],
-    foreV: [[0.8, 0.98, 0.008], [0.92, 0.7], [0.82, 0.32], [0.56, 0.05]], hindV: [[0.76, -0.28], [0.74, -0.52], [0.5, -0.64], [0.22, -0.46]],
+    fur: '#9a8664', fur2: '#6e5c42', belly: '#6a5640', leg: '#7a6448', vein: '#7a6a54', eye: '#b87a1c', antC: '#a87a30', lamp: '#ffbe50',
+    fore: [[0.02, 0.05], [0.24, 0.36], [0.5, 0.7], [0.76, 0.92], [1.0, 0.94], [1.2, 0.74], [1.24, 0.42], [1.1, 0.1], [0.8, -0.07], [0.42, -0.09], [0.08, -0.04]],
+    hind: [[0.04, -0.02], [0.4, -0.05], [0.76, -0.14], [0.96, -0.34], [0.94, -0.6], [0.72, -0.76], [0.46, -0.74], [0.22, -0.54], [0.06, -0.26]],
+    foreV: [[1.0, 0.92, 0.008], [1.14, 0.62], [1.0, 0.26], [0.7, 0.05]], hindV: [[0.92, -0.32], [0.9, -0.6], [0.6, -0.76], [0.26, -0.54]],
     paintF: (x, y, t, a) => {
-      const n = vnoise(x * 5, y * 5, 21), n2 = vnoise(x * 11, y * 11, 22), d = Math.hypot(x, y);
-      let c = mixc(Lc('#b8a888'), Lc('#9a8a6c'), n2 * 0.7);
-      c = mixc(c, Lc('#5a4a3a'), smooth((n - 0.47) / 0.07) * 0.9);                                                              // dun mottles
+      const n = vnoise(x * 3.6, y * 3.6, 21), n2 = vnoise(x * 11, y * 11, 22), d = Math.hypot(x, y);
+      let c = mixc(Lc('#a49272'), Lc('#857558'), n2 * 0.7);
+      c = mixc(c, Lc('#4e4032'), smooth((n - 0.42) / 0.06) * 0.92);                                                              // dun mottles
       c = mixc(c, Lc('#d2c6a6'), smooth((0.3 - n) / 0.06) * 0.7);
       c = mixc(c, Lc('#7a6a54'), band(t, 0.62, 0.7, 0.03) * smooth((d - 0.4) / 0.2) * 0.6);
-      const e = Math.hypot((x - 0.66) * 1.1, y - 0.84);                                                                         // the amber eyespot
+      const e = Math.hypot((x - 0.9) * 1.1, y - 0.78);                                                                         // the amber eyespot
       c = mixc(c, Lc('#3e3226'), 1 - smooth((e - 0.14) / 0.012)); c = mixc(c, Lc('#d08c2a'), 1 - smooth((e - 0.11) / 0.012));
       return mixc(c, Lc('#54463a'), smooth((t - 0.87) / 0.02) * smooth((d - 0.35) / 0.2));
     },
     paintH: (x, y, t, a) => {
-      const n = vnoise(x * 5, y * 5, 31), n2 = vnoise(x * 11, y * 11, 32), d = Math.hypot(x, y);
-      let c = mixc(Lc('#b4a484'), Lc('#968668'), n2 * 0.7);
-      c = mixc(c, Lc('#5a4a3a'), smooth((n - 0.46) / 0.07) * 0.9);
+      const n = vnoise(x * 3.6, y * 3.6, 31), n2 = vnoise(x * 11, y * 11, 32), d = Math.hypot(x, y);
+      let c = mixc(Lc('#a08e6e'), Lc('#827254'), n2 * 0.7);
+      c = mixc(c, Lc('#4e4032'), smooth((n - 0.42) / 0.06) * 0.92);
       c = mixc(c, Lc('#d0c4a4'), smooth((0.3 - n) / 0.06) * 0.7);
       return mixc(c, Lc('#54463a'), smooth((t - 0.85) / 0.02) * smooth((d - 0.3) / 0.2));
     },
@@ -188,10 +188,10 @@ function moth(G, key) {
   add(fitMaster(lathe([[0, -t], [t * 0.7, -t * 0.88], [t * 0.98, -t * 0.35], [t, t * 0.15], [t * 0.85, t * 0.68], [t * 0.5, t * 0.98], [0, t * 1.05]], { n: 18, sz: 0.95 }), 'plumage'), fur, body);
   ruff(body, [fur, fur, fur2], { n: 16, y: t * 0.72, r: t * 0.72, len: t * 0.75, wid: t * 0.2, down: 0.7, seed: 2 });
   ruff(body, [fur, fur2], { n: 13, y: t * 0.35, r: t * 0.92, len: t * 0.7, wid: t * 0.2, down: 1.1, seed: 3, a0: -1.25, a1: 1.25 });
-  if (key === 'gloamwing') {   // its fur is one coat of soft feathery scales over the whole thorax (the sheet's)
+  if (key === 'gloamwing' || key === 'lamp-moth') {   // its fur is one coat of soft feathery scales over the whole thorax (the sheet's)
     const tp = [[-t, 0], [-t * 0.88, t * 0.7], [-t * 0.35, t * 0.98], [t * 0.15, t], [t * 0.68, t * 0.85], [t * 0.98, t * 0.5], [t * 1.05, 0]];
     const rAt = y => { for (let i = 1; i < tp.length; i++) if (y <= tp[i][0]) { const [y0, r0] = tp[i - 1], [y1, r1] = tp[i]; return lerp(r0, r1, (y - y0) / (y1 - y0)); } return 0.02; };
-    coat(body, [fur, fur2, fur, fur], rAt, { y0: t * 0.8, y1: -t * 0.75, rows: 6, n: 14, len: t * 0.6, wid: t * 0.22, lift: 0.35, sz: 0.95, seed: 7, curl: 0.45 });
+    coat(body, [fur, fur2, fur, fur], rAt, { y0: t * 0.8, y1: -t * 0.75, rows: key === 'gloamwing' ? 6 : 5, n: key === 'gloamwing' ? 14 : 12, len: t * 0.6, wid: t * 0.22, lift: 0.35, sz: 0.95, seed: 7, curl: 0.45 });
   } else {
     ruff(body, [fur2, fur], { n: 11, y: -t * 0.1, r: t * 0.96, len: t * 0.65, wid: t * 0.19, down: 1.6, seed: 4, a0: -1.0, a1: 1.0 });
     ruff(body, [fur, fur2], { n: 10, y: t * 0.25, r: t * 0.9, len: t * 0.7, wid: t * 0.22, down: 1.0, seed: 5, a0: 1.9, a1: 4.4 });
@@ -206,8 +206,8 @@ function moth(G, key) {
   if (key === 'gloamwing') { const hp = [[-hr, 0], [-hr * 0.75, hr * 0.75], [0, hr], [hr * 0.65, hr * 0.8], [hr * 0.95, 0]]; const hAt = y => { for (let i = 1; i < hp.length; i++) if (y <= hp[i][0]) { const [y0, r0] = hp[i - 1], [y1, r1] = hp[i]; return lerp(r0, r1, (y - y0) / (y1 - y0)); } return 0.01; };
     coat(head, [fur, fur2], hAt, { y0: hr * 0.85, y1: -hr * 0.4, rows: 3, n: 11, len: hr * 0.7, wid: hr * 0.24, a0: 1.0, a1: 2 * Math.PI - 1.0, sz: 1.05, lift: 0.4, seed: 30, curl: 0.4 }); }
   const beak = add(fitMaster(tube([V(0, -hr * 0.25, hr * 0.8), V(0, -hr * 0.36, hr * 1.02), V(0, -hr * 0.55, hr * 1.06)], t2 => hr * 0.11 * (1 - 0.8 * t2), { n: 6 }), 'forged'), surf(o.belly, { rough: 0.5 }), head);
-  antenna(head, -1, V(-hr * 0.3, hr * 0.75, hr * 0.35), o.ant, surf(o.antC, { rough: 0.5 }), surf(o.antC, { rough: 0.6 }), { n: key === 'lamp-moth' ? 9 : 15, comb: key === 'lamp-moth', spread: key === 'lamp-moth' ? 1 : 1.9, barb: key === 'lamp-moth' ? 0.16 : 0.2 });
-  antenna(head, 1, V(hr * 0.3, hr * 0.75, hr * 0.35), o.ant, surf(o.antC, { rough: 0.5 }), surf(o.antC, { rough: 0.6 }), { n: key === 'lamp-moth' ? 9 : 15, comb: key === 'lamp-moth', spread: key === 'lamp-moth' ? 1 : 1.9, barb: key === 'lamp-moth' ? 0.16 : 0.2 });
+  antenna(head, -1, V(-hr * 0.3, hr * 0.75, hr * 0.35), o.ant, surf(o.antC, { rough: 0.5 }), surf(o.antC, { rough: 0.6 }), { n: key === 'lamp-moth' ? 9 : 15, spread: key === 'lamp-moth' ? 1.3 : 1.9, barb: key === 'lamp-moth' ? 0.2 : 0.2 });
+  antenna(head, 1, V(hr * 0.3, hr * 0.75, hr * 0.35), o.ant, surf(o.antC, { rough: 0.5 }), surf(o.antC, { rough: 0.6 }), { n: key === 'lamp-moth' ? 9 : 15, spread: key === 'lamp-moth' ? 1.3 : 1.9, barb: key === 'lamp-moth' ? 0.2 : 0.2 });
   // the abdomen: segments, each its own piece hung from the one before (they curl, never bend); the lamp-moth's last ones lit
   const [nA, rA, lA] = o.abd; let prev = body, y0 = -t * 0.8;
   for (let i = 0; i < nA; i++) {
@@ -224,9 +224,9 @@ function moth(G, key) {
   // legs: three pairs under the thorax, each a thigh and a shin, rigid, with a hooked foot
   for (let i = 0; i < 3; i++) for (const s of [-1, 1]) {
     const femur = node(body, s * t * 0.4, -t * 0.55 + i * 0.02, t * 0.35 - i * t * 0.32), L1 = o.legs * 0.5, L2 = o.legs * 0.62;
-    add(rod([V(0, 0, 0), V(0, -L1 * 0.5, 0.01), V(0, -L1, 0)], t2 => t * 0.075 * (1 - 0.3 * t2), 'lame', 6), legM, femur);
+    add(rod([V(0, 0, 0), V(0, -L1 * 0.5, 0.01), V(0, -L1, 0)], t2 => t * 0.1 * (1 - 0.3 * t2), 'lame', 6), legM, femur);
     const tib = node(femur, 0, -L1, 0);
-    add(rod([V(0, 0, 0), V(0, -L2 * 0.55, -0.005), V(0, -L2, 0.01)], t2 => t * 0.055 * (1 - 0.5 * t2), 'lame', 6), legM, tib);
+    add(rod([V(0, 0, 0), V(0, -L2 * 0.55, -0.005), V(0, -L2, 0.01)], t2 => t * 0.075 * (1 - 0.5 * t2), 'lame', 6), legM, tib);
     add(rod([V(0, -L2, 0.01), V(0, -L2 - t * 0.12, t * 0.06), V(0, -L2 - t * 0.14, t * 0.14)], t2 => t * 0.03 * (1 - 0.7 * t2), 'rim', 5), legM, tib);
     R.legs.push({ femur, tib, side: s, i });
   }
@@ -234,8 +234,8 @@ function moth(G, key) {
   for (const s of [-1, 1]) {
     const fw = node(body, s * t * 0.55, t * 0.32, -t * 0.25), hw = node(body, s * t * 0.5, -t * 0.25, -t * 0.32);
     const sc = (pts) => pts.map(([x, y]) => [x * o.span, y * o.span]);
-    mothWing(fw, s, sc(o.fore), (x, y, tt, a) => o.paintF(x / o.span, y / o.span, tt, a), wingM, veinM, o.foreV.map(([x, y, r]) => [x * o.span, y * o.span, r]));
-    mothWing(hw, s, sc(o.hind), (x, y, tt, a) => o.paintH(x / o.span, y / o.span, tt, a), wingM, veinM, o.hindV.map(([x, y, r]) => [x * o.span, y * o.span, r]));
+    mothWing(fw, s, sc(o.fore), (x, y, tt, a) => o.paintF(x / o.span, y / o.span, tt, a), wingM, veinM, o.foreV.map(([x, y, r]) => [x * o.span, y * o.span, r]), { fine: key === 'lamp-moth' ? 0.72 : 1 });
+    mothWing(hw, s, sc(o.hind), (x, y, tt, a) => o.paintH(x / o.span, y / o.span, tt, a), wingM, veinM, o.hindV.map(([x, y, r]) => [x * o.span, y * o.span, r]), { fine: key === 'lamp-moth' ? 0.72 : 1 });
     R.wings.push({ fore: fw, hind: hw, side: s });
   }
   // wing-dust: a few glittering scales always falling; Dreamdust and Dust in the Eyes throw it in clouds
@@ -515,15 +515,15 @@ function poseWinged(L, R, fly, I, S, t, step) {
     const amp = B.amp * (S.flap ?? 1), sweep = B.sweep + (S.sweep || 0);
     for (const w of R.wings) {
       const s = w.side, th = sweep + amp * wsin, th2 = sweep * 0.92 + amp * 0.9 * (cyc > 0.06 && cyc < STROKE + 0.06 ? Math.sin((cyc - 0.06) / STROKE * Math.PI * 2) : 0);
-      w.fore.rotation.set(0, s * th, s * (0.02 + 0.2 * amp * wcos));
-      w.hind.rotation.set(0, s * th2, s * (0.0 + 0.16 * amp * wcos));
+      w.fore.rotation.set(0, s * th, s * (-0.32 + 0.2 * amp * wcos));
+      w.hind.rotation.set(0, s * th2, s * (-0.12 + 0.16 * amp * wcos));
     }
     for (let i = 0; i < R.abd.length; i++) R.abd[i].rotation.set((S.curl || 0) * 0.35 + 0.04 * Math.sin(t * 1.3 + i) - (S.ko || 0) * 0.1, 0, 0);
     const lg = S.legs || 0;
     for (const l of R.legs) {
       const wig = Math.sin(t * 3 + l.i * 1.3 + l.side) * 0.06;
-      l.femur.rotation.set(0.25 * (l.i - 1) - pitch * 0.6 * clamp01(lg) + wig, 0, l.side * (0.45 - 0.2 * lg));
-      l.tib.rotation.set(lg < 0 ? 0.9 * -lg + 0.4 : 0.5 - 0.35 * lg, 0, -l.side * 0.35);
+      l.femur.rotation.set(0.3 * (l.i - 1) - pitch * 0.6 * clamp01(lg) + wig, 0, l.side * (1.1 - 0.35 * clamp01(lg) - 0.5 * clamp01(-lg)));
+      l.tib.rotation.set(lg < 0 ? 0.9 * -lg + 0.3 : 0.3 - 0.2 * lg, 0, -l.side * (1.25 - 0.3 * clamp01(lg)));
     }
     if (R.props.bell) { const P = R.props.bell; P.rotation.set(-pitch + 0.08 * Math.sin(t * 2.1) + (S.swing || 0) * Math.sin(t * 13), 0, -(S.roll || 0) + 0.05 * Math.sin(t * 1.7) + (S.swing || 0) * 0.5 * Math.cos(t * 11)); }
     R.silk.visible = (S.silk || 0) > 0.02; R.silk.material.opacity = S.silk || 0;

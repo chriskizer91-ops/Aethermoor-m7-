@@ -547,6 +547,23 @@ https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL)
   start open. The fold buttons are 44 px tall. Checked at 390 px: no horizontal scroll, no errors.
 - `model.js` unchanged (the fold is in the page's `main.js` and `shell.html`).
 
+**Chris's notes, November 24: the winged polished against their sheets** (winged gallery republished:
+https://claude.ai/artifact/CmY9BHJzyVYCYgQtpboqBg)
+- Both moths hold their forewings lower and further out at the root, so their wings spread like the sheets' (they
+  stood in a steep V).
+- The Lamp-Moth:
+  - broad, rounded forewings and hindwings like its sheet (they were tall and narrow), with bolder dun mottling and
+    its amber eyespots moved to the new tips;
+  - fur as one coat;
+  - broad plumed antennae (they were thin combs);
+  - six legs that splay out from the body with bent knees, lighter so they show (they were tucked along the abdomen);
+  - its wing membranes a little coarser (it is rabble).
+
+  At Light 18.9k (rabble ~20k).
+- The Gloamwing's fur is grey like the sheet's (it bloomed white). At Light 38k.
+- The Thunder-Roc is unchanged this pass (39.6k).
+- Wing beats re-measured: still one a second or slower on every move.
+
 ## Next
 
 - Chris chose full detail for the beasts (November 20): sessions 6 to 8 build them (`docs/project/jobs/foes.md`;
