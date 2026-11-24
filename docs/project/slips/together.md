@@ -12,16 +12,16 @@ no missing files.
 
 | Page | Link | Version | Full-detail kit foes |
 |---|---|---|---|
-| Act One | https://claude.ai/artifact/RaeSK5hezqb3qH7jmuM5aj | 9 | 7 of 8 (not the boglurcher) |
-| Act One, full pictures | https://claude.ai/artifact/9rGvzRh4eocZrz4RYPQLz6 | 6 | all 8 |
-| The Sunscorch | https://claude.ai/artifact/7dPEGKka7t1FyHF5SSLPAo | 5 | all 5 (the Sand Wyrm, Kharzul...) |
-| The Sunscorch, full pictures (new) | https://claude.ai/artifact/38JaigTBGjp1FiT4MHdVFh | 1 | all 5 |
-| The Ironspire | https://claude.ai/artifact/6jSwPVzbwwZWmmD6VsQ1sU | 4 | 4 of 6 (Old Horn, Mother Anvil, rockling, rime-wolf) |
-| The Ironspire, full pictures (new) | https://claude.ai/artifact/AC9dw4TH9VqT4P3UcarVLp | 1 | all 6 |
-| The Gloomfen | https://claude.ai/artifact/N2iCRiMardtJNbntUoXYsA | 4 | 7 of 10 |
-| The Gloomfen, full pictures (new) | https://claude.ai/artifact/7f9UFQ93Dk1esA6ju6u8hL | 1 | all 10 (the Blackwater Leviathan too) |
-| Act Three | https://claude.ai/artifact/U8tPe6ZcZKrYA1o7XJeTjp | 3 | the unmade |
-| Act Three, full pictures | https://claude.ai/artifact/28QkrWfL1YqMUnGLki2s5w | 3 | the unmade |
+| Act One | https://claude.ai/artifact/RaeSK5hezqb3qH7jmuM5aj | 10 | 7 of 8 (not the boglurcher) |
+| Act One, full pictures | https://claude.ai/artifact/9rGvzRh4eocZrz4RYPQLz6 | 7 | all 8 |
+| The Sunscorch | https://claude.ai/artifact/7dPEGKka7t1FyHF5SSLPAo | 6 | all 5 (the Sand Wyrm, Kharzul...) |
+| The Sunscorch, full pictures (new) | https://claude.ai/artifact/38JaigTBGjp1FiT4MHdVFh | 2 | all 5 |
+| The Ironspire | https://claude.ai/artifact/6jSwPVzbwwZWmmD6VsQ1sU | 5 | 4 of 6 (Old Horn, Mother Anvil, rockling, rime-wolf) |
+| The Ironspire, full pictures (new) | https://claude.ai/artifact/AC9dw4TH9VqT4P3UcarVLp | 2 | all 6 |
+| The Gloomfen | https://claude.ai/artifact/N2iCRiMardtJNbntUoXYsA | 5 | 7 of 10 |
+| The Gloomfen, full pictures (new) | https://claude.ai/artifact/7f9UFQ93Dk1esA6ju6u8hL | 2 | all 10 (the Blackwater Leviathan too) |
+| Act Three | https://claude.ai/artifact/U8tPe6ZcZKrYA1o7XJeTjp | 4 | the unmade |
+| Act Three, full pictures | https://claude.ai/artifact/28QkrWfL1YqMUnGLki2s5w | 4 | the unmade |
 
 Models' wraiths, armoured and forge foes (the remade Ashen Warden and Unsmith) and winged foes are on every page.
 
@@ -38,6 +38,13 @@ Models' wraiths, armoured and forge foes (the remade Ashen Warden and Unsmith) a
   Rekindle with M7's own late-game party (`PARTY_FROM`, from M7's balance sim): the Chained Deep crossed (the unmade
   beaten, Tamsin back), the forge-warden beaten, over the bridge; the Unsmith's fight runs over an hour headless and is
   being played out (the checks now wait up to 3 hours on a fight).
+- **Rekindle passes** (12 of 12, no page errors, on the published Act Three page): the forge-warden, the remade Unsmith
+  fought and won (about 1 h 45 min headless), the heart in front of the furnace mouth, Rekindle's card, the credits,
+  the last card, the Great Hall, saved. All three of M7's endings pass on built pages. The rotgrubs at hr1-grubs: in
+  view and won (3 of 3).
+- **Republished** (the versions above) with the Fight's Act Three moments (the Unsmith's companions' moves, the Hollow
+  Council's moments) and Models' richer robes, once Models fixed the robe seams and antler tines at light detail
+  (4456456). Every page starts with no console errors, also at phone size (where the followers are light).
 
 ## Latest round (November 23): the endings, the foes back, chests, the wraiths, the save-code box
 
