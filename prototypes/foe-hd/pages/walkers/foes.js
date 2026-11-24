@@ -289,5 +289,50 @@ const unmade = {
   },
 };
 
-export const FOES = { rotwarden, sapwight, 'old-horn': oldHorn, 'peak-troll': peakTroll, unmade };
+// ---- the wraiths (session 8's polish pass, November 24): each its M7 moves, cloth that hangs and sways on the trunk ----
+// the drowned: a coat and a bell, weed for a head; it moves as if under water, slow and swaying
+const drowned = {
+  key: 'drowned', name: 'The Drowned', tier: 'Veteran', act: 'Act Two, Misthollow', height: 2.0, weight: 0.8,
+  stiff: 0.7, knees: 0.6,
+  limits: { neck: 0.4, head: 0.8, spine: 0.45, chest: 0.45, l_shin: 0.45, r_shin: 0.45, l_fore: 0.65, r_fore: 0.65, l_hand: 0.6, r_hand: 0.6 },
+  text: 'Drowned a thousand years, and still in its coat; where its head was, weed, and lights in the weed.',
+  lunge: 'cold-hands',
+  idle(W, t) {
+    const b = W.bones, sw = Math.sin(t * 0.6);
+    W.body.rotation.z = 0.025 * sw; b.spine.rotation.z = -0.02 * sw; b.head.rotation.z = 0.06 * Math.sin(t * 0.45 + 1);
+    b.head.rotation.x = 0.05 * Math.sin(t * 0.7);                                      // the weed drifting as if in a current
+    b.l_hand.rotation.z = 0.12 * Math.sin(t * 1.3);                                    // the bell swinging a little
+    b.r_upper.rotation.x = 0.05 * Math.sin(t * 0.8 + 2);
+  },
+  moves: {
+    'cold-hands': { label: 'Cold Hands', dur: 1.5, pose(W, u, t) {
+      // both hands come up and close on yours
+      const b = W.bones, k = seg(u, 0.05, 0.45) * (1 - seg(u, 0.75, 1)), grip = seg(u, 0.4, 0.55) * (1 - seg(u, 0.75, 1));
+      b.r_upper.rotation.x = -1.2 * k; b.r_fore.rotation.x = -0.2 * k - 0.4 * grip; b.l_upper.rotation.x = -0.5 * k; b.l_fore.rotation.x = -0.3 * grip;
+      b.spine.rotation.x = 0.15 * k; b.head.rotation.x = 0.2 * k; W.body.position.z = 0.15 * k;
+    } },
+    'drag-down': { label: 'Drag Down', dur: 1.8, pose(W, u, t) {
+      // it stoops, takes you by the ankles, and hauls back toward the water
+      const b = W.bones, low = seg(u, 0.05, 0.4) * (1 - seg(u, 0.55, 0.8)), haul = seg(u, 0.45, 0.65) * (1 - seg(u, 0.85, 1));
+      crouch(W, 0.45 * low); b.spine.rotation.x = 0.4 * low - 0.1 * haul; b.chest.rotation.x = 0.3 * low;
+      b.r_upper.rotation.x = -0.7 * low - 0.2 * haul; b.r_fore.rotation.x = -0.5 * haul; b.head.rotation.x = 0.3 * low;
+      W.body.position.z = 0.12 * low - 0.15 * haul;
+    } },
+    toll: { label: 'Toll', dur: 1.7, pose(W, u, t) {
+      // it lifts the bell and rings it: under the water a bell tolls for the drowned
+      const b = W.bones, up = seg(u, 0.05, 0.3) * (1 - seg(u, 0.8, 1)), ring = up * Math.sin(u * 40) * seg(u, 0.25, 0.4) * (1 - seg(u, 0.7, 0.8));
+      b.l_upper.rotation.x = -0.9 * up; b.l_upper.rotation.z = -0.25 * up; b.l_hand.rotation.z = 0.28 * ring; b.l_fore.rotation.x = -0.3 * up;
+      b.head.rotation.x = -0.15 * up; b.head.rotation.z = 0.1 * ring;
+    } },
+    'black-water': { label: 'Black Water', dur: 1.6, pose(W, u, t) {
+      // it doubles over and coughs the channel up all over you
+      const b = W.bones, wind = seg(u, 0, 0.3) * (1 - seg(u, 0.35, 0.45)), heave = seg(u, 0.35, 0.5) * (1 - seg(u, 0.8, 1));
+      b.spine.rotation.x = -0.12 * wind + 0.4 * heave; b.chest.rotation.x = -0.1 * wind + 0.3 * heave; b.neck.rotation.x = 0.35 * heave;
+      b.head.rotation.x = -0.2 * wind + 0.4 * heave; b.r_upper.rotation.x = -0.3 * heave; b.r_upper.rotation.z = 0.2 * heave;
+      W.body.position.z = 0.08 * heave;
+    } },
+  },
+};
+
+export const FOES = { rotwarden, sapwight, 'old-horn': oldHorn, 'peak-troll': peakTroll, unmade, drowned };
 export const COMMON = [['idle', 'Breathe', 0], ['walk', 'Walk', 0], ['hurt', 'Hit', 0.9], ['ko', 'Fall', 2.6]];

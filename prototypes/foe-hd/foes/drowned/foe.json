@@ -1,0 +1,16 @@
+{
+ "key": "drowned",
+ "name": "The Drowned",
+ "plan": "walker",
+ "rank": "veteran",
+ "height": 2.0,
+ "moves": "pages/walkers/foes.js",
+ "bake": {
+  "res": 1024,
+  "phone": 512
+ },
+ "rig": "rig.py",
+ "note": "a walker (session 8): its moves are pages/walkers/foes.js FOES[key] (walker.js movesFor); its own page assets are color.webp, orm.webp and phone/",
+ "glow": "0xd8ff90",
+ "glowIntensity": 0.9
+}
