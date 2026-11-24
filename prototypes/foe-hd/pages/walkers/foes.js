@@ -574,5 +574,75 @@ const rimeWraith = {
   },
 };
 
-export const FOES = { rotwarden, sapwight, 'old-horn': oldHorn, 'peak-troll': peakTroll, unmade, drowned, 'bell-ringer': bellRinger, 'drowned-choir': drownedChoir, 'drowned-cantor': drownedCantor, 'drowned-abbess': drownedAbbess, 'choir-wraith': choirWraith, 'rime-wraith': rimeWraith };
+// the Rime-Abbot: Brother Aurel of Peak's Veil, who went down to listen to Hush; the Rime Crozier frozen to his left hand
+const rimeAbbot = {
+  key: 'rime-abbot', name: 'The Rime-Abbot', tier: 'Champion', act: 'Act Three, Frostmere', height: 2.15, weight: 1.0,
+  stiff: 0.7, knees: 0.2,
+  limits: { neck: 0.25, head: 0.5, spine: 0.22, chest: 0.35, hips: 0.4, l_fore: 0.6, r_fore: 0.6, l_upper: 0.7, r_upper: 0.7, l_hand: 0.4 },
+  text: "Brother Aurel of Peak's Veil, who went down to listen to Hush and did not come up. The Crozier froze to his hand.",
+  lunge: 'crozier-strike',
+  idle(W, t) {
+    const b = W.bones;
+    W.body.rotation.z = 0.012 * Math.sin(t * 0.45); W.body.position.y = 0.008 * Math.sin(t * 0.7);
+    b.head.rotation.x = 0.05 + 0.03 * Math.sin(t * 0.6); b.l_hand.rotation.z = 0.03 * Math.sin(t * 0.8);   // the lantern stirring
+  },
+  moves: {
+    'crozier-strike': { label: 'Crozier Strike', dur: 1.7, pose(W, u, t) {
+      // the Rime Crozier comes down like a bell-clapper
+      const b = W.bones, up = seg(u, 0.05, 0.4) * (1 - seg(u, 0.45, 0.58)), down = seg(u, 0.45, 0.6) * (1 - seg(u, 0.8, 1));
+      b.l_upper.rotation.x = -0.9 * up - 0.35 * down; b.l_upper.rotation.z = -0.15 * up; b.l_fore.rotation.x = -0.3 * up + 0.2 * down;
+      b.l_hand.rotation.x = -0.35 * up + 0.4 * down; b.chest.rotation.y = -0.15 * up + 0.2 * down; b.spine.rotation.x = -0.06 * up + 0.16 * down;
+      b.head.rotation.x = 0.15 * down; W.body.position.z = 0.15 * down;
+    } },
+    toll: { label: 'Toll', dur: 2.4, pose(W, u, t) {
+      // he lifts the Crozier and brings its foot down on the ice, again and again, tolling the drowned bell beneath
+      const b = W.bones, k = seg(u, 0.05, 0.2) * (1 - seg(u, 0.85, 1)), beat = Math.pow(Math.abs(Math.sin(u * Math.PI * 3)), 3) * k;
+      b.l_upper.rotation.x = -0.3 * beat; b.l_fore.rotation.x = -0.2 * beat; b.head.rotation.x = -0.25 * k; b.neck.rotation.x = -0.1 * k;
+      W.body.position.y -= 0.03 * (k - beat); b.chest.rotation.x = -0.06 * k;
+    } },
+    'rime-ward': { label: 'Rime Ward', dur: 2.2, pose(W, u, t) {
+      // he plants the Crozier and bows over it, and the rime grows over him like a second habit
+      const b = W.bones, k = seg(u, 0.05, 0.35) * (1 - seg(u, 0.85, 1));
+      b.l_upper.rotation.x = -0.25 * k; b.l_fore.rotation.x = 0.15 * k; b.r_upper.rotation.x = -0.55 * k; b.r_upper.rotation.z = 0.25 * k;
+      b.r_fore.rotation.x = -0.35 * k; b.spine.rotation.x = 0.05 * k; b.chest.rotation.x = 0.12 * k; b.head.rotation.x = 0.3 * k;
+      W.body.position.y -= 0.04 * k;
+    } },
+    drown: { label: 'Drown', dur: 2.0, pose(W, u, t) {
+      // he takes one of you by the collar and walks you down under the ice
+      const b = W.bones, reach = seg(u, 0.05, 0.35) * (1 - seg(u, 0.8, 1)), grip = seg(u, 0.32, 0.45) * (1 - seg(u, 0.8, 1)),
+        sink = seg(u, 0.45, 0.75) * (1 - seg(u, 0.85, 1));
+      b.r_upper.rotation.x = -1.0 * reach + 0.3 * sink; b.r_fore.rotation.x = -0.15 * reach - 0.35 * grip; b.spine.rotation.x = 0.1 * reach + 0.08 * sink;
+      b.head.rotation.x = 0.2 * reach; W.body.position.z = 0.2 * reach; W.body.position.y -= 0.14 * sink;
+    } },
+    'call-the-choir': { label: 'Call the Choir', dur: 2.4, pose(W, u, t) {
+      // he lifts the Crozier high, and one of his drowned choir rises through the ice, singing
+      const b = W.bones, k = seg(u, 0.05, 0.35) * (1 - seg(u, 0.8, 1)), sw = Math.sin(u * 8) * k;
+      b.l_upper.rotation.x = -0.75 * k; b.l_upper.rotation.z = -0.25 * k; b.l_fore.rotation.x = -0.35 * k; b.l_hand.rotation.z = 0.08 * sw;
+      b.head.rotation.x = -0.35 * k; b.neck.rotation.x = -0.12 * k; b.chest.rotation.x = -0.1 * k; b.r_upper.rotation.z = 0.25 * k;
+      W.body.position.y += 0.04 * k;
+    } },
+    hushing: { label: 'Hushing', dur: 2.2, pose(W, u, t) {
+      // he lifts a grey finger to the mask, and the Hushweave Cowl breathes out a silence
+      const b = W.bones, k = seg(u, 0.05, 0.35) * (1 - seg(u, 0.8, 1)), lean = seg(u, 0.4, 0.6) * (1 - seg(u, 0.8, 1));
+      b.r_upper.rotation.x = -0.8 * k; b.r_upper.rotation.z = 0.15 * k; b.r_fore.rotation.x = -0.4 * k; b.r_hand.rotation.x = -0.3 * k;
+      b.head.rotation.z = 0.15 * k; b.head.rotation.x = 0.1 * k + 0.1 * lean; b.spine.rotation.x = 0.1 * lean; W.body.position.z = 0.1 * lean;
+    } },
+    heartbeat: { label: 'Heartbeat', dur: 2.4, pose(W, u, t) {
+      // under the floor Hush's heart beats once, and he shudders with it, healed
+      const b = W.bones, k = seg(u, 0.05, 0.2) * (1 - seg(u, 0.85, 1)),
+        beat = Math.exp(-Math.pow((u - 0.38) / 0.04, 2)) + 0.7 * Math.exp(-Math.pow((u - 0.52) / 0.04, 2));
+      b.chest.rotation.x = -0.12 * beat - 0.04 * k; b.head.rotation.x = -0.15 * k - 0.15 * beat; b.spine.rotation.x = -0.05 * beat;
+      b.r_upper.rotation.z = 0.15 * beat; W.body.position.y += 0.03 * beat;
+    } },
+    'rime-nova': { label: 'Rime Nova', dur: 2.6, pose(W, u, t) {
+      // he raises the Crozier and spreads his arms, and the whole cave of ice answers him at once
+      const b = W.bones, gather = seg(u, 0.05, 0.4) * (1 - seg(u, 0.45, 0.55)), burst = seg(u, 0.45, 0.58) * (1 - seg(u, 0.85, 1));
+      b.spine.rotation.x = 0.04 * gather - 0.05 * burst; b.chest.rotation.x = 0.16 * gather - 0.12 * burst; b.head.rotation.x = 0.3 * gather - 0.3 * burst;
+      b.l_upper.rotation.x = 0.1 * gather - 0.8 * burst; b.l_upper.rotation.z = -0.3 * burst; b.r_upper.rotation.x = 0.1 * gather - 0.4 * burst;
+      b.r_upper.rotation.z = 0.6 * burst; b.r_fore.rotation.x = -0.2 * gather; W.body.position.y += 0.06 * burst - 0.04 * gather;
+    } },
+  },
+};
+
+export const FOES = { rotwarden, sapwight, 'old-horn': oldHorn, 'peak-troll': peakTroll, unmade, drowned, 'bell-ringer': bellRinger, 'drowned-choir': drownedChoir, 'drowned-cantor': drownedCantor, 'drowned-abbess': drownedAbbess, 'choir-wraith': choirWraith, 'rime-wraith': rimeWraith, 'rime-abbot': rimeAbbot };
 export const COMMON = [['idle', 'Breathe', 0], ['walk', 'Walk', 0], ['hurt', 'Hit', 0.9], ['ko', 'Fall', 2.6]];
