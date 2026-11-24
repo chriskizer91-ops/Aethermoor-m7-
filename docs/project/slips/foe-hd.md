@@ -3,6 +3,81 @@
 Briarmaw, Act One's first Champion, in full detail: a sculpt baked onto a light version of about 50,000 triangles,
 shown side by side with the code-built model and a cut-out of Chris's sheet.
 
+## Handoff (November 24)
+
+For a fresh session taking the kit (`prototypes/foe-hd/`, branch `job/foe-hd`). Everything is committed and pushed; the
+hub has merged it all.
+
+**Where I stopped.** Two passes done and merged: (1) the second pass on my own foes against the sheets (all re-published);
+(2) the polish pass on the ten iron and forge foes (all new, in full detail). Every foe passes the stretch check at 120
+frames. Standing by for Chris's notes.
+
+**Making a foe, start to finish** (from `prototypes/foe-hd`; read `README.md` there first):
+1. `foes/<key>/` with `foe.json` (key = the bestiary id; name, plan, `moves` = a set name in `kit/js/looks.js` PLANS,
+   rank, height, sheet, `crops` = the sheet's three views as x ranges, `bounds`, `voxel` per level, `view` = Blender's
+   camera (`width` is the frame's height for a tall foe), `light` (triangle budgets per kind: Champions ~50k, veterans
+   ~30k, rabble ~20k), `sculpt.level` 3 (aim 500k to 1M), `bake`), `sculpt.py` (`build(K)` returns a mesh), `rig.py`.
+2. Shape it: `python3.12 kit/py/sculpt.py foes/<key> 1` then `python3 kit/py/sheet.py foes/<key> 1` and look at
+   `foes/<key>/build/compare-1.png` beside the sheet (the preview washes glow out to white; judge glow on the page).
+3. Build it all: `bash build/re.sh <key>` (make.sh: sculpt, sheet, bake in Blender, pack, the sculpt asset; then fin.sh:
+   the stretch check at 120 frames, both pages, the laptop/phone/crowd screenshots in `build/chk-<key>/`). Steps can be
+   named: `bash build/re.sh <key> bake,pack` re-bakes only. Run builds one after another (a plain list in a script);
+   a `while pgrep -f ...` wait loop matches its own command line and waits for ever.
+4. Moves: a set in `kit/js/moves/` (MOVES, DUR, LUNGE, ALIAS, pose), a two-line file per set name, registered in
+   `kit/js/looks.js`; `stretch.mjs` finds it by foe.json `moves`. Re-weight without a bake: `python3.12
+   kit/tools/rebind.py foes/<key>` (python3's scipy is broken here), then `bash build/fin.sh <key>`.
+5. Publish: the gallery page `node build.mjs --foes=<key> --entry=pages/ironforge/main.js --shell=pages/ironforge/shell.html
+   --out=ironforge-<key>` (each page holds one foe: ~13.5 MB of the 16 MB) and `dist/<key>-sculpt.artifact.html`; record the
+   links in foe.json `pages` and in `pages/ironforge/main.js` PAGES; republish by the same file path, or with `url` from
+   a new conversation.
+
+**Armour pieces** (`kit/py/armour.py`, the iron and forge foes): `Suit(K, M).add(name, bone, sdf, lo, hi, colour, kind,
+mat, vox)`; each piece is meshed in its own box and goes whole to its bone (`save_pieces` writes `build/pieces.json`;
+the rig's `part()` is `pieces_part(HERE, P, idx, piece)`), so plates and stone are rigid and never stretch; put a dark
+ball at each joint to hide the gap. Helpers: `rbox` (turned, tapered), `trim` (edges), `rivets`, `cyl`, `chipped`
+(stone), `crack_depth`, `humanoid_bones(J)` (the walkers' bone names). Fire in cracks: press the crack into the rock
+and put a slightly smaller copy under it as kind 7, and set foe.json `bake.coat_kinds: [0, 7]` so the bake carries
+the glow into the rock. Moves for all ten are in `kit/js/moves/ironclad.js` (M7's names). Watch Python closures in
+loops (bind loop variables as default arguments) or a piece builds in the wrong place.
+
+**The checks:** the stretch check (`node kit/tools/stretch.mjs foes/<key> --frames=120`: big edges under 1.3x, crease
+edges under 3x, pictures in `build/stretch/`), the compare against the sheet, and the page screenshots
+(`node kit/tools/check.mjs dist/<page>.html build/chk-x`).
+
+**Galleries** (three ways and moves; sculpt for a laptop):
+- Iron and forge (each page links to the other nine):
+  - The Ashen Warden: https://claude.ai/artifact/EzhJdoL53KTeUPUfHc2yyN · sculpt https://claude.ai/artifact/P9A4aLPUBJmqKpDPtxnm2z
+  - Iron Sentinel: https://claude.ai/artifact/SVB9XRDbgnSTV9VSMr59Lz · sculpt https://claude.ai/artifact/9EMmiFLiVVjhcdH9gb5LEY
+  - The Sentinel-Captain: https://claude.ai/artifact/7KxofYSMBpwrvZvHVjtiMX · sculpt https://claude.ai/artifact/4tyXBcUemDjqCNKeE32jgi
+  - Forgeborn: https://claude.ai/artifact/WvKEeL7qFkK7K5kx2TZEuc · sculpt https://claude.ai/artifact/PFnANRRo6hppJ81gM9vJ1r
+  - The Bellows: https://claude.ai/artifact/CVwKJCkHZHyW9oyXWcrhtK · sculpt https://claude.ai/artifact/AYQ4g3bn3K1PjuAgMbojsj
+  - Harrow's Journeyman: https://claude.ai/artifact/MUFvyzwaifsf9HUnwuafq6 · sculpt https://claude.ai/artifact/HNCyMsTjFRtEeRgXmSdELd
+  - Cinder-Thrall: https://claude.ai/artifact/WiTMDVCyHgqy9q9aLqRoHa · sculpt https://claude.ai/artifact/ESaa9RWCUhGAUyyFV2jAin
+  - Thrall-Overseer: https://claude.ai/artifact/A2CMDtaE2gbiSkGhsY1GFU · sculpt https://claude.ai/artifact/43LqUqciZC9qPL4gb3H2s8
+  - Forge-Warden: https://claude.ai/artifact/TQtQi2jxUR391ZErWyNeMo · sculpt https://claude.ai/artifact/DWgVBNPgJFME3hAzKSeYqv
+  - The Unsmith: https://claude.ai/artifact/B4yCqb6nesPQ2U4t4SDUSV · sculpt https://claude.ai/artifact/MPwJpG1i7T2sSaB7NAzVx1
+- My earlier foes:
+  - Briarmaw: https://claude.ai/artifact/5iUqJsPw3NGrvun4Ng73eh · sculpt https://claude.ai/artifact/AVSmLbEu3jz1NVnohgqT9P
+  - Marsh-Light: https://claude.ai/artifact/XvU3kSAEBLpKMQP5pBXvQx · sculpt https://claude.ai/artifact/MatuoD1NwsB6inUV1K592H
+  - Willow-Wight: https://claude.ai/artifact/LoiEBTvYXJuM7nKijvueHH · sculpt https://claude.ai/artifact/2aJ9QPBwtbvnfsEY3H3phj
+  - Grandfather Willow: https://claude.ai/artifact/VVD4hHroTdUSQ2pEZAtaZf · sculpt https://claude.ai/artifact/CQZDYsv6DHM5FzXh19ymzC
+  - Boglurcher: https://claude.ai/artifact/CBt1k8zotiyVb5BCkquENo · sculpt https://claude.ai/artifact/UXByzwgQxJTPVX3MRVunir
+  - Briarling: https://claude.ai/artifact/DorMujhAe9d1XNwLGYV4ae · sculpt https://claude.ai/artifact/LAjxUMG9Aoj2UPw7DuyHtB
+  - Glowcap: https://claude.ai/artifact/AyUxs7hCGjdzZDNG1jfRnJ · sculpt https://claude.ai/artifact/H5yc3TLZDp3Aho9R1nzaCg
+  - Rockling: https://claude.ai/artifact/K5G7NXT5biU4Yyp8aGAfiF · sculpt https://claude.ai/artifact/QPkgvXNDUmWtG2yupQaPYP
+  - Mother Anvil: https://claude.ai/artifact/GpnVAt4gcTybB3w9weeZsp · sculpt https://claude.ai/artifact/RkoYTSqzxA4rLktCJT2cJy
+  - Forge-Spark: https://claude.ai/artifact/7sjTb3ubzrCxJJZ189YZBW · sculpt https://claude.ai/artifact/M7NGzTZXnqPTVEHXtDeQUr
+  - Mire Leech: https://claude.ai/artifact/XKAzPTo5MW2j7a8T9ZBGcw · sculpt https://claude.ai/artifact/8vA22BicHBuWDnrysGVyor
+  - Blackwater Gar: https://claude.ai/artifact/Ry64sw4379cEjNfuju1BvU · sculpt https://claude.ai/artifact/TmEm8mbSEi8zQomTsndm51
+  - Old Jaws: https://claude.ai/artifact/9TmS56rJ3X9VZPkrF3BXsn · sculpt https://claude.ai/artifact/FZXfQNJgJt3RNNaPDwF31S
+  - The Blackwater Leviathan: https://claude.ai/artifact/3Px9mipuqrTBB8NFfehbj5 · sculpt https://claude.ai/artifact/AqaNEJqebbVdKEtMv7SXE4
+  - Thornhound (taken over from session 7, pages/beasts): https://claude.ai/artifact/9zji17squ3DQjFians9iVE · sculpt https://claude.ai/artifact/5QSWUvvWZigZBP2DAgLJix
+
+**What's open:** Grandfather Willow's roots are smoother than the painting's; the Bellows' body is puffy segments where
+the sheet has a one-piece suit; the Sentinel-Captain's and the Unsmith's sculpts are a little over 1M (1.14M, 1.19M);
+the Sentinels' iron bakes a little darker and bluer than the sheet's slate. All ten artifact watch slots were full, so this
+session got no comment notices on the newer pages.
+
 ## Done
 
 - **The polish pass: iron and forge** (November 24; Chris: "Iron and forge as well"), all ten in full detail, in act order,
