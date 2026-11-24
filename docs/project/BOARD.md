@@ -35,7 +35,8 @@ Where the 3D game stands. Written by the hub only. Last updated November 24, sma
 | The Verdant Wilds (Coven's zone 1, borrowed), the small and big maps, the 3D continent | `world3d/` | https://claude.ai/artifact/R3Ecr7e1VVbb9Qi7GXEPpx |
 | The Gear Room: a hero whose outfit is built from M7's gear, in Chris's 47 textures and the four faces; "Beside Briarmaw" and "Sculpted" switches | `prototypes/hero-3d/` | https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL |
 | Briarmaw three ways: code-built, painted, full detail (baked from a sculpt), with a crowd test | `prototypes/foe-hd/` | https://claude.ai/artifact/5iUqJsPw3NGrvun4Ng73eh |
-| Every Act One fight, from M7's own map data (28), a Fights list | `world3d/battle/` | https://claude.ai/artifact/Q9T8quXCTVgiVUZoMuUaP4 |
+| Act One's fights, Thornhollow to the Den (Briarmaw, the Rot-Stag, Old Snag in full detail), a Fights list | `world3d/battle/` | https://claude.ai/artifact/Q9T8quXCTVgiVUZoMuUaP4 |
+| Act One's fights, Mossfall to the Heartroot (the Mirelord, the boglurcher, the Rotwarden, the sapwight in full detail) | `world3d/battle/` | https://claude.ai/artifact/7Prqphh2mubkp2L2hTn2ZA |
 | Act Two's Champions' fights (Willowmurk, the Dust Trail, the Glass Heart; the willow-wight, Grandfather Willow, the glass-scorpion, the Glass Matriarch, the sand-skink, the Ashen Warden, the two wraiths in full detail) | `world3d/battle/` | https://claude.ai/artifact/AqSBbi7gYeRogHPsq24nAk |
 | The Sunscorch's fights (Scorchgate and its Vaults, the Glass Flats, the Sun Road, the Dust Trail, Miragewell, the deep shaft, the Glass Heart; nine Relic-Bearers' moments) | `world3d/battle/` | https://claude.ai/artifact/TWtn8x7hcGjTMHAUpAWC5M |
 | The Ironspire's fights (all nine fight places; seven Relic-Bearers' moments) | `world3d/battle/` | https://claude.ai/artifact/WhydqjmyNvuGQdrSadEXKD |
