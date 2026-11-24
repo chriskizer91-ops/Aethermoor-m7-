@@ -4,6 +4,7 @@
 //   from=deep (the default): the party at the foot of the Ash Stair, the Hollow Council freed (level 38): "Go on" ·
 //     the Chained Deep's walkway and its chain gate (the unmade fought) · Tamsin's return · the forge door · the
 //     Worldforge's bridge (the forge-warden fought) · the Unsmith's word and his fight · the heart.
+//   from=forge: the Chained Deep already crossed, the party at the Worldforge's door (the forge-warden, the Unsmith, the heart).
 //   from=heart: the Unsmith already beaten, the party on the smith's place before the heart.
 //   Then the heart's choice, its last word, the ending's card (its name and words), the credits, the last card, the party
 //   back in the Great Hall, the ending saved (once and for good) and the main quest closed.
@@ -66,6 +67,12 @@ if (FROM === 'heart') {
   for (const k of ['tamsin-returned', 'met-tamsin-below']) f.story[k] = true;
   f.kindled['chain-fire'] = true;
   g.progress.pos = { map: 'worldforge', x: 28, y: 11, face: 'e' };
+} else if (FROM === 'forge') {
+  // the Chained Deep already crossed (the chain gate's unmade beaten, Tamsin back): at the Worldforge's door
+  won(['cd-unmade']);
+  for (const k of ['tamsin-returned', 'met-tamsin-below']) f.story[k] = true;
+  f.kindled['chain-fire'] = true;
+  g.progress.pos = { map: 'worldforge', x: 1, y: 11, face: 'e' };
 } else g.progress.pos = { map: 'chained-deep', x: 2, y: 3, face: 's' };
 if (END === 'anew') {
   // the price of Kindle Anew: Fenwick's Poker, a Masterpiece (as M7's own end-to-end check makes one) and every page
@@ -110,9 +117,9 @@ let s = await state();
 check(s.map === g.progress.pos.map, `"Go on" stands the party in ${g.progress.pos.map} (${s.map} ${s.x},${s.y})`);
 await page.waitForTimeout(1500); await shot('start');
 
-if (FROM === 'deep') {
+if (FROM === 'deep' || FROM === 'forge') {
   const f0 = await E(() => window.__g3.fights || 0);
-  for (let i = 0; i < 8; i++) { s = await walkTo(41, 13, { map: 'chained-deep', pick: /Stand with us|Go|Leave/i }); if (s.map !== 'chained-deep') break; }
+  if (FROM === 'deep') for (let i = 0; i < 8; i++) { s = await walkTo(41, 13, { map: 'chained-deep', pick: /Stand with us|Go|Leave/i }); if (s.map !== 'chained-deep') break; }
   await onMap('worldforge'); await settle();
   s = await state();
   const tamsin = await E(() => { const g = JSON.parse(localStorage.getItem('aethermoor.save.3d') || 'null'); return !!(g && g.progress.flags.story['tamsin-returned']); });
