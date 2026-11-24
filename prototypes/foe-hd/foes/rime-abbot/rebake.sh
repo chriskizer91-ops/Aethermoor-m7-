@@ -13,5 +13,5 @@ python3 $W/textures.py build/bake assets $RES
 node $W/pack.mjs build/bake "" assets
 python3 $K/info.py build/high-1.npz build/high-$PASS.npz $PASS assets $RES
 python3 $K/standard.py . rime-abbot "The Rime-Abbot" 2.15 2048 768 champion 0x8cc8ff
-../../pages/walkers/kit/phone.sh . $PASS 768 0=5500,15=6000,12=3000,14=4500,9=200,10=2500 1
+../../pages/walkers/kit/phone.sh . $PASS 768 0=8500,15=8500,12=3000,14=4000,9=200,10=2200 1
 python3 $K/standard.py . rime-abbot "The Rime-Abbot" 2.15 2048 768 champion 0x8cc8ff

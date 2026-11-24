@@ -143,7 +143,15 @@ Eleven, in Act order, through the kit like the walkers; the bestiary ids are the
   belt; its left hand reaching out, dripping; no feet: the robe darkens into water at the hem, curling in glowing waves,
   drops rising. Sculpt 1,142,730 triangles; light model 34,395; phone 0.58 MB. Moves: Breathe, Walk, Drowned Grasp,
   Dirge, Pull Under (it sinks into the water and reaches up), Hit, Fall. Passes, full and phone.
-- Next: the Rime-Abbot, the drowned cantor, the drowned abbess, the choir-wraith, the rime-wraith,
+- The Rime-Abbot (`foes/rime-abbot/`, Champion, 2.15 m; on the third wraiths page,
+  https://claude.ai/artifact/BfKMgJSha56yyZxXXfLaSF): Brother Aurel under a deep hood, its rim the braided Hushweave Cowl;
+  an ice mask like a church window, its tracery pointed, icicles hanging from it; pale hair; a navy cape with frost
+  stitching, purple trim and tassels at the shoulders, fastened by a round blue brooch with braided cords; a sea-green
+  pleated robe with pale diamonds and ice on its hem; grey gloves; the Rime Crozier frozen to his left hand (banded ice
+  sections, a curled head with ice leaves, a blue lantern hanging in the curl). Sculpt 1,888,188 triangles; light model
+  38,351; phone 0.70 MB. Moves: Breathe, Walk, Crozier Strike, Toll, Rime Ward, Drown, Call the Choir, Hushing,
+  Heartbeat, Rime Nova, Hit, Fall. Passes, full and phone (the phone needed more triangles at the cape's waist).
+- Next: the Lantern Mother, then the mirage-wisp and the wisp-queen.
   the Rime-Abbot, the Lantern Mother, the mirage-wisp, the wisp-queen.
 
 ## Links
