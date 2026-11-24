@@ -75,7 +75,7 @@ edges under 3x, pictures in `build/stretch/`), the compare against the sheet, an
 
 **What's open:** Grandfather Willow's roots are smoother than the painting's; the Bellows' body is puffy segments where
 the sheet has a one-piece suit; the Sentinel-Captain's and the Unsmith's sculpts are a little over 1M (1.14M, 1.19M);
-the Sentinels' iron bakes a little darker and bluer than the sheet's slate. Five artifact watch slots are full, so this
+the Sentinels' iron bakes a little darker and bluer than the sheet's slate. All ten artifact watch slots were full, so this
 session got no comment notices on the newer pages.
 
 ## Done
