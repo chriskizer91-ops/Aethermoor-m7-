@@ -62,3 +62,5 @@ BANDS = {'r_upper': (0.001, 0.001), 'l_upper': (0.001, 0.001), 'r_thigh': (0.001
          'r_fore': (0.16, 0.34), 'l_fore': (0.16, 0.34),
          'spine': (0.14, 0.45), 'chest': (0.14, 0.45), 'neck': (0.12, 0.35), 'head': (0.001, 0.001),
          'r_foot': (0.09, 0.22), 'l_foot': (0.09, 0.22)}      # the ankle's blend kept to the ankle (a broad foot's band reached the knee)
+SMOOTH = int(__import__('os').environ.get('BIND_SMOOTH', 5))      # the arms carry fingers now: smooth over fewer passes so the forearm doesn't reach the armpit
+WELD_SAME_KIND = True                        # the cape (or mantle) touches the arms: each keeps its own weights

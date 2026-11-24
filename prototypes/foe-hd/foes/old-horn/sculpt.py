@@ -273,8 +273,8 @@ lining = (look == 'fur') & (ell(Vb, (0, -0.10, 1.42), (0.76, 0.62, 0.92)) < 0) &
 col[lining] = FUR_D * 0.6
 M.add(Vb, Fb, np.clip(col, 0, 1), 0, mat)
 M.K[-1][:] = KB                     # kinds: 0 body, 12 arms, 13 legs, 14 head
-M.K[-1][look == 'fur'] = 1          # kind 1: the cape, which hangs from his shoulders (it rides his chest)
-M.K[-1][(look == 'fur') & (Vb[:, 1] > 0.0) & (Vb[:, 2] < 1.16)] = 15     # kind 15: the loincloth, which hangs from his belt (his hips)
+M.K[-1][(look == 'fur') & (KB == 0)] = 1     # kind 1: the cape, which hangs from his shoulders (it rides his chest); only the body's own points (an arm's point beside the cape stays the arm's)
+M.K[-1][(look == 'fur') & (KB == 0) & (Vb[:, 1] > 0.0) & (Vb[:, 2] < 1.16)] = 15     # kind 15: the loincloth, which hangs from his belt (his hips)
 
 place = lambda P: P_.sdf(P)
 rng = np.random.default_rng(7)

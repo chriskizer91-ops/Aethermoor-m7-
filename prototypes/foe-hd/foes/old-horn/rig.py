@@ -53,8 +53,11 @@ def rigid(kind, P, idx): return RIGID.get(int(kind))
 _ALL = [b[0] for b in BONES]
 _ARMS = [n for n in _ALL if n[2:] in ('upper', 'fore', 'hand')]; _LEGS = [n for n in _ALL if n[2:] in ('thigh', 'shin', 'foot')]
 PIECES = {12: _ARMS, 13: _LEGS, 14: ['head'], 0: [n for n in _ALL if n not in _ARMS + _LEGS + ['head']], 1: ['chest'], 15: ['hips'],
-          10: ['l_hand'], 2: ['head'], 5: ['head']}
+          10: ['l_hand'], 2: ['head'], 5: ['head'], 4: ['chest']}      # the cape's stitches ride it (its chest)
 BANDS = {'r_upper': (0.001, 0.001), 'l_upper': (0.001, 0.001), 'r_thigh': (0.001, 0.001), 'l_thigh': (0.001, 0.001),
          'r_shin': (0.12, 0.32), 'l_shin': (0.12, 0.32),
          'r_fore': (0.16, 0.34), 'l_fore': (0.16, 0.34),
          'spine': (0.14, 0.45), 'chest': (0.14, 0.45), 'neck': (0.12, 0.35), 'head': (0.001, 0.001)}
+SMOOTH = int(__import__('os').environ.get('BIND_SMOOTH', 5))      # the arms carry fingers now: smooth over fewer passes so the forearm doesn't reach the armpit
+WELD_SAME_KIND = True                        # the cape (or mantle) touches the arms: each keeps its own weights
+BANDS.update({'r_foot': (0.09, 0.22), 'l_foot': (0.09, 0.22)})     # the ankle's blend kept to the ankle (a broad foot's band reached the knee)
