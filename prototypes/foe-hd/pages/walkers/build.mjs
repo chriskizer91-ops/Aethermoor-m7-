@@ -61,6 +61,9 @@ let body = (await readFile(path.join(here, sculptPage ? 'sculpt-shell.html' : 's
 const links = args.links ? String(args.links).split(';').map((x) => x.split('|')) : [];
 const linkHtml = links.length ? `<div class="notes"><p><b>The other walkers' pages:</b> ${links.map(([l, u]) => `<a href="${u}" target="_blank" rel="noopener">${l}</a>`).join(' · ')}</p></div>` : '';
 body = body.replace('<!--LINKS-->', () => linkHtml);
+// --title="The wraiths": the page's name (title and heading); the walkers' by default
+if (args.title) body = body.replace('<title>The Walkers</title>', `<title>${args.title}</title>`)
+  .replace('<h1>The walkers, in full detail</h1>', `<h1>${args.title}, in full detail</h1>`).replace("The other walkers' pages", 'The other pages');
 await mkdir(path.join(here, 'dist'), { recursive: true });
 const full = '<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n</head>\n<body>\n' + body + '</body>\n</html>\n';
 await writeFile(path.join(here, `dist/${out}.html`), full);

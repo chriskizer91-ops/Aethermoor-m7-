@@ -29,6 +29,7 @@ const { SHOPS } = await import(pathToFileURL(path.join(GAME, 'data/shops.js')));
 const { ENCOUNTERS } = await import(pathToFileURL(path.join(GAME, 'data/encounters.js')));
 // (step 5) the set dressing read from each painting, per place (m7/dressing.mjs)
 const { DRESS } = await import(pathToFileURL(path.join(here, 'dressing.mjs')));
+const { nameOf } = await import(pathToFileURL(path.join(here, 'our-names.mjs')));   // (Places, November 24) Chris's renames
 const TX = 50, TY = 40, PAD = 9;
 const cl0 = (v, a, b) => Math.max(a, Math.min(b, v));
 // (Places, step 3) each Act One place's light, as the 2D game has it: by day, unless it's indoors, underground or in deep
@@ -62,13 +63,16 @@ function findArtIn(id) {
 const fitted = (f, w, h) => execFileSync('python3', ['-I', '-c', 'import sys,io\nfrom PIL import Image\nim=Image.open(sys.argv[1]).convert("RGB").resize((int(sys.argv[2]),int(sys.argv[3])),Image.LANCZOS)\nb=io.BytesIO();im.save(b,"WEBP",quality=86,method=6);sys.stdout.buffer.write(b.getvalue())', f, String(w), String(h)], { maxBuffer: 64 << 20 });
 
 async function convert(id) {
-  const map = (await import(pathToFileURL(path.join(GAME, 'data/maps', id + '.js')))).default;
+  // (Places, step 6) an arena set (arena-<set>) is made by m7/arenas/make.mjs: its map and painting are there
+  const ARENA = id.startsWith('arena-');
+  const map = (await import(pathToFileURL(ARENA ? path.join(here, 'arenas/maps', id + '.js') : path.join(GAME, 'data/maps', id + '.js')))).default;
   // (Places) a map with no painting yet (the Hearth Below's four, Chris's batch 4) uses its stand-in, m7/standin.mjs
   // Chris's batch 4 goes into art-in/ (never game/): art-in/**/map-<id>.(png|webp|jpg), fitted to the map's tiles (32 px a
   // tile) and kept as WebP. Order: the game's own painting, then Chris's from art-in/, then the stand-in
   const paintFile = path.join(GAME, 'ui/assets/paint', id + '.js');
   const fromArtIn = findArtIn(id);
-  const paint = existsSync(paintFile) ? (await import(pathToFileURL(paintFile))).default
+  const paint = ARENA ? { src: 'data:image/webp;base64,' + readFileSync(path.join(here, 'arenas/paint', id + '.webp')).toString('base64') }
+    : existsSync(paintFile) ? (await import(pathToFileURL(paintFile))).default
     : fromArtIn ? { src: 'data:image/webp;base64,' + fitted(fromArtIn, map.w * 32, map.h * 32).toString('base64'), artIn: path.relative(ROOT, fromArtIn) }
     : { src: 'data:image/webp;base64,' + readFileSync(path.join(here, 'standins', id + '.webp')).toString('base64'), standin: true };
   const { w, h, rows } = map;
@@ -403,7 +407,7 @@ out.save(sys.argv[2],quality=80,method=6)`, webp, roofFile, JSON.stringify(roofJ
   // (Places, step 3) each Hearthfire's stand, as an anchor of its own, so a journey chosen on the Atlas lands there
   for (const e of map.entities || []) if (e.kind === 'hearthfire' && e.stand && !anchors['hearthfire:' + e.id]) anchors['hearthfire:' + e.id] = { at: [(e.stand[0] + 0.5) * TX, (e.stand[1] + 0.5) * TY], face: FACE[e.stand[2]] ?? 0 };
   const first = anchors['from-road'] || anchors[Object.keys(anchors)[0]] || { at: [w * TX / 2, h * TY / 2], face: 0 };
-  const names = {}; if (MAPS) for (const m of Object.values(MAPS)) if (m && m.id) names[m.id] = m.name;
+  const names = {}; if (MAPS) for (const m of Object.values(MAPS)) if (m && m.id) names[m.id] = nameOf(m.id, m.name);
   const exits = (map.exits || []).filter((e) => e.to).map((e) => {
     let [a, b, c, d] = e.area;
     let r = [a * TX, b * TY, (c + 1) * TX, (d + 1) * TY];
@@ -423,7 +427,7 @@ out.save(sys.argv[2],quality=80,method=6)`, webp, roofFile, JSON.stringify(roofJ
   const STALLS = (DRESS[id] || []).filter((e) => e[0] === 'stall' || (typeof e[e.length - 1] === 'object' && e[e.length - 1].replace)).map((e) => [e[1] * TX, e[2] * TY]);
   const keptB = buildings.filter((b) => { const [x0, y0, x1, y1] = b.fp; return (x1 - x0) * (y1 - y0) > 4.5 * TX * TY || !STALLS.some(([sx, sy]) => sx > x0 - 60 && sx < x1 + 60 && sy > y0 - 60 && sy < y1 + 60); });
   const place = {
-    id: 'm7-' + id, m7: id, name: map.name, region, biome: map.biome, interior, dark: !!map.dark || undefined,
+    id: 'm7-' + id, m7: id, name: nameOf(id, map.name), region, biome: map.biome, interior, dark: !!map.dark || undefined,
     ...(ACT2 ? { stand, smalls, faces, texFiles: Object.fromEntries((REGION_TEX[region] || []).map(AW)) } : {}), pillars, palisades, cliffs, roots, firsts, glows, size: [w * TX, h * TY], tiles: [w, h],
     painting: `art/m7/${id}.webp`, roofPainting: roofJobs.length ? `art/m7/${id}-roofs.webp` : undefined, standin: paint.standin || undefined, artIn: paint.artIn, extent: [-PAD * TX, -PAD * TY, (w + PAD) * TX, (h + PAD) * TY],
     start: first.at, startFace: first.face, anchors, exits, people,
@@ -447,7 +451,8 @@ out.save(sys.argv[2],quality=80,method=6)`, webp, roofFile, JSON.stringify(roofJ
       return out;
     }) : undefined,
     falls: FALLS[id] ? FALLS[id].map(([x0, x1, y0, y1, drop]) => [(x0 + x1 + 1) / 2 * TX, y0 * TY, (y1 + 1) * TY, (x1 - x0 + 1) * TX, drop || 0]) : undefined,
-    light: LIGHT[id] || (!ACT2 ? (interior ? 'indoor' : 'day') : undefined),
+    arena: map.arena,   // (Places, step 6) an arena set: its set, sources and sizes
+    light: map.light || LIGHT[id] || (!ACT2 ? (interior ? 'indoor' : 'day') : undefined),
     tileH: rows.map((r, j) => [...r].map((c, i) => c === 'x' && !(GLOOM && !interior) ? 3 : c === 'w' ? 2 : WET[j][i] ? 1 : ACT2 && MASSC.includes(c) ? 4 : 0).join('')),
   };
   const mapsEntry = { walk, block: [] };

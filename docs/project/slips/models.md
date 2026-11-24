@@ -526,6 +526,44 @@ https://claude.ai/artifact/KiYfGSBcUQ6gU4WqVKGojD republished.
   | Now                        | 110,858 bytes | 64,071 bytes  |
   | Change across both steps   | +3,342 bytes  | +1,822 bytes  |
 
+**Chris's notes, November 24: the winged flap slower; the hand-over** (winged gallery republished:
+https://claude.ai/artifact/CmY9BHJzyVYCYgQtpboqBg)
+- The winged flap slower: one wing beat a second or slower on every move of the Lamp-Moth, the Gloamwing and the
+  Thunder-Roc, capped in the pose itself. Each beat is a stroke (about 60% of the cycle) and then a glide with the wings
+  held open. Measured headless over every move: the fastest is 1.0 beats a second. Wing Gale is one great beat over
+  1.6 s (it was two).
+- The hand-over: `withWraiths`, `withArmoured` and `withWinged` now step aside (fall through to the kit's look) for any
+  foe the page has registered with the kit (`registered(key)` from `prototypes/foe-hd/kit/js/looks.js`). Pages register
+  exactly the finished foes whose `stretch.json` passes (`game3d/foes-hd.mjs`, `world3d/fight.js`), so a foe finished
+  by session 8 or 6 shows in full detail automatically, with no change to any caller. Mine stay as the stand-ins until
+  then. Checked with a test page: three registered keys go to the kit, an unregistered one keeps Models' look. My
+  galleries grow 4 KB from the import.
+- Fixed in passing: the winged gallery's crowd view shared a field name with the wing-beat counter (its time ran away).
+
+**Chris's notes, November 24: the Gear Room's panels fold away** (Gear Room republished:
+https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL)
+- Every panel has a fold button: the action buttons, the hero picker, the "In the game" picture, and the gear and
+  outfit panel. One tap opens or closes each. On a phone all four start folded, so the model is clear; on a laptop they
+  start open. The fold buttons are 44 px tall. Checked at 390 px: no horizontal scroll, no errors.
+- `model.js` unchanged (the fold is in the page's `main.js` and `shell.html`).
+
+**Chris's notes, November 24: the winged polished against their sheets** (winged gallery republished:
+https://claude.ai/artifact/CmY9BHJzyVYCYgQtpboqBg)
+- Both moths hold their forewings lower and further out at the root, so their wings spread like the sheets' (they
+  stood in a steep V).
+- The Lamp-Moth:
+  - broad, rounded forewings and hindwings like its sheet (they were tall and narrow), with bolder dun mottling and
+    its amber eyespots moved to the new tips;
+  - fur as one coat;
+  - broad plumed antennae (they were thin combs);
+  - six legs that splay out from the body with bent knees, lighter so they show (they were tucked along the abdomen);
+  - its wing membranes a little coarser (it is rabble).
+
+  At Light 18.9k (rabble ~20k).
+- The Gloamwing's fur is grey like the sheet's (it bloomed white). At Light 38k.
+- The Thunder-Roc is unchanged this pass (39.6k).
+- Wing beats re-measured: still one a second or slower on every move.
+
 ## Next
 
 - Chris chose full detail for the beasts (November 20): sessions 6 to 8 build them (`docs/project/jobs/foes.md`;

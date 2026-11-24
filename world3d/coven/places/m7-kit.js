@@ -736,5 +736,7 @@
   function isWallAt(d, x, y) { const m = (G.MAPS || {})[d.id]; if (!m) return false; return !m.walk.some((q) => x >= q[0][0] && x <= q[1][0] && y >= q[0][1] && y <= q[2][1]); }
   const P = G.W3D_PLACES = G.W3D_PLACES || {};
   for (const [id, d] of Object.entries(G.M7_PLACES || {})) P['m7-' + id] = make(d);
+  // (Aethermoor, Places, step 6) an arena set is there under its own name too ('arena-road-wood'), for the Fight
+  for (const id of Object.keys(G.M7_PLACES || {})) if (id.startsWith('arena-')) P[id] = P['m7-' + id];
   G.M7_MAKE = make;
 })(window);

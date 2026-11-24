@@ -12,16 +12,16 @@ no missing files.
 
 | Page | Link | Version | Full-detail kit foes |
 |---|---|---|---|
-| Act One | https://claude.ai/artifact/RaeSK5hezqb3qH7jmuM5aj | 10 | 7 of 8 (not the boglurcher) |
-| Act One, full pictures | https://claude.ai/artifact/9rGvzRh4eocZrz4RYPQLz6 | 7 | all 8 |
-| The Sunscorch | https://claude.ai/artifact/7dPEGKka7t1FyHF5SSLPAo | 6 | all 5 (the Sand Wyrm, Kharzul...) |
-| The Sunscorch, full pictures (new) | https://claude.ai/artifact/38JaigTBGjp1FiT4MHdVFh | 2 | all 5 |
-| The Ironspire | https://claude.ai/artifact/6jSwPVzbwwZWmmD6VsQ1sU | 5 | 4 of 6 (Old Horn, Mother Anvil, rockling, rime-wolf) |
-| The Ironspire, full pictures (new) | https://claude.ai/artifact/AC9dw4TH9VqT4P3UcarVLp | 2 | all 6 |
-| The Gloomfen | https://claude.ai/artifact/N2iCRiMardtJNbntUoXYsA | 5 | 7 of 10 |
-| The Gloomfen, full pictures (new) | https://claude.ai/artifact/7f9UFQ93Dk1esA6ju6u8hL | 2 | all 10 (the Blackwater Leviathan too) |
-| Act Three | https://claude.ai/artifact/U8tPe6ZcZKrYA1o7XJeTjp | 4 | the unmade |
-| Act Three, full pictures | https://claude.ai/artifact/28QkrWfL1YqMUnGLki2s5w | 4 | the unmade |
+| Act One | https://claude.ai/artifact/RaeSK5hezqb3qH7jmuM5aj | 11 | 7 of 8 (not the boglurcher) |
+| Act One, full pictures | https://claude.ai/artifact/9rGvzRh4eocZrz4RYPQLz6 | 8 | all 8 |
+| The Sunscorch | https://claude.ai/artifact/7dPEGKka7t1FyHF5SSLPAo | 7 | all 5 (the Sand Wyrm, Kharzul...) |
+| The Sunscorch, full pictures (new) | https://claude.ai/artifact/38JaigTBGjp1FiT4MHdVFh | 3 | all 5 |
+| The Ironspire | https://claude.ai/artifact/6jSwPVzbwwZWmmD6VsQ1sU | 6 | 4 of 6 (Old Horn, Mother Anvil, rockling, rime-wolf) |
+| The Ironspire, full pictures (new) | https://claude.ai/artifact/AC9dw4TH9VqT4P3UcarVLp | 3 | all 6 |
+| The Gloomfen | https://claude.ai/artifact/N2iCRiMardtJNbntUoXYsA | 6 | 7 of 10 |
+| The Gloomfen, full pictures (new) | https://claude.ai/artifact/7f9UFQ93Dk1esA6ju6u8hL | 3 | all 10 (the Blackwater Leviathan too) |
+| Act Three | https://claude.ai/artifact/U8tPe6ZcZKrYA1o7XJeTjp | 5 | the unmade |
+| Act Three, full pictures | https://claude.ai/artifact/28QkrWfL1YqMUnGLki2s5w | 5 | the unmade |
 
 Models' wraiths, armoured and forge foes (the remade Ashen Warden and Unsmith) and winged foes are on every page.
 
@@ -160,6 +160,12 @@ state) and unopened chests glint (`game3d/props.js`). All seven pages republishe
   Begins after the Wilds, the Sunscorch and the Ironspire (six Brands, the Council sat three times, level 15) at the
   top of Mossfall's fen stair. Checked (`game3d/tools/region.mjs gloomfen`, 6 of 6, no page errors): down the stair to
   Murkway, the leech ford and the reed-cutters' chain fought and won, on to Willowmurk, a rest at its fire, saved.
+
+- **The fen's dark heart** (Chris, November 24: "Use the lore name from Moon Faire and Envoi"): M7's "Mother's
+  Hollow" reads "the fen's dark heart" in everything the player reads (`game3d/lore.js`: M7's text as it is bundled,
+  the places' and the Atlas's text at start-up); ids, saves and `game/` untouched. All ten pages republished (the
+  versions above), each starting with no errors; on the Gloomfen page none of the old name is left in what is shown.
+- **Open call 10**: Chris said yes (start from an M7 save code, read only); `CARRY_M7` stays on.
 
 ## Next
 
