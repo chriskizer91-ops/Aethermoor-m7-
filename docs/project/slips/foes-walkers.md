@@ -168,7 +168,18 @@ Eleven, in Act order, through the kit like the walkers; the bestiary ids are the
 - Act labels corrected: Frostmere is in the Ironspire and Misthollow in the Gloomfen, both Act II, so the Drowned Abbess,
   the Choir-Wraith, the Rime-Wraith, the Rime-Abbot and the Lantern Mother now say Act Two. Pages 2-4 rebuilt with this
   and the mirage-wisp; their republish waits for the daily publishing limit to reset (midnight UTC).
-- Next: the wisp-queen.
+- The wisp-queen (`foes/wisp-queen/`, Champion, 1.85 m; on the fourth wraiths page): a floating shape of cold flame, a
+  hidden core under some hundred and fifty flat locks of teal flame, each riding one bone whole (chest, hips, head or an
+  arm) so they sway with her and never stretch; the lowest trail away under her, curling. A flame rising from her head; a
+  white mask with dark almond eyes; a silver tiara of scrolls with a blue diamond; arms of wisps with curled claws; the
+  Mirage Glass on her breast (a faceted, glowing oval in a scrolled silver frame). Sculpt 614,190 triangles; light model
+  48,158; phone 0.84 MB. Moves: Breathe, Walk, Cold Touch, Blink, Beguile, Drink the Well, Hall of Mirrors (she whirls a
+  full turn), Hit, Fall. Passes, full and phone, first time.
+- The eleven wraiths are done. Pages: 1 https://claude.ai/artifact/CFyNjDe1jeuSKytxKdfiVM (the Drowned, the Bell-Ringer,
+  the Drowned Choir), 2 https://claude.ai/artifact/6qxqnJRLVEcJXtaqT21Hkw (the Cantor, the Abbess, the Choir-Wraith),
+  3 https://claude.ai/artifact/BfKMgJSha56yyZxXXfLaSF (the Rime-Wraith, the Rime-Abbot, the Mirage Wisp),
+  4 https://claude.ai/artifact/CHSRA2BHE8GmwQiBYmtPPF (the Lantern Mother, the Wisp-Queen). Each under 15 MB, links
+  between them all. The rebuilt pages go up when the daily publishing limit resets (midnight UTC).
   the Rime-Abbot, the Lantern Mother, the mirage-wisp, the wisp-queen.
 
 ## Links
