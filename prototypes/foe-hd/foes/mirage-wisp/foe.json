@@ -1,0 +1,16 @@
+{
+ "key": "mirage-wisp",
+ "name": "The Mirage Wisp",
+ "plan": "walker",
+ "rank": "veteran",
+ "height": 1.3,
+ "moves": "pages/walkers/foes.js",
+ "bake": {
+  "res": 1024,
+  "phone": 512
+ },
+ "rig": "rig.py",
+ "note": "a walker (session 8): its moves are pages/walkers/foes.js FOES[key] (walker.js movesFor); its own page assets are color.webp, orm.webp and phone/",
+ "glow": "0x70e0ff",
+ "glowIntensity": 0.9
+}

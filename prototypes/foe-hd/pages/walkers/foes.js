@@ -727,7 +727,7 @@ const lanternMother = {
 const mirageWisp = {
   key: 'mirage-wisp', name: 'The Mirage Wisp', tier: 'Veteran', act: 'Act Two, the Glass Flats', height: 1.30, weight: 0.4,
   stiff: 0.5, knees: 0.5,
-  limits: { neck: 0.25, head: 0.5, spine: 0.3, chest: 0.35, l_fore: 0.6, r_fore: 0.6, l_upper: 0.7, r_upper: 0.7 },
+  limits: { neck: 0.15, head: 0.5, spine: 0.3, chest: 0.35, l_fore: 0.6, r_fore: 0.6, l_upper: 0.7, r_upper: 0.7, l_shin: 0.4, r_shin: 0.4, l_thigh: 0.6, r_thigh: 0.6 },
   text: 'A shimmer that walks on its own. It looks like water until it bites, and it bites cold.',
   lunge: 'cold-touch',
   idle(W, t) {

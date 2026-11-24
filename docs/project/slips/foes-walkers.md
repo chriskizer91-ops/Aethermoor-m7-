@@ -159,7 +159,16 @@ Eleven, in Act order, through the kit like the walkers; the bestiary ids are the
   it); a six-sided brass lantern, burning, raised in her left. Sculpt 1,199,680 triangles; light model 38,558; phone
   0.78 MB. Moves: Breathe, Walk, Lamp-Pole, Lure, Lantern Flare, Hush Now, Lead Them Down, Moths, Mourning, Snuff,
   Lantern Nova, Drown the Light, Hit, Fall. Passes, full and phone. (The walkers' page now says "Drag to turn it".)
-- Next: the mirage-wisp and the wisp-queen.
+- The mirage-wisp (`foes/mirage-wisp/`, Veteran, 1.30 m; joins the fourth wraiths page): a small spirit of water, paler
+  streams running up through it and bubbles caught in it; a head like a candle-flame, its tip curling back, little fins
+  at its sides; a white mask of a face with dark tear-shaped eyes and a small sad mouth; a collar of six points; stubby
+  arms whose hands run off into drips; two short sturdy legs; a glowing blue crystal at its heart. Sculpt 568,488
+  triangles; light model 24,882; phone 0.27 MB (12,824 triangles). Moves: Breathe, Walk, Cold Touch, Blink (it steps
+  aside out of your blow), Beguile, Hit, Fall. Passes, full and phone (its knees and neck bend less than a walker's).
+- Act labels corrected: Frostmere is in the Ironspire and Misthollow in the Gloomfen, both Act II, so the Drowned Abbess,
+  the Choir-Wraith, the Rime-Wraith, the Rime-Abbot and the Lantern Mother now say Act Two. Pages 2-4 rebuilt with this
+  and the mirage-wisp; their republish waits for the daily publishing limit to reset (midnight UTC).
+- Next: the wisp-queen.
   the Rime-Abbot, the Lantern Mother, the mirage-wisp, the wisp-queen.
 
 ## Links
