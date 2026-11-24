@@ -92,7 +92,7 @@ C = dict(
     HOLLOW=((0.0, 0.33, 1.13), (0.11, 0.18, 0.26)),
     DOME_C=(0.0, 0.0, 2.2), DOME_R=(0.95, 0.85, 0.58), NFR=96, SPACE=0.05, LEAF_L=0.11, LEAF_W=0.019,
     Z_END=(0.35, 0.95), FRONT_SHORT=0.35, RIBBON_W=(0.06, 0.016),
-    MOSS_Z=2.4, MOSS_AMT=0.9, MOSS_T=0.4, extra=extra,
+    MOSS_Z=2.4, MOSS_AMT=1.0, MOSS_T=0.33, extra=extra, GNARL=0.07, TWIST=7.0,   # (November 24: gnarled, mossier, as the sheet)
 )
 
 def build(K):

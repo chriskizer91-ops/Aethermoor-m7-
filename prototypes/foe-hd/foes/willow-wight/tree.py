@@ -28,9 +28,10 @@ DEFAULTS = dict(
     ROOTS=7, ROOT_REACH=(0.46, 0.1), ROOT_R=(0.10, 0.07, 0.025),
     BOUGHS=8, BOUGH_OUT=(0.28, 0.1), BOUGH_R=(0.07, 0.045, 0.022),
     FACE_S=1.0, HOLLOW=None,
-    DOME_C=(0.0, 0.0, 1.42), DOME_R=(0.52, 0.47, 0.4), NFR=100, SPACE=0.035, LEAF_L=0.075, LEAF_W=0.013,
+    DOME_C=(0.0, 0.0, 1.42), DOME_R=(0.52, 0.47, 0.4), NFR=102, SPACE=0.03, LEAF_L=0.075, LEAF_W=0.013,
     Z_END=(0.42, 0.75), FRONT_SHORT=0.25, RIBBON_W=(0.042, 0.012),
     MOSS_Z=0.6, MOSS_AMT=0.7, MOSS_T=0.5, extra=None,
+    GNARL=0.0, TWIST=4.0,           # (November 24) lumps and burls in the trunk; how far the bark's ridges wind
 )
 
 def build_tree(K, C0):
@@ -43,7 +44,7 @@ def build_tree(K, C0):
     S, G, LV, VOX, SIDES, SEG, log = K.sdf, K.geom, K.LV, K.VOX, K.SIDES, K.SEG, K.log
     smin, smax, ell, cap, fbm, mix, sstep, vnoise = S.smin, S.smax, S.ell, S.cap, S.fbm, S.mix, S.sstep, S.vnoise
     M = K.Mesh()
-    BARK = np.array([0.30, 0.22, 0.14]); BARK2 = np.array([0.42, 0.34, 0.22]); BARKD = np.array([0.12, 0.09, 0.06])
+    BARK = np.array([0.40, 0.30, 0.19]); BARK2 = np.array([0.55, 0.44, 0.28]); BARKD = np.array([0.18, 0.13, 0.08])   # (November 24: lighter, as the sheet)
     MOSSC = np.array([0.30, 0.34, 0.12]); LEAF = np.array([0.34, 0.50, 0.11]); LEAF2 = np.array([0.62, 0.70, 0.18])
     LEAFD = np.array([0.12, 0.24, 0.05]); STRAND = np.array([0.30, 0.30, 0.12]); GLOW = np.array([0.80, 1.0, 0.30])
     BELL = np.array([0.35, 0.55, 1.0])
@@ -97,9 +98,12 @@ def build_tree(K, C0):
             d = smax(d, -ell(P, hc, hr), 0.03)
         # bark: long ridges and grooves running up, winding a little; knots
         th = np.arctan2(y, x)
-        groove = np.abs(np.sin(th * 11 + 3 * fbm(P * [1, 1, 0.25], 2.0, 2) + z * 1.5))
+        groove = np.abs(np.sin(th * 14 + 6 * fbm(P * [1, 1, 0.3], 2.5, 2) + z * C['TWIST']))
         face = np.exp(-((th - math.pi / 2) / 0.6) ** 2) * np.exp(-((z - FACE_Z) / (0.2 * FS)) ** 2)
-        d = d + 0.012 * H / 1.8 * (1 - groove) ** 2 * (1 - face) * sstep(ZTOP + 0.13, ZTOP - 0.22, z)
+        d = d + 0.016 * H / 1.8 * (1 - groove) ** 2 * (1 - face) * sstep(ZTOP + 0.13, ZTOP - 0.22, z)
+        if C['GNARL']:                                                            # gnarled: lumps, burls
+            d = d - C['GNARL'] * (fbm(P * [1, 1, 0.6], 3.0, 3) - 0.5) * sstep(ZTOP + 0.1, ZTOP - 0.3, z) * (1 - face)
+            d = d - C['GNARL'] * 0.6 * np.clip(vnoise(P, 6.0) - 0.72, 0, 1) * 4 * (1 - face)
         if L >= 2: d = d - 0.006 * (fbm(P * [1, 1, 0.35], 9.0, 3) - 0.5)
         if L >= 3: d = d - 0.0015 * (vnoise(P * [1, 1, 0.4], 70.0) - 0.5)
         return np.maximum(d, -z)
@@ -107,12 +111,13 @@ def build_tree(K, C0):
     log('trunk')
     Vt, Ft = S.mc(trunk_sdf, VOX, K.lo, K.hi, band=BAND)
     th = np.arctan2(Vt[:, 1], Vt[:, 0]); z = Vt[:, 2]
-    groove = np.abs(np.sin(th * 11 + 3 * fbm(Vt * [1, 1, 0.25], 2.0, 2) + z * 1.5))[:, None]
+    groove = np.abs(np.sin(th * 14 + 6 * fbm(Vt * [1, 1, 0.3], 2.5, 2) + z * C['TWIST']))[:, None]
     n1 = fbm(Vt, 5.0)[:, None]
     col = mix(BARKD, BARK, np.clip(groove * 1.3 - 0.1, 0, 1))
     col = mix(col, BARK2, np.clip(n1 * 1.5 - 0.6, 0, 1) * groove)
     mossy = np.clip((fbm(Vt, 4.0)[:, None] - C['MOSS_T']) * 3, 0, 1) * (z < C['MOSS_Z'])[:, None]       # moss on the trunk
     col = mix(col, MOSSC, mossy * C['MOSS_AMT'])
+    col = mix(col, MOSSC * 0.85, np.clip(1 - groove * 1.6, 0, 1) * np.clip(fbm(Vt + 7, 6.0)[:, None] * 1.8 - 0.45, 0, 1) * 0.75)   # moss in the grooves, all the way up
     for ex, ez, er in EYES:                                                       # dark sockets, wet tear streaks
         dd = np.linalg.norm((Vt - [ex, FY, ez]) / [er * 2.0, er * 1.6, er * 1.6], axis=1)[:, None]
         col = mix(col, np.array([0.03, 0.03, 0.02]), np.clip(1.5 - dd, 0, 1))
@@ -179,12 +184,17 @@ def build_tree(K, C0):
     DOME_C, DOME_R = np.array(C['DOME_C']), np.array(C['DOME_R'])
     NFR, SPACE = C['NFR'], C['SPACE']
     leaf_seg = {1: 2, 2: 3}.get(LV, 5)
-    for i in range(NFR):
-        a = fr.uniform(0, 2 * math.pi)
+    # (November 24) the fronds hang in clumps of three, close together, as the sheet paints them: thick cascades with
+    # gaps between
+    strands = []
+    for i in range(NFR // 3):
+        ac = fr.uniform(0, 2 * math.pi); p0 = fr.uniform(0.0, 1.1); ze = fr.uniform(*C['Z_END'])
+        for j in range(3):
+            strands.append((ac + (j - 1) * 0.055 + fr.normal(0, 0.012), np.clip(p0 + fr.uniform(-0.12, 0.12), 0, 1.2), ze + fr.uniform(-0.06, 0.06)))
+    for a, phi0, z_end in strands:
         da = ((a - math.pi / 2 + math.pi) % (2 * math.pi)) - math.pi             # the face is at a = pi/2
         if abs(da) < 0.38: a += (0.38 - abs(da) + 0.1) * (1 if da >= 0 else -1)   # parted over the face
-        phi0 = fr.uniform(0.0, 1.1)                                               # where on the dome it starts
-        z_end = fr.uniform(*C['Z_END']) + (C['FRONT_SHORT'] if abs(da) < 0.9 else 0.0)   # shorter in front, by the face
+        z_end = z_end + (C['FRONT_SHORT'] if abs(da) < 0.9 else 0.0)              # shorter in front, by the face
         for sd, pts in ARMS.items():                                              # parted round the arms: stop above them
             aa = math.atan2(pts[1][1], pts[1][0])
             if abs(((a - aa + math.pi) % (2 * math.pi)) - math.pi) < 0.45: z_end = max(z_end, pts[0][2] + 0.02)
@@ -231,7 +241,7 @@ def build_tree(K, C0):
                 p, tan, side, face = at(sv)
                 sgn = 1 if j % 2 else -1
                 ll = C['LEAF_L'] * (0.85 + 0.3 * fr.random()); lw = C['LEAF_W']
-                d = tan * 0.55 + side * sgn * 0.83; d /= np.linalg.norm(d)
+                d = tan * 0.72 + side * sgn * 0.7; d /= np.linalg.norm(d)
                 s_ = np.linspace(0, 1, leaf_seg + 1)
                 w = lw * np.sin(s_ * math.pi) ** 0.7
                 spine = p + d[None] * (ll * s_)[:, None] + (0.1 * ll * s_ ** 2)[:, None] * face
@@ -240,8 +250,8 @@ def build_tree(K, C0):
                 m = leaf_seg + 1
                 Fl = np.array([f for q in range(leaf_seg) for f in ((q, q + 1, m + q + 1), (q, m + q + 1, m + q))])
                 Vl = np.concatenate([top_ + face * 0.0007, top_ - face * 0.0007])
-                g = fr.random()
-                cl = mix(mix(LEAFD, LEAF, 0.2 + 0.8 * g), LEAF2, 0.45 * g ** 3)
+                g = fr.random(); outer = 0.5 + 0.5 * np.clip((p[2] - z_end) / 0.6, 0, 1)    # lighter, yellower outside and up
+                cl = mix(mix(LEAFD, LEAF, 0.25 + 0.75 * g), LEAF2, (0.25 + 0.45 * g ** 2) * outer)
                 add(Vl, np.concatenate([Fl, Fl[:, ::-1] + 2 * m]), np.tile(np.clip(cl, 0, 1), (len(Vl), 1)))
         if fr.random() < 0.25:                                                   # a drop of the weeping at the tip
             V, F = G.ellipsoid(path[-1] + [0, 0, -0.012], (0.005, 0.005, 0.008), 5, 7); add(V, F, np.tile(GLOW * 0.85, (len(V), 1)))
