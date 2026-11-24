@@ -1,16 +1,16 @@
 # The board
 
-Where the 3D game stands. Written by the hub only. Last updated November 24, small hours.
+Where the 3D game stands. Written by the hub only. Last updated November 24, early morning.
 
 ## The sessions
 
 | # | Job | Session | Branch | State | Latest link |
 |---|---|---|---|---|---|
 | 1 | the hub | `session_01DgbUKb6orvjjc1cMgBGPJK` | `claude/brave-davinci-790efm` | running | (the board) |
-| 2 | The Fight | `session_01DgbUKYR9qmKyBdACUWGViw` | `job/fight` | 255 hand-made moments, Act Two done throughout (pages for Act Two, the Sunscorch, the Ironspire, the Gloomfen); lively Briarmaw, Kharzul, the Sand Wyrm's swallow; next: Act Three (the Hollow Council, the Unsmith's companions); the eyrie waits on Places | https://claude.ai/artifact/Q9T8quXCTVgiVUZoMuUaP4 |
-| 3 | Models | `session_01DgbUKcWh5MEvjHnxzp4HHo` | `job/models` | going back over its foes against the sheets: the Ashen Warden remade as a plated knight, the Unsmith's apron, open mantle and hammer; next: the Rime-Abbot, the Lantern Mother, the Gloamwing and the Roc again, then the Gear Room | https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL |
-| 4 | Places | `session_01DgbUKZVFBfm1dVautXEw5f` | `job/places` | the 16 MB squeeze: build.mjs --lean (scripts packed, the continent ground at phone size, lossless data maps; Act One's game page 15.8 → 11.1 MB, nothing visible changed), offered to Together and the Fight; full-picture place pages ready for Chris's word | https://claude.ai/artifact/GBxRVSqwMwYUTy1xLNjATA |
-| 5 | Together | `session_01DgbUKbyjzZFe1BXHHxzHBn` | `job/together` | all ten game pages rebuilt with every look chained (five single, five full-pictures, one per region); checking the Sand Wyrm fight, Briarmaw's den (3/3) and Rekindle with M7's late-game party before publishing | https://claude.ai/artifact/RaeSK5hezqb3qH7jmuM5aj |
+| 2 | The Fight | `session_01DgbUKYR9qmKyBdACUWGViw` | `job/fight` | 255 hand-made moments, Act Two done throughout; all nine fight pages rebuilt lean with sharper ground (Act One and the Ironspire on two pages each, every page 14.4-15.7 MB); the Rot-Stag's crown re-baked; next: Act Three (the Hollow Council, the Unsmith's companions) | https://claude.ai/artifact/Q9T8quXCTVgiVUZoMuUaP4 |
+| 3 | Models | `session_01DgbUKcWh5MEvjHnxzp4HHo` | `job/models` | going back over its foes against the sheets: the Ashen Warden, the Unsmith, the Rime-Abbot (frost mask, icicle grille) and the Lantern Mother (shawl, apron, lantern held high) done; next: the Gloamwing and the Roc again, then the Gear Room | https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL |
+| 4 | Places | `session_01DgbUKZVFBfm1dVautXEw5f` | `job/places` | every step done (Acts Two and Three, the continent, the places alive, set dressing, the place map, the 16 MB squeeze with --lean); full-picture place pages ready for Chris's word; standing by (to spare the usage limit) | https://claude.ai/artifact/GBxRVSqwMwYUTy1xLNjATA |
+| 5 | Together | `session_01DgbUKbyjzZFe1BXHHxzHBn` | `job/together` | the five single game pages packed with --lean, the room given to the heroes (256 px) and more full-detail foes (Act One 7, the Sunscorch 5, the Ironspire 4, the Gloomfen 7); the party no longer keeps the fight's pose on the walk; checking Rekindle and Briarmaw's den before publishing | https://claude.ai/artifact/RaeSK5hezqb3qH7jmuM5aj |
 | 6 | One Foe | `session_01DgbUKZCNBFY7zwSzwAXR8y` | `job/foe-hd` | its lane done and given a second pass against the sheets (every foe, all pass); the kit; standing by for fixes (to spare the usage limit) | https://claude.ai/artifact/3Px9mipuqrTBB8NFfehbj5 |
 | 7 | Foes: beasts | `session_01DgbUKZ4qEpafSazysExsYV` | `job/foes-beasts` | its lane done and given a second pass (the Rot-Stag's crown, Old Snag, the Mire-King, the rotgrub, the rime-wolf; all pass); standing by for fixes (to spare the usage limit) | https://claude.ai/artifact/64Ukg3yQAAb8DWz69xqvxs |
 | 8 | Foes: walkers | `session_01DgbUKcTDUjKDVHw3sPhu7R` | `job/foes-walkers` | every walker built, passing, and given a second pass against the sheets (the trolls' real hands, the Rotwarden's root arm of 26 strands, the sapwight's bark); standing by for fixes (to spare the usage limit) | https://claude.ai/artifact/YBLUHaLG3bNdfcjBdeq3aj |
@@ -114,7 +114,7 @@ Where the 3D game stands. Written by the hub only. Last updated November 24, sma
   https://claude.ai/artifact/HD9GL1Ao4ymzRRodVY2ozm. Once Chris sees it work on his phone, the game and the heavy pages
   can stop shrinking textures.
   Places' full-picture place pages, ready: Act One https://claude.ai/artifact/Bj4LCg53vgXUmjWVHg2zcS, the Sunscorch https://claude.ai/artifact/5f2RLeW2Rca4zLVp8TTVqu, the Ironspire https://claude.ai/artifact/V5CAGZ42du4T6R95qFDSX6, the Gloomfen https://claude.ai/artifact/6VVQYWfKGpZHg4axLT3bNR, Act Three https://claude.ai/artifact/1et94D5gmkV9kQe6wUBAbG.
-- **--lean (Places, November 24):** `world3d/build.mjs --lean` packs scripts and stores data maps losslessly: Act One's game page 15.8 → 11.1 MB with nothing visible changed. Every single-file page should use it.
+- **--lean (Places, November 24):** `world3d/build.mjs --lean` packs scripts and stores data maps losslessly: Act One's game page 15.8 → 11.1 MB with nothing visible changed. Together's five single game pages and the Fight's nine pages use it now, and spend the room on sharper pictures and more full-detail foes.
 
 - **No stretching (Chris, November 21; every model session; the Rotwarden's webbing fixed, hub ef4a3f3):** the Rotwarden's arms drag his waist and belt into a web
   when they spread (`from-chris/2026-11-21-rotwarden-stretch.webp`). Session 8 fixes his weights; session 6 puts a
