@@ -36,6 +36,7 @@ import { arena } from '../world3d/battle/arena.js';
 import { runFight } from '../world3d/battle/run.js';
 import { loadLive, hasLive, saveLive, backupLive, clearLive, readM7, loadSettings, saveSettings } from './save.js';
 import { importCode } from './save-codes.js';
+import { loreWalk } from './lore.js';
 import { createWorld, gearFor } from './walk.js';
 import { setFoeLook, LOOKS, hdFoes } from './figures.js';
 import { openParty } from '../world3d/battle/party-room.js';
@@ -65,6 +66,8 @@ const DEFAULTS = { sound: true, music: true, battleSpeed: Number(Q.get('speed'))
 const SCREENS = { aftermath, party: partyScreen, journal, codex, newgame, settings: settingsScreen };
 
 async function main() {
+  // the lore's names over M7's (game3d/lore.js): the places' and the Atlas's text, whose scripts have all run by now
+  for (const k of ['W3D_PLACES', 'M7_ATLAS_DATA', 'MapPlaces']) try { loreWalk(window[k]); } catch (e) { console.warn('lore names', k, e); }
   const $ = (id) => document.getElementById(id);
   const PHONE = matchMedia('(pointer: coarse)').matches && !matchMedia('(any-pointer: fine)').matches;
   let toastT = 0;
