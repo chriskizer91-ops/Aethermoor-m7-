@@ -459,5 +459,51 @@ const drownedCantor = {
   },
 };
 
-export const FOES = { rotwarden, sapwight, 'old-horn': oldHorn, 'peak-troll': peakTroll, unmade, drowned, 'bell-ringer': bellRinger, 'drowned-choir': drownedChoir, 'drowned-cantor': drownedCantor };
+// the drowned abbess: tier on tier of habit, the Drowned Censer in her left hand; her long veil rides her head, so her head
+// turns only a little
+const drownedAbbess = {
+  key: 'drowned-abbess', name: 'The Drowned Abbess', tier: 'Relic-Bearer', act: 'Act Three, Frostmere', height: 1.9, weight: 1.0,
+  stiff: 0.6, knees: 0.35,
+  limits: { neck: 0.25, head: 0.3, spine: 0.3, chest: 0.35, l_shin: 0.4, r_shin: 0.4, l_fore: 0.5, r_fore: 0.5, l_upper: 0.6, r_upper: 0.6, l_hand: 0.28 },
+  text: 'She says the last rites over her choir, as she did every night for thirty years.',
+  lunge: 'drowned-grasp',
+  idle(W, t) {
+    const b = W.bones, sw = Math.sin(t * 0.5);
+    W.body.rotation.z = 0.015 * sw; W.body.position.z = 0.01 * Math.sin(t * 0.8);
+    b.l_hand.rotation.x = 0.12 * Math.sin(t * 1.0); b.l_hand.rotation.z = 0.06 * Math.sin(t * 0.7);   // the censer swaying on its chain
+  },
+  moves: {
+    'drowned-grasp': { label: 'Drowned Grasp', dur: 1.6, pose(W, u, t) {
+      // a hand as cold as the lake-bed comes out of her sleeve and closes on yours
+      const b = W.bones, k = seg(u, 0.05, 0.45) * (1 - seg(u, 0.75, 1)), grip = seg(u, 0.4, 0.55) * (1 - seg(u, 0.75, 1));
+      b.r_upper.rotation.x = -1.1 * k; b.r_fore.rotation.x = -0.2 * k - 0.35 * grip; b.spine.rotation.x = 0.12 * k; W.body.position.z = 0.18 * k;
+    } },
+    dirge: { label: 'Dirge', dur: 2.4, pose(W, u, t) {
+      // she lifts her weeping face and sings the office for the drowned, the censer swinging slow
+      const b = W.bones, k = seg(u, 0.05, 0.3) * (1 - seg(u, 0.8, 1));
+      b.head.rotation.x = -0.35 * k; b.neck.rotation.x = -0.2 * k; b.chest.rotation.x = -0.1 * k;
+      b.l_hand.rotation.x = 0.3 * Math.sin(u * 9) * k; W.body.rotation.z = 0.03 * Math.sin(u * 7) * k;
+    } },
+    'pull-under': { label: 'Pull Under', dur: 1.9, pose(W, u, t) {
+      // she sinks, and reaches up out of the ice for your ankles
+      const b = W.bones, low = seg(u, 0.05, 0.4) * (1 - seg(u, 0.55, 0.85)), pull = seg(u, 0.45, 0.65) * (1 - seg(u, 0.85, 1));
+      W.body.position.y -= 0.16 * low; b.spine.rotation.x = 0.2 * low; b.chest.rotation.x = 0.2 * low; b.r_upper.rotation.x = -0.8 * low - 0.2 * pull;
+      b.r_fore.rotation.x = -0.5 * pull; W.body.position.z = 0.15 * low - 0.15 * pull;
+    } },
+    'last-rites': { label: 'Last Rites', dur: 2.4, pose(W, u, t) {
+      // she raises the censer over her drowned choir and swings it in blessing
+      const b = W.bones, up = seg(u, 0.05, 0.3) * (1 - seg(u, 0.8, 1)), sw = Math.sin(u * 14) * up;
+      b.l_upper.rotation.x = -0.75 * up; b.l_upper.rotation.z = -0.15 * up; b.l_fore.rotation.x = -0.2 * up; b.l_hand.rotation.z = 0.35 * sw;
+      b.r_upper.rotation.x = -0.4 * up; b.head.rotation.x = 0.2 * up;
+    } },
+    'censer-swing': { label: 'Censer Swing', dur: 1.8, pose(W, u, t) {
+      // the Drowned Censer swings out at you in a great arc, and the smoke smells of lake-water
+      const b = W.bones, back = seg(u, 0.05, 0.35) * (1 - seg(u, 0.4, 0.55)), out = seg(u, 0.42, 0.58) * (1 - seg(u, 0.8, 1));
+      b.l_upper.rotation.x = 0.35 * back - 1.0 * out; b.l_upper.rotation.z = -0.2 * out; b.l_hand.rotation.x = 0.22 * back - 0.28 * out;
+      b.chest.rotation.y = -0.2 * back + 0.25 * out; b.spine.rotation.y = -0.08 * back + 0.1 * out; W.body.position.z = 0.12 * out;
+    } },
+  },
+};
+
+export const FOES = { rotwarden, sapwight, 'old-horn': oldHorn, 'peak-troll': peakTroll, unmade, drowned, 'bell-ringer': bellRinger, 'drowned-choir': drownedChoir, 'drowned-cantor': drownedCantor, 'drowned-abbess': drownedAbbess };
 export const COMMON = [['idle', 'Breathe', 0], ['walk', 'Walk', 0], ['hurt', 'Hit', 0.9], ['ko', 'Fall', 2.6]];
