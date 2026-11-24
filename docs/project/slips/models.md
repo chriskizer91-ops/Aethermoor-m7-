@@ -453,6 +453,27 @@ republished: https://claude.ai/artifact/4WQXpMifD5GWsgCXTP4PVD
 - Still open: the Unsmith has 51 draws at High and 47 at Light. The 4-draw gap was already there before this pass, and
   I haven't tracked it down yet.
 
+**Back over the foes against their sheets: the Rime-Abbot and the Lantern Mother** (November 24). Wraiths gallery
+republished: https://claude.ai/artifact/KiYfGSBcUQ6gU4WqVKGojD
+- The Rime-Abbot:
+  - a bigger cowl with thick braids round the face;
+  - a pale mask of rime behind a grille of icicles under three pointed arches;
+  - a silver-ringed blue brooch at the throat, with strands of beads and tassels;
+  - zigzags of frost along the cope's hem and the capelet's, and a snowflake on its back;
+  - the crozier darker, banded with blocks of ice (it bloomed white before).
+
+  At Light 23k.
+- The Lantern Mother:
+  - the knitted shawl draped to a point in front and behind, with a long fringe of tassels;
+  - a double row of gold buttons;
+  - a long apron embroidered with a stem of leaves, with lace at its hem;
+  - a fuller, deeper-folded skirt;
+  - her lantern raised to head height like the sheet.
+
+  At Light 16k.
+- Still open: the Abbot's cowl is squarer than the sheet's drooping hood; the Mother's lantern is a plain square one,
+  not the sheet's pointed Gothic lantern.
+
 ## Next
 
 - Chris chose full detail for the beasts (November 20): sessions 6 to 8 build them (`docs/project/jobs/foes.md`;
