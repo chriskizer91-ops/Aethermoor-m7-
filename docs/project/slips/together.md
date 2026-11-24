@@ -1,8 +1,43 @@
 # Slip: Together (session 5, branch `job/together`)
 
-Last updated November 23.
+Last updated November 24.
 
 ## Done
+
+## Latest round (November 24): ten pages, lean single files, every act's foes, the pose fix
+
+Built from the hub's branch at 7d8a864 and after (every foe in the game with a full-detail model; the thornhound and the
+rime-wolf on the full-pictures pages). Every page starts with no errors; the full-pictures pages load over http with
+no missing files.
+
+| Page | Link | Version | Full-detail kit foes |
+|---|---|---|---|
+| Act One | https://claude.ai/artifact/RaeSK5hezqb3qH7jmuM5aj | 9 | 7 of 8 (not the boglurcher) |
+| Act One, full pictures | https://claude.ai/artifact/9rGvzRh4eocZrz4RYPQLz6 | 6 | all 8 |
+| The Sunscorch | https://claude.ai/artifact/7dPEGKka7t1FyHF5SSLPAo | 5 | all 5 (the Sand Wyrm, Kharzul...) |
+| The Sunscorch, full pictures (new) | https://claude.ai/artifact/38JaigTBGjp1FiT4MHdVFh | 1 | all 5 |
+| The Ironspire | https://claude.ai/artifact/6jSwPVzbwwZWmmD6VsQ1sU | 4 | 4 of 6 (Old Horn, Mother Anvil, rockling, rime-wolf) |
+| The Ironspire, full pictures (new) | https://claude.ai/artifact/AC9dw4TH9VqT4P3UcarVLp | 1 | all 6 |
+| The Gloomfen | https://claude.ai/artifact/N2iCRiMardtJNbntUoXYsA | 4 | 7 of 9 |
+| The Gloomfen, full pictures (new) | https://claude.ai/artifact/7f9UFQ93Dk1esA6ju6u8hL | 1 | all 9 (the Leviathan has no stretch check yet) |
+| Act Three | https://claude.ai/artifact/U8tPe6ZcZKrYA1o7XJeTjp | 3 | the unmade |
+| Act Three, full pictures | https://claude.ai/artifact/28QkrWfL1YqMUnGLki2s5w | 3 | the unmade |
+
+Models' wraiths, armoured and forge foes (the remade Ashen Warden and Unsmith) and winged foes are on every page.
+
+- **Lean single files** (Places' `--lean`, on every single-file build; `--no-lean` turns it off): the room went to the
+  heroes (back to 256 px) and more full-detail foes per page, each page under 16 MB.
+- **The pose fix**: after a fight the party walked on with their arms held out (the arena's pose left on the reused
+  figures, on every earlier page); the figures are made afresh after a fight now. Checked: the glass scorpions fought
+  and the leader walks on normally.
+- **Each act's own foes** (`foesHd` for the single file, `fullHd` for the full-pictures page, in `game3d/build.mjs`),
+  the desert lane's move sets (scorpion, lizard, wyrm with the Sand Wyrm's swallow, Kharzul's) added before registering.
+- **The Worldforge**: Places' furnace mouth at the heart, the furnace and the great anvil.
+- **Checks**: Briarmaw's den on the lean Act One page (no page errors); the Sand Wyrm fought and won on the Sunscorch
+  page (`fight.mjs`, 3 of 3, no page errors); the Rotwarden 11 of 11 and the drowned 3 of 3 the round before.
+  Rekindle with M7's own late-game party (`PARTY_FROM`, from M7's balance sim): the Chained Deep crossed (the unmade
+  beaten, Tamsin back), the forge-warden beaten, over the bridge; the Unsmith's fight runs over an hour headless and is
+  being played out (the checks now wait up to 3 hours on a fight).
 
 ## Latest round (November 23): the endings, the foes back, chests, the wraiths, the save-code box
 
