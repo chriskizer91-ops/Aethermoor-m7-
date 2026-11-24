@@ -1,6 +1,59 @@
 # Slip: Models (session 3, branch `job/models`)
 
-Last updated November 20 (painted standees for Chris's comparison).
+Last updated November 24 (handoff for a fresh session).
+
+## Handoff (November 24)
+
+For a fresh session taking Models (session 3, branch `job/models`). Read `docs/project/README.md`, `BOARD.md` and
+`docs/project/jobs/models.md` first; merge the hub's branch (`git fetch origin claude/brave-davinci-790efm && git merge
+FETCH_HEAD`) before working.
+
+**Where I stopped.** Chris's November 24 notes are all done and merged: the winged beat once a second or slower; the
+Gear Room's panels fold away; `withWraiths` / `withArmoured` / `withWinged` step aside for the kit's finished foes; the
+moths polished against their sheets. Last commit before this handoff: 6048106. Nothing is in progress.
+
+**What's mine now.**
+- The heroes and the Gear Room (`prototypes/hero-3d/`: `model.js` builds every hero, item, townsfolk and people foe;
+  `kit.js` the parts, materials and sculpted masters; `weapons.js`; `masters/sculpt.py` makes the 42 master kinds).
+  `model.js` goes into every page: keep its growth small and report its byte change (minified) to the hub.
+- The townsfolk and the people foes (`people.js`, `buildFoeLooks` in `model.js`), and `world3d/heroes.js`.
+- The winged (`prototypes/winged/winged.js`: the Lamp-Moth, the Gloamwing, the Thunder-Roc).
+- The Bestiary (`prototypes/bestiary/`) as the stand-in beasts.
+- Stand-ins only: the wraiths (`prototypes/wraiths/`) and the iron and forge foes (`prototypes/armoured/`). Sessions 8
+  and 6 have made the full-detail versions through the kit. Mine show only where a page has not registered the kit's
+  version (`registered(key)` from `prototypes/foe-hd/kit/js/looks.js`; pages register exactly the foes whose
+  `prototypes/foe-hd/foes/<key>/stretch.json` passes). Don't polish these further unless asked.
+
+**Pages** (publish each with the Artifact tool to the same link; the `*.artifact.html` file in each `dist/`):
+- The Gear Room: https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL (`prototypes/hero-3d`, `node build.mjs`;
+  `--debug` for `dist/gear-room-debug.html`, which the item audit needs)
+- The winged: https://claude.ai/artifact/CmY9BHJzyVYCYgQtpboqBg (`prototypes/winged`)
+- The wraiths: https://claude.ai/artifact/KiYfGSBcUQ6gU4WqVKGojD (`prototypes/wraiths`)
+- The ironclad (iron and forge): https://claude.ai/artifact/4WQXpMifD5GWsgCXTP4PVD (`prototypes/armoured`)
+- The Bestiary: https://claude.ai/artifact/CA6CcAKVHSxGPB5TAZF5sY (`prototypes/bestiary`)
+
+Each prototype folder needs `ln -s ../hero-3d/node_modules node_modules` once (and `npm install` in `hero-3d`).
+
+**Checks** (in `prototypes/hero-3d/checks/`, Playwright headless with SwiftShader; run with `node <script> <args>`):
+- `audit.cjs dist/gear-room-debug.html`: the item audit (458 items, expect 0 flagged).
+- `stats.cjs dist/gear-room.html`: triangles, meshes and draw calls at High, Light and Lite (226 / 104 / 24 calls now).
+- `lite.cjs`: the four heroes and all 92 townsfolk and people foes build at High, Light and Lite with no errors. Run it
+  after any change to `model.js`: Lite has fewer ring points, so never pick points by fixed index (this broke the game's
+  townsfolk once, November 24).
+- `wgstats.cjs`, `wrstats.cjs`, `arstats.cjs <dist/....html>`: High and Light triangles and draws per foe, sculpts,
+  scroll width at 390 px. Budgets at Light: rabble ~20k, veterans ~30k, Relic-Bearers ~40k, Champions ~50k; same draws
+  at High and Light.
+- `rate.cjs`: wing beats a second on every winged move (Chris: at most one).
+- `wr.cjs <page> <outdir> <keys>` then `wrsheet.py <outdir> <keys> [winged|armoured|wraiths]`: front, side and back
+  beside Chris's sheet.
+- `fold.cjs [outdir]`: the Gear Room's fold buttons at 390 px.
+- The hand-over: `withX` must return the fallback's look for a registered key; I checked it with a small test page
+  that registers fake keys (`register({ lightMeta: { key, plan: 'quad' }, tex: { 1024: 1 } })`).
+
+**What's next.** Whatever Chris notes on the heroes, the townsfolk, the people foes or the winged; the Thunder-Roc
+had no change in the last polish pass, so it is the first candidate if he asks for more on the winged. Known gaps:
+the robes' bodies are still plainer than the foes beside them; the Unsmith's draws differ by 4 between High (51) and
+Light (47).
 
 ## Done
 
@@ -566,12 +619,10 @@ https://claude.ai/artifact/CmY9BHJzyVYCYgQtpboqBg)
 
 ## Next
 
-- Chris chose full detail for the beasts (November 20): sessions 6 to 8 build them (`docs/project/jobs/foes.md`;
-  sculpts of 500k to 1M triangles kept as viewable assets, baked to about 50k for the game). This job does no more
-  beast reshaping. The sculpted twelve (`sculpt.js`) and the painted standees (`standee.js`, `standeeLook`) stay as
-  stand-ins, and `buildBeast` and the Bestiary keep working, until each full-detail foe lands.
-- This job keeps the heroes, the townsfolk, the people foes, the wraiths, the ironclad and constructs, and the winged:
-  next, whatever the hub asks for them.
+- Stopped for a fresh session (November 24): see the Handoff at the top. Next is whatever Chris notes on the heroes,
+  the townsfolk, the people foes or the winged.
+- The wraiths and the iron and forge foes are the kit's now (sessions 8 and 6); mine stay as stand-ins and step aside
+  on their own.
 
 ## Changed outside my files
 
