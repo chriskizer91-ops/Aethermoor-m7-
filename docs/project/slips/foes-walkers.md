@@ -131,7 +131,13 @@ Eleven, in Act order, through the kit like the walkers; the bestiary ids are the
   censer swaying), Walk, Drowned Grasp, Dirge, Pull Under, Last Rites, Censer Swing, Hit, Fall. Passes, full and phone.
   Her wide sleeves hang past the elbow, so each arm point is the upper arm's above the elbow and the forearm's below;
   her hand only past the wrist; her long veil rides her head, so her head turns only a little.
-- Next: the choir-wraith, the drowned cantor, the drowned abbess, the choir-wraith, the rime-wraith,
+- **The choir-wraith** (done; second wraiths page): it floats, no feet; a hood and a grey singing mask (sad brows,
+  shut eyes, a round open mouth) with its song coming out as a curl of glowing blue breath; a short hooded cape, ragged,
+  two brass tags at its sides; a robe pieced in pointed arches, brass studs where they meet, flaring to tongues that
+  end in the air; blue hands holding an open hymnal (brass corners, three hooded singers on its cover). Sculpt
+  1,051,870 triangles; light model 32,787; phone 0.49 MB. Moves: Breathe (floating, bobbing), Walk, Drowned Grasp, The
+  Note, Dirge, Hit, Fall. Passes, full and phone. Its hands hold the hymnal together (`clasped`).
+- Next: the rime-wraith, the drowned cantor, the drowned abbess, the choir-wraith, the rime-wraith,
   the Rime-Abbot, the Lantern Mother, the mirage-wisp, the wisp-queen.
 
 ## Links

@@ -505,5 +505,38 @@ const drownedAbbess = {
   },
 };
 
-export const FOES = { rotwarden, sapwight, 'old-horn': oldHorn, 'peak-troll': peakTroll, unmade, drowned, 'bell-ringer': bellRinger, 'drowned-choir': drownedChoir, 'drowned-cantor': drownedCantor, 'drowned-abbess': drownedAbbess };
+// the choir-wraith: a chorister of Frostmere, still singing; it floats, and holds its hymnal in both hands
+const choirWraith = {
+  key: 'choir-wraith', name: 'The Choir-Wraith', tier: 'Veteran', act: 'Act Three, Frostmere', height: 1.95, weight: 0.7,
+  stiff: 0.7, knees: 0.2, clasped: true,
+  limits: { neck: 0.22, head: 0.5, spine: 0.3, chest: 0.35, hips: 0.4, l_fore: 0.5, r_fore: 0.5, l_upper: 0.6, r_upper: 0.6 },
+  text: 'It sings one long note under the ice, and the cold gets into you.',
+  lunge: 'drowned-grasp',
+  idle(W, t) {
+    const b = W.bones;
+    W.body.position.y = 0.04 * Math.sin(t * 0.9); W.body.rotation.z = 0.02 * Math.sin(t * 0.5);      // floating, bobbing
+    b.head.rotation.x = -0.05 + 0.04 * Math.sin(t * 0.7); b.r_upper.rotation.x = 0.03 * Math.sin(t * 1.1);
+  },
+  moves: {
+    'drowned-grasp': { label: 'Drowned Grasp', dur: 1.6, pose(W, u, t) {
+      // it lunges, the hymnal thrust out, and the cold closes on you
+      const b = W.bones, k = seg(u, 0.05, 0.4) * (1 - seg(u, 0.7, 1));
+      b.r_upper.rotation.x = -0.5 * k; b.r_fore.rotation.x = 0.3 * k; b.spine.rotation.x = 0.2 * k; b.head.rotation.x = 0.2 * k;
+      W.body.position.z = 0.25 * k;
+    } },
+    'the-note': { label: 'The Note', dur: 2.4, pose(W, u, t) {
+      // it lifts its face and sings one long note under the ice
+      const b = W.bones, k = seg(u, 0.05, 0.3) * (1 - seg(u, 0.8, 1)), q = Math.sin(u * 40) * k;
+      b.head.rotation.x = -0.4 * k; b.neck.rotation.x = -0.2 * k; b.chest.rotation.x = -0.12 * k; b.r_upper.rotation.x = -0.3 * k;
+      W.body.position.y += 0.06 * k; b.head.rotation.z = 0.02 * q;
+    } },
+    dirge: { label: 'Dirge', dur: 2.4, pose(W, u, t) {
+      // it sings the office for the drowned, swaying over the hymnal
+      const b = W.bones, k = seg(u, 0.05, 0.25) * (1 - seg(u, 0.85, 1)), sw = Math.sin(u * 10) * k;
+      b.head.rotation.x = 0.2 * k; b.spine.rotation.x = 0.1 * k; W.body.rotation.z = 0.05 * sw; b.head.rotation.z = 0.08 * sw;
+    } },
+  },
+};
+
+export const FOES = { rotwarden, sapwight, 'old-horn': oldHorn, 'peak-troll': peakTroll, unmade, drowned, 'bell-ringer': bellRinger, 'drowned-choir': drownedChoir, 'drowned-cantor': drownedCantor, 'drowned-abbess': drownedAbbess, 'choir-wraith': choirWraith };
 export const COMMON = [['idle', 'Breathe', 0], ['walk', 'Walk', 0], ['hurt', 'Hit', 0.9], ['ko', 'Fall', 2.6]];
