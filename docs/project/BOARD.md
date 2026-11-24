@@ -1,6 +1,6 @@
 # The board
 
-Where the 3D game stands. Written by the hub only. Last updated November 24, early morning.
+Where the 3D game stands. Written by the hub only. Last updated November 24, morning (UTC).
 
 ## The sessions
 
