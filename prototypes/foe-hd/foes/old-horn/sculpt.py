@@ -83,17 +83,39 @@ def legs(P):
         e = smin(e, slab(ell(P, ANK[s] + [s * 0.02, 0.12, -0.09], (0.22, 0.26, 0.12)), P, 0.0, 1.0), 0.06)
         d = e if d is None else np.minimum(d, e)
     return d
-def fists(P):
+def chain(P, pts, r0, r1):
+    """a finger: capsules joined end to end, thick at the knuckle, blunt at the tip"""
     d = None
-    for s in (1, -1):
-        F = FIST[s]
-        e = ell(P, F, (0.09, 0.13, 0.13))
-        for i in range(4):
-            y = F[1] - 0.07 + 0.045 * i
-            e = smin(e, sph(P, F + [s * 0.02, y - F[1], -0.06], 0.045), 0.02)          # knuckles curled under
-        e = smin(e, cap(P, F + [-s * 0.07, 0.06, 0.03], F + [-s * 0.07, 0.11, -0.04], 0.04, 0.035), 0.02)   # the thumb
-        d = e if d is None else np.minimum(d, e)
+    rr = np.linspace(r0, r1, len(pts))
+    for i in range(len(pts) - 1):
+        e = cap(P, pts[i], pts[i + 1], rr[i], rr[i + 1])
+        d = e if d is None else smin(d, e, 0.006)
     return d
+# the club's axis (the club itself is made in section 7): the left hand closes round it
+CL0 = FIST[-1] + np.array([0.0, -0.06, 0.12]); CL1 = FIST[-1] + np.array([-0.24, 0.62, -0.58])
+CLD = (CL1 - CL0) / np.linalg.norm(CL1 - CL0)
+def fists(P):
+    # his hands (Chris's sheets: thick fingers, not mittens): the right hangs half curled, the left grips the club
+    F = FIST[1]
+    d = ell(P, F + [0.0, 0.0, -0.01], (0.085, 0.13, 0.12))                              # the right palm, broad
+    for i in range(4):
+        y = -0.085 + 0.056 * i; L = 1.0 - 0.13 * abs(i - 1.5)
+        b = F + [0.01, y, -0.09]
+        pts = [b, b + [-0.005, 0.006, -0.08 * L], b + [-0.045, 0.014, -0.15 * L], b + [-0.085, 0.018, -0.17 * L]]
+        d = smin(d, chain(P, [np.array(p, float) for p in pts], 0.047, 0.036), 0.012)    # four thick fingers, curling in
+    d = smin(d, chain(P, [F + [-0.06, 0.10, 0.0], F + [-0.09, 0.16, -0.05], F + [-0.10, 0.19, -0.11]], 0.05, 0.038), 0.015)   # thumb
+    # the left: the palm against the club, four fingers wrapped round it, the thumb over them
+    e1 = np.cross(CLD, [0, 0, 1.0]); e1 /= np.linalg.norm(e1); e2 = np.cross(CLD, e1)
+    tg = 0.17                                                                           # where on the club he grips it
+    c0 = CL0 + (CL1 - CL0) * tg; R = (0.055 + 0.10 * tg ** 1.6) + 0.045
+    e = ell(P, c0 - e1 * 0.09, (0.08, 0.13, 0.12))
+    for i in range(4):
+        ci = c0 + CLD * (0.06 * (i - 1.5))
+        arc = [ci + R * (math.cos(a) * e1 + math.sin(a) * e2) for a in np.linspace(math.pi * 0.9, math.pi * 2.25, 5)]
+        e = smin(e, chain(P, arc, 0.044, 0.038), 0.01)
+    arc = [c0 - CLD * 0.09 + R * (math.cos(a) * e1 + math.sin(a) * e2) for a in np.linspace(math.pi * 1.0, math.pi * 1.7, 4)]
+    e = smin(e, chain(P, arc, 0.05, 0.04), 0.012)                                        # the thumb round the other way
+    return np.minimum(d, e)
 def head(P):
     h = ell(P, HEAD, (0.19, 0.20, 0.20))
     h = smin(h, ell(P, HEAD + [0, 0.14, -0.10], (0.16, 0.14, 0.12)), 0.06)          # the jaw, wide (an underbite)
@@ -216,7 +238,7 @@ def group(names, keep=True):
 # his head too (kind 14), so it turns on his thick neck without dragging the fur collar after it
 HEADP = {'head', 'ears', 'eye1', 'eye-1'}
 LIMB = {'arms', 'fists', 'legs'} | HEADP
-GROUPS = [(group(LIMB, False), 0, LO, HI), (group({'arms', 'fists'}), 12, (-0.95, -0.15, 0.45), (0.95, 0.55, 2.0)),
+GROUPS = [(group(LIMB, False), 0, LO, HI), (group({'arms', 'fists'}), 12, (-0.95, -0.15, 0.30), (0.95, 0.60, 2.0)),
           (group({'legs'}), 13, (-0.75, -0.40, -0.01), (0.75, 0.50, 1.30)),
           (group(HEADP), 14, (-0.50, 0.08, 1.62), (0.40, 0.84, 2.40))]
 VS, FS, LK, KS, off = [], [], [], [], 0

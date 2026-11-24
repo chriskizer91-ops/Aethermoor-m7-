@@ -35,7 +35,7 @@ TEAL = np.array([0.13, 0.29, 0.28]); TEAL_D = np.array([0.08, 0.19, 0.19]); TEAL
 GOLD = np.array([0.80, 0.60, 0.22]); GOLD_D = np.array([0.50, 0.33, 0.10])
 STEEL = np.array([0.52, 0.54, 0.57]); STEEL_D = np.array([0.24, 0.25, 0.27])
 BARK = np.array([0.36, 0.24, 0.12]); BARK_D = np.array([0.18, 0.11, 0.05]); BARK_L = np.array([0.52, 0.37, 0.18])
-MOSS = np.array([0.42, 0.46, 0.12]); MOSS_D = np.array([0.24, 0.30, 0.07])
+MOSS = np.array([0.34, 0.39, 0.12]); MOSS_D = np.array([0.17, 0.22, 0.06])     # olive, as on the sheet (second pass: was brighter)
 LEATHER = np.array([0.24, 0.16, 0.09]); SOLE = np.array([0.12, 0.08, 0.05]); VOID = np.array([0.03, 0.03, 0.03])
 FUNGUS = np.array([0.74, 0.58, 0.38]); LEAF = np.array([0.55, 0.62, 0.20])
 RUST = np.array([0.36, 0.26, 0.12])
@@ -149,12 +149,14 @@ P_.add('fauld-top-rim', lambda P: slab(ellcyl(P, (0, 0.02, 0), 0.312, 0.227), P,
 # the tasset over his left hip (front): a curved plate, rimmed in gold, rivets at its corner
 TA = dict(rx=0.36, ry=0.27, z0=0.74, z1=1.06)
 def tasset(P):
-    d = slab(np.abs(ellcyl(P, (0, 0.02, 0), TA['rx'], TA['ry'])) - 0.014, P, TA['z0'], TA['z1'])
+    d = slab(np.abs(ellcyl(P, (0, 0.02, 0), TA['rx'], TA['ry'])) - 0.014, P, TA['z0'] - 0.07, TA['z1'])
+    d = np.maximum(d, TA['z0'] + 0.07 * (1 - np.clip(np.abs(P[:, 0] + 0.155) / 0.15, 0, 1)) * -1 + 0.0 - P[:, 2])   # its lower edge comes to a point (the sheet)
     return np.maximum(d, np.maximum(P[:, 0] - (-0.015), -0.30 - P[:, 0])) + np.where(P[:, 1] > -0.02, 0, 1)
 def tasset_rim(P):
-    d = slab(np.abs(ellcyl(P, (0, 0.02, 0), TA['rx'], TA['ry'])) - 0.019, P, TA['z0'] - 0.003, TA['z1'] + 0.003)
+    d = slab(np.abs(ellcyl(P, (0, 0.02, 0), TA['rx'], TA['ry'])) - 0.019, P, TA['z0'] - 0.073, TA['z1'] + 0.003)
+    d = np.maximum(d, TA['z0'] - 0.003 - 0.07 * (1 - np.clip(np.abs(P[:, 0] + 0.155) / 0.15, 0, 1)) - P[:, 2])
     d = np.maximum(d, np.maximum(P[:, 0] - (-0.005), -0.31 - P[:, 0])) + np.where(P[:, 1] > -0.02, 0, 1)
-    inner = np.maximum(np.maximum(P[:, 0] + 0.03, -0.285 - P[:, 0]), np.maximum(TA['z0'] + 0.02 - P[:, 2], P[:, 2] - TA['z1'] + 0.02))
+    inner = np.maximum(np.maximum(P[:, 0] + 0.03, -0.285 - P[:, 0]), np.maximum(TA['z0'] + 0.02 - 0.07 * (1 - np.clip(np.abs(P[:, 0] + 0.155) / 0.15, 0, 1)) - P[:, 2], P[:, 2] - TA['z1'] + 0.02))
     return np.maximum(d, -inner)
 rimmed('tasset', tasset, tasset_rim)
 
@@ -290,7 +292,7 @@ take = poisson(MP, 0.026, rng); MP, MN = MP[take], MN[take]
 from scipy.spatial import cKDTree as _T
 nb = np.array([len(x) for x in _T(MP).query_ball_point(MP, 0.07)])
 MP, MN = MP[nb >= 5], MN[nb >= 5]
-MR = 0.026 + 0.026 * rng.random(len(MP)) * np.clip(moss_w(MP), 0, 1)
+MR = 0.019 + 0.02 * rng.random(len(MP)) * np.clip(moss_w(MP), 0, 1)        # finer lumps (second pass: they read as peas)
 moss_blobs = Blobs(MP - MN * MR[:, None] * 0.45, MR)
 if LV >= 2:
     # lumps within the lumps: smaller cushions on top of the big ones
@@ -431,16 +433,27 @@ RP = catmull(ROOT, 140)
 RR = np.interp(np.linspace(0, 1, len(RP)), np.linspace(0, 1, len(ROOT_R)), ROOT_R)
 t_, N_, B_ = frames(RP)
 sarc = np.r_[0, np.cumsum(np.linalg.norm(np.diff(RP, axis=0), axis=1))]
-NS = 15
+NS = 26                                          # many thin strands (second pass: the sheet's root is fibrous)
 for k in range(NS):
     ph = k * 2 * np.pi / NS + vrng.random() * 0.4
     a = ph + sarc * 2 * np.pi / (0.75 + 0.15 * (k % 3))
-    rad = RR * (0.50 + 0.12 * math.sin(k * 1.7))
+    rad = RR * (0.42 + 0.22 * ((k * 0.618) % 1.0))
     end = int(len(RP) * (0.75 + 0.25 * vrng.random()))
     pts = RP[:end] + (np.cos(a[:end])[:, None] * N_[:end] + np.sin(a[:end])[:, None] * B_[:end]) * rad[:end, None]
-    rr = RR[:end] * (0.40 + 0.08 * vrng.random()) * (1 - 0.6 * np.linspace(0, 1, end) ** 3)
+    rr = RR[:end] * (0.27 + 0.08 * vrng.random()) * (1 - 0.6 * np.linspace(0, 1, end) ** 3)
     V, F = tube(resample(pts, n=end), rr, SIDES + 4)
     M.add(V, F, strand_col(len(V)), 10, MAT['bark'])            # kind 10: the root arm's own strands (they follow its bones)
+# rootlets: short thin roots splitting off down the lower root, pointing down and out (the sheet's ragged edge)
+for k in range(34):
+    i0 = int(len(RP) * (0.35 + 0.6 * vrng.random()))
+    a = vrng.random() * 2 * np.pi
+    side = math.cos(a) * N_[i0] + math.sin(a) * B_[i0]
+    p0 = RP[i0] + side * RR[i0] * 0.85
+    L = (0.06 + 0.10 * vrng.random()) * (0.6 + 0.6 * RR[i0] / RR.max())
+    dirn = side * 0.6 + t_[i0] * 0.8; dirn /= np.linalg.norm(dirn)
+    pts = np.array([p0, p0 + dirn * L * 0.5 + side * L * 0.1, p0 + dirn * L])
+    V, F = tube(resample(catmull(pts, 10), n=8), np.linspace(RR[i0] * 0.12, 0.002, 8), max(5, SIDES))
+    M.add(V, F, strand_col(len(V)), 10, MAT['bark'])
 # roots from the root arm's head: over the left shoulder, across the chest to the right hip, down the back
 paths = [
     [(-0.22, 0.20, 1.80), (-0.05, 0.26, 1.62), (0.14, 0.26, 1.42), (0.28, 0.22, 1.26), (0.33, 0.16, 1.05)],
