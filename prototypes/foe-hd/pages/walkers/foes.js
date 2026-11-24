@@ -758,5 +758,52 @@ const mirageWisp = {
   },
 };
 
-export const FOES = { rotwarden, sapwight, 'old-horn': oldHorn, 'peak-troll': peakTroll, unmade, drowned, 'bell-ringer': bellRinger, 'drowned-choir': drownedChoir, 'drowned-cantor': drownedCantor, 'drowned-abbess': drownedAbbess, 'choir-wraith': choirWraith, 'rime-wraith': rimeWraith, 'rime-abbot': rimeAbbot, 'lantern-mother': lanternMother, 'mirage-wisp': mirageWisp };
+// the wisp-queen: the queen of the mirage-wisps of the Glass Flats, a floating shape of cold flame, the Mirage Glass on her breast
+const wispQueen = {
+  key: 'wisp-queen', name: 'The Wisp-Queen', tier: 'Champion', act: 'Act Two, the Glass Flats', height: 1.85, weight: 0.6,
+  stiff: 0.6, knees: 0.1,
+  limits: { neck: 0.2, head: 0.5, spine: 0.25, chest: 0.3, hips: 0.4, l_fore: 0.6, r_fore: 0.6, l_upper: 0.7, r_upper: 0.7 },
+  text: 'The queen of the mirage-wisps, who keeps the well at Miragewell dry. Her Mirage Glass shows you a hundred of her.',
+  lunge: 'cold-touch',
+  idle(W, t) {
+    const b = W.bones;
+    W.body.position.y = 0.05 * Math.sin(t * 0.8); W.body.rotation.z = 0.025 * Math.sin(t * 0.5);   // floating, swaying
+    b.head.rotation.z = 0.05 * Math.sin(t * 0.6); b.chest.rotation.y = 0.04 * Math.sin(t * 0.4);
+    b.l_upper.rotation.z = -0.06 * Math.sin(t * 0.9); b.r_upper.rotation.z = 0.06 * Math.sin(t * 0.9 + 1.2);
+  },
+  moves: {
+    'cold-touch': { label: 'Cold Touch', dur: 1.5, pose(W, u, t) {
+      // she drifts in and lays a claw on you, cold as well-water at midnight
+      const b = W.bones, k = seg(u, 0.05, 0.4) * (1 - seg(u, 0.7, 1));
+      b.r_upper.rotation.x = -0.8 * k; b.r_upper.rotation.z = -0.15 * k; b.r_fore.rotation.x = -0.25 * k; b.spine.rotation.x = 0.1 * k;
+      b.head.rotation.x = 0.15 * k; b.chest.rotation.y = 0.12 * k; W.body.position.z = 0.25 * k;
+    } },
+    blink: { label: 'Blink', dur: 1.4, pose(W, u, t) {
+      // she blinks out and back a step to the left, and your blow finds shimmer
+      const b = W.bones, out = seg(u, 0.1, 0.22) * (1 - seg(u, 0.75, 0.9)), wob = Math.sin(u * 40) * (seg(u, 0.05, 0.2) * (1 - seg(u, 0.3, 0.45)));
+      W.body.position.x = 0.4 * out; W.body.rotation.z = 0.05 * wob; b.head.rotation.z = 0.1 * wob;
+    } },
+    beguile: { label: 'Beguile', dur: 2.2, pose(W, u, t) {
+      // she shows you water where there is none, and a friend where the mirage is
+      const b = W.bones, k = seg(u, 0.05, 0.3) * (1 - seg(u, 0.8, 1)), sw = Math.sin(u * 8) * k;
+      b.l_upper.rotation.z = -0.45 * k; b.r_upper.rotation.z = 0.45 * k; b.l_upper.rotation.x = -0.35 * k; b.r_upper.rotation.x = -0.35 * k;
+      b.head.rotation.z = 0.18 * sw; W.body.rotation.z = 0.05 * sw; W.body.position.y += 0.04 * k;
+    } },
+    'drink-the-well': { label: 'Drink the Well', dur: 2.6, pose(W, u, t) {
+      // she bows over the well and drinks until the bucket comes up dry
+      const b = W.bones, k = seg(u, 0.05, 0.3) * (1 - seg(u, 0.8, 1)), sip = Math.pow(Math.abs(Math.sin(u * Math.PI * 3)), 2) * k;
+      b.spine.rotation.x = 0.15 * k; b.chest.rotation.x = 0.2 * k; b.head.rotation.x = 0.3 * k + 0.08 * sip; b.neck.rotation.x = 0.1 * k;
+      b.l_upper.rotation.x = -0.4 * k; b.r_upper.rotation.x = -0.4 * k; b.l_fore.rotation.x = -0.3 * k; b.r_fore.rotation.x = -0.3 * k;
+      W.body.position.y -= 0.12 * k; W.body.position.z = 0.1 * k;
+    } },
+    'hall-of-mirrors': { label: 'Hall of Mirrors', dur: 2.6, pose(W, u, t) {
+      // the Mirage Glass flashes, she whirls, and there are a hundred queens
+      const b = W.bones, k = seg(u, 0.05, 0.25) * (1 - seg(u, 0.8, 1)), spin = seg(u, 0.25, 0.7);
+      b.chest.rotation.x = -0.15 * k; b.head.rotation.x = -0.2 * k; b.l_upper.rotation.z = -0.6 * k; b.r_upper.rotation.z = 0.6 * k;
+      W.body.rotation.y = Math.PI * 2 * spin; W.body.position.y += 0.08 * k;
+    } },
+  },
+};
+
+export const FOES = { rotwarden, sapwight, 'old-horn': oldHorn, 'peak-troll': peakTroll, unmade, drowned, 'bell-ringer': bellRinger, 'drowned-choir': drownedChoir, 'drowned-cantor': drownedCantor, 'drowned-abbess': drownedAbbess, 'choir-wraith': choirWraith, 'rime-wraith': rimeWraith, 'rime-abbot': rimeAbbot, 'lantern-mother': lanternMother, 'mirage-wisp': mirageWisp, 'wisp-queen': wispQueen };
 export const COMMON = [['idle', 'Breathe', 0], ['walk', 'Walk', 0], ['hurt', 'Hit', 0.9], ['ko', 'Fall', 2.6]];
