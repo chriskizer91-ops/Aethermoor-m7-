@@ -72,14 +72,14 @@ export const arena = {
   moveTo(center, yaw) {
     this.from = { pos: this.cam.position.clone(), q: this.cam.quaternion.clone(), fov: this.cam.fov }; // (the walk's camera, put back by switchTo)
     const dy = yaw - this.yaw, c0 = this.center.clone(), c = Math.cos(dy), s = Math.sin(dy);
-    const mv = (v) => { const x = v.x - c0.x, z = v.z - c0.z; v.x = center.x + x * c + z * s; v.z = center.z - x * s + z * c; v.y = this.heightAt(v.x, v.z, center.y + (v.y - c0.y)); return v; };
+    const mv = (v, air) => { const x = v.x - c0.x, z = v.z - c0.z, up = v.y - c0.y; v.x = center.x + x * c + z * s; v.z = center.z - x * s + z * c; v.y = air ? center.y + up : this.heightAt(v.x, v.z, center.y + up); return v; }; // (air: the camera keeps its height over the fight)
     this.scene = this.W.P.scene; this.fx.scene = this.scene; this.fx.clear(); this.close = null; this.stage?.host.classList.remove('f3-close');
     this.center = center.clone(); this.yaw = yaw; this.dir = V3(Math.sin(yaw), 0, Math.cos(yaw)); this._statics = null;
     this._taken = [];
     for (const h of this.heroes.values()) { mv(h.pos); mv(h.home); this.clearStand(h.home, 0.35); h.home.y = this.heightAt(h.home.x, h.home.z, h.home.y); h.pos.copy(h.home); h.face += dy; h.walk = null; }
     for (const F of this.foes.values()) { mv(F.pos); mv(F.home); F.face += dy; F.act = null; }
     for (const d of this.drops || []) mv(d.g.position);
-    if (this.want) { this.want = { ...this.want, pos: mv(this.want.pos.clone()), q: this.want.q.clone().premultiply(new THREE.Quaternion().setFromAxisAngle(UP, dy)) }; this.cam.position.copy(this.want.pos); this.cam.quaternion.copy(this.want.q); }
+    if (this.want) { this.want = { ...this.want, pos: mv(this.want.pos.clone(), true), q: this.want.q.clone().premultiply(new THREE.Quaternion().setFromAxisAngle(UP, dy)) }; this.cam.position.copy(this.want.pos); this.cam.quaternion.copy(this.want.q); }
   },
   // a guest fighting beside the party (M7: Tamsin against the Unsmith): built from her own looks, standing over her card
   addGuest(unit) {
