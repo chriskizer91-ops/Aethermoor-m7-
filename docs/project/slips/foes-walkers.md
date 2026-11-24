@@ -151,7 +151,15 @@ Eleven, in Act order, through the kit like the walkers; the bestiary ids are the
   sections, a curled head with ice leaves, a blue lantern hanging in the curl). Sculpt 1,888,188 triangles; light model
   38,351; phone 0.70 MB. Moves: Breathe, Walk, Crozier Strike, Toll, Rime Ward, Drown, Call the Choir, Hushing,
   Heartbeat, Rime Nova, Hit, Fall. Passes, full and phone (the phone needed more triangles at the cape's waist).
-- Next: the Lantern Mother, then the mirage-wisp and the wisp-queen.
+- The Lantern Mother (`foes/lantern-mother/`, Champion, 1.91 m; on a fourth wraiths page,
+  https://claude.ai/artifact/CHSRA2BHE8GmwQiBYmtPPF): a deep black hood with a crown of small white flowers; a pale face,
+  eyes glowing lamp-yellow, wavy silver hair; a cabled knitted shawl hung with tassels (to a point at the back); a black
+  double-breasted coat with brass buttons; a belt with a brass buckle and a pouch; a grey apron with an embroidered sprig
+  and a scalloped hem; a full black skirt to the ground. The brass lamp-pole in her right hand (hooked, a bell hanging from
+  it); a six-sided brass lantern, burning, raised in her left. Sculpt 1,199,680 triangles; light model 38,558; phone
+  0.78 MB. Moves: Breathe, Walk, Lamp-Pole, Lure, Lantern Flare, Hush Now, Lead Them Down, Moths, Mourning, Snuff,
+  Lantern Nova, Drown the Light, Hit, Fall. Passes, full and phone. (The walkers' page now says "Drag to turn it".)
+- Next: the mirage-wisp and the wisp-queen.
   the Rime-Abbot, the Lantern Mother, the mirage-wisp, the wisp-queen.
 
 ## Links
