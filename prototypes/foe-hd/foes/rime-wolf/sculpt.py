@@ -78,7 +78,7 @@ def build(K):
             else: d = smin(d, ell(P, (J[0] + J[1]) * 0.5 + r(sg * 2, 0, 0), r(44, 70, 92)), 0.04)  # the thigh
             d = smin(d, chain(P, J[1:5], [34 * S, 27 * S, 24 * S, 25 * S], 0.012), 0.02)
             d = smin(d, ell(P, J[4] + r(0, 10, 0), r(36, 44, 14)), 0.01)                  # the big paw
-        d = smin(d, chain(P, TAIL, [34 * S, 50 * S, 58 * S, 50 * S, 22 * S], 0.03), 0.04)   # the plume
+        d = smin(d, chain(P, TAIL, [36 * S, 56 * S, 66 * S, 56 * S, 24 * S], 0.03), 0.04)   # the plume
         return np.maximum(d, -P[:, 2])
 
     def zones(P):
@@ -133,9 +133,12 @@ def build(K):
         Z = zones(P); xo, sx, sy = topx(P)
         pale = np.maximum.reduce([Z['ruff'] * 0.85, Z['chest'], Z['belly'] * 0.6,
                                   Z['tail'] * sstep(-0.02, 0.03, -(P[:, 2] - np.interp(sx, [600, 800], [TAIL[-1][2], TAIL[0][2]]))),
-                                  Z['head'] * np.exp(-(((sx - 1420) / 30) ** 2 + ((sy - 215) / 22) ** 2)) * sstep(20, 40, np.abs(xo)),   # cheeks
-                                  Z['head'] * np.exp(-(((sx - 1448) / 14) ** 2 + ((sy - 158) / 7) ** 2)) * sstep(18, 26, np.abs(xo))])   # brows
-        dark = np.maximum(sstep(260, 200, sy) * (1 - Z['head']) * (1 - Z['ruff']), Z['face'] * (np.abs(xo) < 22) * sstep(240, 200, sy))
+                                  Z['head'] * np.exp(-(((sx - 1418) / 40) ** 2 + ((sy - 222) / 30) ** 2)) * sstep(16, 34, np.abs(xo)),   # cheeks
+                                  Z['head'] * np.exp(-(((sx - 1480) / 45) ** 2 + ((sy - 242) / 12) ** 2)),   # the lower muzzle and chin
+                                  Z['head'] * np.exp(-(((sx - 1446) / 18) ** 2 + ((sy - 157) / 9) ** 2)) * sstep(14, 24, np.abs(xo))])   # brows
+        dark = np.maximum.reduce([sstep(260, 200, sy) * (1 - Z['head']) * (1 - Z['ruff']),
+                                 Z['head'] * (np.abs(xo) < 24) * sstep(225, 195, sy) * sstep(1400, 1430, sx),           # the mask down the muzzle
+                                 Z['head'] * np.exp(-(((sx - 1452) / 22) ** 2 + ((sy - 174) / 14) ** 2)) * (1 - sstep(14, 24, np.abs(xo)) * 0) * sstep(150, 165, sy)])   # round the eyes
         return pale, dark
 
     def style(TP, TL, rng):
@@ -165,6 +168,8 @@ def build(K):
     for e in EYES:
         ring_ = np.clip(1.4 - np.linalg.norm((Vb - e) / r(12, 11, 9), axis=1), 0, 1)[:, None]
         col = mix(col, np.array([0.10, 0.11, 0.13]), ring_ * 0.8)
+    pale_, dark_ = tone(Vb); hz = zones(Vb)['head']                     # the face's markings, on the short fur too
+    col = mix(col, PALE * 0.95, (pale_ * hz)[:, None]); col = mix(col, DARK * 0.55, (dark_ * hz * 0.85)[:, None])
     earin = zones(Vb)['ears'] * (Vb[:, 1] > p(0, 1352, 0)[1])
     col = mix(col, PALE * 0.9, (earin * 0.55)[:, None])
     M.add(Vb, Fb, np.clip(col, 0, 1), 0)

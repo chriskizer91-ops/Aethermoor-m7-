@@ -68,13 +68,13 @@ export const wolf = {
     if (move === 'hurt') {
       const a = bump(u * 1.6) * (1 - seg(u, 0.6, 1));
       B.position.z = -0.08 * H * a; rx(b, 'chest', -0.04 * a); rx(b, 'neck', -0.08 * a); rx(b, 'head', -0.08 * a);
-      rx(b, 'jaw', 0.18 * a); rz(b, 'hips', 0.05 * Math.sin(u * 40) * a); rz(b, 'tail', 0.3 * a);
+      rx(b, 'jaw', 0.18 * a); rz(b, 'hips', 0.05 * Math.sin(u * 40) * a); rz(b, 'tail', 0.15 * a);
       return;
     }
     if (move === 'ko') {
       const buckle = seg(u, 0, 0.35), roll = seg(u, 0.3, 0.75), drop = seg(u, 0.6, 1);
       for (const l of LEGS) {
-        if (l[0] === 'f') { rx(b, l + '_upper', 0.2 * buckle); rx(b, l + '_lower', -0.35 * buckle); }
+        if (l[0] === 'f') { rx(b, l + '_upper', 0.15 * buckle); rx(b, l + '_lower', -0.28 * buckle); }
         else { rx(b, l + '_upper', -0.15 * buckle); rx(b, l + '_lower', 0.25 * buckle); }
       }
       B.position.y = -0.2 * H * buckle + 0.04 * H * roll; B.rotation.z = 1.4 * roll; B.position.x = -0.2 * H * roll;
