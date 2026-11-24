@@ -43,6 +43,22 @@ def trim(P, c, h, w, R=None, axes=(0, 1, 2)):
     return (near.sum(1) >= 2).astype(float)
 
 
+def rivets(P, c, h, w, s, r, R=None):
+    """0..1: round rivet heads in a row along every edge of a box's faces, w in from the edge, s apart, radius r"""
+    Q = local(P, c, R); A = np.abs(Q); h = np.asarray(h, np.float64)
+    face = np.argmax(A / h, 1); out = np.zeros(len(P))
+    for f in range(3):
+        m = face == f
+        if not m.any(): continue
+        t = [a for a in range(3) if a != f]; best = np.full(m.sum(), 9.0)
+        for perp, alongax in ((t[0], t[1]), (t[1], t[0])):
+            dp = np.abs(A[m, perp] - (h[perp] - w)); q = Q[m, alongax]
+            da = np.abs(q - s * np.round(q / s)); da = np.where(np.abs(q) > h[alongax] - w * 0.8, 9.0, da)
+            best = np.minimum(best, np.hypot(dp, da))
+        out[m] = np.clip(1 - best / r, 0, 1)
+    return out
+
+
 def cyl(P, a, b, r):
     """a flat-ended cylinder from a to b"""
     a = np.asarray(a, np.float64); b = np.asarray(b, np.float64); ab = b - a; L = np.linalg.norm(ab); u = ab / L

@@ -129,7 +129,67 @@ const WARDEN = {
   },
 };
 
-export const SETS = { 'ashen-warden': WARDEN };
+// the Iron Sentinels (M7: iron-fist, gate-slam, lock-shields; the Captain also ironwall, shield-rush). At rest the
+// Sentinel's fists hang and its round shield is on its left forearm; the Captain's right fist is raised before his
+// chest (forearm up) and Ironwall stands before him on his left.
+function sentinelSet(captain) {
+  const punch = (F, b, u) => {
+    const back = seg(u, 0, 0.3) * (1 - seg(u, 0.32, 0.42)), hit = seg(u, 0.34, 0.48) * (1 - seg(u, 0.75, 1));
+    if (captain) { b.r_upper.rotation.x = 0.35 * back - 1.35 * hit; b.r_fore.rotation.x = -0.3 * back + 2.6 * hit; }
+    else { b.r_upper.rotation.x = 0.45 * back - 1.45 * hit; b.r_fore.rotation.x = -0.9 * back - 0.05 * hit; }
+    b.chest.rotation.y = 0.3 * back - 0.35 * hit; b.spine.rotation.y = 0.1 * back - 0.12 * hit; b.chest.rotation.x = 0.12 * hit;
+    for (const n of ['r', 'l']) { b[n + '_thigh'].rotation.x = -0.2 * hit; b[n + '_shin'].rotation.x = 0.3 * hit; b[n + '_foot'].rotation.x = -0.1 * hit; }
+    F.body.position.z = 0.15 * hit * F.height / 2;
+  };
+  // the shield driven into you, the whole body behind it
+  const slam = (F, b, u) => {
+    const wind = seg(u, 0, 0.35) * (1 - seg(u, 0.38, 0.5)), hit = seg(u, 0.38, 0.55) * (1 - seg(u, 0.8, 1));
+    b.l_upper.rotation.x = 0.2 * wind - 0.75 * hit; b.l_upper.rotation.z = -0.15 * hit; b.l_fore.rotation.x = -0.3 * hit;
+    b.chest.rotation.y = 0.35 * wind - 0.45 * hit; b.spine.rotation.y = 0.12 * wind - 0.15 * hit; b.chest.rotation.x = 0.15 * hit;
+    crouch(F, b, 0.3 * wind + 0.2 * hit); F.body.position.z = 0.22 * hit * F.height / 2;
+  };
+  // shield up before it and set: it braces behind it
+  const lock = (F, b, u) => {
+    const g = seg(u, 0, 0.3) * (1 - seg(u, 0.8, 1));
+    b.l_upper.rotation.x = -0.6 * g; b.l_upper.rotation.z = -0.35 * g; b.l_fore.rotation.x = -0.4 * g;
+    b.chest.rotation.x = 0.1 * g; b.head.rotation.x = 0.08 * g; crouch(F, b, 0.45 * g);
+    if (!captain) { b.r_upper.rotation.x = -0.3 * g; b.r_fore.rotation.x = -0.7 * g; }
+  };
+  const S = {
+    MOVES: [['idle', 'Keep the Stair'], ['walk', 'March'], ['iron-fist', 'Iron Fist'], ['gate-slam', 'Gate Slam'], ['lock-shields', 'Lock Shields']],
+    DUR: { 'iron-fist': 1.0, 'gate-slam': 1.3, 'lock-shields': 1.4, hurt: 0.8, ko: 2.4 },
+    LUNGE: 'iron-fist',
+    ALIAS: { strike: 'iron-fist', bite: 'iron-fist', swipe: 'gate-slam', cast: 'lock-shields', roar: 'lock-shields' },
+    base(F, b, t) {
+      const br = Math.sin(t * 1.3);
+      b.chest.rotation.x = 0.01 * br; b.head.rotation.y = 0.1 * Math.sin(t * 0.35); b.head.rotation.x = 0.015 * br;
+      b.r_upper.rotation.x = 0.02 * br; b.l_upper.rotation.x = -0.02 * br;
+    },
+    moves: { walk: KNIGHT.walk, 'iron-fist': punch, 'gate-slam': slam, 'lock-shields': lock, hurt: KNIGHT.hurt, ko: KNIGHT.ko },
+  };
+  if (captain) {
+    S.MOVES = [...S.MOVES, ['ironwall', 'Ironwall'], ['shield-rush', 'Shield Rush']];
+    Object.assign(S.DUR, { ironwall: 1.6, 'shield-rush': 1.4 });
+    S.ALIAS.roar = 'ironwall';
+    // Ironwall raised high, then brought down before him like a portcullis, and he sets behind it
+    S.moves.ironwall = (F, b, u) => {
+      const up = seg(u, 0, 0.4) * (1 - seg(u, 0.45, 0.58)), down = seg(u, 0.45, 0.6) * (1 - seg(u, 0.85, 1));
+      b.l_upper.rotation.x = -1.5 * up - 0.45 * down; b.l_upper.rotation.z = -0.25 * (up + down); b.l_fore.rotation.x = -0.2 * up - 0.35 * down;
+      b.chest.rotation.x = -0.1 * up + 0.18 * down; b.head.rotation.x = -0.15 * up + 0.1 * down; crouch(F, b, 0.55 * down);
+    };
+    // head down behind Ironwall, he charges
+    S.moves['shield-rush'] = (F, b, u) => {
+      const go = seg(u, 0.1, 0.45) * (1 - seg(u, 0.8, 1)), run = Math.sin(u * Math.PI * 4) * go;
+      b.l_upper.rotation.x = -0.6 * go; b.l_upper.rotation.z = -0.3 * go; b.l_fore.rotation.x = -0.35 * go;
+      b.chest.rotation.x = 0.22 * go; b.spine.rotation.x = 0.1 * go; b.head.rotation.x = 0.12 * go;
+      legs(b, u * Math.PI * 4, 0.9 * go); F.body.position.z = 0.6 * go * F.height / 2;
+    };
+  }
+  S.MOVES = [...S.MOVES, ['hurt', 'Hit'], ['ko', 'Fall']];
+  return S;
+}
+
+export const SETS = { 'ashen-warden': WARDEN, 'iron-sentinel': sentinelSet(false), 'sentinel-captain': sentinelSet(true) };
 export function movesOf(key) {
   const S = SETS[key];
   return {

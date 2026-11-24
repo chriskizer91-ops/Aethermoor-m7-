@@ -19,7 +19,8 @@ import { PLANS } from '../../kit/js/looks.js';
 import { FOES } from './assets.js';
 // iron and forge (session 6, November 24, the polish pass): every finished foe of the lane on one page; the buttons at
 // the top pick which is on the stands (the page reloads with #<key>). Each foe's own moves: the kit's PLANS by name.
-const PAGES = [];
+const PAGES = [['The Ashen Warden', 'https://claude.ai/artifact/EzhJdoL53KTeUPUfHc2yyN'],
+  ['Iron Sentinel', 'https://claude.ai/artifact/SVB9XRDbgnSTV9VSMr59Lz'], ['The Sentinel-Captain', 'https://claude.ai/artifact/7KxofYSMBpwrvZvHVjtiMX']];
 const pick = decodeURIComponent(location.hash.slice(1)), A = FOES.find((f) => f.key === pick) || FOES[FOES.length - 1];
 const KEY = A.lightMeta.key, MV = PLANS[A.lightMeta.moves] || PLANS[A.lightMeta.plan] || PLANS.quad;
 {

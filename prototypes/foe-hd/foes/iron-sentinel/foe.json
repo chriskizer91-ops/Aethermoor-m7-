@@ -1,0 +1,86 @@
+{
+  "plan": "biped",
+  "rank": "veteran",
+  "crops": [
+    [
+      60,
+      680
+    ],
+    [
+      700,
+      1090
+    ],
+    [
+      1110,
+      1740
+    ]
+  ],
+  "voxel": {
+    "0": 0.014,
+    "1": 0.009,
+    "2": 0.0075,
+    "3": 0.0068
+  },
+  "sculpt": {
+    "level": 3
+  },
+  "bake": {
+    "res": 1024,
+    "phone": 512,
+    "ao": 32,
+    "reach": {
+      "coat": [
+        0.008,
+        0.02
+      ],
+      "parts": [
+        0.004,
+        0.01
+      ]
+    }
+  },
+  "rig": "rig.py",
+  "key": "iron-sentinel",
+  "name": "Iron Sentinel",
+  "moves": "sentinel",
+  "height": 1.9,
+  "sheet": "art-in/3d/sheets/sheet-iron-sentinel.webp",
+  "bounds": [
+    [
+      -0.98,
+      -0.42,
+      -0.01
+    ],
+    [
+      0.72,
+      0.5,
+      1.95
+    ]
+  ],
+  "view": {
+    "center": [
+      0,
+      0,
+      0.95
+    ],
+    "width": 2.3,
+    "head": [
+      0,
+      0,
+      1.66
+    ],
+    "headWidth": 0.6
+  },
+  "light": {
+    "level": 0,
+    "coat": 27500,
+    "kinds": {
+      "7": 1500
+    }
+  },
+  "blurb": "A dwarven automaton of riveted blue-grey iron banded in brass, Act Two's Ironspire: a castle of a helm with a burning slit, a gear on its breast, great round pauldrons, banded bracers and iron fists, a round shield with a brass boss; still keeping the stair. Every plate moves whole on its own joint, so nothing stretches.",
+  "pages": {
+    "three": "https://claude.ai/artifact/SVB9XRDbgnSTV9VSMr59Lz",
+    "sculpt": "https://claude.ai/artifact/9EMmiFLiVVjhcdH9gb5LEY"
+  }
+}
