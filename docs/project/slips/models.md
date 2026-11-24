@@ -474,6 +474,24 @@ republished: https://claude.ai/artifact/KiYfGSBcUQ6gU4WqVKGojD
 - Still open: the Abbot's cowl is squarer than the sheet's drooping hood; the Mother's lantern is a plain square one,
   not the sheet's pointed Gothic lantern.
 
+**Back over the foes against their sheets: the Gloamwing and the Thunder-Roc again; the Mother's lantern** (November
+24). Winged gallery https://claude.ai/artifact/CmY9BHJzyVYCYgQtpboqBg and wraiths gallery
+https://claude.ai/artifact/KiYfGSBcUQ6gU4WqVKGojD republished.
+- The Gloamwing:
+  - Its thorax, head and every abdomen segment are now one coat of soft feathery scales lying along the body, so it is
+    the sheet's chunky ball of fur (from behind no longer a bare striped cone).
+  - Its plumed antennae sweep out to the sides like the sheet's.
+  - The gold quatrefoil on its back is bigger, with a ring.
+  - At Light 38k.
+- The Thunder-Roc:
+  - A shaggy crest of short spikes over the back of its head, under the long spikes.
+  - A broader tail fan (fourteen feathers).
+  - A deeper, sharper eagle's beak.
+  - At Light 39.6k.
+- The Lantern Mother's lantern is now Gothic: a pointed four-sided roof with a finial, and pointed arches over its
+  windows. It hangs on a short chain below her hand, like the sheet's.
+- Still open: the Rime-Abbot's cowl (squarer than the sheet's drooping hood).
+
 ## Next
 
 - Chris chose full detail for the beasts (November 20): sessions 6 to 8 build them (`docs/project/jobs/foes.md`;

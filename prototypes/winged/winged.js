@@ -114,8 +114,8 @@ function mothWing(parent, side, ctrl, paint, m, veinM, veins, { cup = 0.07, scal
   }
 }
 // a feathered antenna: a curved shaft from the head with barbs down both sides (rigid, on the head)
-function antenna(head, side, base, L, shaftM, barbM, { n = 14, barb = 0.16, comb = false } = {}) {
-  const pts = [base, base.clone().add(V(side * 0.12 * L, 0.55 * L, 0.06 * L)), base.clone().add(V(side * 0.32 * L, 0.92 * L, -0.08 * L)), base.clone().add(V(side * 0.5 * L, 1.05 * L, -0.28 * L))];
+function antenna(head, side, base, L, shaftM, barbM, { n = 14, barb = 0.16, comb = false, spread = 1 } = {}) {
+  const pts = [base, base.clone().add(V(side * 0.12 * L * spread, 0.55 * L, 0.06 * L)), base.clone().add(V(side * 0.32 * L * spread, 0.92 * L, -0.08 * L)), base.clone().add(V(side * 0.5 * L * spread * 1.2, 1.05 * L - (spread - 1) * 0.25 * L, -0.28 * L))];
   const cv = new THREE.CatmullRomCurve3(pts);
   add(rod(cv.getPoints(10), t => 0.014 * L * (1 - 0.6 * t), 'haft', 5), shaftM, head);
   for (let i = 0; i < n; i++) {
@@ -187,8 +187,14 @@ function moth(G, key) {
   add(fitMaster(lathe([[0, -t], [t * 0.7, -t * 0.88], [t * 0.98, -t * 0.35], [t, t * 0.15], [t * 0.85, t * 0.68], [t * 0.5, t * 0.98], [0, t * 1.05]], { n: 18, sz: 0.95 }), 'plumage'), fur, body);
   ruff(body, [fur, fur, fur2], { n: 16, y: t * 0.72, r: t * 0.72, len: t * 0.75, wid: t * 0.2, down: 0.7, seed: 2 });
   ruff(body, [fur, fur2], { n: 13, y: t * 0.35, r: t * 0.92, len: t * 0.7, wid: t * 0.2, down: 1.1, seed: 3, a0: -1.25, a1: 1.25 });
-  ruff(body, [fur2, fur], { n: 11, y: -t * 0.1, r: t * 0.96, len: t * 0.65, wid: t * 0.19, down: 1.6, seed: 4, a0: -1.0, a1: 1.0 });
-  ruff(body, [fur, fur2], { n: 10, y: t * 0.25, r: t * 0.9, len: t * 0.7, wid: t * 0.22, down: 1.0, seed: 5, a0: 1.9, a1: 4.4 });
+  if (key === 'gloamwing') {   // its fur is one coat of soft feathery scales over the whole thorax (the sheet's)
+    const tp = [[-t, 0], [-t * 0.88, t * 0.7], [-t * 0.35, t * 0.98], [t * 0.15, t], [t * 0.68, t * 0.85], [t * 0.98, t * 0.5], [t * 1.05, 0]];
+    const rAt = y => { for (let i = 1; i < tp.length; i++) if (y <= tp[i][0]) { const [y0, r0] = tp[i - 1], [y1, r1] = tp[i]; return lerp(r0, r1, (y - y0) / (y1 - y0)); } return 0.02; };
+    coat(body, [fur, fur2, fur, fur], rAt, { y0: t * 0.8, y1: -t * 0.75, rows: 6, n: 14, len: t * 0.6, wid: t * 0.22, lift: 0.35, sz: 0.95, seed: 7, curl: 0.45 });
+  } else {
+    ruff(body, [fur2, fur], { n: 11, y: -t * 0.1, r: t * 0.96, len: t * 0.65, wid: t * 0.19, down: 1.6, seed: 4, a0: -1.0, a1: 1.0 });
+    ruff(body, [fur, fur2], { n: 10, y: t * 0.25, r: t * 0.9, len: t * 0.7, wid: t * 0.22, down: 1.0, seed: 5, a0: 1.9, a1: 4.4 });
+  }
   // the head: furred, big glossy eyes, a ring of fur round the face, a small hooked mouth, plumed antennae
   const head = node(body, 0, t * 1.08, t * 0.32); R.head = head;
   const hr = o.head;
@@ -196,9 +202,11 @@ function moth(G, key) {
   const eyeM = surf(o.eye, { rough: 0.15, coat: 1, side: false, emissive: key === 'lamp-moth' ? o.eye : null, k: 0.25 });
   for (const s of [-1, 1]) { const e = add(sph(hr * 0.36, 16, 12), eyeM, head, s * hr * 0.48, hr * 0.12, hr * 0.68); e.scale.set(1, 1.05, 0.85); }
   for (let i = 0; i < 10; i++) { const a = (i / 10) * Math.PI * 2, d = V(Math.cos(a), Math.sin(a) * 0.9, 0.35); put(leafGeo(Math.round(hr * 0.6 * 1000) / 1000, hr * 0.2, { curl: 0.2 }), i % 2 ? fur : fur2, head, V(Math.cos(a) * hr * 0.78, Math.sin(a) * hr * 0.72, hr * 0.38), d, V(0, 0, 1)); }
+  if (key === 'gloamwing') { const hp = [[-hr, 0], [-hr * 0.75, hr * 0.75], [0, hr], [hr * 0.65, hr * 0.8], [hr * 0.95, 0]]; const hAt = y => { for (let i = 1; i < hp.length; i++) if (y <= hp[i][0]) { const [y0, r0] = hp[i - 1], [y1, r1] = hp[i]; return lerp(r0, r1, (y - y0) / (y1 - y0)); } return 0.01; };
+    coat(head, [fur, fur2], hAt, { y0: hr * 0.85, y1: -hr * 0.4, rows: 3, n: 11, len: hr * 0.7, wid: hr * 0.24, a0: 1.0, a1: 2 * Math.PI - 1.0, sz: 1.05, lift: 0.4, seed: 30, curl: 0.4 }); }
   const beak = add(fitMaster(tube([V(0, -hr * 0.25, hr * 0.8), V(0, -hr * 0.36, hr * 1.02), V(0, -hr * 0.55, hr * 1.06)], t2 => hr * 0.11 * (1 - 0.8 * t2), { n: 6 }), 'forged'), surf(o.belly, { rough: 0.5 }), head);
-  antenna(head, -1, V(-hr * 0.3, hr * 0.75, hr * 0.35), o.ant, surf(o.antC, { rough: 0.5 }), surf(o.antC, { rough: 0.6 }), { n: key === 'lamp-moth' ? 9 : 13, comb: key === 'lamp-moth' });
-  antenna(head, 1, V(hr * 0.3, hr * 0.75, hr * 0.35), o.ant, surf(o.antC, { rough: 0.5 }), surf(o.antC, { rough: 0.6 }), { n: key === 'lamp-moth' ? 9 : 13, comb: key === 'lamp-moth' });
+  antenna(head, -1, V(-hr * 0.3, hr * 0.75, hr * 0.35), o.ant, surf(o.antC, { rough: 0.5 }), surf(o.antC, { rough: 0.6 }), { n: key === 'lamp-moth' ? 9 : 15, comb: key === 'lamp-moth', spread: key === 'lamp-moth' ? 1 : 1.9, barb: key === 'lamp-moth' ? 0.16 : 0.2 });
+  antenna(head, 1, V(hr * 0.3, hr * 0.75, hr * 0.35), o.ant, surf(o.antC, { rough: 0.5 }), surf(o.antC, { rough: 0.6 }), { n: key === 'lamp-moth' ? 9 : 15, comb: key === 'lamp-moth', spread: key === 'lamp-moth' ? 1 : 1.9, barb: key === 'lamp-moth' ? 0.16 : 0.2 });
   // the abdomen: segments, each its own piece hung from the one before (they curl, never bend); the lamp-moth's last ones lit
   const [nA, rA, lA] = o.abd; let prev = body, y0 = -t * 0.8;
   for (let i = 0; i < nA; i++) {
@@ -208,7 +216,8 @@ function moth(G, key) {
     const m = lit ? own(glow(o.lamp, 1.6), 1.6, 1.4) : i % 2 ? belly : fur2;
     if (lit) R.glows.push(m);
     add(fitMaster(lathe(last ? [[0, -lA * 1.25], [r2 * 0.6, -lA * 1.05], [r * 0.95, -lA * 0.5], [r * 1.05, -lA * 0.05], [r * 0.8, lA * 0.15]] : [[r2 * 0.85, -lA * 1.05], [r2 * 1.02, -lA * 0.8], [r * 1.05, -lA * 0.35], [r * 1.0, lA * 0.05], [r * 0.8, lA * 0.18]], { n: 16 }), lit ? 'mothwing' : 'plumage'), m, seg);
-    if (!lit && i < (o.lamp ? 1 : 2)) ruff(seg, [fur2, belly, fur], { n: 9, y: -lA * 0.1, r: r * 0.9, len: lA * 0.9, wid: r * 0.3, down: 2.2, seed: 10 + i, a0: -1.6, a1: 1.6 });
+    if (key === 'gloamwing') coat(seg, [fur2, fur, belly], () => r * 0.98, { y0: lA * 0.12, y1: -lA * 0.55, rows: 2, n: 13, len: lA * 0.95, wid: r * 0.34, lift: 0.3, seed: 20 + i, curl: 0.4 });
+    else if (!lit && i < (o.lamp ? 1 : 2)) ruff(seg, [fur2, belly, fur], { n: 9, y: -lA * 0.1, r: r * 0.9, len: lA * 0.9, wid: r * 0.3, down: 2.2, seed: 10 + i, a0: -1.6, a1: 1.6 });
   }
   if (o.lamp) R.props.lamp = R.abd[nA - 1];
   // legs: three pairs under the thorax, each a thigh and a shin, rigid, with a hooked foot
@@ -251,8 +260,8 @@ function dawnbell(body, R, t) {
   }
   // the clasp on the chest and the knot on the back
   const clasp = add(fitMaster(lathe([[0, -t * 0.14], [t * 0.1, -t * 0.06], [t * 0.12, t * 0.04], [t * 0.05, t * 0.16], [0, t * 0.2]], { n: 4, phi0: Math.PI / 4 }), 'forged'), gold, body, 0, t * 0.55, t * 0.98); clasp.rotation.x = 0.3;
-  for (let i = 0; i < 4; i++) { const a = i / 4 * Math.PI * 2; add(sph(t * 0.09, 10, 8), gold, body, Math.cos(a) * t * 0.12, t * 0.1 + Math.sin(a) * t * 0.12, -t * 1.06); }
-  add(sph(t * 0.08, 10, 8), gold, body, 0, t * 0.1, -t * 1.1);
+  for (let i = 0; i < 4; i++) { const a = i / 4 * Math.PI * 2 + Math.PI / 4; add(sph(t * 0.12, 10, 8), gold, body, Math.cos(a) * t * 0.16, t * 0.1 + Math.sin(a) * t * 0.16, -t * 1.12).scale.set(1, 1, 0.6); }
+  add(sph(t * 0.1, 10, 8), gold, body, 0, t * 0.1, -t * 1.17); add(tor(t * 0.16, t * 0.025, 6, 20), gold, body, 0, t * 0.1, -t * 1.13);
   add(tor(t * 0.13, t * 0.035, 8, 20), gold, body, ringP.x, ringP.y, ringP.z);
   // the bell's pendulum: it hangs straight down whatever the moth does (the pose counter-turns it)
   const P = node(body, ringP.x, ringP.y - t * 0.12, ringP.z); R.props.bell = P;
@@ -294,10 +303,12 @@ function roc(G) {
   ruff(neck, [navy, navy2, blue], { n: 12, y: 0.06, r: 0.08, len: 0.15, wid: 0.04, down: 1.2, seed: 54, curl: 0.3 });
   const head = node(neck, 0, 0.19, 0.03); R.head = head;
   add(fitMaster(lathe([[0, -0.085], [0.07, -0.065], [0.095, 0.0], [0.085, 0.06], [0.05, 0.095], [0, 0.105]], { n: 18, sz: 1.2 }), 'plumage'), navy, head);
+  { const hp = [[-0.085, 0.0], [-0.065, 0.07], [0.0, 0.095], [0.06, 0.085], [0.095, 0.05], [0.105, 0.0]]; const hAt = y => { for (let i = 1; i < hp.length; i++) if (y <= hp[i][0]) { const [y0, r0] = hp[i - 1], [y1, r1] = hp[i]; return lerp(r0, r1, (y - y0) / (y1 - y0)); } return 0.01; };
+    coat(head, [navy, navy2, blue], hAt, { y0: 0.09, y1: -0.04, rows: 3, n: 10, len: 0.08, wid: 0.022, a0: 1.1, a1: 2 * Math.PI - 1.1, sz: 1.2, lift: 1.2, seed: 61, curl: -0.1 }); }
   for (let i = 0; i < 13; i++) { const k = i / 12, a = lerp(-1.0, 1.0, k); put(leafGeo(0.13 + 0.09 * Math.sin(k * Math.PI), 0.032, { curl: -0.1, point: 1 }), i % 2 ? navy2 : navy, head, V(Math.sin(a) * 0.06, 0.06 + 0.02 * Math.cos(a), -0.03 - 0.03 * Math.cos(a)), V(Math.sin(a) * 0.8, 0.9, -0.9), V(0, 1, 0.4)); }
   for (const s of [-1, 1]) for (let i = 0; i < 4; i++) put(leafGeo(0.09, 0.028, { curl: 0.1, point: 1 }), i % 2 ? navy : blue, head, V(s * 0.085, 0.02 - i * 0.025, -0.01), V(s * 0.4, -0.25, -1), V(s, 0, 0));
   add(fitMaster(lathe([[0.042, -0.02], [0.05, 0.0], [0.044, 0.025]], { n: 14, sz: 1.1 }), 'forged'), gold, head, 0, -0.012, 0.085).rotation.x = Math.PI / 2;
-  add(fitMaster(tube([V(0, 0.0, 0.1), V(0, 0.002, 0.15), V(0, -0.012, 0.19), V(0, -0.045, 0.215), V(0, -0.08, 0.205)], t2 => [0.032 * (1 - t2 * 0.8) + 0.003, 0.042 * (1 - t2 * 0.85) + 0.004], { n: 8, up: V(1, 0, 0) }), 'forged'), gold, head);
+  add(fitMaster(tube([V(0, 0.005, 0.09), V(0, 0.008, 0.14), V(0, -0.008, 0.18), V(0, -0.04, 0.2), V(0, -0.075, 0.19)], t2 => [0.034 * (1 - t2 * 0.85) + 0.003, 0.055 * (1 - t2 * 0.9) + 0.003], { n: 8, up: V(1, 0, 0) }), 'forged'), gold, head);
   add(fitMaster(tube([V(0, -0.03, 0.1), V(0, -0.035, 0.14), V(0, -0.045, 0.17)], t2 => [0.022 * (1 - t2 * 0.7), 0.026 * (1 - t2 * 0.7)], { n: 8, up: V(1, 0, 0) }), 'forged'), gold, head);
   const eyeM = surf('#d6e2f2', { rough: 0.12, coat: 1, side: false, emissive: '#9ac4ff', k: 0.25 }), pup = surf('#0c0e14', { rough: 0.1, coat: 1, side: false });
   for (const s of [-1, 1]) {
@@ -309,7 +320,7 @@ function roc(G) {
   for (const s of [-1, 1]) R.wings.push(birdWing(body, s, { navy, navy2, blue, sky, spark }));
   // the tail: a fan of long feathers on its own joint
   const tail = node(body, 0, -0.17, -0.15); R.tail = tail;
-  for (let i = 0; i < 12; i++) { const k = i / 11 - 0.5, d = V(k * 1.3, -0.6, -0.8); put(leafGeo(0.52 - Math.abs(k) * 0.12, 0.08, { curl: 0.05, tipAt: 0.75 }), i % 3 === 1 ? blue : i % 2 ? navy2 : navy, tail, V(k * 0.12, -0.01 * Math.abs(k), 0.002 * (i % 2)), d, V(0, 0.85, -0.55)); }
+  for (let i = 0; i < 14; i++) { const k = i / 13 - 0.5, d = V(k * 1.7, -0.6, -0.8); put(leafGeo(0.55 - Math.abs(k) * 0.1, 0.1, { curl: 0.05, tipAt: 0.75 }), i % 3 === 1 ? blue : i % 2 ? navy2 : navy, tail, V(k * 0.16, -0.01 * Math.abs(k), 0.003 * (i % 2)), d, V(0, 0.85, -0.55)); }
   ruff(tail, [navy, navy2], { n: 9, y: 0.03, r: 0.05, len: 0.2, wid: 0.05, down: 1.6, seed: 60, a0: 2.2, a1: 4.1 });
   // legs: feathered thighs ("trousers"), scaled gold shins, four-toed feet with black claws; the left foot holds the cloak
   for (const s of [-1, 1]) {
