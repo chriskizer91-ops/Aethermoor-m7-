@@ -135,6 +135,7 @@ for n in smat.node_tree.nodes:
     if n.type == 'MATH' and n.operation == 'MULTIPLY': n.inputs[1].default_value = 1.0
 
 RUNS = [(lo_coat, hi_coat, *REACH['coat']), (lo_parts, hi_parts, *REACH['parts'])]
+if len(lo_parts.data.polygons) == 0 or len(hi_parts.data.polygons) == 0: RUNS = RUNS[:1]   # every kind baked as coat (the forge foes' fire under their cracks)
 # Each run is baked into a picture of its own and the two are put together by an exact mask of the parts' UV islands:
 # baking both into one picture lets each run's padding paint over the other's islands (specks of glow or black).
 from PIL import Image as PImage, ImageDraw
@@ -163,8 +164,10 @@ def bake(name, btype, samples=1, colorspace='sRGB', res=RES, **kw):
                             margin=6, use_clear=True, **kw)
         px = np.empty(res * res * 4, np.float32); img.pixels.foreach_get(px)
         out.append(np.flipud(px.reshape(res, res, 4)[:, :, :3]))          # Blender's rows run bottom-up
-    if res not in MASK: MASK[res] = uv_mask(lo_parts, res)
-    comb = np.where(MASK[res][:, :, None], out[1], out[0])
+    if len(out) == 1: comb = out[0]
+    else:
+        if res not in MASK: MASK[res] = uv_mask(lo_parts, res)
+        comb = np.where(MASK[res][:, :, None], out[1], out[0])
     if colorspace == 'sRGB' and btype in ('DIFFUSE', 'EMIT'):
         pass                                          # Blender hands these back already as sRGB values for a byte image
     PImage.fromarray(np.clip(comb * 255 + 0.5, 0, 255).astype(np.uint8)).save(os.path.join(OUT, f'{name}.png'))

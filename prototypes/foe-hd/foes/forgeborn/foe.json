@@ -1,0 +1,86 @@
+{
+  "key": "forgeborn",
+  "name": "Forgeborn",
+  "plan": "biped",
+  "moves": "forge",
+  "rank": "veteran",
+  "height": 1.9,
+  "sheet": "art-in/3d/sheets/sheet-forgeborn.webp",
+  "crops": [
+    [
+      60,
+      640
+    ],
+    [
+      720,
+      1020
+    ],
+    [
+      1140,
+      1730
+    ]
+  ],
+  "bounds": [
+    [
+      -0.72,
+      -0.45,
+      -0.01
+    ],
+    [
+      0.72,
+      0.5,
+      1.92
+    ]
+  ],
+  "voxel": {
+    "0": 0.014,
+    "1": 0.009,
+    "2": 0.0075,
+    "3": 0.0068
+  },
+  "view": {
+    "center": [
+      0,
+      0,
+      0.95
+    ],
+    "width": 2.3,
+    "head": [
+      0,
+      0.08,
+      1.6
+    ],
+    "headWidth": 0.7
+  },
+  "light": {
+    "level": 0,
+    "coat": 24000,
+    "kinds": {
+      "7": 6000
+    }
+  },
+  "sculpt": {
+    "level": 3
+  },
+  "bake": {
+    "res": 1024,
+    "phone": 512,
+    "ao": 32,
+    "reach": {
+      "coat": [
+        0.008,
+        0.02
+      ],
+      "parts": [
+        0.004,
+        0.01
+      ]
+    },
+    "coat_kinds": [
+      0,
+      7
+    ]
+  },
+  "rig": "rig.py",
+  "blurb": "One of Harrow's molten servants, Act Two's Ironspire: a hulking man-shape of black slag in chipped slabs with the fire showing through every crack, a furnace grille in its chest, an iron pauldron with burning slits on its left shoulder, a lump of a head sunk between its shoulders, a leather belt and a ragged leather apron, great stone fists and boots. Every slab moves whole on its own joint, so nothing stretches."
+}

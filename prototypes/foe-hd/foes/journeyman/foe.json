@@ -1,0 +1,18 @@
+{
+  "key": "journeyman",
+  "name": "Harrow's Journeyman",
+  "plan": "biped",
+  "moves": "journeyman",
+  "rank": "relic-bearer",
+  "height": 1.8,
+  "sheet": "art-in/3d/sheets/sheet-journeyman.webp",
+  "crops": [[120, 590], [700, 1070], [1220, 1690]],
+  "bounds": [[-0.5, -0.45, -0.01], [0.5, 0.45, 1.98]],
+  "voxel": {"0": 0.012, "1": 0.008, "2": 0.006, "3": 0.0052},
+  "view": {"center": [0, 0, 0.95], "width": 2.15, "head": [0, 0.03, 1.62], "headWidth": 0.5},
+  "light": {"level": 0, "coat": 38000, "kinds": {"7": 600}},
+  "sculpt": {"level": 3},
+  "bake": {"res": 1024, "phone": 512, "ao": 32, "coat_kinds": [0, 7], "reach": {"coat": [0.008, 0.02], "parts": [0.004, 0.01]}},
+  "rig": "rig.py",
+  "blurb": "Harrow's apprentice, Relic-Bearer of the Runestaff, Act Two's Ironspire: a young dwarf more forge than man now, wild-haired, masked, eyes catching the light, in a shaggy fur mantle and a ragged plum cloak marked with brass runes, a leather jerkin, belt and pouches, bound sleeves and buckled boots, and the Runestaff with its burning compass-star. Every part moves whole on its own joint, so nothing stretches."
+}

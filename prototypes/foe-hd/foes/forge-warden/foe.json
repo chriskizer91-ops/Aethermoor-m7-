@@ -1,0 +1,86 @@
+{
+  "key": "forge-warden",
+  "name": "Forge-Warden",
+  "plan": "biped",
+  "moves": "kiln",
+  "rank": "veteran",
+  "height": 2.3,
+  "sheet": "art-in/3d/sheets/sheet-forge-warden.webp",
+  "crops": [
+    [
+      60,
+      610
+    ],
+    [
+      700,
+      1080
+    ],
+    [
+      1190,
+      1740
+    ]
+  ],
+  "bounds": [
+    [
+      -0.8,
+      -0.45,
+      -0.01
+    ],
+    [
+      0.8,
+      0.45,
+      2.32
+    ]
+  ],
+  "voxel": {
+    "0": 0.014,
+    "1": 0.009,
+    "2": 0.0075,
+    "3": 0.0068
+  },
+  "view": {
+    "center": [
+      0,
+      0,
+      1.12
+    ],
+    "width": 2.6,
+    "head": [
+      0,
+      0,
+      1.5
+    ],
+    "headWidth": 0.9
+  },
+  "light": {
+    "level": 0,
+    "coat": 27500,
+    "kinds": {
+      "7": 2000
+    }
+  },
+  "sculpt": {
+    "level": 3
+  },
+  "bake": {
+    "res": 1024,
+    "phone": 512,
+    "ao": 32,
+    "coat_kinds": [
+      0,
+      7
+    ],
+    "reach": {
+      "coat": [
+        0.008,
+        0.02
+      ],
+      "parts": [
+        0.004,
+        0.01
+      ]
+    }
+  },
+  "rig": "rig.py",
+  "blurb": "A kiln of red firebrick as tall as a door on short iron legs, the Hearth Below: an anvil for a head, a chimney burning behind it, a pleated wooden bellows at its side, a furnace door glowing in its breast, iron arms banded in brass, an iron fist and a hammer for a hand with its face glowing. Every part moves whole on its own joint, so nothing stretches."
+}

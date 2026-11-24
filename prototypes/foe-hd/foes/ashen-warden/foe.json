@@ -75,7 +75,11 @@
         0.004,
         0.01
       ]
-    }
+    },
+    "coat_kinds": [
+      0,
+      7
+    ]
   },
   "rig": "rig.py",
   "blurb": "The last Warden of Scorchgate, Act One's Champion: blackened bronze plate edged in gold, a bucket helm with a burning slit under the Cinder Crown, a flame in a gold arch on his breast, great layered pauldrons, a sword still hot from the last fire, the Ashen Aegis (a gold gate with fire behind its doors) on his arm, and a ragged cape of ash. Every plate moves whole on its own joint, so nothing stretches.",

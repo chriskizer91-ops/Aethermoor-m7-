@@ -1,0 +1,18 @@
+{
+  "key": "thrall-overseer",
+  "name": "Thrall-Overseer",
+  "plan": "biped",
+  "moves": "overseer",
+  "rank": "veteran",
+  "height": 1.9,
+  "sheet": "art-in/3d/sheets/sheet-thrall-overseer.webp",
+  "crops": [[40, 540], [620, 920], [990, 1500]],
+  "bounds": [[-0.7, -0.45, -0.01], [0.7, 0.5, 2.0]],
+  "voxel": {"0": 0.014, "1": 0.009, "2": 0.0075, "3": 0.0068},
+  "view": {"center": [0, 0, 0.98], "width": 2.35, "head": [-0.05, 0.0, 1.7], "headWidth": 0.7},
+  "light": {"level": 0, "coat": 25000, "kinds": {"7": 5000}},
+  "sculpt": {"level": 3},
+  "bake": {"res": 1024, "phone": 512, "ao": 32, "coat_kinds": [0, 7], "reach": {"coat": [0.008, 0.02], "parts": [0.004, 0.01]}},
+  "rig": "rig.py",
+  "blurb": "The thralls' driver, the Hearth Below: a head taller than they are, stone and slag with fire in its cracks, a smith's iron mask set in its chest with its eye-holes burning, two iron vents, burning spikes on its shoulders, arms and legs, one lit eye in a ball of stone on a bent stalk, a ragged loincloth, iron ankle bands with glowing slits. Every slab moves whole on its own joint, so nothing stretches."
+}
