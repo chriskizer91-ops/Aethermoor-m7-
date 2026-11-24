@@ -200,6 +200,14 @@ session 6 made Briarmaw.
     (a little coarser, to stay under a million with the deeper warts), light 26,814. Kit stretch check: PASS.
   - The gallery is 15.2 MB with the passing thornhound from session 6 in it.
 
+- **Second pass, the rotgrub and the rime wolf** (November 24):
+  - The rotgrub: bigger brown blotches among its flecks, nearer the sheet. Kit stretch check: PASS.
+  - The rime wolf: its face reads now (a dark mask down the muzzle and round the eyes, pale cheeks, chin and brows,
+    painted on the short fur too) and a fuller tail plume. Its fall and hit are a touch gentler for the new light model.
+    Sculpt 605,902. Kit stretch check: PASS.
+  - The phone gallery now uses 512 px pictures (`node build.mjs --tex=512`, made at build time from the 1024 px ones):
+    11.9 MB with all six foes, room for more. The laptop pages keep 1024 px.
+
 **My lane is done** (November 24): the Rot-Stag, Old Snag, the Mire-King, the rotgrub and the rime wolf, each passing
 the kit's stretch check, plus the thornhound from before. The thornhound's re-posed legs went to session 6; the winged
 ones to Models. The gallery is 14.9 MB with six foes (1024 px phone pictures; 512 px would halve them if more join).

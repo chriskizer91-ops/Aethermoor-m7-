@@ -1,9 +1,11 @@
 // Builds the beasts' gallery page into one file: dist/beasts.html (open it) and dist/beasts.artifact.html (publish it).
 //   node build.mjs [--only=thornhound,rotstag] [--out=beasts] [--heroes=0] [--sculpt[=key,key]]   (--sculpt: the laptop page; use --only=key too,
 //   with the full sculpt of each foe named (or every foe); two sculpts pass 16 MB, so one page per foe's sculpt)
+//   [--tex=512]   the phone page's pictures at 512 px (made into dist/tex512/, from the foes' 1024 px ones) to stay under 16 MB
 // Every foe listed in roster.json whose folder (../../foes/<key>/) has its assets/ made is put in.
 import { build } from 'esbuild';
 import { readFile, writeFile, mkdir, access, stat } from 'node:fs/promises';
+import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -21,10 +23,18 @@ for (const r of roster) {
   const files = { lightMeta: 'light.json', lightBin: 'light.bin', color: 'color-1024.webp', normal: 'normal-1024.webp', ao: 'ao-512.webp', cmp: 'cmp.webp' };
   if (!(await exists(path.join(dir, 'ao-512.webp')))) files.ao = 'ao-1024.webp';      // the kit's pack writes ao-1024
   if (await exists(path.join(dir, 'emit-256.webp'))) files.emit = 'emit-256.webp';
+  if (String(args.tex) === '512') {                     // smaller pictures for the phone page
+    const t = path.join(here, 'dist', 'tex512', r.key); await mkdir(t, { recursive: true });
+    for (const k of ['color', 'normal', 'ao']) {
+      const src = path.join(dir, files[k]), dst = path.join(t, `${k}-512.webp`);
+      execFileSync('python3', ['-c', `from PIL import Image; im = Image.open(${JSON.stringify(src)}); im = im.resize((512, 512), Image.LANCZOS) if im.width > 512 else im; im.save(${JSON.stringify(dst)}, quality=88, method=6)`]);
+      files[k] = dst;
+    }
+  }
   const withSculpt = args.sculpt === true || (typeof args.sculpt === 'string' && args.sculpt.split(',').includes(r.key));
   if (withSculpt && await exists(path.join(dir, 'sculpt.bin'))) { files.sculptMeta = 'sculpt.json'; files.sculptBin = 'sculpt.bin'; }
   let size = 0;
-  for (const f of Object.values(files)) if (f !== 'cmp.webp' && !f.startsWith('sculpt')) size += (await stat(path.join(dir, f))).size;
+  for (const f of Object.values(files)) if (f !== 'cmp.webp' && !f.startsWith('sculpt')) size += (await stat(path.resolve(dir, f))).size;
   bytes += size;
   foes.push({ ...r, ...meta, ready: true, dir, files, size });
 }
@@ -32,7 +42,7 @@ const q = (f) => JSON.stringify(f);
 let mod = `export const FOES = [];\n`;
 foes.forEach((f, i) => {
   if (!f.ready) { mod += `FOES.push(${JSON.stringify({ key: f.key, name: f.name, ready: false })});\n`; return; }
-  const imps = Object.entries(f.files).map(([k, file]) => `import f${i}_${k} from ${q(path.join(f.dir, file))};`).join('\n');
+  const imps = Object.entries(f.files).map(([k, file]) => `import f${i}_${k} from ${q(path.resolve(f.dir, file))};`).join('\n');
   const { dir, files, ...info } = f;
   mod += `${imps}\nFOES.push({ ...${JSON.stringify(info)}, A: { ${Object.keys(f.files).map((k) => `${k}: f${i}_${k}`).join(', ')} } });\n`;
 });
