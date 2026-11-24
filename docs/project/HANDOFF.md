@@ -4,7 +4,7 @@ For a fresh conversation taking over as the hub (the orchestrator) of *Aethermoo
 on November 24 for every session to stop at a good point and be refreshed, to cut down on usage. Read this first, then
 `CLAUDE.md`, `docs/project/README.md` (the rules), `BOARD.md`, `decisions.md` and `questions.md`.
 
-The hub's branch is `claude/brave-davinci-790efm`. Everything the eight sessions made is merged into it.
+The hub's branch is `claude/brave-davinci-790efm`. Everything the eight sessions made is merged into it, including each job's last push and the "Handoff (November 24)" section now at the top of every slip (checked: M7's 623 tests pass, `game/` unchanged, the Sunscorch and Ironspire game pages build and start clean at phone size).
 
 ## Where the game stands
 
@@ -36,7 +36,7 @@ UTC. These were built, pushed, and scheduled to publish at about 00:10 UTC by th
 |---|---|---|
 | The ten fight pages, with the arena checks' fixes (camera height coming back, foe kept in frame) | the Fight | the fight pages below |
 | The four wraiths pages (the act labels fixed, the mirage-wisp, the wisp-queen) | session 8 | the wraiths pages below |
-| The game pages that change with the last four wraiths (the Rime-Abbot, the Lantern Mother, the mirage-wisp, the wisp-queen) and the Fight's `arena.js` fix | Together | the game pages below |
+| All ten game pages (the Fight's `arena.js` fix changes every page), with the last four wraiths: the wisp-queen on both Sunscorch pages and the mirage-wisp on its full page, the Lantern Mother on the Gloomfen's full page, the Rime-Abbot on the Ironspire's full page (the Sentinel-Captain moved to the Sunscorch's full page only) | Together, at 00:12 UTC | the game pages below |
 
 Check each went up (read it with the Artifact tool, or look at the session's last result with `list_events`). If one
 didn't, rebuild it from the hub's branch with the commands in that job's slip ("Handoff (November 24)" section) and
