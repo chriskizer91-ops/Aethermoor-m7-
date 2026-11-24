@@ -165,13 +165,34 @@ session 6 made Briarmaw.
   - My page loader now builds any bone order (the serpent chain lists the tail first).
   - Second pass, later: the brown flecks are smaller than on the sheet.
 
+- **The rime wolf** (November 24), rabble of the high passes: in the gallery (same link), its sculpt on its own laptop
+  page: https://claude.ai/artifact/KkZpRLW7cpLBXUMEaq5zax.
+  - Sculpted from Chris's sheet: 0.95 m to the ear tips, 1.36 m from nose to tail; shaggy grey-blue locks, a great pale
+    ruff round the neck with ice crystals grown into it, a pale chest and a big plumed tail, tall dark ears, pale blue
+    eyes, long legs on big clawed paws. Outline overlap: front 0.75, side 0.65 (the sheet's legs and tail are
+    shaggier), back 0.75.
+  - **596,034 triangles** in the sculpt, baked onto a light model of **22,584 triangles**, on the kit's four-legged rig
+    with helper joints and `WELD_SAME_KIND` (session 6's new kit option).
+  - Its moves: breathe, trot, Rime Bite, Lunge (it drops low, trembling, then springs), Circle (it trots a ring), hit,
+    fall. A pack of five round the heroes.
+  - **The kit's stretch check passes**: worst big edge 1.29x, no webbing by eye. Legs set wide enough apart with short
+    leg fur that they never touch (when they did, the binder cut holes where they met).
+  - A lesson for every foe: a rigid piece (the ice crystals here) must be the same set at every level of detail. When
+    the light model had fewer crystals than the sculpt, the bake found nothing under them and painted them black.
+    Old Snag's bristles and the Mire-King's reed blades also change in number with the level; both look right on the
+    page (dark crest, green blades), but they're worth the same fix in a second pass.
+  - Second pass, later: the face's dark mask and pale brows don't read yet; the legs and tail could be shaggier.
+
+**My lane is done** (November 24): the Rot-Stag, Old Snag, the Mire-King, the rotgrub and the rime wolf, each passing
+the kit's stretch check, plus the thornhound from before. The thornhound's re-posed legs went to session 6; the winged
+ones to Models. The gallery is 14.9 MB with six foes (1024 px phone pictures; 512 px would halve them if more join).
+
 ## Next
 
 0. Move onto session 6's shared kit (commit f384b7d / 8f3b6e2 on job/foe-hd) once the hub brings it into its branch; my
    kit folder then goes, and the thornhound is rebuilt on it.
 
-1. The rime-wolf, each passing the kit's stretch check (the Gloamwing, lamp-moth and
-   Thunder-Roc went to Models, November 23). Then the thornhound's hind legs re-posed clear of the body and baked again.
+1. Done (see above). Second passes when asked: the look notes under each foe. (The thornhound's re-posed legs are session 6's now.)
 2. The thornhound, pass two: the fur still reads a little like bark from far off; softer locks, the face's markings
    (the pale brows, the tan cheeks), teeth for the open-mouth moves, and the phone size down to about 0.4 MB
    (512 px pictures; he is 1.07 MB now).
