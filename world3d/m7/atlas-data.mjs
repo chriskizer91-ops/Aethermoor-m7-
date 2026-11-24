@@ -5,6 +5,7 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import path from 'node:path';
+import { nameOf } from './our-names.mjs';   // (Places, November 24) Chris's renames
 const here = path.dirname(fileURLToPath(import.meta.url)), ROOT = path.join(here, '../..');
 const lore = JSON.parse(readFileSync(path.join(ROOT, 'docs/lore/places.json'), 'utf8'));
 const { MAPS, MAP_IDS } = await import(pathToFileURL(path.join(ROOT, 'game/src/data/maps/index.js')));
@@ -26,7 +27,7 @@ for (const id of MAP_IDS) {
   const m = MAPS[id], s = byId[STOP_OF[id] || id];
   if (!s) { left.push(id); continue; }
   const hearthfires = m.entities.filter((e) => e.kind === 'hearthfire').map((e) => ({ id: e.id, name: (ENCOUNTERS[e.id] && ENCOUNTERS[e.id].name) || e.id, cold: !!e.cold || undefined }));
-  s.maps.push({ id, name: m.name, region: m.region, hearthfires });
+  s.maps.push({ id, name: nameOf(id, m.name), region: m.region, hearthfires });
 }
 if (left.length) { console.error('maps with no stop on the atlas: ' + left.join(', ')); process.exit(1); }
 const regions = Object.fromEntries(Object.entries(lore.regions).map(([k, r]) => [k, { name: r.name, color: r.color, act: r.act }]));

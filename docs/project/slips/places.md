@@ -265,6 +265,24 @@ people are `people[].id` (the game's NPC ids).
   Highfold, the Gloomfen's Lanternfen): full textures, no page errors. (Opened from disk the picture files are blocked;
   served over the web, as claude.ai serves them, they load.)
 
+### Step 6 (November 24): the arena sets, and the fen's dark heart
+
+- **Eighteen arena sets** (Chris: fights "in arenas that look like the land you are in"), page
+  https://claude.ai/artifact/VCCwofQnbEaDBN5SwsowAW: the Road and the Wood, the Thorns, the Deep Wood, the Heartroot,
+  the Fen, the Desert Sands, the Glass Flats, the Canyon, the Vaults, the Snow Road, the Frozen Lake, the Dwarf Halls,
+  the Forge, the Keep's Halls, the Hollow Hall, the Ash Stair, the Chained Deep, the Worldforge (two of the hub's
+  pairs split, deep wood / Heartroot and canyon / vaults: they look nothing alike). Each is an open round 30 m across
+  with nothing in its middle 20 m and the land's own trees, rocks, walls or cliffs only round the edge, painted tile by
+  tile from its places' paintings, and so in their textures, light, sky and life. `world3d/m7/arenas/`: `sets.mjs`
+  (what each is made of), `make.mjs` (its map in M7's format, anchors `party` and `foes` 6 m either side of the
+  middle) and `paint.py` (its painting); `m7/convert.mjs arena-<set>` makes the place. `table.js`:
+  `window.M7_ARENA_FOR` (all 60 M7 places) and `M7_ARENA_DEFAULT` by region. Phone cost 22-33 draws (headless).
+- **The fen's dark heart**: M7's Mother's Hollow takes Envoi's and Coven's name (Chris, call 8). `world3d/names.js`
+  no longer renames Coven's "fen's dark heart" to the Lanternfen; `m7/our-names.mjs` names the Mother's Hollow
+  "The fen’s dark heart" in the converted places (its title, the Lanternfen's way out to it) and the Atlas until
+  the game's own text carries it (Together); `docs/lore/places.json` and the story map
+  (https://claude.ai/artifact/XTicYjY9EcZ4V54cjSzJcZ) updated. The Gloomfen page rebuilt.
+
 ## Next
 
 - Waiting for the hub.

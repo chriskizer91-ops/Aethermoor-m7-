@@ -6,7 +6,8 @@
 //   Io's cottage                      -> Fawnrest Shrine (M7's shrine of the white deer)
 //   the Thornwood                     -> the Thornway (M7's thorn road, with Briarmaw's den in it)
 //   Bogmire (the stilt town)          -> Bogmire (M7's own Gloomfen town, the same name)
-//   the fen's dark heart              -> the Lanternfen (M7's bog of the Lantern Mother)
+//   the fen's dark heart              keeps its name: it is M7's Mother's Hollow, the Lantern Mother's drowned grove
+//                                     (Chris, November 24: "Use the lore name from Moon Faire and Envoi")
 //   the Moon Faire (its camp)         -> the Wayfarers' camp
 // These follow the story map (docs/lore/places.json, November 20).
 // The continent's four bands take the names of the parts of M7's world they cover.
@@ -14,7 +15,6 @@
   'use strict';
   const NAMES = [
     ['Io\u2019s cottage', 'Fawnrest Shrine'], ["Io's cottage", 'Fawnrest Shrine'],
-    ['The fen\u2019s dark heart', 'The Lanternfen'], ['the fen\u2019s dark heart', 'the Lanternfen'], ["The fen's dark heart", 'The Lanternfen'],
     ['Wickhollow and the fen', 'The Verdant Wilds and the Gloomfen'],
     ['The Thornwood', 'The Thornway'], ['the Thornwood', 'the Thornway'], ['Thornwood', 'Thornway'],
     ['Wickhollow', 'Thornhollow'], ['Hilde\u2019s forge', 'Hilda\u2019s forge'], ['Nettie\u2019s house', 'the weaver\u2019s house'],
