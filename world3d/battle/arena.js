@@ -170,12 +170,16 @@ export const arena = {
     const span = kind === 'wide' ? Math.max(6, F.pos.distanceTo(hc) * 1.2 + 3) : Math.max(4.5, F.size.h * 3.4 + F.size.d * 1.3) * (tg ? 1.3 : 1);
     this._near = this.staticsNear(at, span * 1.7); // (pillars, statues and the like the sight test doesn't hold: the Hollow Hall)
     let best = -1e9;
-    for (const k of [1, 1.25]) for (const lift of [0, 1.5, 3]) for (const [ti, th] of turns.entries()) {
+    // the foe must be in the shot (step 6 checks: the Leviathan, lying far out in his water, fell off a phone's narrow
+    // screen on his wide moves): its middle inside the frame from the candidate, or the candidate loses
+    const fm = F.pos.clone().setY(F.pos.y + F.size.h * 0.55), vr = this.renderer.domElement.getBoundingClientRect(), asp0 = vr.width / Math.max(1, vr.height);
+    const inFrame = (p, lk, fov) => { const q = new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().lookAt(p, lk, UP)).invert(), v = fm.clone().sub(p).applyQuaternion(q), t = Math.tan(fov * Math.PI / 360); return v.z < 0 && Math.abs(v.x / -v.z) < t * asp0 * 0.85 && Math.abs(v.y / -v.z) < t * 0.85; };
+    for (const k of [1, 1.25, 1.6]) for (const lift of [0, 1.5, 3]) for (const [ti, th] of turns.entries()) {
       const p = at.clone().addScaledVector(back.clone().applyAxisAngle(UP, th), span * k);
       p.y = F.pos.y + Math.max(F.size.h * 1.1 + 0.9, span * (kind === 'wide' ? 0.6 : tg ? 0.5 : 0.3)) + lift;
       if (!open(p)) continue;
       const lk = at.clone(); lk.y -= p.distanceTo(at) * 0.07;
-      const sc = this.viewScore(p, lk, kind === 'wide' ? 44 : 36, p.distanceTo(at)) + (clear(p, at) ? 0 : -50) - lift * 0.15 - (k - 1) - ti * 0.08;
+      const fov = kind === 'wide' ? 44 : 36, sc = this.viewScore(p, lk, fov, p.distanceTo(at)) + (clear(p, at) ? 0 : -50) + (inFrame(p, lk, fov) ? 0 : -30) - lift * 0.15 - (k - 1) * (k > 1.3 ? 3 : 1) - ti * 0.08;
       if (sc > best) { best = sc; pos = p; }
       if (sc >= 11.9) break;
     }
