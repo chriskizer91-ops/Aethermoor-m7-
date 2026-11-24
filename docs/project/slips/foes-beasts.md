@@ -189,6 +189,17 @@ session 6 made Briarmaw.
   not cream). Its filigree struts are now the same at every level of detail. Re-baked; still passes the kit's
   stretch check. It now shows as a bold gold ring among the heroes.
 
+- **Second pass, Old Snag and the Mire-King** (November 24):
+  - Both now build the same rigid pieces at every level of detail (Old Snag's bristle crest and tail tuft, the
+    Mire-King's reed blades), so the light model's bake finds each one in the sculpt.
+  - Old Snag: bolder, wider pale stripes down his flanks; a fuller crest. His light model is now 35,599 triangles
+    (the crest's bristles are all in it), sculpt 813,432. The new light model shifted his weights, so his moves are a
+    little gentler (the hit's head jerk, the head dips in Trample and Splitting Charge, the fall's roll) and his shoulder
+    blades take 35% of the leg's swing (the rig's `HELPERS`). Kit stretch check: PASS.
+  - The Mire-King: bolder warts, and deeper gold eyes (they glow, and the glow had washed them pale); sculpt 906,524
+    (a little coarser, to stay under a million with the deeper warts), light 26,814. Kit stretch check: PASS.
+  - The gallery is 15.2 MB with the passing thornhound from session 6 in it.
+
 **My lane is done** (November 24): the Rot-Stag, Old Snag, the Mire-King, the rotgrub and the rime wolf, each passing
 the kit's stretch check, plus the thornhound from before. The thornhound's re-posed legs went to session 6; the winged
 ones to Models. The gallery is 14.9 MB with six foes (1024 px phone pictures; 512 px would halve them if more join).

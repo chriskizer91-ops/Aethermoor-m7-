@@ -80,13 +80,13 @@ def build(K):
     def warts(P):
         xo, sx, sy = topx(P)
         n = fbm(P * 55 + 2, 3.0)
-        w = sstep(0.56, 0.72, n)
+        w = sstep(0.52, 0.66, n)
         return w * (1 - belly(P)) * (1 - sstep(1300, 1340, sx) * sstep(330, 300, sy) * 0.6)
 
     def full(P):
         d = shape(P)
         if LV >= 2:
-            d = d - 0.006 * warts(P) - 0.0025 * (fbm(P * 20, 2.0) - 0.5)
+            d = d - 0.010 * warts(P) - 0.0025 * (fbm(P * 20, 2.0) - 0.5)
             xo, sx, sy = topx(P)
             folds = np.sin(sy / 14.0 + 0.3 * np.sin(xo / 60)) * belly(P)              # soft folds across the belly
             d = d + 0.0025 * folds
@@ -136,7 +136,8 @@ def build(K):
     for e in EYES:
         V, F = G.ellipsoid(e + r(np.sign(e[0]) * 12, 12, 0), r(42, 40, 41), {0: 8, 1: 10, 2: 16, 3: 24}[LV], {0: 12, 1: 16, 2: 26, 3: 40}[LV])
         d = (V - e); out = np.array([np.sign(e[0]) * 0.75, 0.6, 0.15]); out /= np.linalg.norm(out)
-        cc = mix(np.array([0.98, 0.58, 0.04]), np.array([0.55, 0.22, 0.02]), np.clip(1 - (d @ out) / (40 * S), 0, 1)[:, None])
+        cc = mix(np.array([0.80, 0.42, 0.02]), np.array([0.45, 0.16, 0.01])   # (they glow too, so a deep gold)
+                 , np.clip(1 - (d @ out) / (40 * S), 0, 1)[:, None])
         t = d - out[None] * (d @ out)[:, None]
         slit = (np.abs(t[:, 2]) < 5 * S) & (np.linalg.norm(t, axis=1) < 26 * S) & ((d @ out) > 0)
         cc[slit] = [0.04, 0.03, 0.02]
@@ -155,7 +156,7 @@ def build(K):
         V, F = tube(ring, np.full(n, 5.5 * S), max(5, SIDES - 2))
         M.add(V, F, mix(REED, REED2, 0.3 * k), 8)
     rr = np.random.default_rng(12)
-    for k in range({0: 9, 1: 12, 2: 18, 3: 24}[LV]):           # green blades standing up and out
+    for k in range(18):           # green blades standing up and out (the same at every level of detail)
         t = rr.uniform(0, 2 * np.pi)
         base = C0 + np.array([RX * np.sin(t) * 0.9, RY * np.cos(t) * 0.9, 0.0])
         d = np.array([np.sin(t) * rr.uniform(0.3, 0.8), np.cos(t) * rr.uniform(0.1, 0.5), 1.0]); d /= np.linalg.norm(d)

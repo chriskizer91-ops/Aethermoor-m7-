@@ -66,3 +66,4 @@ SPLIT = [('head', 'jaw')]
 BANDS = {k + q: ((0.04, 0.10) if q == '_lower' else (0.02, 0.05) if q == '_paw' else (0.06, 0.15))
          for k in ('fl', 'fr', 'bl', 'br') for q in ('_upper', '_lower', '_paw')}
 BANDS.update({'neck_base': (0.11, 0.3), 'neck': (0.1, 0.26), 'head': (0.08, 0.22)})
+HELPERS = {'fl_blade': 0.35, 'fr_blade': 0.35}   # his short legs: the blades take a little less of the swing

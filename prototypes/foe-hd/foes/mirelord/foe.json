@@ -36,7 +36,7 @@
   "0": 0.012,
   "1": 0.011,
   "2": 0.007,
-  "3": 0.0052
+  "3": 0.0058
  },
  "view": {
   "center": [
@@ -79,5 +79,5 @@
  "what": "Act One, Relic-Bearer of the Mire, the Mire Pearl set in his crown of reeds. Belly-Flop, Drag Under, Wallow, Undertow.",
  "about": "A frog-king as wide as a hut: warty green skin blotched with orange rings, a pale sagging belly, great gold eyes, and the Mire Pearl set in a crown of woven reeds and cattails. 1.1 m to the top of his head (1.55 m to the cattails), 1.6 m across.",
  "pack": 1,
- "sculptTriangles": 951258
+ "sculptTriangles": 906524
 }
