@@ -17,6 +17,11 @@ def build(K):
     GREEN = np.array([0.26, 0.42, 0.08]); LIME = np.array([0.60, 0.70, 0.18]); DK = np.array([0.10, 0.20, 0.04])   # they glow (kind 7): cold fire
     CORE = np.array([0.85, 0.72, 0.22]); GOLD = np.array([1.0, 0.80, 0.25]); WATER = np.array([0.10, 0.20, 0.18])
     rr = np.random.default_rng(23)
+    WARM = np.array([0.95, 0.85, 0.3])
+    def warm(V, C, k=0.9):
+        """lit from inside: green warming to yellow near the core, more at the front (November 24: the sheet's glow)"""
+        w = np.clip(1 - np.linalg.norm((V - FACE) / [0.15, 0.17, 0.17], axis=1), 0, 1) ** 1.1 * (0.55 + 0.45 * np.clip(V[:, 1] / 0.08, 0, 1))
+        return np.clip(mix(C, WARM, (k * w)[:, None]), 0, 1)
     nt, npp = {0: (6, 9), 1: (8, 12), 2: (12, 18)}.get(LV, (16, 24))
 
     # ---- the flame's body: a teardrop, pointed below, a curling tip above; a window at the front for the core ----
@@ -25,23 +30,24 @@ def build(K):
         d = ell(P, C0, (0.088, 0.08, 0.10))
         d = smin(d, cap(P, (0, 0, 0.30), (0, 0, 0.16), 0.08, 0.004), 0.05)                     # pointed foot
         d = smin(d, cap(P, (0, 0, 0.42), (0.0, -0.01, 0.55), 0.06, 0.01), 0.05)                  # rising to the tip
-        d = smax(d, -ell(P, FACE + [0, 0.03, 0], (0.075, 0.06, 0.075)), 0.025)                  # the window
+        d = smax(d, -ell(P, FACE + [0, 0.03, 0], (0.082, 0.065, 0.085)), 0.025)                 # the window
         if (LV if lv is None else lv) >= 2: d = d - 0.002 * (fbm(P, 30.0, 2) - 0.5)
         return d
     log('body')
     V, F = S.mc(body_sdf, VOX, K.lo, K.hi)
     up = np.clip((V[:, 2] - 0.2) / 0.38, 0, 1)[:, None]
-    M.add(V, F, np.clip(mix(DK, GREEN, up * 0.8 + 0.2 * fbm(V, 12.0)[:, None]), 0, 1), 0)
+    M.add(V, F, warm(V, np.clip(mix(DK, GREEN, up * 0.8 + 0.2 * fbm(V, 12.0)[:, None]), 0, 1), 0.6), 0)
 
     # ---- the core: glowing yellow, in the window, with the face on it -------------------------------------------
-    V, F = G.ellipsoid(FACE + [0, -0.01, 0], (0.075, 0.055, 0.08), nt + 4, npp + 6)
-    M.add(V, F, np.tile(CORE, (len(V), 1)), 7)
+    V, F = G.ellipsoid(FACE + [0, -0.01, 0], (0.082, 0.06, 0.088), nt + 4, npp + 6)
+    rc = np.clip(np.linalg.norm((V - FACE)[:, [0, 2]] / [0.082, 0.088], axis=1), 0, 1)[:, None]     # pale at the heart, gold at the rim
+    M.add(V, F, np.clip(mix(np.array([1.0, 0.9, 0.42]), np.array([0.82, 0.78, 0.22]), rc ** 1.4), 0, 1), 7)
     for s in (1, -1):                                                             # slanted eyes
         c = FACE + [s * 0.026, 0.038, 0.008]
-        a = s * 0.5
+        a = s * 0.62
         rot = np.array([[math.cos(a), 0, -math.sin(a)], [0, 1, 0], [math.sin(a), 0, math.cos(a)]])
-        V, F = G.ellipsoid(c, (0.018, 0.007, 0.010), nt, npp, rot); M.add(V, F, np.tile([0.05, 0.06, 0.02], (len(V), 1)), 8)
-    V, F = G.ellipsoid(FACE + [0, 0.04, -0.022], (0.004, 0.003, 0.006), 6, 8); M.add(V, F, np.tile([0.05, 0.06, 0.02], (len(V), 1)), 8)
+        V, F = G.ellipsoid(c + [s * 0.004, 0, 0.004], (0.032, 0.008, 0.012), nt, npp, rot); M.add(V, F, np.tile([0.08, 0.16, 0.03], (len(V), 1)), 8)
+    V, F = G.ellipsoid(FACE + [0, 0.042, -0.026], (0.007, 0.004, 0.011), 6, 8); M.add(V, F, np.tile([0.05, 0.06, 0.02], (len(V), 1)), 8)
 
     # ---- the tongues: long narrow flames lying on the teardrop, spiralling up it, licking out at their tips ------
     log('tongues')
@@ -81,14 +87,14 @@ def build(K):
                               rr.uniform(0.01, 0.03), LIME, r_scale=1.0 + 0.025 * layer)
             win = (V[:, 1] > 0.05) & (np.abs(V[:, 0]) < 0.065) & (np.abs(V[:, 2] - FACE[2]) < 0.065)
             if win.any(): continue                                                # it would cross the face: leave it out
-            M.add(V, F, Cc, 7)
+            M.add(V, F, warm(V, Cc), 7)
     # the long curl at the top, licking over to its left
-    V, F, Cc = tongue(-math.pi / 2, 0.47, 0.17, 0.038, 2.2, 0.06, LIME, r_scale=0.6); M.add(V, F, Cc, 7)
-    V, F, Cc = tongue(-math.pi / 2 - 1.2, 0.5, 0.14, 0.03, -1.8, 0.04, LIME, r_scale=0.5); M.add(V, F, Cc, 7)
+    V, F, Cc = tongue(-math.pi / 2, 0.47, 0.17, 0.038, 2.2, 0.06, LIME, r_scale=0.6); M.add(V, F, warm(V, Cc), 7)
+    V, F, Cc = tongue(-math.pi / 2 - 1.2, 0.5, 0.14, 0.03, -1.8, 0.04, LIME, r_scale=0.5); M.add(V, F, warm(V, Cc), 7)
     # stray wisps flying off, little flames
     for i in range(10):
         a = rr.uniform(0, 2 * math.pi); z = rr.uniform(0.3, 0.58)
-        V, F, Cc = tongue(a, z, 0.04, 0.012, 0.3, 0.04, LIME, thick=0.002, r_scale=1.3); M.add(V, F, Cc, 7)
+        V, F, Cc = tongue(a, z, 0.04, 0.012, 0.3, 0.04, LIME, thick=0.002, r_scale=1.3); M.add(V, F, warm(V, Cc), 7)
 
     # ---- the drops falling from its foot, and the ripple of water under it --------------------------------------
     for k, (z, r) in enumerate([(0.14, 0.006), (0.115, 0.005), (0.075, 0.009)]):
