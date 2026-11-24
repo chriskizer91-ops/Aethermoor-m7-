@@ -94,7 +94,10 @@
   --places=thornhollow,keep-hall,hearth-road,thornway,briarmaw-den --tex=448`. Act One B: `FIGHT_HD=boglurcher,mirelord,rotwarden,sapwight,
   briarling,glowcap ... --out=fight-act1b --places=mossfall,mosswatch-1,mosswatch-2,hindwood,fawnrest,eldergrove,heartroot-1,heartroot-2 --tex=448`. Act Two: `FIGHT_HD=willow-wight,grandfather-willow,glass-scorpion,glass-matriarch,sand-skink FIGHT_STANDEES=none ...
   --out=fight-act2 --places=scorchgate-vaults,harrows-forge,frostmere-below,tidal-flats,mothers-hollow,willowmurk,dust-trail,deep-shaft-2
-  --tex=448`. Ironspire: `FIGHT_HD=mother-anvil,peak-troll,old-horn,rockling,rime-wolf ... --tex=320`. Gloomfen: `FIGHT_HD=marsh-light,blackwater-gar,old-jaws,
+  --tex=448`. Ironspire, two pages (hub, November 24): the Lower Peaks (old Ironspire link, https://claude.ai/artifact/WhydqjmyNvuGQdrSadEXKD)
+  `FIGHT_HD=rime-wolf,rockling,peak-troll ... --out=fight-ironspire-a --places=rockslide-pass,frost-road,frostmere,frostmere-below,highfold --tex=512`;
+  Ironhold and the Heights (https://claude.ai/artifact/EGV6SV4zR9EwXS2bB8m4g6) `FIGHT_HD=mother-anvil,peak-troll,old-horn,rockling ... --out=fight-ironspire-b
+  --places=ironhold,ironhold-deeps,iron-stair,harrows-forge --tex=512`. Gloomfen: `FIGHT_HD=marsh-light,blackwater-gar,old-jaws,
   blackwater-leviathan,mire-leech ... --tex=384`. Events: `FIGHT_HD=marsh-light FIGHT_STANDEES=sand-wyrm,kharzul,blackwater-gar,blackwater-leviathan`.
 - Not proven by Auto: the Sand Wyrm's and the Thunder-Roc's swallows (their charge never landed in those runs).
 
