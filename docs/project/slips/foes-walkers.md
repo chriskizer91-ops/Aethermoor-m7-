@@ -3,6 +3,61 @@
 M7's two-legged foes in full detail, the way session 6 made Briarmaw: a sculpt shaped to Chris's sheet, baked onto a
 light model that can share the screen with the party, rigged, moving through its own M7 moves.
 
+## Handoff (November 24)
+
+For a fresh session picking up Foes: walkers (session 8, branch `job/foes-walkers`). Read `docs/project/README.md`,
+`BOARD.md` and the brief in `docs/project/jobs/foes.md` first.
+
+**Where I stopped.** Both lanes are built and merged by the hub. The walkers: the Rotwarden, the sapwight, Old Horn,
+the peak-troll and the unmade. The eleven wraiths (polish pass): the drowned, the bell-ringer, the drowned choir, the
+drowned cantor, the drowned abbess, the choir-wraith, the rime-wraith, the Rime-Abbot, the Lantern Mother, the
+mirage-wisp and the wisp-queen. Each passes the stretch check on every move, full and phone. Last commit before this
+handoff: f8a8b0c. The four wraith pages were rebuilt (act labels fixed to Act Two, the mirage-wisp and wisp-queen added,
+pages rebalanced under 15 MB). They wait for the daily publishing limit to reset, and a scheduled republish at 00:10 UTC
+November 25 puts them up from `prototypes/foe-hd/pages/walkers/dist/wraiths*.artifact.html` (the build output is not
+committed: rebuild with the commands below if those files are gone).
+
+**How a walker or wraith is made** (all in `prototypes/foe-hd/`):
+1. `foes/<key>/sculpt.py OUT PASS`: the sculpt, in numpy signed-distance shapes (`pages/walkers/kit/sdf.py`), body, arms
+   (kind 12), legs (13) and head (14) meshed apart. Kind 15 is a skirt riding the hips only, 10 a prop in a hand, 9 glow,
+   7 glowing eyes, 4 chest pieces. Pass 1 is the shape; pass 3 is the full sculpt (500k to 2M triangles).
+2. `foes/<key>/rig.py`: joints `J`, gates in `weigh()` (arm points by elbow and wrist, leg points by height),
+   `PIECES` (which bones each kind may use), `BANDS` (blend widths), `RIGID`, `SMOOTH`, `WELD_SAME_KIND`.
+3. `foes/<key>/make.sh [PASS] [RES]`: sculpt, outline checks against Chris's sheet (`build/shape-cmp.png`,
+   `build/final-cmp.png`), the Blender bake (triangle targets per kind), pictures, pack, the phone version
+   (`pages/walkers/kit/phone.sh`), and standard form (`pages/walkers/kit/standard.py`). `rebake.sh` (some foes) re-bakes
+   after a rig change without re-sculpting.
+4. Moves: `pages/walkers/foes.js` (one entry per foe, its M7 moves by name; `limits` cap how far each bone bends).
+5. Check: `node kit/tools/stretch.mjs foes/<key>` (full), and the phone copy by copying `assets/phone/*` and `foe.json`
+   to a temp folder and running the same. Big edges under 1.3x, creases under 3x. Fixes are usually: gentler moves or
+   `limits`, a gate in `weigh()`, or more phone triangles where a seam shows.
+6. Sculpt asset: `python3.12 pages/walkers/kit/export_sculpt.py build/high-3.npz build/sculpt3`, then
+   `node pages/walkers/tools/pack.mjs build/bake build/sculpt3 TMP` and copy `sculpt.bin`/`sculpt.json` to `sculpt/`.
+7. Gallery: in `pages/walkers/`, `node build.mjs --foes=a,b --out=NAME --title="The wraiths" "--links=label|url;..."`,
+   then `node tools/check.mjs dist/NAME.artifact.html OUTDIR [foe] [move:u]` (wants "errors: none"). Keep each page
+   under about 15 MB. Publish `dist/NAME.artifact.html`.
+
+**Every page.**
+- Act One walkers (the Rotwarden, the sapwight): https://claude.ai/artifact/YBLUHaLG3bNdfcjBdeq3aj
+- Act Two (Old Horn, the peak-troll): https://claude.ai/artifact/PosCApXURcQF2S8qyicNaY
+- Act Three (the unmade): https://claude.ai/artifact/1fd2Ko7CSdQQD6hL2fKZcW
+- Sculpts for a laptop: Act One https://claude.ai/artifact/JCdvpAPKT781gZiU49jTh2, Act Two
+  https://claude.ai/artifact/EGKt3nEVvxuz9gJ3BzzA4p, Act Three https://claude.ai/artifact/AZUi3tVEEpBk4iCchS21kP
+- Wraiths 1 (the drowned, the bell-ringer, the drowned choir): https://claude.ai/artifact/CFyNjDe1jeuSKytxKdfiVM
+  (out = `wraiths`)
+- Wraiths 2 (the cantor, the abbess, the choir-wraith): https://claude.ai/artifact/6qxqnJRLVEcJXtaqT21Hkw (`wraiths-2`)
+- Wraiths 3 (the rime-wraith, the Rime-Abbot, the mirage-wisp): https://claude.ai/artifact/BfKMgJSha56yyZxXXfLaSF
+  (`wraiths-3`)
+- Wraiths 4 (the Lantern Mother, the wisp-queen): https://claude.ai/artifact/CHSRA2BHE8GmwQiBYmtPPF (`wraiths-4`)
+
+**What's open.**
+- The Rotwarden: one thin root at his left hip stays behind when his root arm swings; his tasset should be a curved
+  plate like the sheet's, not a box; his plates a little more faceted.
+- Old Horn and the peak-troll: shoulder moss bulkier and rounder than the sheet's; fists where the sheet has open
+  fingers.
+- No laptop sculpt page yet for the wraiths (their sculpts are in each `foes/<key>/sculpt/`).
+- Not yet checked on a real phone; Chris's notes on the wraiths will come through the hub.
+
 ## Done
 
 - **The Rotwarden** (Act One's second Champion): on the gallery page below.
