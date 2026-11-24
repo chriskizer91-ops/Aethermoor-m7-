@@ -1,6 +1,6 @@
 # The board
 
-Where the 3D game stands. Written by the hub only. Last updated November 23, late evening.
+Where the 3D game stands. Written by the hub only. Last updated November 24, small hours.
 
 ## The sessions
 
@@ -8,7 +8,7 @@ Where the 3D game stands. Written by the hub only. Last updated November 23, lat
 |---|---|---|---|---|---|
 | 1 | the hub | `session_01DgbUKb6orvjjc1cMgBGPJK` | `claude/brave-davinci-790efm` | running | (the board) |
 | 2 | The Fight | `session_01DgbUKYR9qmKyBdACUWGViw` | `job/fight` | 255 hand-made moments, Act Two done throughout (pages for Act Two, the Sunscorch, the Ironspire, the Gloomfen); lively Briarmaw, Kharzul, the Sand Wyrm's swallow; next: Act Three (the Hollow Council, the Unsmith's companions); the eyrie waits on Places | https://claude.ai/artifact/Q9T8quXCTVgiVUZoMuUaP4 |
-| 3 | Models | `session_01DgbUKcWh5MEvjHnxzp4HHo` | `job/models` | the winged, first pass (the lamp-moth, the Gloamwing, the Thunder-Roc; rigid wings and feathers); 24 foes built in all; next: the Thunder-Roc's fluffy body coat and woven cloak | https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL |
+| 3 | Models | `session_01DgbUKcWh5MEvjHnxzp4HHo` | `job/models` | going back over its foes against the sheets: the Ashen Warden remade as a plated knight, the Unsmith's apron, open mantle and hammer; next: the Rime-Abbot, the Lantern Mother, the Gloamwing and the Roc again, then the Gear Room | https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL |
 | 4 | Places | `session_01DgbUKZVFBfm1dVautXEw5f` | `job/places` | foe lane done: the sand-skink, the glass-scorpion, the Glass Matriarch, the Sand Wyrm, Kharzul (all pass); next: the Thunder-Roc's eyrie on Highfold with the Fight, then the places' gaps | https://claude.ai/artifact/GBxRVSqwMwYUTy1xLNjATA |
 | 5 | Together | `session_01DgbUKbyjzZFe1BXHHxzHBn` | `job/together` | all ten game pages rebuilt with every look chained (five single, five full-pictures, one per region); checking the Sand Wyrm fight, Briarmaw's den (3/3) and Rekindle with M7's late-game party before publishing | https://claude.ai/artifact/RaeSK5hezqb3qH7jmuM5aj |
 | 6 | One Foe | `session_01DgbUKZCNBFY7zwSzwAXR8y` | `job/foe-hd` | the Gloomfen's deep beasts done (the mire-leech, the blackwater-gar, Old Jaws, the Blackwater Leviathan) and Briarmaw lively again; next: Briarmaw's head drawn out for head tosses, then the thornhound's re-posed legs (from session 7) | https://claude.ai/artifact/3Px9mipuqrTBB8NFfehbj5 |
@@ -117,6 +117,7 @@ Where the 3D game stands. Written by the hub only. Last updated November 23, lat
 
 - **Usage (November 21):** at 05:25 UTC the account hit its 5-hour usage limit; every session stopped until it reset at
   07:30, and most sat idle until the hub restarted them at about 12:00. Eight sessions at once can reach the limit.
+  Again on November 23 at about 22:40 UTC (reset 01:40 November 24); the hub restarted the stopped sessions.
 
 ## Next for the hub
 
