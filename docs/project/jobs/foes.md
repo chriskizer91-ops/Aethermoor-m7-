@@ -77,6 +77,7 @@ waist, belt and straps dragged out into a web after the spread arms). Rules for 
   automatic weights by part, so nearness at rest can't bleed weight across.
 - **Bones turn; they don't grow.** Moves rotate bones. No bone is scaled or moved along its length (the root and the
   whole body may move).
+- **The same rigid pieces at every level of detail** (session 7, November 24): a light model with fewer rigid pieces than its sculpt gets the missing ones baked onto it as black. Keep the set the same at every level.
 - **The stretch check** (in the kit: `kit/tools/stretch.mjs`; every lane runs it): pose each move at many frames and
   compare every edge with the rest pose. One rule for every lane (hub, November 21): **an edge longer than 1% of the
   foe's height must stay under 1.3 times** its rest length (that is the webbing Chris saw); **small edges in the creases
@@ -86,4 +87,4 @@ waist, belt and straps dragged out into a web after the spread arms). Rules for 
   Helper bones at knees, elbows and throats (to keep a joint's volume) are a later pass, in the kit, for every lane.
 - **Only a foe that passes goes into the game** (hub, November 21). The Fight's and Together's pages show a foe in full
   detail only once its stretch check passes on every move (`stretch.json` in its folder says so); until then it keeps
-  its stand-in look there. Passing now: Briarmaw, the briarling, the glowcap, the boglurcher, the willow-wight, Grandfather Willow, the marsh-light, the forge-spark, the Rotwarden, the sapwight, Old Horn, the peak-troll, the unmade, the Rot-Stag, Old Snag, the Mirelord, the rotgrub, the rockling, Mother Anvil, the mire-leech, the blackwater-gar, Old Jaws, the Blackwater Leviathan, the sand-skink, the glass-scorpion, the Glass Matriarch, the Sand Wyrm, Kharzul (the wraiths are rigid and can't stretch).
+  its stand-in look there. Passing now: Briarmaw, the briarling, the glowcap, the boglurcher, the willow-wight, Grandfather Willow, the marsh-light, the forge-spark, the Rotwarden, the sapwight, Old Horn, the peak-troll, the unmade, the Rot-Stag, Old Snag, the Mirelord, the rotgrub, the rime-wolf, the rockling, Mother Anvil, the mire-leech, the blackwater-gar, Old Jaws, the Blackwater Leviathan, the sand-skink, the glass-scorpion, the Glass Matriarch, the Sand Wyrm, Kharzul (the wraiths are rigid and can't stretch).
