@@ -644,5 +644,84 @@ const rimeAbbot = {
   },
 };
 
-export const FOES = { rotwarden, sapwight, 'old-horn': oldHorn, 'peak-troll': peakTroll, unmade, drowned, 'bell-ringer': bellRinger, 'drowned-choir': drownedChoir, 'drowned-cantor': drownedCantor, 'drowned-abbess': drownedAbbess, 'choir-wraith': choirWraith, 'rime-wraith': rimeWraith, 'rime-abbot': rimeAbbot };
+// the Lantern Mother: the last lamplighter of Misthollow, her lamp-pole in her right hand, her lantern raised in her left
+const lanternMother = {
+  key: 'lantern-mother', name: 'The Lantern Mother', tier: 'Champion', act: 'Act Three, Misthollow', height: 1.91, weight: 0.8,
+  stiff: 0.65, knees: 0.25,
+  limits: { neck: 0.25, head: 0.5, spine: 0.22, chest: 0.35, hips: 0.4, l_fore: 0.6, r_fore: 0.6, l_upper: 0.7, r_upper: 0.7, l_hand: 0.4, r_hand: 0.4 },
+  text: 'The last lamplighter of Misthollow, who led its children out the night the city sank, and went back for the last of them. She is leading children out again, to the drowned city, where she thinks they are safe.',
+  lunge: 'lamp-pole',
+  idle(W, t) {
+    const b = W.bones;
+    W.body.rotation.z = 0.012 * Math.sin(t * 0.5); W.body.position.y = 0.008 * Math.sin(t * 0.8);
+    b.l_hand.rotation.z = 0.06 * Math.sin(t * 1.1); b.l_hand.rotation.x = 0.04 * Math.sin(t * 0.8);   // the lantern swinging a little
+    b.head.rotation.z = 0.06 * Math.sin(t * 0.35);
+  },
+  moves: {
+    'lamp-pole': { label: 'Lamp-Pole', dur: 1.7, pose(W, u, t) {
+      // the long hooked pole she lit the Hollow's lamps with, swung like a scythe
+      const b = W.bones, back = seg(u, 0.05, 0.4) * (1 - seg(u, 0.45, 0.58)), swing = seg(u, 0.45, 0.62) * (1 - seg(u, 0.82, 1));
+      b.r_upper.rotation.x = 0.25 * back - 0.75 * swing; b.r_upper.rotation.z = 0.3 * back - 0.1 * swing; b.r_fore.rotation.x = -0.3 * back - 0.2 * swing;
+      b.r_hand.rotation.z = 0.3 * back - 0.4 * swing; b.chest.rotation.y = 0.2 * back - 0.25 * swing; b.spine.rotation.y = 0.08 * back - 0.1 * swing;
+      W.body.position.z = 0.12 * swing;
+    } },
+    lure: { label: 'Lure', dur: 2.2, pose(W, u, t) {
+      // she lifts the lantern and smiles at one of you, the way she smiled at the children
+      const b = W.bones, k = seg(u, 0.05, 0.35) * (1 - seg(u, 0.8, 1));
+      b.l_upper.rotation.x = -0.35 * k; b.l_fore.rotation.x = -0.15 * k; b.head.rotation.z = -0.2 * k; b.head.rotation.x = 0.1 * k;
+      b.chest.rotation.y = -0.1 * k; W.body.position.z = 0.06 * k;
+    } },
+    'lantern-flare': { label: 'Lantern Flare', dur: 2.0, pose(W, u, t) {
+      // every lamp in the Hollow flares at once
+      const b = W.bones, up = seg(u, 0.05, 0.35) * (1 - seg(u, 0.4, 0.5)), flare = seg(u, 0.4, 0.5) * (1 - seg(u, 0.8, 1));
+      b.l_upper.rotation.x = -0.3 * up - 0.55 * flare; b.l_upper.rotation.z = -0.2 * flare; b.head.rotation.x = -0.2 * flare;
+      b.chest.rotation.x = 0.08 * up - 0.12 * flare; b.spine.rotation.x = 0.05 * up - 0.06 * flare; W.body.position.y += 0.05 * flare;
+    } },
+    'hush-now': { label: 'Hush Now', dur: 2.4, pose(W, u, t) {
+      // "Hush now," she says, "hush," rocking, the lantern swinging slow
+      const b = W.bones, k = seg(u, 0.05, 0.25) * (1 - seg(u, 0.85, 1)), sw = Math.sin(u * 10) * k;
+      b.head.rotation.z = 0.15 * k + 0.05 * sw; b.head.rotation.x = 0.15 * k; W.body.rotation.z = 0.04 * sw;
+      b.l_hand.rotation.z = 0.2 * sw; b.spine.rotation.x = 0.05 * k;
+    } },
+    'lead-them-down': { label: 'Lead Them Down', dur: 2.2, pose(W, u, t) {
+      // she reaches out with the lantern-hand to take yours, and leads you down under the water
+      const b = W.bones, reach = seg(u, 0.05, 0.35) * (1 - seg(u, 0.8, 1)), sink = seg(u, 0.45, 0.75) * (1 - seg(u, 0.88, 1));
+      b.l_upper.rotation.x = 0.25 * reach; b.l_fore.rotation.x = 0.4 * reach; b.spine.rotation.x = 0.08 * reach; b.head.rotation.x = 0.2 * reach;
+      W.body.position.z = 0.15 * reach; W.body.position.y -= 0.16 * sink; b.chest.rotation.y = -0.1 * reach;
+    } },
+    moths: { label: 'Moths', dur: 2.4, pose(W, u, t) {
+      // she holds up the lantern, and a lamp-moth comes to it out of the dark
+      const b = W.bones, k = seg(u, 0.05, 0.35) * (1 - seg(u, 0.8, 1));
+      b.l_upper.rotation.x = -0.5 * k; b.l_upper.rotation.z = -0.15 * k; b.head.rotation.x = -0.3 * k; b.head.rotation.y = -0.25 * k;
+      b.l_hand.rotation.z = 0.08 * Math.sin(u * 12) * k; b.neck.rotation.x = -0.1 * k;
+    } },
+    mourning: { label: 'Mourning', dur: 2.6, pose(W, u, t) {
+      // she bows her head over her grief, then lifts it and lets you see
+      const b = W.bones, bow = seg(u, 0.05, 0.3) * (1 - seg(u, 0.45, 0.6)), lift = seg(u, 0.5, 0.65) * (1 - seg(u, 0.85, 1));
+      b.head.rotation.x = 0.4 * bow - 0.3 * lift; b.neck.rotation.x = 0.15 * bow - 0.1 * lift; b.chest.rotation.x = 0.12 * bow;
+      b.l_upper.rotation.x = 0.3 * bow; b.l_fore.rotation.x = 0.3 * bow; W.body.position.y -= 0.03 * bow;
+    } },
+    snuff: { label: 'Snuff', dur: 2.2, pose(W, u, t) {
+      // she reaches the pole's hook to the lamps and pinches them out one by one
+      const b = W.bones, k = seg(u, 0.05, 0.3) * (1 - seg(u, 0.85, 1)), tick = Math.pow(Math.abs(Math.sin(u * Math.PI * 3)), 4) * k;
+      b.r_upper.rotation.x = -0.45 * k - 0.1 * tick; b.r_fore.rotation.x = -0.15 * k; b.r_hand.rotation.x = 0.2 * tick;
+      b.head.rotation.x = -0.2 * k; b.chest.rotation.y = 0.12 * k; b.l_upper.rotation.x = 0.2 * k;
+    } },
+    'lantern-nova': { label: 'Lantern Nova', dur: 2.6, pose(W, u, t) {
+      // the lantern burns white, and so does everything it shines on
+      const b = W.bones, gather = seg(u, 0.05, 0.4) * (1 - seg(u, 0.45, 0.55)), burst = seg(u, 0.45, 0.58) * (1 - seg(u, 0.85, 1));
+      b.l_upper.rotation.x = 0.2 * gather - 0.6 * burst; b.l_upper.rotation.z = -0.25 * burst; b.l_fore.rotation.x = 0.2 * gather;
+      b.chest.rotation.x = 0.16 * gather - 0.12 * burst; b.head.rotation.x = 0.25 * gather - 0.3 * burst; b.r_upper.rotation.z = 0.3 * burst;
+      W.body.position.y += 0.06 * burst - 0.03 * gather;
+    } },
+    'drown-the-light': { label: 'Drown the Light', dur: 2.2, pose(W, u, t) {
+      // she plunges the lantern down into the black water, and the water comes up out of it at you
+      const b = W.bones, down = seg(u, 0.05, 0.4) * (1 - seg(u, 0.55, 0.7)), up = seg(u, 0.55, 0.68) * (1 - seg(u, 0.85, 1));
+      b.l_upper.rotation.x = 0.55 * down - 0.4 * up; b.l_fore.rotation.x = 0.55 * down; b.spine.rotation.x = 0.12 * down; b.chest.rotation.x = 0.15 * down;
+      b.head.rotation.x = 0.3 * down - 0.1 * up; W.body.position.y -= 0.06 * down; W.body.position.z = 0.15 * up;
+    } },
+  },
+};
+
+export const FOES = { rotwarden, sapwight, 'old-horn': oldHorn, 'peak-troll': peakTroll, unmade, drowned, 'bell-ringer': bellRinger, 'drowned-choir': drownedChoir, 'drowned-cantor': drownedCantor, 'drowned-abbess': drownedAbbess, 'choir-wraith': choirWraith, 'rime-wraith': rimeWraith, 'rime-abbot': rimeAbbot, 'lantern-mother': lanternMother };
 export const COMMON = [['idle', 'Breathe', 0], ['walk', 'Walk', 0], ['hurt', 'Hit', 0.9], ['ko', 'Fall', 2.6]];
