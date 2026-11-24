@@ -108,7 +108,15 @@ Eleven, in Act order, through the kit like the walkers; the bestiary ids are the
   model 27,818; phone 0.61 MB. Moves: Breathe (it drifts, the bell swinging), Walk (it glides), Cold Hands, Drag Down,
   Peal (it hauls on the crook and the bell swings hard), Black Water, Hit, Fall. Passes, full and phone. Its crook is
   its left arm; the shroud bends with its trunk, its lowest part rides its hips.
-- Next: the drowned choir, the drowned cantor, the drowned abbess, the choir-wraith, the rime-wraith,
+- **The drowned choir** (done): a red cassock to the ground, torn and holed at its hem; a white lace surplice to the
+  thigh, streaked green, its hem scalloped and cut through with four-petalled eyelets; a red-brown shoulder cape; its
+  hands clasped at its breast round a brass bell with a green tassel; for a head a tall gnarl of dark wood crusted with
+  little skulls, yellow-green weed rising out of it. Sculpt 1,426,344 triangles; light model 31,442; phone 0.55 MB.
+  Moves: Breathe, Walk, Cold Hands (its clasped hands thrust out), The Hymn (it lifts its head and sings, swaying),
+  Toll, Black Water, Hit, Fall. Passes, full and phone. Its hands are clasped, so its arms only ever swing together
+  (new `clasped: true` in walker.js: the generic moves' arm swings become one forward-and-back swing for both arms);
+  below the waist everything rides its hips.
+- Next: the drowned cantor, the drowned cantor, the drowned abbess, the choir-wraith, the rime-wraith,
   the Rime-Abbot, the Lantern Mother, the mirage-wisp, the wisp-queen.
 
 ## Links

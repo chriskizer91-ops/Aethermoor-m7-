@@ -144,6 +144,12 @@ function crouch(W, k) {
 // plate and bark never fold further than they can without stretching (the stretch check, docs/project/jobs/foes.md)
 function pose(W, move, u, t, step) {
   poseRaw(W, move, u, t, step);
+  // a walker whose hands are clasped (the drowned choir, round its bell): its arms only ever swing together, forward and
+  // back, as the right arm does, so the hands never part
+  if (W.foe.clasped) for (const p of ['upper', 'fore', 'hand']) {
+    const r = W.bones['r_' + p], l = W.bones['l_' + p];
+    if (r && l) { r.rotation.y = 0; r.rotation.z = 0; l.rotation.set(r.rotation.x, 0, 0); }
+  }
   const L = W.foe.limits;
   if (L) for (const [n, k] of Object.entries(L)) { const b = W.bones[n]; if (b) { b.rotation.x *= k; b.rotation.y *= k; b.rotation.z *= k; } }
 }

@@ -375,5 +375,44 @@ const bellRinger = {
   },
 };
 
-export const FOES = { rotwarden, sapwight, 'old-horn': oldHorn, 'peak-troll': peakTroll, unmade, drowned, 'bell-ringer': bellRinger };
+// the drowned choir: a chorister, its hands clasped round the bell; both arms always move together (the hands never part)
+const both = (b, ax, v) => { b.r_upper.rotation[ax] = v; b.l_upper.rotation[ax] = ax === 'x' ? v : -v; };
+const both2 = (b, ax, v) => { b.r_fore.rotation[ax] = v; b.l_fore.rotation[ax] = ax === 'x' ? v : -v; };
+const drownedChoir = {
+  key: 'drowned-choir', name: 'The Drowned Choir', tier: 'Veteran', act: 'Act Two, Misthollow', height: 1.95, weight: 0.8,
+  stiff: 0.7, knees: 0.5, clasped: true,
+  limits: { neck: 0.35, head: 0.7, spine: 0.3, chest: 0.35, l_shin: 0.45, r_shin: 0.45, l_fore: 0.5, r_fore: 0.5, l_upper: 0.6, r_upper: 0.6 },
+  text: 'They sing the hymn that has kept something asleep under Misthollow for a thousand years.',
+  lunge: 'cold-hands',
+  idle(W, t) {
+    const b = W.bones, sw = Math.sin(t * 0.55);
+    W.body.rotation.z = 0.02 * sw; b.head.rotation.z = 0.06 * Math.sin(t * 0.4); b.head.rotation.x = -0.04 + 0.04 * Math.sin(t * 0.7);
+    both(b, 'x', 0.03 * Math.sin(t * 1.1));                                         // the bell rising and falling with its breath
+  },
+  moves: {
+    'cold-hands': { label: 'Cold Hands', dur: 1.5, pose(W, u, t) {
+      // its clasped hands thrust out at you
+      const b = W.bones, k = seg(u, 0.05, 0.4) * (1 - seg(u, 0.7, 1));
+      both(b, 'x', -0.6 * k); both2(b, 'x', 0.35 * k); b.spine.rotation.x = 0.15 * k; b.head.rotation.x = 0.2 * k; W.body.position.z = 0.2 * k;
+    } },
+    'the-hymn': { label: 'The Hymn', dur: 2.4, pose(W, u, t) {
+      // it lifts its head and sings, swaying, the bell held up before it
+      const b = W.bones, k = seg(u, 0.05, 0.3) * (1 - seg(u, 0.8, 1)), sway = Math.sin(u * 12) * k;
+      b.head.rotation.x = -0.35 * k; b.neck.rotation.x = -0.2 * k; b.chest.rotation.x = -0.1 * k;
+      both(b, 'x', -0.35 * k); W.body.rotation.z = 0.05 * sway; b.head.rotation.z = 0.08 * sway;
+    } },
+    toll: { label: 'Toll', dur: 1.7, pose(W, u, t) {
+      // it raises the bell and rings it
+      const b = W.bones, up = seg(u, 0.05, 0.3) * (1 - seg(u, 0.8, 1)), ring = up * Math.sin(u * 40) * seg(u, 0.25, 0.4) * (1 - seg(u, 0.7, 0.8));
+      both(b, 'x', -0.7 * up); both2(b, 'x', -0.2 * up + 0.12 * ring); b.head.rotation.x = -0.15 * up;
+    } },
+    'black-water': { label: 'Black Water', dur: 1.6, pose(W, u, t) {
+      const b = W.bones, wind = seg(u, 0, 0.3) * (1 - seg(u, 0.35, 0.45)), heave = seg(u, 0.35, 0.5) * (1 - seg(u, 0.8, 1));
+      b.spine.rotation.x = -0.1 * wind + 0.35 * heave; b.chest.rotation.x = -0.08 * wind + 0.25 * heave; b.neck.rotation.x = 0.3 * heave;
+      b.head.rotation.x = -0.2 * wind + 0.4 * heave; W.body.position.z = 0.08 * heave;
+    } },
+  },
+};
+
+export const FOES = { rotwarden, sapwight, 'old-horn': oldHorn, 'peak-troll': peakTroll, unmade, drowned, 'bell-ringer': bellRinger, 'drowned-choir': drownedChoir };
 export const COMMON = [['idle', 'Breathe', 0], ['walk', 'Walk', 0], ['hurt', 'Hit', 0.9], ['ko', 'Fall', 2.6]];
