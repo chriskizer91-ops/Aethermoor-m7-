@@ -332,7 +332,10 @@ I'll add a switch on the page (`?foes=cutout`).
 
 ## Next
 
-- When session 6's Briarmaw lands: his full model through `setBeastLook`.
+- Done: every step of the brief (the hub, November 24). Briarmaw is on his full model and own moves; Acts One to Three
+  and the events have their pages; every big foe's moves have hand-made moments.
+- If asked, next: moments for the veterans (the forge-warden, the overseer, the unmade), so their bigger moves get a
+  camera too; louder effects on heroes at phone size; a check of the frame rate on a real phone.
 
 ## Changed outside my files
 
