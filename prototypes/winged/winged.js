@@ -18,6 +18,7 @@ import * as THREE from 'three';
 import { V, lerp, smooth, clamp01, tube, lathe, plate, fitMaster, withMaster, add, bake, sph, tor, cone, Q } from '../hero-3d/kit.js';
 import { BEASTS } from '../bestiary/beasts.js';
 import { glow, mist, env, rise } from '../wraiths/wraiths.js';
+import { registered } from '../foe-hd/kit/js/looks.js';   // the kit's full-detail foes this page registered (passing their stretch check)
 
 export const WINGED = ['lamp-moth', 'gloamwing', 'thunder-roc'];
 export const WINGED_INFO = {
@@ -239,7 +240,7 @@ function moth(G, key) {
   }
   // wing-dust: a few glittering scales always falling; Dreamdust and Dust in the Eyes throw it in clouds
   R.mists.push(mist(body, { color: key === 'gloamwing' ? '#f2eeff' : '#ffd890', n: 40, r: 0.5, y: -0.3, rise: -0.4, size: key === 'gloamwing' ? 0.07 : 0.05, opacity: 0.35 }));
-  R.base = { pitch: 0.42, sweep: 0.3, amp: key === 'gloamwing' ? 0.55 : 0.7, rate: key === 'gloamwing' ? 1.6 : 5.5, A: AIR[key] };
+  R.base = { pitch: 0.42, sweep: 0.3, amp: key === 'gloamwing' ? 0.55 : 0.7, rate: key === 'gloamwing' ? 0.6 : 0.9, A: AIR[key] };
   if (key === 'gloamwing') dawnbell(body, R, t);
   // a silk shell, spun when it cocoons (only seen then)
   const silkM = new THREE.MeshStandardMaterial({ color: '#cfc9bc', roughness: 0.9, transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false });
@@ -339,7 +340,7 @@ function roc(G) {
     R.legs.push({ hip, knee, foot, side: s });
     if (s > 0) R.props.cloak = cloak(foot, { navy, navy2, blue, sky, spark, gold });
   }
-  R.base = { pitch: 0.2, A: 0, raise: 0.95, twist: -1.2, rate: 1.1, amp: 1 };
+  R.base = { pitch: 0.2, A: 0, raise: 0.95, twist: -1.2, rate: 0.7, amp: 1 };
   return R;
 }
 // one wing: sh (the shoulder; the arm), el (the elbow; the forearm), wr (the wrist; the hand). In each spar's frame x runs
@@ -445,7 +446,7 @@ const MS = {
   'bell-hum': u => { const w = rise(u, 0.3); return { sweep: -0.25 * w, flap: 1 + 0.2 * w, rate: 1 + 2 * w, pitch: -0.25 * w, head: [-0.3 * w, 0], swing: 0.3 * w, glow: 1 + 5 * w, alt: 0.1 * w, shake: w }; },
   // the Thunder-Roc
   talons: u => { const r = rise(u, 0.5); return { fly: r, alt: 0.25 * r, fwd: 0.55 * r, talon: smooth((u - 0.2) / 0.3) * (1 - smooth((u - 0.7) / 0.3)), pitch: -0.3 * r, flap: 1.2, rate: 1.3 }; },
-  'wing-gale': u => { const w = plateau(u, 0.12, 0.85); return { fly: w, beat: Math.PI / 2 + u * Math.PI * 4, flap: 1.4, alt: 0.06 * w, pitch: -0.45 * w, glow: 1 + 0.6 * w, head: [-0.2 * w, 0] }; },
+  'wing-gale': u => { const w = plateau(u, 0.12, 0.85); return { fly: w, beat: Math.PI / 2 + u * Math.PI * 2, flap: 1.4, alt: 0.06 * w, pitch: -0.45 * w, glow: 1 + 0.6 * w, head: [-0.2 * w, 0] }; },
   'carry-off': u => {
     const up = u < 0.35 ? smooth(u / 0.35) : 1 - smooth((u - 0.35) / 0.2), drop = env(clamp01((u - 0.3) / 0.35)), lift = env(clamp01((u - 0.55) / 0.45));
     const fwd = u < 0.35 ? 0.2 * smooth(u / 0.35) : u < 0.6 ? lerp(0.2, 1.1, smooth((u - 0.35) / 0.25)) : 1.1 * (1 - smooth((u - 0.65) / 0.35));
@@ -483,7 +484,7 @@ export function buildWinged(key, o = {}) {
 }
 function makeLook(key, group, fly, inner, R, I) {
   const D = { ...COMMON, ...(OWN[key] || {}) };
-  const look = { group, g: group, plan: 'winged', key, height: I.height, act: { lunge: 0, fall: 0 }, hitAt: -9, t: 0, ph: 0, lt: null, moves: { MOVES: Object.entries(D), DUR: D }, duration: m => D[m] || 1.2, hit() { look.hitAt = look.t; },
+  const look = { group, g: group, plan: 'winged', key, height: I.height, act: { lunge: 0, fall: 0 }, hitAt: -9, t: 0, wph: 0, lt: null, moves: { MOVES: Object.entries(D), DUR: D }, duration: m => D[m] || 1.2, hit() { look.hitAt = look.t; },
     update(t, step = 0) { look.t = t; const L = look.act.lunge || 0, F = look.act.fall || 0, h = (t - look.hitAt) / 0.6; if (F > 0) return look.pose('ko', F, t, 0); if (h >= 0 && h < 1) return look.pose('hurt', h, t, 0); if (L > 0) return look.pose('bite', L, t, 0); return look.pose(step ? 'walk' : 'idle', 0, t, step); } };
   look.rig = R; look.parts = { head: R.head, body: R.body, wingL: R.wings[1]?.fore || R.wings[1]?.sh, wingR: R.wings[0]?.fore || R.wings[0]?.sh, ...R.props };
   look.pose = (move, u, t, step = 0) => { look.t = t; poseWinged(look, R, fly, I, shapeOf(key, move, u), t, step); };
@@ -492,11 +493,14 @@ function makeLook(key, group, fly, inner, R, I) {
 function poseWinged(L, R, fly, I, S, t, step) {
   const B = R.base, H = I.h0, dt = L.lt == null ? 0 : Math.max(0, Math.min(0.1, t - L.lt)); L.lt = t;
   const bird = R.kind === 'bird', walking = !!step;
-  const rate = B.rate * (S.rate ?? 1) * (walking && !bird ? 1.35 : 1);
-  L.ph += dt * rate * Math.PI * 2; const ph = S.beat ?? L.ph;
+  // Chris (November 24): one wing beat a second or slower, on every move; each beat is a stroke, then a glide with the
+  // wings held open (the rest of the cycle), so they never flutter
+  const rate = Math.min(1, B.rate * (S.rate ?? 1) * (walking && !bird ? 1.2 : 1));
+  L.wph += dt * rate * Math.PI * 2; const ph = S.beat ?? L.wph, cyc = ((ph / (Math.PI * 2)) % 1 + 1) % 1, STROKE = 0.62;
+  const wsin = cyc < STROKE ? Math.sin(cyc / STROKE * Math.PI * 2) : 0, wcos = cyc < STROKE ? Math.cos(cyc / STROKE * Math.PI * 2) : 1;
   const shake = (S.shake || 0) * Math.sin(t * 70) * 0.012;
   // where it is: hovering (or perched), moved by the move; down on the ground when it lands or falls
-  const bob = bird ? 0 : Math.sin(ph) * 0.025 + Math.sin(t * 0.9) * 0.02;
+  const bob = bird ? 0 : wsin * 0.025 + Math.sin(t * 0.9) * 0.02;
   const hop = bird && walking ? Math.abs(Math.sin(step * 0.5)) * 0.06 : 0;
   const alt = lerp(B.A + (S.alt || 0) + bob, bird ? -0.12 : 0, S.ground || 0) + hop;
   fly.position.set((S.side || 0) * H + shake * H, alt * H, (S.fwd || 0) * H);
@@ -510,9 +514,9 @@ function poseWinged(L, R, fly, I, S, t, step) {
   if (!bird) {
     const amp = B.amp * (S.flap ?? 1), sweep = B.sweep + (S.sweep || 0);
     for (const w of R.wings) {
-      const s = w.side, th = sweep + amp * Math.sin(ph), th2 = sweep * 0.92 + amp * 0.9 * Math.sin(ph - 0.4);
-      w.fore.rotation.set(0, s * th, s * (0.02 + 0.2 * amp * Math.cos(ph)));
-      w.hind.rotation.set(0, s * th2, s * (0.0 + 0.16 * amp * Math.cos(ph - 0.4)));
+      const s = w.side, th = sweep + amp * wsin, th2 = sweep * 0.92 + amp * 0.9 * (cyc > 0.06 && cyc < STROKE + 0.06 ? Math.sin((cyc - 0.06) / STROKE * Math.PI * 2) : 0);
+      w.fore.rotation.set(0, s * th, s * (0.02 + 0.2 * amp * wcos));
+      w.hind.rotation.set(0, s * th2, s * (0.0 + 0.16 * amp * wcos));
     }
     for (let i = 0; i < R.abd.length; i++) R.abd[i].rotation.set((S.curl || 0) * 0.35 + 0.04 * Math.sin(t * 1.3 + i) - (S.ko || 0) * 0.1, 0, 0);
     const lg = S.legs || 0;
@@ -528,9 +532,9 @@ function poseWinged(L, R, fly, I, S, t, step) {
     for (const w of R.wings) {
       const s = w.side;
       const rest = B.raise + (S.raise || 0) + 0.05 * Math.sin(t * 1.2 + s) - (walking ? 0.25 : 0);
-      const rz = lerp(rest, (0.15 + 0.9 * Math.sin(ph)) * amp + (S.raise || 0) * 0.5, f) - fold * 0.6 * f;
-      const tw = lerp(B.twist, -0.25 + 0.3 * Math.cos(ph), f);
-      const flex = f * Math.max(0, Math.cos(ph)) * 0.4;
+      const rz = lerp(rest, (0.15 + 0.9 * wsin) * amp + (S.raise || 0) * 0.5, f) - fold * 0.6 * f;
+      const tw = lerp(B.twist, -0.25 + 0.3 * wcos, f);
+      const flex = f * Math.max(0, wcos) * 0.4 * (cyc < STROKE ? 1 : 0);
       w.sh.rotation.set(tw, s * (0.05 + fold * 0.9), s * rz);
       w.el.rotation.set(0, -s * (fold * 2.0 + flex * 0.6 + (1 - f) * 0.15), 0);
       w.wr.rotation.set(0, s * (fold * 2.2 + flex + (1 - f) * 0.1), 0);
@@ -556,5 +560,5 @@ function poseWinged(L, R, fly, I, S, t, step) {
 }
 
 /* ------------------------------------------------------------------ for the Fight */
-export function wingedLook(key, sprite, opts = {}) { if (!WINGED_INFO[key]) return null; return buildWinged(key, { detail: opts.detail === 'high' ? 'high' : 'light' }); }
+export function wingedLook(key, sprite, opts = {}) { if (!WINGED_INFO[key] || registered(key)) return null; return buildWinged(key, { detail: opts.detail === 'high' ? 'high' : 'light' }); }
 export const withWinged = fallback => (key, sprite, opts) => wingedLook(key, sprite, opts) || fallback(key, sprite, opts);
