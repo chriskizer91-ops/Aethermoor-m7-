@@ -578,7 +578,7 @@ const rimeWraith = {
 const rimeAbbot = {
   key: 'rime-abbot', name: 'The Rime-Abbot', tier: 'Champion', act: 'Act Three, Frostmere', height: 2.15, weight: 1.0,
   stiff: 0.7, knees: 0.2,
-  limits: { neck: 0.25, head: 0.5, spine: 0.3, chest: 0.35, hips: 0.4, l_fore: 0.6, r_fore: 0.6, l_upper: 0.7, r_upper: 0.7, l_hand: 0.4 },
+  limits: { neck: 0.25, head: 0.5, spine: 0.22, chest: 0.35, hips: 0.4, l_fore: 0.6, r_fore: 0.6, l_upper: 0.7, r_upper: 0.7, l_hand: 0.4 },
   text: "Brother Aurel of Peak's Veil, who went down to listen to Hush and did not come up. The Crozier froze to his hand.",
   lunge: 'crozier-strike',
   idle(W, t) {
@@ -604,7 +604,7 @@ const rimeAbbot = {
       // he plants the Crozier and bows over it, and the rime grows over him like a second habit
       const b = W.bones, k = seg(u, 0.05, 0.35) * (1 - seg(u, 0.85, 1));
       b.l_upper.rotation.x = -0.25 * k; b.l_fore.rotation.x = 0.15 * k; b.r_upper.rotation.x = -0.55 * k; b.r_upper.rotation.z = 0.25 * k;
-      b.r_fore.rotation.x = -0.5 * k; b.spine.rotation.x = 0.12 * k; b.chest.rotation.x = 0.12 * k; b.head.rotation.x = 0.3 * k;
+      b.r_fore.rotation.x = -0.35 * k; b.spine.rotation.x = 0.05 * k; b.chest.rotation.x = 0.12 * k; b.head.rotation.x = 0.3 * k;
       W.body.position.y -= 0.04 * k;
     } },
     drown: { label: 'Drown', dur: 2.0, pose(W, u, t) {
@@ -624,7 +624,7 @@ const rimeAbbot = {
     hushing: { label: 'Hushing', dur: 2.2, pose(W, u, t) {
       // he lifts a grey finger to the mask, and the Hushweave Cowl breathes out a silence
       const b = W.bones, k = seg(u, 0.05, 0.35) * (1 - seg(u, 0.8, 1)), lean = seg(u, 0.4, 0.6) * (1 - seg(u, 0.8, 1));
-      b.r_upper.rotation.x = -0.65 * k; b.r_upper.rotation.z = 0.15 * k; b.r_fore.rotation.x = -0.6 * k; b.r_hand.rotation.x = -0.3 * k;
+      b.r_upper.rotation.x = -0.8 * k; b.r_upper.rotation.z = 0.15 * k; b.r_fore.rotation.x = -0.4 * k; b.r_hand.rotation.x = -0.3 * k;
       b.head.rotation.z = 0.15 * k; b.head.rotation.x = 0.1 * k + 0.1 * lean; b.spine.rotation.x = 0.1 * lean; W.body.position.z = 0.1 * lean;
     } },
     heartbeat: { label: 'Heartbeat', dur: 2.4, pose(W, u, t) {
@@ -637,7 +637,7 @@ const rimeAbbot = {
     'rime-nova': { label: 'Rime Nova', dur: 2.6, pose(W, u, t) {
       // he raises the Crozier and spreads his arms, and the whole cave of ice answers him at once
       const b = W.bones, gather = seg(u, 0.05, 0.4) * (1 - seg(u, 0.45, 0.55)), burst = seg(u, 0.45, 0.58) * (1 - seg(u, 0.85, 1));
-      b.spine.rotation.x = 0.15 * gather - 0.1 * burst; b.chest.rotation.x = 0.15 * gather - 0.12 * burst; b.head.rotation.x = 0.3 * gather - 0.3 * burst;
+      b.spine.rotation.x = 0.04 * gather - 0.05 * burst; b.chest.rotation.x = 0.16 * gather - 0.12 * burst; b.head.rotation.x = 0.3 * gather - 0.3 * burst;
       b.l_upper.rotation.x = 0.1 * gather - 0.8 * burst; b.l_upper.rotation.z = -0.3 * burst; b.r_upper.rotation.x = 0.1 * gather - 0.4 * burst;
       b.r_upper.rotation.z = 0.6 * burst; b.r_fore.rotation.x = -0.2 * gather; W.body.position.y += 0.06 * burst - 0.04 * gather;
     } },

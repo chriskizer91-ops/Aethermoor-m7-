@@ -33,6 +33,7 @@ def weigh(D, P, idx, K):
         D[(K == 12) & (t < -0.06), idx[side + '_fore']] += 1000.0
         wr = np.array(J[side + '_wrist']); ax2 = (wr - el) / np.linalg.norm(wr - el); t2 = (P - wr) @ ax2
         D[(K == 12) & (t2 < -0.015), idx[side + '_hand']] += 1000.0              # the hand only past the wrist (never the sleeve)
+    D[(K == 0) & (P[:, 2] < 1.28), idx['chest']] += 1000.0  # the cape's waist blends spine to hips, never chest to hips
     z = P[:, 2]                                          # each leg bone only at its own height (the thigh bone starts inside
     for n, i in idx.items():                             # the pelvis, so the sight test can hide it from the top of the thigh)
         if n.endswith('_shin'): D[(K == 13) & (z > 0.56), i] += 1000.0
