@@ -41,7 +41,11 @@ import * as kharzulMoves from '../prototypes/foe-hd/pages/desert-deep/moves/khar
 import * as wolfMoves from '../prototypes/foe-hd/pages/beasts/kit/moves-wolf.js';      // the beasts lane's rime-wolf (session 7)
 // a foe whose own set its files don't name (Kharzul's say 'scorpion'): registered with it by key
 const OWN_MOVES = { kharzul: kharzulMoves };
-import { FOES as HD_FOES, WALKERS as HD_WALKERS, ARENA, ARENA_SETS } from 'fight-foe-assets';
+import { FOES as HD_FOES, WALKERS as HD_WALKERS, ARENA, ARENA_SETS as ARENA_OVERRIDE } from 'fight-foe-assets';
+// which arena set suits each place (Places, step 6), and the build's own overrides on top (ARENA_SETS='{"m7-x": "arena-y"}')
+import { ARENA_SET } from './m7/arenas/table.js';
+const ARENA_SETS = { ...ARENA_SET, ...ARENA_OVERRIDE };
+const WATER_FOES = ['blackwater-gar', 'blackwater-leviathan'];
 // session 8's walkers (the Rotwarden, the sapwight) go in with their own bones and moves, as Together's game does
 import { registerWalkers } from '../prototypes/foe-hd/pages/walkers/register.js';
 // Models' eleven wraiths (rigid pieces, so they never stretch): first in line for their keys, the kit for the rest
@@ -271,6 +275,9 @@ async function main() {
   // and the pack beyond; gives where to come back to, and the arena's centre and way
   async function toArena(L, yaw, heroes) {
     const k = arenaOf(SC.place); if (!k) return null;
+    // the water foes (the gars, Old Jaws, the Leviathan) fight from their own water, and every set's middle is dry floor:
+    // their fights stay on the spot
+    if (SC.foes().some((f) => WATER_FOES.includes(f)) || pack.figs.some((F) => ['fish', 'leviathan'].includes(F.fig?.beast?.plan || F.plan))) return null;
     const home = { place: W.P.place, px: W.io.px, py: W.io.py, wyaw: W.io.yaw, L: L.clone(), yaw };
     W.pause(true); await fade(true);
     const A = PL[k], c = A.anchors?.centre;
