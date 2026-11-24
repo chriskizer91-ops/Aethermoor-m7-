@@ -1,6 +1,64 @@
 # Slip: Together (session 5, branch `job/together`)
 
-Last updated November 24.
+Last updated November 24 (handoff).
+
+## Handoff (November 24)
+
+For a fresh session taking the Together job (session 5, branch `job/together`; brief `docs/project/jobs/together.md`).
+
+**Where I stopped.** Every foe Chris asked to polish is in (ten iron and forge, eleven wraiths), with the Fight's arenas
+and its last `arena.js` fix (a big move keeps its foe in frame). The ten pages are built (`world3d/dist/*.v24.artifact.html`
+and `world3d/dist/game3d-*-full.artifact.html`), checked and pushed. **Still to publish:** all ten, after 00:10 UTC
+November 25 (the account's daily publishing limit, 200 pages, was spent). A reminder is scheduled for 00:12 UTC in this
+session (trigger `trig_015squysqpq7rN46PnrZsG4m`); if it's gone, rebuild and publish as below. The last four wraiths:
+the Sunscorch (the Wisp-Queen on both pages, the mirage-wisp on its full page; the Sentinel-Captain moved to the full
+page only), the Gloomfen's full page (the Lantern Mother), the Ironspire's full page (the Rime-Abbot).
+
+**The pages** (publish each to its own link; never a new one):
+
+| Page | Single file | Full pictures |
+|---|---|---|
+| Act One | https://claude.ai/artifact/RaeSK5hezqb3qH7jmuM5aj | https://claude.ai/artifact/9rGvzRh4eocZrz4RYPQLz6 |
+| The Sunscorch | https://claude.ai/artifact/7dPEGKka7t1FyHF5SSLPAo | https://claude.ai/artifact/38JaigTBGjp1FiT4MHdVFh |
+| The Ironspire | https://claude.ai/artifact/6jSwPVzbwwZWmmD6VsQ1sU | https://claude.ai/artifact/AC9dw4TH9VqT4P3UcarVLp |
+| The Gloomfen | https://claude.ai/artifact/N2iCRiMardtJNbntUoXYsA | https://claude.ai/artifact/7f9UFQ93Dk1esA6ju6u8hL |
+| Act Three | https://claude.ai/artifact/U8tPe6ZcZKrYA1o7XJeTjp | https://claude.ai/artifact/28QkrWfL1YqMUnGLki2s5w |
+
+**Build** (from the repo root; `world3d/node_modules` must link to `prototypes/hero-3d/node_modules`):
+
+```
+for a in act1 sunscorch ironspire gloomfen act3; do
+  node game3d/build.mjs --act=$a                                       # single file (lean): world3d/dist/game3d-<act>-<tex>.artifact.html
+  node game3d/build.mjs --act=$a --full --files --out=game3d-$a-full   # full pictures: page + world3d/dist/game3d-<act>-full.files/ + .files.json
+done
+```
+
+Then set each full page's title (the build overwrites it): `sed -i 's|<title>[^<]*</title>|<title>Hearth &amp; Heirloom:
+<Act One / the Sunscorch / ...>, full pictures</title>|'`. Each act's foes and sizes are in `ACTS` in `game3d/build.mjs`
+(`foesHd` for the single file, `fullHd` for the full page). **Every page must stay under 16,777,216 bytes**: Act One
+16.20 MB, the Sunscorch 16.04, the Ironspire 16.40 (its full page 16.64), the Gloomfen 16.35. When one goes over, drop
+the least-seen foe from its `foesHd` (Act One the rotstag, then the thornhound; the Gloomfen the Mirelord; the Ironspire
+the rime-wolf), or a texture step.
+
+**Publish** a single page with the Artifact tool's `file_path` and `url`. A full page also needs `root`
+(`world3d/dist/game3d-<act>-full.files`) and `files` as a list of `{ "path": "f/h0.webp" }` ... for every key in its
+`.files.json` (all WebP, numbered in order: `h0..hN`, `p0..pM`). Pictures left out of `files` stay as published.
+
+**Checks** (`NODE_PATH=$(npm root -g)`, Playwright's Chromium):
+- Start-up, every page: load with `?act2=1` (`?new=1` for Act One), wait for `window.__g3.shown`, then 5 s, and no
+  console or page errors (also at phone size: `isMobile: true, hasTouch: true`). Full pages over http
+  (`python3 -m http.server` in `world3d/dist`), with no missing files.
+- A fight: `node game3d/tools/fight.mjs <page> <map> <encounter> [level]` (`EXPECT=defeat` for a lost fight at 1 HP;
+  `UNLOCK=`, `WON=` to skip locks and guards); it checks the arena there and back and the save.
+- The endings: `node game3d/tools/finale.mjs <act3 page> <rekindle|release|anew> [deep|forge|heart]`; for `forge` and
+  `deep` use M7's own late-game party: `node game/tools/sim.mjs --modes below --seed 3 --gloom-cache <file>`, then
+  `PARTY_FROM=<file>`. The Unsmith takes about 1 h 45 min headless (the checks wait up to 3 h).
+- Also `act-end.mjs` (the Rotwarden, Act One's end), `den.mjs` (Briarmaw), `codebox.mjs` (the save-code box),
+  `play.mjs` (the opening).
+
+**What I'd do next**: publish the ten (above), update this slip's versions, tell the hub what went where; then stand by
+for Chris's notes, batch 4's paintings for the Hearth Below (rebuild Act Three's two pages, run `finale.mjs`), and a
+phone frame-rate check (still not done).
 
 ## Done
 
