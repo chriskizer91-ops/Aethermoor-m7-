@@ -1,5 +1,60 @@
 # Slip: The Fight (session 2, branch `job/fight`)
 
+## Handoff (November 24)
+
+For a fresh session taking the Fight (session 2, branch `job/fight`). Read docs/project/README.md, BOARD.md and
+docs/project/jobs/fight.md first. My files: `world3d/battle/**`, `world3d/fight.js`, `world3d/coven/pages/m7-fight.html`,
+this slip and `fight-stills/`; I may add flags to `world3d/build.mjs`. Merge only the hub's branch
+(`git fetch origin claude/brave-davinci-790efm && git merge --no-edit FETCH_HEAD`).
+
+**Where I stopped.** Every step of the brief is done, step 6 (the arenas) included and checked:
+- Fights move to Places' arena sets (table: `world3d/m7/arenas/table.js`), with a fade there and back. The spoils happen
+  on the place's own ground. The water foes' fights stay on the spot. `?arena=0` (or `ARENA=0` at build) keeps every
+  fight on the spot.
+- No stand is ever inside a wall (`clearStand` in `battle/arena.js`).
+- Every big move's camera keeps the foe in the frame.
+- The ten pages were rebuilt at commit 70a0f30 + slip. The account's daily publish limit ran out, so their republish is
+  scheduled for 00:10 UTC on November 25 (a reminder to this session). If that didn't happen, publish the ten
+  `world3d/dist/*.artifact.html` files listed below to their links.
+
+**Rebuild the ten pages** (from `world3d/`; needs `world3d/node_modules`, a link to `prototypes/hero-3d/node_modules`,
+which build.mjs needs for esbuild and three):
+```
+cd world3d && bash battle/build-pages.sh        # prints each page's size; each must stay under 16,000,000 bytes
+```
+The page list (places, full-detail foes, texture size) is in `battle/build-pages.sh`. Each page carries its places'
+arena sets automatically. Output: `world3d/dist/<page>-<tex>.artifact.html`.
+
+**Check them** (Playwright's Chromium, software GL; `export NODE_PATH=$(npm root -g)`):
+```
+node battle/check-stands.mjs dist/fight-act3-768.artifact.html hollow-miravel unsmith      # stands on clear floor, which set
+node battle/check-moments.mjs dist/m7-fight-768.artifact.html out/ briarmaw-den           # every big move: moment, body, in shot
+ONLY=swallow node battle/check-moments.mjs dist/fight-sunscorch-640.artifact.html out/ wyrm-lair
+PAGE=m7-fight-768.artifact.html node battle/check.mjs out/ "go=1&auto=1&speed=2&quality=phone"         # a whole fight, won
+PAGE=m7-fight-768.artifact.html node battle/check.mjs out/ "go=1&auto=1&speed=2&quality=phone&lose=1"  # and lost
+cd ../game && npm test                                                                      # M7: 623 pass
+```
+
+**The pages** (all https://claude.ai/artifact/...; the files are in world3d/dist):
+- the fight page (Thornhollow's road, the Den, the Heartroot): NpeXL5Pf4RxNfkQsguTnEK (m7-fight-768)
+- Act One A, Thornhollow to the Den: Q9T8quXCTVgiVUZoMuUaP4 (fight-act1a-640)
+- Act One B, Mossfall to the Heartroot: 7Prqphh2mubkp2L2hTn2ZA (fight-act1b-576)
+- events (Sunscorch, Ironspire and Gloomfen set pieces): RLrMg73EPUxGCHRaQXfAZS (fight-events-512)
+- Act Two: AqSBbi7gYeRogHPsq24nAk (fight-act2-448)
+- Sunscorch: TWtn8x7hcGjTMHAUpAWC5M (fight-sunscorch-640)
+- Ironspire A: WhydqjmyNvuGQdrSadEXKD (fight-ironspire-a-704)
+- Ironspire B: EGV6SV4zR9EwXS2bB8m4g6 (fight-ironspire-b-768)
+- Act Three: 5vCvi2woYF3WZVGNAKSLQf (fight-act3-768)
+- Gloomfen: GGPe1k5K6g54kaUb49Y3bt (fight-gloomfen-576)
+
+**What I'd do next if asked:**
+- Moments for the veterans (forge-warden, overseer, unmade), so their bigger moves get a camera too.
+- Put the new full-detail foes from sessions 6 and 8 (merged November 24: choir-wraith, forge-warden, cinder-thrall,
+  bellows, ashen-warden and more) on the pages through FIGHT_HD in build-pages.sh, as each passes its stretch check
+  and the page stays under 16 MB.
+- Bigger effects on heroes at phone size.
+- A frame-rate check on a real phone.
+
 ## Done
 
 - **Step 1, one fight on Thornhollow's road**: https://claude.ai/artifact/NpeXL5Pf4RxNfkQsguTnEK (10.8 MB, with Chris's hero textures since the hub's merge)
