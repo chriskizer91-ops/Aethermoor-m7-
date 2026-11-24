@@ -1,6 +1,6 @@
 # The board
 
-Where the 3D game stands. Written by the hub only. Last updated November 23, late evening.
+Where the 3D game stands. Written by the hub only. Last updated November 24, small hours.
 
 ## The sessions
 
@@ -8,12 +8,14 @@ Where the 3D game stands. Written by the hub only. Last updated November 23, lat
 |---|---|---|---|---|---|
 | 1 | the hub | `session_01DgbUKb6orvjjc1cMgBGPJK` | `claude/brave-davinci-790efm` | running | (the board) |
 | 2 | The Fight | `session_01DgbUKYR9qmKyBdACUWGViw` | `job/fight` | 255 hand-made moments, Act Two done throughout (pages for Act Two, the Sunscorch, the Ironspire, the Gloomfen); lively Briarmaw, Kharzul, the Sand Wyrm's swallow; next: Act Three (the Hollow Council, the Unsmith's companions); the eyrie waits on Places | https://claude.ai/artifact/Q9T8quXCTVgiVUZoMuUaP4 |
-| 3 | Models | `session_01DgbUKcWh5MEvjHnxzp4HHo` | `job/models` | the winged, first pass (the lamp-moth, the Gloamwing, the Thunder-Roc; rigid wings and feathers); 24 foes built in all; next: the Thunder-Roc's fluffy body coat and woven cloak | https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL |
+| 3 | Models | `session_01DgbUKcWh5MEvjHnxzp4HHo` | `job/models` | going back over its foes against the sheets: the Ashen Warden remade as a plated knight, the Unsmith's apron, open mantle and hammer; next: the Rime-Abbot, the Lantern Mother, the Gloamwing and the Roc again, then the Gear Room | https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL |
 | 4 | Places | `session_01DgbUKZVFBfm1dVautXEw5f` | `job/places` | foe lane done: the sand-skink, the glass-scorpion, the Glass Matriarch, the Sand Wyrm, Kharzul (all pass); next: the Thunder-Roc's eyrie on Highfold with the Fight, then the places' gaps | https://claude.ai/artifact/GBxRVSqwMwYUTy1xLNjATA |
 | 5 | Together | `session_01DgbUKbyjzZFe1BXHHxzHBn` | `job/together` | all ten game pages rebuilt with every look chained (five single, five full-pictures, one per region); checking the Sand Wyrm fight, Briarmaw's den (3/3) and Rekindle with M7's late-game party before publishing | https://claude.ai/artifact/RaeSK5hezqb3qH7jmuM5aj |
-| 6 | One Foe | `session_01DgbUKZCNBFY7zwSzwAXR8y` | `job/foe-hd` | the Gloomfen's deep beasts done (the mire-leech, the blackwater-gar, Old Jaws, the Blackwater Leviathan) and Briarmaw lively again; next: Briarmaw's head drawn out for head tosses, then the thornhound's re-posed legs (from session 7) | https://claude.ai/artifact/3Px9mipuqrTBB8NFfehbj5 |
-| 7 | Foes: beasts | `session_01DgbUKZ4qEpafSazysExsYV` | `job/foes-beasts` | the Rot-Stag, Old Snag, the Mirelord and the rotgrub (all pass); next and last: the rime-wolf (the thornhound's legs moved to session 6) | https://claude.ai/artifact/64Ukg3yQAAb8DWz69xqvxs |
+| 6 | One Foe | `session_01DgbUKZCNBFY7zwSzwAXR8y` | `job/foe-hd` | Briarmaw fully lively (head tosses back) and the thornhound passing: every beast foe now in full detail; next: a second pass on its foes against the sheets | https://claude.ai/artifact/3Px9mipuqrTBB8NFfehbj5 |
+| 7 | Foes: beasts | `session_01DgbUKZ4qEpafSazysExsYV` | `job/foes-beasts` | its lane done (the Rot-Stag, Old Snag, the Mirelord, the rotgrub, the rime-wolf; all pass); next: the Rot-Stag's gold crown made to read, then its second-pass notes (Old Snag's bristles, the Mire-King's blades) | https://claude.ai/artifact/64Ukg3yQAAb8DWz69xqvxs |
 | 8 | Foes: walkers | `session_01DgbUKcTDUjKDVHw3sPhu7R` | `job/foes-walkers` | every walker built and passing (the Rotwarden, the sapwight, Old Horn, the peak-troll, the unmade); next: the laptop sculpt page with all five, then a second pass against the sheets | https://claude.ai/artifact/YBLUHaLG3bNdfcjBdeq3aj |
+
+**All 93 foes are in full detail (November 24):** the 54 beasts (sessions 6, 7, 8, Places, Models) and the 39 people foes (Models), each passing the stretch check or built from rigid pieces.
 
 ## What's built (on the hub's branch)
 
@@ -35,7 +37,8 @@ Where the 3D game stands. Written by the hub only. Last updated November 23, lat
 | The Verdant Wilds (Coven's zone 1, borrowed), the small and big maps, the 3D continent | `world3d/` | https://claude.ai/artifact/R3Ecr7e1VVbb9Qi7GXEPpx |
 | The Gear Room: a hero whose outfit is built from M7's gear, in Chris's 47 textures and the four faces; "Beside Briarmaw" and "Sculpted" switches | `prototypes/hero-3d/` | https://claude.ai/artifact/BrZzsH3GJabJhGtXahfWJL |
 | Briarmaw three ways: code-built, painted, full detail (baked from a sculpt), with a crowd test | `prototypes/foe-hd/` | https://claude.ai/artifact/5iUqJsPw3NGrvun4Ng73eh |
-| Every Act One fight, from M7's own map data (28), a Fights list | `world3d/battle/` | https://claude.ai/artifact/Q9T8quXCTVgiVUZoMuUaP4 |
+| Act One's fights, Thornhollow to the Den (Briarmaw, the Rot-Stag, Old Snag in full detail), a Fights list | `world3d/battle/` | https://claude.ai/artifact/Q9T8quXCTVgiVUZoMuUaP4 |
+| Act One's fights, Mossfall to the Heartroot (the Mirelord, the boglurcher, the Rotwarden, the sapwight in full detail) | `world3d/battle/` | https://claude.ai/artifact/7Prqphh2mubkp2L2hTn2ZA |
 | Act Two's Champions' fights (Willowmurk, the Dust Trail, the Glass Heart; the willow-wight, Grandfather Willow, the glass-scorpion, the Glass Matriarch, the sand-skink, the Ashen Warden, the two wraiths in full detail) | `world3d/battle/` | https://claude.ai/artifact/AqSBbi7gYeRogHPsq24nAk |
 | The Sunscorch's fights (Scorchgate and its Vaults, the Glass Flats, the Sun Road, the Dust Trail, Miragewell, the deep shaft, the Glass Heart; nine Relic-Bearers' moments) | `world3d/battle/` | https://claude.ai/artifact/TWtn8x7hcGjTMHAUpAWC5M |
 | The Ironspire's fights (all nine fight places; seven Relic-Bearers' moments) | `world3d/battle/` | https://claude.ai/artifact/WhydqjmyNvuGQdrSadEXKD |
@@ -53,7 +56,7 @@ Where the 3D game stands. Written by the hub only. Last updated November 23, lat
 | The blackwater-gar and Old Jaws (three ways each; their sculpts) | `prototypes/foe-hd/foes/` | gar https://claude.ai/artifact/Ry64sw4379cEjNfuju1BvU · https://claude.ai/artifact/TmEm8mbSEi8zQomTsndm51 · Old Jaws https://claude.ai/artifact/9TmS56rJ3X9VZPkrF3BXsn · https://claude.ai/artifact/FZXfQNJgJt3RNNaPDwF31S |
 | The Blackwater Leviathan (three ways; his sculpt) | `prototypes/foe-hd/foes/blackwater-leviathan/` | https://claude.ai/artifact/3Px9mipuqrTBB8NFfehbj5 · https://claude.ai/artifact/AqaNEJqebbVdKEtMv7SXE4 |
 | The desert and the deep in full detail (Places' foe lane): the sand-skink, the glass-scorpion, the Glass Matriarch, the Sand Wyrm, the Sand Wyrm (gallery pages 1 and 2; sculpts: skink, scorpion, Matriarch) | `prototypes/foe-hd/pages/desert-deep/` | https://claude.ai/artifact/EwHdrinmmvPGCqF48sjdFP · https://claude.ai/artifact/SLHAnYPiHyGVqdXk3y6WfD · https://claude.ai/artifact/D49CZMPK2Q3ukBKRytYAHr · https://claude.ai/artifact/94S3612ZZtUFsYE99A7oba · page 2 https://claude.ai/artifact/2r6Q5RAfU9MqqaLsQvH2KF · Wyrm sculpt https://claude.ai/artifact/La6N8h126JumPRLHs7ZyPk · Kharzul's sculpt https://claude.ai/artifact/EaS9GoMX1Gb8qQ1Ysy2Yno |
-| The beasts in full detail: the thornhound, the Rot-Stag, Old Snag, the Mirelord and the rotgrub (phone gallery; a laptop page each with its sculpt) | `prototypes/foe-hd/pages/beasts/` | https://claude.ai/artifact/64Ukg3yQAAb8DWz69xqvxs · thornhound https://claude.ai/artifact/8pCvG7xuqHuCcARiUYa9SX · Rot-Stag https://claude.ai/artifact/CSoGr5Hp53nx94b6c7HQ6B · Old Snag https://claude.ai/artifact/Ps1AmDYiERFwSenm6KvVYx · the Mirelord https://claude.ai/artifact/JoZFMxoY43AwUToDw7HBJj · rotgrub https://claude.ai/artifact/BA2mMoUK8nRjE6T4XcopKr |
+| The beasts in full detail: the thornhound, the Rot-Stag, Old Snag, the Mirelord, the rotgrub and the rime-wolf (phone gallery; a laptop page each with its sculpt) | `prototypes/foe-hd/pages/beasts/` | https://claude.ai/artifact/64Ukg3yQAAb8DWz69xqvxs · thornhound https://claude.ai/artifact/8pCvG7xuqHuCcARiUYa9SX · Rot-Stag https://claude.ai/artifact/CSoGr5Hp53nx94b6c7HQ6B · Old Snag https://claude.ai/artifact/Ps1AmDYiERFwSenm6KvVYx · the Mirelord https://claude.ai/artifact/JoZFMxoY43AwUToDw7HBJj · rotgrub https://claude.ai/artifact/BA2mMoUK8nRjE6T4XcopKr · rime-wolf https://claude.ai/artifact/KkZpRLW7cpLBXUMEaq5zax · thornhound (passing) https://claude.ai/artifact/9zji17squ3DQjFians9iVE |
 | The walkers in full detail: the Rotwarden and the sapwight | `prototypes/foe-hd/pages/walkers/` | https://claude.ai/artifact/YBLUHaLG3bNdfcjBdeq3aj |
 | The walkers of Act Two: Old Horn and the peak-troll (every move; phone and full) | `prototypes/foe-hd/pages/walkers/` | https://claude.ai/artifact/PosCApXURcQF2S8qyicNaY |
 | The walkers of Act Three: the unmade (every move; phone and full) | `prototypes/foe-hd/pages/walkers/` | https://claude.ai/artifact/1fd2Ko7CSdQQD6hL2fKZcW |
@@ -117,6 +120,7 @@ Where the 3D game stands. Written by the hub only. Last updated November 23, lat
 
 - **Usage (November 21):** at 05:25 UTC the account hit its 5-hour usage limit; every session stopped until it reset at
   07:30, and most sat idle until the hub restarted them at about 12:00. Eight sessions at once can reach the limit.
+  Again on November 23 at about 22:40 UTC (reset 01:40 November 24); the hub restarted the stopped sessions.
 
 ## Next for the hub
 

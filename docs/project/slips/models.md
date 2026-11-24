@@ -429,6 +429,51 @@ https://claude.ai/artifact/4WQXpMifD5GWsgCXTP4PVD
   gold bead; one binding near the top.
 - At Light 38k (Relic-Bearer ~40k); the sculpt about 1.0M. Same draws at High and Light.
 
+**Back over the foes against their sheets: the Ashen Warden and the Unsmith** (November 24). Ironclad gallery
+republished: https://claude.ai/artifact/4WQXpMifD5GWsgCXTP4PVD
+- The Ashen Warden is no longer a box robot but a stocky knight in shaped plate, like its sheet:
+  - a curved cuirass with a keel, gold edging and scrollwork, and the gate-and-flame on its breast;
+  - three faulds, two belts with gold buckles, and tassets on the thighs;
+  - pauldrons of three lames, couters, vambraces, and gauntlets with curled fingers;
+  - cuisses, poleyns, greaves, and pointed sabatons of four lames;
+  - a rounded great helm with a burning slit and a gold ridge, under a crown of towers;
+  - a long, ragged cloak of ash, the Ashen Aegis (gate, towers and flame), and the burning sword.
+
+  At Light 39k (Champion ~50k).
+- The Unsmith:
+  - brown trousers and boots;
+  - his leather apron made full (a bib to below the knee) and dark, with the gold anvil, rivets and a pocket;
+  - the ragged black mantle now open at the front so the apron shows;
+  - the Unmaking Hammer's head now lies across the haft like the sheet's: a lumpy stone-iron block with iron faces and
+    violet cracks.
+
+  At Light 29k.
+- `model.js` takes optional `pantsTint`, `bootsTint`, `cloakTint`, `apronTint`, `apronW` and `apronDrop` in a look's
+  `H`. The heroes don't use them, so the heroes are unchanged; the Gear Room loads with no errors.
+- Still open: the Unsmith has 51 draws at High and 47 at Light. The 4-draw gap was already there before this pass, and
+  I haven't tracked it down yet.
+
+**Back over the foes against their sheets: the Rime-Abbot and the Lantern Mother** (November 24). Wraiths gallery
+republished: https://claude.ai/artifact/KiYfGSBcUQ6gU4WqVKGojD
+- The Rime-Abbot:
+  - a bigger cowl with thick braids round the face;
+  - a pale mask of rime behind a grille of icicles under three pointed arches;
+  - a silver-ringed blue brooch at the throat, with strands of beads and tassels;
+  - zigzags of frost along the cope's hem and the capelet's, and a snowflake on its back;
+  - the crozier darker, banded with blocks of ice (it bloomed white before).
+
+  At Light 23k.
+- The Lantern Mother:
+  - the knitted shawl draped to a point in front and behind, with a long fringe of tassels;
+  - a double row of gold buttons;
+  - a long apron embroidered with a stem of leaves, with lace at its hem;
+  - a fuller, deeper-folded skirt;
+  - her lantern raised to head height like the sheet.
+
+  At Light 16k.
+- Still open: the Abbot's cowl is squarer than the sheet's drooping hood; the Mother's lantern is a plain square one,
+  not the sheet's pointed Gothic lantern.
+
 ## Next
 
 - Chris chose full detail for the beasts (November 20): sessions 6 to 8 build them (`docs/project/jobs/foes.md`;
