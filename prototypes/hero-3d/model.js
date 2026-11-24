@@ -355,6 +355,8 @@ const trimKind = key => (KIND(key) === 'metal' ? 'rim' : 'braid'); // a trim's m
 const strHash = str => { let h = 2166136261; for (const ch of String(str)) h = Math.imul(h ^ ch.charCodeAt(0), 16777619); return h >>> 0; };
 
 /* ------------------------------------------------------------------ the hero */
+// a small rounded block (a heel)
+const block2 = (w, h, d) => { const g = new THREE.BoxGeometry(w, h, d, 2, 1, 2); return g; };
 export function buildHero(heroKey, gear, o = {}) {
   // o.H: anyone's identity (a foe's, art/foes.js foeLooks); o.looks: gear already turned into looks (foeLooks gives these)
   const A = HERO_ART[heroKey] || HERO_ART.warden, H = o.H || A.H;
@@ -388,6 +390,8 @@ export function buildHero(heroKey, gear, o = {}) {
     const fl = 0.24 * u * S.foot, fw = br * 1.05;
     add(fitMaster(tube(curve([V(0, gnd + 0.045 * u, -0.05 * u), V(0, gnd + 0.05 * u, 0), V(0, gnd + 0.035 * u, fl * 0.55), V(0, gnd + 0.025 * u, fl * 0.85)], 12), t => [0.048 * u * (1 - t * 0.45), fw * (1 - smooth((t - 0.75) / 0.25) * 0.45)], { n: 14, up: V(0, 1, 0), shape: a => (Math.cos(a) < 0 ? 0.75 : 1) }), 'foot'), bm, leg);
     add(new THREE.BoxGeometry(fw * 2.05, 0.016 * u, fl * 1.06), mat('leatherDark'), leg, 0, gnd + 0.008 * u, fl * 0.33);
+    add(fitMaster(block2(fw * 1.7, 0.028 * u, 0.06 * u), 'forged'), mat('leatherDark'), leg, 0, gnd + 0.016 * u, -0.035 * u);   // the heel
+    if (!F?.fold && !F?.greave) add(fitMaster(lathe([[br * 1.0, top - 0.035 * u], [br * 1.16, top - 0.02 * u], [br * 1.2, top + 0.005 * u], [br * 1.06, top + 0.012 * u]], { n: 16 }), 'boot'), mat(bootKey, { side: true, tint: F ? undefined : H.bootsTint }), leg);   // a turned cuff
     if (F?.fold) add(fitMaster(tube(ellipse(V(0, top - 0.01 * u, 0), V(1, 0, 0), V(0, 0, 1), br * 1.18, br * 1.14, 20), 0.018 * u, { closed: true, n: 8 }), trimKind(F.trim || F.mat)), mat(F.trim || F.mat), leg);
     else if (F?.trim) add(fitMaster(tube(ellipse(V(0, top, 0), V(1, 0, 0), V(0, 0, 1), br * 1.04, br * 1.0, 20), 0.007 * u, { closed: true, n: 6 }), trimKind(F.trim)), mat(F.trim), leg);
     if (F?.greave) { const gm = mat(F.greave); add(fitMaster(lathe([[br * 1.18, top - 0.01 * u], [br * 1.24, lerp(top, ank, 0.5)], [br * 1.1, ank + 0.02 * u]], { n: 14, phi0: -1.25, phiLen: 2.5 }), 'vambrace'), mat(F.greave, { side: true }), leg); add(tube([V(0, top - 0.02 * u, br * 1.26), V(0, ank + 0.03 * u, br * 1.12)], 0.005 * u, { n: 6 }), gm, leg); }
@@ -407,11 +411,20 @@ export function buildHero(heroKey, gear, o = {}) {
     const steps = 10, y0 = S.waistY, rings = [];
     for (let i = 0; i <= steps; i++) {
       const t = i / steps, y = lerp(y0, hemY, t), yt = Math.max(y, S.keys[0][0]);
-      const [w, d] = torsoAt(S, yt), fl = robe ? t * t * 0.17 * u + t * 0.03 * u : t * (kind === 'mail' ? 0.03 : 0.02) * u, fold = (robe ? t * 0.05 : t * 0.02) * (SCULPT.on && kind !== 'mail' ? 1.9 : 1);
-      rings.push(ellipse(V(0, y, 0), V(1, 0, 0), V(0, 0, 1), w + 0.012 * u + fl, w * d + 0.012 * u + fl * 0.85, 32, a => squarish(a) * (1 + fold * Math.cos(a * 9))));
+      const [w, d] = torsoAt(S, yt), fl = robe ? t * t * 0.17 * u + t * 0.03 * u : t * (kind === 'mail' ? 0.03 : 0.02) * u, fold = (robe ? t * 0.085 : t * 0.02) * (SCULPT.on && kind !== 'mail' ? 1.9 : 1);
+      rings.push(ellipse(V(0, y, 0), V(1, 0, 0), V(0, 0, 1), w + 0.012 * u + fl, w * d + 0.012 * u + fl * 0.85, robe ? 40 : 32, a => squarish(a) * (1 + fold * Math.cos(a * (robe ? 11 : 9)) + (robe ? fold * 0.35 * Math.sin(a * 23 + 1) : 0))));
     }
     add(fitMaster(loft(rings), 'skirt'), hemMat, skirt);
     if (body?.trim || robe) { const r = rings[rings.length - 1]; add(fitMaster(tube(r.map(p => p.clone().add(V(0, 0.004 * u, 0))), 0.008 * u, { closed: true, n: 6 }), trimKind(body?.trim || 'gold')), mat(body?.trim || 'gold'), skirt); }
+    if (robe) {
+      // a deep hem band in the trim's colour, and a line of embroidery (a zigzag) above it, following the folds
+      const tk = body.trim || body.mat, band = rings.slice(-2).map((rr, i) => rr.map(p => { const c = V(0, p.y, 0); return p.clone().sub(c).multiplyScalar(1.006 + i * 0.004).add(c).add(V(0, i ? 0.003 * u : -0.0 * u, 0)); }));
+      const bandRings = [rings[rings.length - 2].map(p => p.clone()), rings[rings.length - 1].map(p => p.clone())].map(rr => rr.map(p => { const c = V(0, p.y, 0); return p.clone().sub(c).multiplyScalar(1.008).add(c); }));
+      const yTop = lerp(bandRings[1][0].y, bandRings[0][0].y, 0.45); bandRings[0] = bandRings[0].map((p, j) => { const q = bandRings[1][j]; return q.clone().lerp(p, 0.45); });
+      add(fitMaster(loft(bandRings), 'embroid'), mat(tk, { side: true }), skirt);
+      const zz = rings[rings.length - 2].map((p, j) => { const q = rings[rings.length - 1][j], k = 0.62 + (j % 2) * 0.12, c = V(0, 0, 0); const z = q.clone().lerp(p, k); return z.multiplyScalar(1).add(V(0, 0, 0)).setX(z.x * 1.012).setZ(z.z * 1.012); });
+      add(fitMaster(tube(zz, 0.0035 * u, { closed: true, n: 4 }), 'braid'), mat(tk), skirt);
+    }
   }
   // the garment on the chest
   if (kind === 'mail' || kind === 'leather') {
@@ -447,6 +460,12 @@ export function buildHero(heroKey, gear, o = {}) {
     add(fitMaster(tube(torsoRing(S, neckTop - 0.025 * u, 0.03 * u, 28), 0.018 * u, { closed: true, n: 10 }), trimKind(body.trim || body.mat)), mat(body.trim || body.mat), chest);
     const fr = []; for (let i = 0; i <= 12; i++) { const y = lerp(neckTop - 0.04 * u, 0.05 * u, i / 12), yt = Math.max(y, S.keys[0][0]), [w, d] = torsoAt(S, yt), t = clamp01((S.waistY - y) / (S.waistY - 0.02 * u)), fl = t * t * 0.17 * u + t * 0.03 * u; fr.push(V(0, y, w * d + 0.02 * u + fl * 0.85)); }
     if (body.trim) add(fitMaster(tube(fr, [0.003 * u, 0.016 * u], { n: 8 }), KIND(body.trim) === 'metal' ? 'rim' : 'strap'), mat(body.trim), chest);
+    // a stole: a band of the trim's colour from each shoulder down the front to below the waist, its ends fringed
+    if (body.trim && KIND(body.trim) !== 'metal') for (const sd of [-1, 1]) {
+      const st = []; for (let i = 0; i <= 10; i++) { const y = lerp(neckTop - 0.03 * u, S.waistY - 0.2 * u, i / 10), yt = Math.max(y, S.keys[0][0]), [w, d] = torsoAt(S, yt), t = clamp01((S.waistY - y) / (S.waistY - 0.02 * u)), fl = t * t * 0.17 * u + t * 0.03 * u, x = sd * lerp(w * 0.6, w * 0.44, i / 10); st.push(V(x, y, Math.sqrt(Math.max(0, 1 - (x / (w + fl + 0.02 * u)) ** 2)) * (w * d + fl * 0.85) + 0.022 * u)); }
+      add(fitMaster(tube(st, [0.003 * u, 0.026 * u], { n: 8 }), 'embroid'), mat(body.trim, { side: true }), chest);
+      const e = st[st.length - 1]; for (let f = 0; f < 5; f++) { const x = e.x + (f - 2) * 0.011 * u; add(fitMaster(tube([V(x, e.y, e.z), V(x, e.y - 0.035 * u, e.z + 0.003 * u)], 0.0028 * u, { n: 4 }), 'braid'), mat(body.trim), chest); }
+    }
   }
   for (const gk of [body?.runes, body?.glyph].filter(Boolean)) {
     const pts = []; for (let i = 0; i <= 8; i++) { const y = lerp(S.waistY + 0.04 * u, S.shY - 0.1 * u, i / 8), [w, d] = torsoAt(S, y); pts.push(V(0, y, w * d + (kind === 'plate' ? 0.034 + 0.02 * Math.sin(i / 8 * Math.PI) : 0.016) * u)); }
@@ -474,6 +493,7 @@ export function buildHero(heroKey, gear, o = {}) {
     const foreRad = t => { const r = lerp(ar * 0.9, ar * 0.62, t) + Math.sin(clamp01(t / 0.6) * Math.PI) * ar * 0.1; return [r, r * 0.88]; };
     add(fitMaster(tube(curve(fore, 10), foreRad, { n: 12 }), 'forearm'), mat(robe ? body.mat : sleeveKey), elbow);
     if (robe) add(fitMaster(tube([V(0, -S.fore * 0.25, 0), V(0, -S.fore * 0.8, 0.01 * u), V(0, -S.fore * 1.05, 0.02 * u)], t => [lerp(ar * 1.1, ar * 1.7, t * t), lerp(ar * 1.1, ar * 1.6, t * t)], { n: 16, capA: false, capB: false }), 'robesleeve'), mat(body.mat, { side: true }), elbow);
+    if (robe) add(fitMaster(tube(ellipse(V(0, -S.fore * 1.04, 0.02 * u), V(1, 0, 0), V(0, 0, 1), ar * 1.7, ar * 1.6, 18), 0.008 * u, { closed: true, n: 6 }), trimKind(body.trim || body.mat)), mat(body.trim || body.mat), elbow);
     if (kind === 'plate') { add(fitMaster(tube([V(0, -S.fore * 0.15, 0), V(0, -S.fore * 0.9, 0)], t => [lerp(ar * 1.05, ar * 0.8, t), lerp(ar * 1.0, ar * 0.76, t)], { n: 12 }), 'vambrace'), torsoMat, elbow); add(sph(ar * 0.95, 12, 8), torsoMat, elbow); }
     const hand = new THREE.Group(); hand.position.y = -S.fore; elbow.add(hand);
     const grip = buildHand(hand, side, mat(gloveKey, { tint: bareTint }), gloves, u * S.hand, fx, gripRadius(L, side, uw), side === 1 ? L.ring : null);
