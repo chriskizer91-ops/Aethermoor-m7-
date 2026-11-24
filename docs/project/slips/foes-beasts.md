@@ -192,7 +192,7 @@ ones to Models. The gallery is 14.9 MB with six foes (1024 px phone pictures; 51
 0. Move onto session 6's shared kit (commit f384b7d / 8f3b6e2 on job/foe-hd) once the hub brings it into its branch; my
    kit folder then goes, and the thornhound is rebuilt on it.
 
-1. Done (see above). Second passes when asked: the look notes under each foe. Then the thornhound's hind legs re-posed clear of the body and baked again.
+1. Done (see above). Second passes when asked: the look notes under each foe. (The thornhound's re-posed legs are session 6's now.)
 2. The thornhound, pass two: the fur still reads a little like bark from far off; softer locks, the face's markings
    (the pale brows, the tan cheeks), teeth for the open-mouth moves, and the phone size down to about 0.4 MB
    (512 px pictures; he is 1.07 MB now).
