@@ -117,7 +117,7 @@ def mask0(P, idx=None):
             M[:, i] = np.maximum(ramp(sx_, 1110, 1150), ramp(z, 0.70, 0.73))   # the head, and all round the ear roots
 
         if n == 'neck':
-            M[:, i] = ramp(sx_, 1020, 1060) * ramp(430 - sy_, 0, 30) * ramp(0.73 - z, 0, 0.04)   # not up into the ears
+            M[:, i] = ramp(sx_, 1020, 1060) * ramp(430 - sy_, 0, 30) * ramp(0.68 - z, 0, 0.06)   # not up into the ears or the back of the skull
     return M
 
 def rigid_root(P, kind):
@@ -161,7 +161,8 @@ def rigid(kind, P, idx):
 BANDS = {k + p: ((0.085, 0.21) if p == '_lower' else (0.03, 0.08) if p in ('_paw', '_foot') else (0.03, 0.12))
          for k in ('fl', 'fr', 'bl', 'br') for p in ('_upper', '_lower', '_foot', '_paw')}
 BANDS.update({'ear_l': (0.03, 0.06), 'ear_r': (0.03, 0.06)})
-BANDS.update({'bl_lower': (0.12, 0.28), 'br_lower': (0.12, 0.28), 'bl_upper': (0.05, 0.16), 'br_upper': (0.05, 0.16)})   # the hind knee, wider
+BANDS.update({'bl_lower': (0.06, 0.16), 'br_lower': (0.06, 0.16), 'bl_upper': (0.05, 0.16), 'br_upper': (0.05, 0.16)})   # the hind knee (narrower now his legs are their own pieces: the thigh stays the thigh's)
+BANDS.update({'neck_base': (0.05, 0.15), 'neck': (0.05, 0.15), 'head': (0.04, 0.12)})   # the throat's turn spread out
 SPLIT = [('head', 'jaw')]          # the mouth cut along the lips (the kit's bind), so the jaw opens without dragging the cheeks
 
 
