@@ -380,9 +380,9 @@ export function buildHero(heroKey, gear, o = {}) {
     const R = S.legR;
     const legPath = [V(0, 0.02 * u, 0), V(0, kneeY * 0.5, 0.004 * u), V(0, kneeY, 0.008 * u), V(0, (kneeY + ank) * 0.5, 0), V(0, ank, -0.004 * u)];
     const legRad = t => { const thigh = lerp(R * 1.05, R * 0.68, smooth(t / 0.5)), calf = t > 0.5 ? R * 0.68 + Math.sin(clamp01((t - 0.55) / 0.45) * Math.PI) * R * 0.12 - smooth((t - 0.75) / 0.25) * R * 0.22 : thigh; return [calf, calf * 0.95]; };
-    add(fitMaster(tube(curve(legPath, 16), legRad, { n: 14, capA: false }), 'trousers'), mat(robe ? body.mat : H.pants || 'pants'), leg);
+    add(fitMaster(tube(curve(legPath, 16), legRad, { n: 14, capA: false }), 'trousers'), mat(robe ? body.mat : H.pants || 'pants', robe ? {} : { tint: H.pantsTint }), leg);
     // the boot: a shaft up the calf and a foot with a heel, toe and sole
-    const bootKey = F ? F.mat : H.boots || (robe ? 'leather' : 'leatherDark'), bm = mat(bootKey);
+    const bootKey = F ? F.mat : H.boots || (robe ? 'leather' : 'leatherDark'), bm = mat(bootKey, F ? {} : { tint: H.bootsTint });
     const top = (S.bootY - S.legTop), gnd = -S.legTop, br = R * 0.92;
     add(fitMaster(tube([V(0, top, 0.002 * u), V(0, lerp(top, ank, 0.5), 0), V(0, ank, -0.004 * u), V(0, gnd + 0.05 * u, -0.006 * u)], t => [br * (1.02 - t * 0.16), br * (0.98 - t * 0.14)], { n: 14, capA: false, capB: false }), 'boot'), bm, leg);
     const fl = 0.24 * u * S.foot, fw = br * 1.05;
@@ -531,11 +531,11 @@ export function buildHero(heroKey, gear, o = {}) {
       rings.push(row);
     }
     // two halves, hinged, so the hem swings further than the shoulders
-    add(fitMaster(loft(rings.slice(0, 7), { closed: false }), 'cape', { v0: 0, v1: 0.5 }), mat(H.cloak, { side: true }), cape);
+    add(fitMaster(loft(rings.slice(0, 7), { closed: false }), 'cape', { v0: 0, v1: 0.5 }), mat(H.cloak, { side: true, tint: H.cloakTint }), cape);
     const mid = rings[6].reduce((a, p) => a.add(p), V()).multiplyScalar(1 / rings[6].length), capeLow = new THREE.Group(); capeLow.position.copy(mid); cape.add(capeLow); rig.capeLow = capeLow;
-    add(fitMaster(loft(rings.slice(5).map(row => row.map(p => p.clone().sub(mid))), { closed: false }), 'cape', { v0: 5 / 12, v1: 1 }), mat(H.cloak, { side: true }), capeLow); // one row of overlap hides the hinge
+    add(fitMaster(loft(rings.slice(5).map(row => row.map(p => p.clone().sub(mid))), { closed: false }), 'cape', { v0: 5 / 12, v1: 1 }), mat(H.cloak, { side: true, tint: H.cloakTint }), capeLow); // one row of overlap hides the hinge
     rig.danglers.push({ node: cape, posed: true, x: [0, 1.25], z: [-0.4, 0.4], k: 22, damp: 0.3, drag: 3, acc: 0.6 }, { node: capeLow, x: [-0.05, 0.6], z: [-0.3, 0.3], k: 30, damp: 0.3, drag: 1.5, acc: 0.4 });
-    add(fitMaster(tube(curve([V(-w0 * 0.85, 0.01 * u, 0.02 * u), V(0, -0.02 * u, w0 * d0 + 0.03 * u), V(w0 * 0.85, 0.01 * u, 0.02 * u)], 12), 0.007 * u, { n: 6 }), 'braid'), mat(H.cloak), cape);
+    add(fitMaster(tube(curve([V(-w0 * 0.85, 0.01 * u, 0.02 * u), V(0, -0.02 * u, w0 * d0 + 0.03 * u), V(w0 * 0.85, 0.01 * u, 0.02 * u)], 12), 0.007 * u, { n: 6 }), 'braid'), mat(H.cloak, { tint: H.cloakTint }), cape);
   }
   if (H.quiver) swingBlock(root, V(0.09 * u, S.shY - 0.06 * u, -(torsoAt(S, S.shY - 0.15 * u)[0] * torsoAt(S, S.shY - 0.15 * u)[1] + 0.05 * u)), { x: [-0.12, 0.35], z: [-0.25, 0.25], k: 55, damp: 0.3, drag: 0.6 }, () => {
     const q = new THREE.Group(); const [w, d] = torsoAt(S, S.shY - 0.15 * u); q.position.set(0.02 * u, S.shY - 0.2 * u, -(w * d + 0.05 * u)); q.rotation.z = -0.45; root.add(q);
@@ -661,7 +661,7 @@ function buildFoeLooks({ H, rig, S, u, r, head, chest, root, look, wrap, kind, r
   if (H.charms) for (let k = 0; k < 4; k++) { const a = -0.6 + k * 0.4, x = Math.sin(a) * bw * 1.05, z = Math.cos(a) * bw * bd * 1.05; swingBlock(chest, V(x, by, z), { x: [-0.7, 0.1], z: [-0.4, 0.4], k: 90, damp: 0.2, drag: 0.4 }, () => { add(tube([V(x, by, z), V(x, by - 0.05 * u, z + 0.004 * u)], 0.0015 * u, { n: 3 }), mat('string'), chest); add(new THREE.OctahedronGeometry(0.01 * u, 0), mat(H.charms), chest, x, by - 0.058 * u, z + 0.004 * u).scale.set(0.7, 1.4, 0.5); }); }
   // the townsfolk's own looks (art/map-sprites.js NPC_LOOKS): an apron, a trinket at the hip, goggles or spectacles, a
   // row of bottles at the belt, a coil of rope over the shoulder, a clasp at the throat, a braided beard, icicles
-  if (H.apron) { const pts = []; for (let i = 0; i <= 8; i++) { const y = lerp(S.shY - 0.12 * u, S.hemY - 0.1 * u, i / 8); pts.push(V(0, y, front(y, armour * u + 0.014 * u) + (y < S.waistY ? (S.waistY - y) * 0.15 : 0))); } add(fitMaster(tube(pts, t => [0.004 * u, lerp(0.075, 0.11, t) * u], { n: 8, up: V(0, 0, 1) }), 'tabard'), mat(H.apron, { side: true }), chest); }
+  if (H.apron) { const pts = []; for (let i = 0; i <= 8; i++) { const y = lerp(S.shY - 0.12 * u, S.hemY - (0.1 + (H.apronDrop || 0)) * u, i / 8); pts.push(V(0, y, front(y, armour * u + 0.014 * u) + (y < S.waistY ? (S.waistY - y) * 0.15 : 0))); } add(fitMaster(tube(pts, t => [0.004 * u, lerp(0.075, 0.11, t) * u * (H.apronW || 1)], { n: 8, up: V(0, 0, 1) }), 'tabard'), mat(H.apron, { side: true, tint: H.apronTint }), chest); chest.userData.apron = pts; }
   const tk = H.trinket; if (tk) { const g = new THREE.Group(); g.position.set(bw * 0.85, by - 0.05 * u, bd * bw * 0.45); g.rotation.y = 1.0; chest.add(g); hang(g, 0.04 * u); const m = mat(tk.mat || 'leather');
     if (tk.kind === 'ledger' || tk.kind === 'book') { add(new THREE.BoxGeometry(0.075 * u, 0.1 * u, 0.025 * u), m, g); add(new THREE.BoxGeometry(0.068 * u, 0.092 * u, 0.027 * u), mat('parchment'), g, 0.004 * u, 0, 0); }
     else if (tk.kind === 'gourd' || tk.kind === 'bottle') { add(sph(0.035 * u, 12, 10), m, g).scale.set(1, 1.2, 1); add(tube([V(0, 0.035 * u, 0), V(0, 0.07 * u, 0)], 0.012 * u, { n: 8 }), m, g); add(sph(0.012 * u, 8, 6), mat('wood'), g, 0, 0.075 * u, 0); }
