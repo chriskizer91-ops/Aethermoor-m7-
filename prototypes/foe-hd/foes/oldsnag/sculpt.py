@@ -39,7 +39,7 @@ def build(K):
     tube = G.tube
     M = K.Mesh()
     BROWN = np.array([0.36, 0.24, 0.16]); BROWN2 = np.array([0.30, 0.20, 0.13]); DARK = np.array([0.19, 0.13, 0.10])
-    TAN = np.array([0.60, 0.48, 0.34]); PALE = np.array([0.70, 0.62, 0.49]); LEGC = np.array([0.24, 0.16, 0.11])
+    TAN = np.array([0.70, 0.57, 0.40]); PALE = np.array([0.70, 0.62, 0.49]); LEGC = np.array([0.24, 0.16, 0.11])
     HOOF = np.array([0.20, 0.19, 0.19]); DISC = np.array([0.60, 0.40, 0.36]); IVORY = np.array([0.90, 0.85, 0.72])
     BLOOD = np.array([0.30, 0.07, 0.06]); STEEL = np.array([0.62, 0.66, 0.66]); GLOW = np.array([0.62, 0.80, 0.22])
     WOOD = np.array([0.40, 0.24, 0.14]); CORD = np.array([0.40, 0.46, 0.18]); BONE = np.array([0.86, 0.83, 0.74])
@@ -120,8 +120,8 @@ def build(K):
         s = np.zeros(len(P))
         for y0, a, f, ph in [(300, 16, 85, 0.0), (352, 20, 105, 1.3), (420, 18, 80, 2.2)]:
             yy = y0 + a * np.sin(sx / f + ph) + 10 * (fbm(P * 2 + y0, 2.0) - 0.5)
-            s = np.maximum(s, np.exp(-((sy - yy) / 12) ** 2))
-        s *= sstep(0.38, 0.52, fbm(P * 5 + 3, 2.0))
+            s = np.maximum(s, np.exp(-((sy - yy) / 15) ** 2))
+        s *= sstep(0.30, 0.44, fbm(P * 5 + 3, 2.0))
         return s * sstep(720, 780, sx) * (1 - sstep(1300, 1340, sx)) * sstep(50, 90, np.abs(xo))
 
     def tuft_len(P):
@@ -163,7 +163,7 @@ def build(K):
         H = H * mix(1, 0.5, Z['face']) * mix(1, 1.4, Z['cheek']) * mix(1, 1.3, Z['crest'])
         C = mix(BROWN, BROWN2, rng.random(n)[:, None])
         C = mix(C, DARK, (Z['crest'] * 0.8)[:, None])
-        C = mix(C, TAN, (stripes(TP) * 0.85)[:, None])
+        C = mix(C, TAN, np.clip(stripes(TP) * 1.1, 0, 1)[:, None])
         C = mix(C, PALE, (Z['cheek'] * (1 - Z['face']) * 0.9)[:, None])
         C = mix(C, LEGC, Z['legs'][:, None] * 0.8)
         C = mix(C, TAN * 0.9, (Z['lower'] * 0.35)[:, None])                            # pale fetlock tufts
@@ -208,8 +208,10 @@ def build(K):
     rng = np.random.default_rng(5)
     prof = np.array([(740, 215), (800, 180), (900, 150), (1000, 122), (1100, 100), (1160, 92), (1250, 118),
                      (1340, 165), (1420, 215), (1450, 250)], float)
-    step = {0: 34, 1: 24, 2: 16, 3: 12}[LV]
-    lat = {0: [-0.8, 0, 0.8], 1: [-1, -0.5, 0, 0.5, 1], 2: [-1, -0.66, -0.33, 0, 0.33, 0.66, 1], 3: list(np.linspace(-1, 1, 9))}[LV]
+    # the same bristles at every level of detail (only their roundness changes), so the light model's bake finds each
+    # one in the sculpt (November 24)
+    step = 17
+    lat = [-1, -0.66, -0.33, 0, 0.33, 0.66, 1]
     seg = {0: 4, 1: 5, 2: 8, 3: 11}[LV]; sides = {0: 4, 1: 5, 2: 7, 3: 9}[LV]
     axis = (AXE_END - AXE_HEAD) / np.linalg.norm(AXE_END - AXE_HEAD)
     for sxp in np.arange(760, 1445, step):
@@ -233,7 +235,7 @@ def build(K):
 
     # ---- the tail's tuft: dark locks hanging from its end ---------------------------------------------------------
     trng = np.random.default_rng(9)
-    for k in range({0: 7, 1: 10, 2: 16, 3: 22}[LV]):
+    for k in range(16):                                        # the same locks at every level
         a = p(0, 640, 470) + np.array([trng.normal(0, 0.012), trng.normal(0, 0.012), trng.uniform(-0.05, 0.02)])
         d = np.array([trng.normal(0, 0.25), -0.25 + trng.normal(0, 0.15), -1.0]); d /= np.linalg.norm(d)
         L = trng.uniform(0.11, 0.17)
