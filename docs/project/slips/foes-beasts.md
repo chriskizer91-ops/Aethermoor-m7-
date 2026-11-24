@@ -183,6 +183,12 @@ session 6 made Briarmaw.
     page (dark crest, green blades), but they're worth the same fix in a second pass.
   - Second pass, later: the face's dark mask and pale brows don't read yet; the legs and tail could be shaggier.
 
+- **The Rot-Stag's crown made to read** (November 24, the hub: it was a fleck or two at fight distance): brighter
+  gold, its two bands nearly twice as thick, a stouter spire and jewel, and the bands and jewel now glow a little (in
+  the kit, kind 7 is what the bake paints into the glow map; a deeper gold there, so colour and glow add up to gold,
+  not cream). Its filigree struts are now the same at every level of detail. Re-baked; still passes the kit's
+  stretch check. It now shows as a bold gold ring among the heroes.
+
 **My lane is done** (November 24): the Rot-Stag, Old Snag, the Mire-King, the rotgrub and the rime wolf, each passing
 the kit's stretch check, plus the thornhound from before. The thornhound's re-posed legs went to session 6; the winged
 ones to Models. The gallery is 14.9 MB with six foes (1024 px phone pictures; 512 px would halve them if more join).

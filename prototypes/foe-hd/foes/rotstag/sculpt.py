@@ -37,8 +37,8 @@ def build(K):
     WHITE = np.array([0.82, 0.80, 0.84]); LAV = np.array([0.66, 0.62, 0.71]); GREYW = np.array([0.74, 0.72, 0.76])
     ROT = np.array([0.24, 0.19, 0.27]); ROT2 = np.array([0.33, 0.27, 0.36]); HOOF = np.array([0.16, 0.14, 0.16])
     ANT = np.array([0.40, 0.36, 0.22]); ANT2 = np.array([0.30, 0.27, 0.17]); VINE = np.array([0.30, 0.22, 0.34])
-    SHROOM = np.array([0.72, 0.55, 0.36]); GILL = np.array([0.45, 0.32, 0.22]); GOLD = np.array([0.80, 0.60, 0.26])
-    PALEG = np.array([0.95, 0.80, 0.45])
+    SHROOM = np.array([0.72, 0.55, 0.36]); GILL = np.array([0.45, 0.32, 0.22]); GOLD = np.array([0.98, 0.76, 0.28])
+    PALEG = np.array([1.0, 0.90, 0.55])
 
     def flat_cap(P, a, b, ra, rb, thin, k):
         a = np.asarray(a, np.float32); b = np.asarray(b, np.float32); ax = (b - a) / np.linalg.norm(b - a)
@@ -254,19 +254,25 @@ def build(K):
     a_ = np.linspace(0, 2 * np.pi, {0: 40, 1: 56, 2: 96, 3: 140}[LV])
     ring = np.stack([RX * np.sin(a_), RY * np.cos(a_), 0 * a_], 1)
     ring = ring @ np.array([[1, 0, 0], [0, math.cos(tilt), -math.sin(tilt)], [0, math.sin(tilt), math.cos(tilt)]]).T + C0
-    for dz, rr in [(0.012, 3.6), (-0.012, 3.6)]:
+    # (November 24, the hub: the crown must read at fight distance on a phone) thicker bands that glow a little (kind
+    # 7 is what the bake paints into the glow map), and the same filigree struts at every level of detail, so the
+    # light model's bake finds each strut in the sculpt
+    for dz, rr in [(0.014, 6.0), (-0.014, 6.0)]:
         V, F = tube(ring + np.array([0, 0, dz]), np.full(len(ring), rr * S), max(6, SIDES))
-        M.add(V, F, GOLD, 8)
-    for q in range(0, len(ring) - 1, 2):            # the filigree between the two bands
-        V, F = tube(np.array([ring[q] + [0, 0, 0.012], ring[q + 1] + [0, 0, -0.012]]), np.array([1.6 * S, 1.6 * S]), 5)
-        M.add(V, F, GOLD * 0.9, 8)
+        M.add(V, F, np.array([0.92, 0.62, 0.16]), 7)        # a deeper gold: its glow adds to it on the page
+    b_ = np.linspace(0, 2 * np.pi, 49)
+    fil = np.stack([RX * np.sin(b_), RY * np.cos(b_), 0 * b_], 1)
+    fil = fil @ np.array([[1, 0, 0], [0, math.cos(tilt), -math.sin(tilt)], [0, math.sin(tilt), math.cos(tilt)]]).T + C0
+    for q in range(48):                             # the filigree between the two bands
+        V, F = tube(np.array([fil[q] + [0, 0, 0.014], fil[q + 1] + [0, 0, -0.014]]), np.array([2.6 * S, 2.6 * S]), 5)
+        M.add(V, F, GOLD * 0.92, 8)
     front = ring[0]
     for d_, L_ in [((0, 0, 1), 0.13), ((0, 0, -1), 0.09), ((1, 0, 0), 0.06), ((-1, 0, 0), 0.06)]:
         d_ = np.asarray(d_, float)
-        V, F = G.horn(front, d_, L_, 6 * S, None, 0.0, max(4, SEG), max(6, SIDES))
+        V, F = G.horn(front, d_, L_ * 1.15, 9 * S, None, 0.0, max(4, SEG), max(6, SIDES))
         M.add(V, F, mix(GOLD, PALEG, 0.4), 8)
-    V, F = G.ellipsoid(front, (9 * S, 6 * S, 9 * S), {0: 6, 1: 8, 2: 10, 3: 14}[LV], {0: 8, 1: 12, 2: 16, 3: 20}[LV])
-    M.add(V, F, PALEG, 8)
+    V, F = G.ellipsoid(front, (12 * S, 8 * S, 12 * S), {0: 6, 1: 8, 2: 10, 3: 14}[LV], {0: 8, 1: 12, 2: 16, 3: 20}[LV])
+    M.add(V, F, np.array([0.95, 0.72, 0.30]), 7)     # the jewel at its front glows too
 
     # ---- eyes: dark, a small light in them -------------------------------------------------------------------------
     for e in EYES:
