@@ -21,7 +21,7 @@ function reset(B) {
 export function pose(B, move, u, t, step = 0) {
   reset(B);
   const b = new Proxy(B.bones, { get: (o, k) => o[k] || NOOP }), H = B.height || 0.45;
-  const neck = (x, y = 0, z = 0) => NECK.forEach((n, i) => { b[n].rotation.x += x * (0.6 + 0.2 * i); b[n].rotation.y += y; b[n].rotation.z += z; });
+  const neck = (x, y = 0, z = 0) => NECK.forEach((n, i) => { const f = i ? 1 : 0.5; b[n].rotation.x += x * (i ? 0.6 + 0.2 * i : 0.4); b[n].rotation.y += y * f; b[n].rotation.z += z * f; });   // neck0, by the wide foot, bends least
   // it sways, patient, the neck weaving and the sucker searching; the tail stirs
   neck(0.02 * Math.sin(t * 1.1), 0.07 * Math.sin(t * 0.7), 0.03 * Math.sin(t * 0.9));
   b.head.rotation.x = 0.04 * Math.sin(t * 1.3); b.head.rotation.y = 0.07 * Math.sin(t * 0.5);

@@ -22,10 +22,10 @@ def build(K):
     S, G, LV, VOX, SIDES, SEG, log = K.sdf, K.geom, K.LV, K.VOX, K.SIDES, K.SEG, K.log
     smin, smax, ell, cap, fbm, mix, sstep, vnoise = S.smin, S.smax, S.ell, S.cap, S.fbm, S.mix, S.sstep, S.vnoise
     M = K.Mesh()
-    MUD = np.array([0.11, 0.07, 0.045]); MUD2 = np.array([0.30, 0.20, 0.11]); WET = np.array([0.07, 0.045, 0.03])
+    MUD = np.array([0.14, 0.09, 0.055]); MUD2 = np.array([0.32, 0.21, 0.11]); WET = np.array([0.07, 0.045, 0.03])
     MOSS = np.array([0.36, 0.38, 0.13]); MOSS2 = np.array([0.58, 0.56, 0.22]); MOSSD = np.array([0.17, 0.19, 0.07])   # olive, as the sheet
-    STONE = np.array([0.36, 0.29, 0.22]); STALK = np.array([0.30, 0.36, 0.14]); HEAD = np.array([0.40, 0.23, 0.11])
-    SPR = np.array([0.32, 0.50, 0.12]); AMBER = np.array([1.0, 0.62, 0.12])
+    STONE = np.array([0.33, 0.25, 0.18]); STALK = np.array([0.30, 0.36, 0.14]); HEAD = np.array([0.40, 0.23, 0.11])
+    SPR = np.array([0.32, 0.50, 0.12]); AMBER = np.array([0.92, 0.48, 0.04])
     rr = np.random.default_rng(73)
 
     def prof(z): return np.interp(z, PROF_Z, PROF_R)
@@ -52,7 +52,7 @@ def build(K):
         th = np.arctan2(y, x)
         flow = np.abs(np.sin(th * 9 + 2.5 * fbm(P, 2.5, 2) + 3 * z))
         d = d + 0.004 * (1 - flow) ** 2 * sstep(0.62, 0.3, z)
-        if L >= 2: d = d - 0.012 * (fbm(P, 7.0, 3) - 0.5) - 0.004 * (fbm(P, 20.0, 2) - 0.5)   # clotted, lumpy
+        if L >= 2: d = d - 0.017 * (fbm(P, 7.0, 3) - 0.5) - 0.004 * (fbm(P, 20.0, 2) - 0.5)   # clotted, lumpy
         if L >= 3: d = d - 0.002 * (vnoise(P, 60.0) - 0.5)                        # grit
         # the eyes' hollows
         for ex, ez, er in EYES:
@@ -95,7 +95,11 @@ def build(K):
         edge = moss_edge(P)
         patch = np.where(P[:, 2] > edge + 0.07, 0.33 - fbm(P, 7.0, 2), -1.0)
         shell = shell - thick * 0.8 * (fbm(P, 12.0, 2) - 0.5)                        # thicker and thinner clumps
-        return np.maximum(np.maximum(shell, edge - P[:, 2]), patch * 0.05)
+        low = 0.56 - fbm(P * [1, 1, 1.6], 5.0, 2)                                   # rarer patches lower down the heap (the sheet's back and sides)
+        for ex, ez, er in EYES:                                                     # never over the eyes
+            low = np.maximum(low, 0.3 - np.hypot(P[:, 0] - ex, (P[:, 2] - ez) * 1.3) * 3 - 0.3 * (P[:, 1] < 0))
+        below = np.minimum(edge - P[:, 2], np.maximum(low * 0.05, 0.16 + 0.04 * fbm(P, 9.0, 2) - P[:, 2]))
+        return np.maximum(np.maximum(shell, below), patch * 0.05)
     log('moss')
     lo_m = np.array([K.lo[0], K.lo[1], 0.12]); Vm, Fm = S.mc(moss_sdf, VOX, lo_m, K.hi, band=BAND)
     m = fbm(Vm, 10.0)[:, None]
@@ -122,7 +126,7 @@ def build(K):
         V, F = G.ellipsoid(c, (er * 1.2, er * 0.8, er * 0.75), nt + 4, npp + 6)
         fwd = np.array([ex * 0.25, 1.0, 0.0]); fwd /= np.linalg.norm(fwd)
         u = ((V - c) / np.array([er * 1.2, er * 0.8, er * 0.75])) @ fwd
-        ce = mix(AMBER * 0.7, AMBER, np.clip(u, 0, 1)[:, None])
+        ce = mix(AMBER * 0.35, AMBER, np.clip(u * 1.3 - 0.1, 0, 1)[:, None])        # a darker rim round the amber (second pass)
         lat = np.abs((V - c)[:, 0] * fwd[1] - (V - c)[:, 1] * fwd[0]) / er           # across the eye
         ce = np.where(((u > 0.6) & (lat < 0.2))[:, None], np.array([0.06, 0.03, 0.01]), ce)     # the slit pupil
         M.add(V, F, ce, 7)

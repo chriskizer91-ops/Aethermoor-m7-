@@ -41,8 +41,8 @@ def build(K):
     def body_sdf(P, lv=None):
         L = LV if lv is None else lv
         d, s, C, T, R = along(P)
-        foot = np.clip(1 - (P[:, 2] - 0.0) / 0.12, 0, 1)                            # the foot spreads on the ground
-        d = d - 0.07 * foot ** 1.5 * np.clip((s - 0.08) / 0.15, 0, 1) * np.clip((total - 0.22 - s) / 0.1, 0, 1)
+        foot = np.clip(1 - (P[:, 2] - 0.0) / 0.17, 0, 1)                            # the foot spreads on the ground, a wide bell (second pass)
+        d = d - 0.115 * foot ** 1.7 * np.clip((s - 0.08) / 0.15, 0, 1) * np.clip((total - 0.22 - s) / 0.1, 0, 1)
         ring = np.abs(np.sin(s * math.pi / 0.028))                                    # ringed all along
         d = d + 0.0045 * (1 - ring) ** 3 * np.clip(s / 0.06, 0, 1)
         if L >= 2: d = d - 0.0012 * (fbm(P, 60.0, 2) - 0.5)                           # soft, wrinkled skin
@@ -52,7 +52,7 @@ def build(K):
         d = smax(d, -ell(P, MOUTH, (0.045, 0.045, 0.045)), 0.008)                   # and hollowed
         return np.maximum(d, -P[:, 2])
     log('body')
-    V, F = S.mc(body_sdf, VOX, np.array([-0.24, -0.45, -0.01]), np.array([0.24, 0.36, 0.53]), band=0.03 if LV >= 2 else None)
+    V, F = S.mc(body_sdf, VOX, np.array([-0.32, -0.47, -0.01]), np.array([0.32, 0.38, 0.53]), band=0.03 if LV >= 2 else None)
     _, s, C, T, R = along(V)
     o = V - C; o /= np.maximum(np.linalg.norm(o, axis=1, keepdims=True), 1e-9)
     ref = np.array([0, -0.6, 0.8])                                                     # its back: up, and behind where it rises
