@@ -29,7 +29,7 @@ def build(K):
         c = np.min(np.stack([np.abs(np.sin((P @ np.array(d)) * f + warp * (1 + k))) for k, d in enumerate(dirs)], 1), 1)
         return c - w
     # ---- the shell: slag round the ember, slits in front, cracks, a crown of spikes on top --------------------------
-    spikes = [(rr.uniform(0, 2 * math.pi), rr.uniform(0.3, 0.7)) for _ in range(6)]
+    spikes = [(rr.uniform(0, 2 * math.pi), rr.uniform(0.3, 0.7)) for _ in range(6)][:3]                # three small, round the one big (second pass)
     def shell_sdf(P, lv=None):
         L = LV if lv is None else lv
         d = np.abs(np.linalg.norm(P - C, axis=1) - (R - 0.006)) - 0.008               # a shell 16 mm thick
@@ -38,11 +38,20 @@ def build(K):
             dirn = np.array([math.cos(a) * math.sin(el), math.sin(a) * math.sin(el), math.cos(el)])
             base = C + dirn * (R - 0.01); tip = C + dirn * (R + 0.04 + 0.03 * (1 - el)) + [0, 0, 0.02]
             d = smin(d, cap(P, base, tip, 0.022, 0.006), 0.012)
-        d = smin(d, cap(P, C + [0, 0, R - 0.01], C + [0, 0.0, R + 0.07], 0.022, 0.003), 0.012)   # the tall middle spike
+        for j in range(6):                                                            # the tall middle spike, twisted like a flame (sheet)
+            t0, t1 = j / 6, (j + 1) / 6
+            p0 = C + [0.012 * math.sin(t0 * 5), -0.006 * math.sin(t0 * 3), R - 0.01 + 0.10 * t0]
+            p1 = C + [0.012 * math.sin(t1 * 5), -0.006 * math.sin(t1 * 3), R - 0.01 + 0.10 * t1]
+            d = smin(d, cap(P, p0, p1, 0.03 * (1 - t0) ** 0.9 + 0.003, 0.03 * (1 - t1) ** 0.9 + 0.003), 0.01)
         for s in (-1, 0, 1):                                                          # three teardrop slits in front
             c = C + [s * 0.04, R * 0.9, -0.005 + 0.008 * (s == 0)]
             d = smax(d, -cap(P, c + [0, 0, -0.03], c + [0, 0, 0.025], 0.017, 0.005, scale=(1, 3, 1)), 0.004)
-        d = smax(d, -np.maximum(cracks(P, 50.0, 0.2), -d - 0.02), 0.002)           # cracks through it, the light pouring out
+        d = smax(d, -np.maximum(np.maximum(cracks(P, 50.0, 0.2), -d - 0.02), P[:, 2] - C[2] - R * 0.75), 0.002)   # (not through the crown)           # cracks through it, the light pouring out
+        Q = P - C                                                                     # windows between the cage's bands, the ember showing (sheet)
+        band = np.minimum(np.minimum(np.abs(Q[:, 2] + 0.035), np.abs(Q[:, 2] - 0.03)), np.minimum(np.abs(Q[:, 0]), np.abs(Q[:, 1])))
+        win = band - 0.024 - 0.012 * (fbm(P, 30.0, 2) - 0.5)
+        win = np.minimum(win, R * 0.72 - Q[:, 2])                                     # not under the crown
+        d = smax(d, win, 0.004)                                                       # keep the shell only near the bands
         if L >= 3: d = d - 0.0008 * (vnoise(P, 140.0) - 0.5)
         return d
     log('shell')
@@ -52,7 +61,7 @@ def build(K):
     M.add(V, F, np.clip(col, 0, 1), 0)
     # the ember inside, glowing through the slits and cracks
     V, F = G.ellipsoid(C, (R - 0.012,) * 3, nt + 6, npp + 8)
-    M.add(V, F, np.tile(HOT, (len(V), 1)) * (0.8 + 0.2 * fbm(V, 30.0)[:, None]), 7)
+    M.add(V, F, mix(EMBER, HOT, np.clip(fbm(V, 14.0)[:, None] * 1.6 - 0.4, 0, 1)), 7)          # molten, orange with hot yellow (sheet)
 
     # ---- the cage: rusted iron bands round it and over it, riveted, a boss at the back --------------------------
     def cage_sdf(P, lv=None):
@@ -82,7 +91,7 @@ def build(K):
 
     # ---- the flame on its crown, and the sparks above ----------------------------------------------------------
     t = np.linspace(0, 1, 14)
-    sp = np.stack([0.008 * np.sin(t * 5), 0.004 * np.sin(t * 3), C[2] + R + 0.035 + 0.06 * t], 1)
+    sp = np.stack([0.008 * np.sin(t * 5), 0.004 * np.sin(t * 3), C[2] + R + 0.075 + 0.05 * t], 1)    # above the taller spike
     V, F = G.tube(sp, 0.016 * (1 - t) ** 0.8 + 0.001, SIDES); M.add(V, F, np.tile(HOT, (len(V), 1)), 7)
     for (x, z, s) in [(0.0, 0.47, 0.016), (-0.025, 0.43, 0.007), (0.02, 0.44, 0.006), (0.0, 0.415, 0.01)]:
         for ax in ((1, 0, 0), (0, 0, 1)):                                             # a four-pointed star
