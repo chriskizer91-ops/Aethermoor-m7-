@@ -40,8 +40,8 @@ async function make(key) {
   const map = {
     id: 'arena-' + key, name: S.name, region: S.region || first.region, biome: S.biome || first.biome, dark: S.dark ?? first.dark,
     ...(S.light ? { light: S.light } : {}), w: N, h: N, rows, entities: [], exits: [],
-    // the party stands south of the middle facing north; the foes come in from the north
-    anchors: { 'from-road': [C, C + 3, 'n'], party: [C, C + 3, 'n'], foes: [C, C - 3, 's'] },
+    // the middle (centre, facing north); the party 4 m south of it facing north, the foes 4 m north facing south
+    anchors: { centre: [C, C, 'n'], 'from-road': [C, C + 2, 'n'], party: [C, C + 2, 'n'], foes: [C, C - 2, 's'] },
     arena: { set: key, sources: S.sources, clear: R_CLEAR * 2, round: R_ROUND * 2 },
   };
   mkdirSync(path.join(here, 'maps'), { recursive: true }); mkdirSync(path.join(here, 'paint'), { recursive: true });
