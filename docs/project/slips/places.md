@@ -245,6 +245,23 @@ people are `people[].id` (the game's NPC ids).
   Mosswatch, the Hindwood, Eldergrove, the Heartroot, and Act Three's halls. Their paintings show little beyond what
   the converter already builds (walls, floors, torches, rocks).
 
+### The 16 MB squeeze (November 24)
+
+- **What weighs most** in Act One's game page (15.8 MB, `game3d/build.mjs`): the game's code 3.5 MB (three.js and all of
+  M7: story, maps, rules; already minified), the continent's data pictures for the Atlas 3.1 MB (4.1 MB inline; its
+  ground textures 1.6 MB at 512 px squares, which a phone cuts to 256), place pictures 1.6 MB, heroes' and foes'
+  pictures and geometry inside the code bundle about 6 MB. Every build now writes `dist/<name>.pics.json` (each
+  picture, its source and size, biggest first).
+- **`--lean`** (`world3d/build.mjs`, opt-in): scripts over 40 KB packed (deflate, unpacked in place and in order by
+  `m7/lean-z.js`, 5 KB, so the page runs exactly as before); the continent's ground textures at the 256 px a phone
+  draws; its PNG data maps as lossless WebP (pixels checked identical). **Act One's game page 15.8 -> 11.1 MB**; the
+  playthrough (`game3d/tools/play.mjs`) passes 18 of 18 on it with no page errors; the Atlas looks the same. My place
+  pages save about 1 MB each (no continent on them).
+- **Full-picture place pages** (`--files`, every picture at its own size): Act One https://claude.ai/artifact/Bj4LCg53vgXUmjWVHg2zcS,
+  the Sunscorch https://claude.ai/artifact/5f2RLeW2Rca4zLVp8TTVqu, the Ironspire https://claude.ai/artifact/V5CAGZ42du4T6R95qFDSX6,
+  the Gloomfen https://claude.ai/artifact/6VVQYWfKGpZHg4axLT3bNR, Act Three https://claude.ai/artifact/1et94D5gmkV9kQe6wUBAbG
+  (pages 2.2-2.5 MB, with 10-19 MB of pictures beside them).
+
 ## Next
 
 - Waiting for the hub.
