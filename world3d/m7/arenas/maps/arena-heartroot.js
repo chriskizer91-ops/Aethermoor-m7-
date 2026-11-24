@@ -34,19 +34,24 @@ export default {
  "entities": [],
  "exits": [],
  "anchors": {
+  "centre": [
+   10,
+   10,
+   "n"
+  ],
   "from-road": [
    10,
-   13,
+   12,
    "n"
   ],
   "party": [
    10,
-   13,
+   12,
    "n"
   ],
   "foes": [
    10,
-   7,
+   8,
    "s"
   ]
  },
