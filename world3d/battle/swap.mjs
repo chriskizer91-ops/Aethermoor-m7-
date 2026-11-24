@@ -75,7 +75,7 @@ const foeAssets = {
       const left = HD_KEYS.filter((k) => !passes(k)); if (left.length) console.log(`full detail: ${left.join(', ')} left on their stand-ins (stretch check not passed)`);
       const walk = keys.map((k, i) => [k, i, walkerModule(k, i)]).filter(([, , m]) => m), walkKeys = new Set(walk.map(([k]) => k));
       const mods = keys.filter((k) => !walkKeys.has(k)).map((k, i) => [i, foeModule(k, i)]).filter(([, m]) => m);
-      return { loader: 'js', contents: [...mods.map(([, m]) => m), ...walk.map(([, , m]) => m)].join('\n') + `\nexport const FOES = [${mods.map(([i]) => 'F' + i).join(', ')}];\nexport const WALKERS = { ${walk.map(([k, i]) => `${JSON.stringify(k)}: W${i}`).join(', ')} };` };
+      return { loader: 'js', contents: [...mods.map(([, m]) => m), ...walk.map(([, , m]) => m)].join('\n') + `\nexport const ARENA = ${process.env.ARENA !== '0'};\nexport const ARENA_SETS = ${process.env.ARENA_SETS || '{}'};\nexport const FOES = [${mods.map(([i]) => 'F' + i).join(', ')}];\nexport const WALKERS = { ${walk.map(([k, i]) => `${JSON.stringify(k)}: W${i}`).join(', ')} };` };
     });
   },
 };

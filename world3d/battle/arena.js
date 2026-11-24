@@ -66,6 +66,21 @@ export const arena = {
     const back = this.from;
     this.swing = { t: 0, dur: 1.2, from: { pos: this.cam.position.clone(), q: this.cam.quaternion.clone(), fov: this.cam.fov }, to: back, done: () => { this.on = false; cancelAnimationFrame(this.raf); this.fx.clear(); removeBlobs(this.scene, this.blobs); for (const f of this.foes.values()) { this.scene.remove(f.root); f.aura?.dispose(); } for (const h of this.heroes.values()) h.aura?.dispose(); for (const g of this.guests || []) this.scene.remove(g); for (const d of this.drops || []) this.scene.remove(d.g); this.drops = null; done && done(); } };
   },
+  // the fight carried to another spot (step 6, the arenas): after W.switchTo has put the walk back on the place's own
+  // ground (the fighters come across with it), everyone and everything is turned and moved from the arena's centre to
+  // `center`, facing `yaw`, each hero stood on clear floor there; the camera's way back is the walk's camera as it is now
+  moveTo(center, yaw) {
+    const dy = yaw - this.yaw, c0 = this.center.clone(), c = Math.cos(dy), s = Math.sin(dy);
+    const mv = (v) => { const x = v.x - c0.x, z = v.z - c0.z; v.x = center.x + x * c + z * s; v.z = center.z - x * s + z * c; v.y = this.heightAt(v.x, v.z, center.y + (v.y - c0.y)); return v; };
+    this.scene = this.W.P.scene; this.fx.scene = this.scene; this.fx.clear(); this.close = null; this.stage?.host.classList.remove('f3-close');
+    this.center = center.clone(); this.yaw = yaw; this.dir = V3(Math.sin(yaw), 0, Math.cos(yaw)); this._statics = null;
+    this._taken = [];
+    for (const h of this.heroes.values()) { mv(h.pos); mv(h.home); this.clearStand(h.home, 0.35); h.home.y = this.heightAt(h.home.x, h.home.z, h.home.y); h.pos.copy(h.home); h.face += dy; h.walk = null; }
+    for (const F of this.foes.values()) { mv(F.pos); mv(F.home); F.face += dy; F.act = null; }
+    for (const d of this.drops || []) mv(d.g.position);
+    if (this.want) { this.want = { ...this.want, pos: mv(this.want.pos.clone()) }; }
+    this.from = { pos: this.cam.position.clone(), q: this.cam.quaternion.clone(), fov: this.cam.fov };
+  },
   // a guest fighting beside the party (M7: Tamsin against the Unsmith): built from her own looks, standing over her card
   addGuest(unit) {
     if (this.heroes.has(unit.id)) return;
@@ -286,7 +301,8 @@ export const arena = {
     this.want = cam;
     // where each stands: on the ground under its line, through the screen point it should be at
     const at = (x, y) => this.ground(x, y, cam);
-    for (const { id, x } of L.heroes) { const h = this.heroes.get(id); if (h) { const p = at(x, L.yH); if (p) { h.home.copy(p); h.home.y = this.heightAt(p.x, p.z, p.y); } } }
+    this._taken = [];
+    for (const { id, x } of L.heroes) { const h = this.heroes.get(id); if (h) { const p = at(x, L.yH); if (p) { this.clearStand(p, 0.35); h.home.copy(p); h.home.y = this.heightAt(p.x, p.z, p.y); } } }
     this.formation(L, cam);
     if (first) {
       // the swing round: from behind the leader to the fight's camera, the party walking to their places
@@ -298,6 +314,7 @@ export const arena = {
   // the foes' places along their line (again after one falls or another joins)
   formation(L = this.layoutIn, cam = this.want) {
     if (!L || !cam) return;
+    this._taken = [...this.heroes.values()].map((h) => ({ x: h.home.x, z: h.home.z, r: 0.35 })); // (the party stood first)
     const vis = ((this.stage && this.stage.order) || L.foes || []).filter((id) => this.foes.get(id) && !this.foes.get(id).removed);
     const n = vis.length, pad = Math.min(60, L.stage.width * 0.12), w = L.stage.width - pad * 2;
     // each foe's share of the line by its size (a Champion takes more room than a briarling), as M7's stage does by width
@@ -308,6 +325,7 @@ export const arena = {
       const x = L.stage.left + pad + w * (acc + wt[i] / 2) / sum; acc += wt[i];
       const p = this.ground(x, L.yF, cam); if (!p) return;
       if (n >= 3 && i % 2 === 1) p.addScaledVector(this.dir, 0.9);
+      this.clearStand(p, Math.max(0.3, (F.size?.w || 0.6) * 0.5));
       p.y = this.heightAt(p.x, p.z, p.y);
       const fresh = !F.placed; F.placed = true;
       if (!fresh && !F.walk && this.want) F.walk = { from: F.pos.clone(), t: 0, dur: 0.6 };
@@ -372,6 +390,22 @@ export const arena = {
     const d = ndc.sub(cam.pos).normalize(); if (d.y > -1e-3) return null;
     const t = (this.center.y - cam.pos.y) / d.y;
     return cam.pos.clone().addScaledVector(d, t);
+  },
+  // a stand on clear floor (Chris, November 24: in the Hollow Hall the end of the party's line stood inside the wall):
+  // if the spot, or a ring of the fighter's width round it, isn't walkable floor, the nearest spot that is, not on top of
+  // anyone already stood this layout (in place: `p` is moved). Where nothing near is clear it stays as it was
+  clearStand(p, r) {
+    const P = this.W.P, M = P.M, taken = this._taken || (this._taken = []);
+    const ok = (x, z) => { try { return !!P.walkable(M.px(x), M.py(z)); } catch (e) { return true; } };
+    const fits = (x, z) => { if (!ok(x, z)) return false; for (let k = 0; k < 8; k++) { const t = k * Math.PI / 4; if (!ok(x + Math.cos(t) * r, z + Math.sin(t) * r)) return false; } return !taken.some((q) => Math.hypot(q.x - x, q.z - z) < q.r + r + 0.1); };
+    if (!fits(p.x, p.z)) {
+      search: for (let d = 0.2; d <= 3.2; d += 0.2) for (let k = 0; k < 16; k++) {
+        const t = k * Math.PI / 8, x = p.x + Math.cos(t) * d, z = p.z + Math.sin(t) * d;
+        if (fits(x, z)) { p.x = x; p.z = z; break search; }
+      }
+    }
+    taken.push({ x: p.x, z: p.z, r });
+    return p;
   },
   heightAt(x, z, y0) { const W = this.W; try { const M = W.P.M, h = W.P.walkH(M.px(x), M.py(z)); return Number.isFinite(h) ? h : y0; } catch (e) { return y0; } },
   // a world point to page CSS px, by the fight's camera (as it will stand, so plates sit where foes will be)
