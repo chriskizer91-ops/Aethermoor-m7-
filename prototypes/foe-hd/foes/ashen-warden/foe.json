@@ -1,0 +1,86 @@
+{
+  "key": "ashen-warden",
+  "name": "The Ashen Warden",
+  "plan": "biped",
+  "moves": "warden",
+  "rank": "champion",
+  "height": 2.2,
+  "sheet": "art-in/3d/sheets/sheet-ashen-warden.webp",
+  "crops": [
+    [
+      70,
+      540
+    ],
+    [
+      610,
+      910
+    ],
+    [
+      1020,
+      1490
+    ]
+  ],
+  "bounds": [
+    [
+      -0.52,
+      -0.52,
+      -0.01
+    ],
+    [
+      0.56,
+      0.6,
+      2.38
+    ]
+  ],
+  "voxel": {
+    "0": 0.014,
+    "1": 0.009,
+    "2": 0.0075,
+    "3": 0.0065
+  },
+  "view": {
+    "center": [
+      0,
+      0,
+      1.08
+    ],
+    "width": 2.75,
+    "head": [
+      0,
+      0.02,
+      1.85
+    ],
+    "headWidth": 0.5
+  },
+  "light": {
+    "level": 0,
+    "coat": 44000,
+    "kinds": {
+      "7": 3000
+    }
+  },
+  "sculpt": {
+    "level": 3
+  },
+  "bake": {
+    "res": 1024,
+    "phone": 512,
+    "ao": 32,
+    "reach": {
+      "coat": [
+        0.008,
+        0.02
+      ],
+      "parts": [
+        0.004,
+        0.01
+      ]
+    }
+  },
+  "rig": "rig.py",
+  "blurb": "The last Warden of Scorchgate, Act One's Champion: blackened bronze plate edged in gold, a bucket helm with a burning slit under the Cinder Crown, a flame in a gold arch on his breast, great layered pauldrons, a sword still hot from the last fire, the Ashen Aegis (a gold gate with fire behind its doors) on his arm, and a ragged cape of ash. Every plate moves whole on its own joint, so nothing stretches.",
+  "pages": {
+    "three": "https://claude.ai/artifact/EzhJdoL53KTeUPUfHc2yyN",
+    "sculpt": "https://claude.ai/artifact/P9A4aLPUBJmqKpDPtxnm2z"
+  }
+}
