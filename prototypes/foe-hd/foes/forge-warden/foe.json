@@ -82,5 +82,9 @@
     }
   },
   "rig": "rig.py",
-  "blurb": "A kiln of red firebrick as tall as a door on short iron legs, the Hearth Below: an anvil for a head, a chimney burning behind it, a pleated wooden bellows at its side, a furnace door glowing in its breast, iron arms banded in brass, an iron fist and a hammer for a hand with its face glowing. Every part moves whole on its own joint, so nothing stretches."
+  "blurb": "A kiln of red firebrick as tall as a door on short iron legs, the Hearth Below: an anvil for a head, a chimney burning behind it, a pleated wooden bellows at its side, a furnace door glowing in its breast, iron arms banded in brass, an iron fist and a hammer for a hand with its face glowing. Every part moves whole on its own joint, so nothing stretches.",
+  "pages": {
+    "three": "https://claude.ai/artifact/TQtQi2jxUR391ZErWyNeMo",
+    "sculpt": "https://claude.ai/artifact/DWgVBNPgJFME3hAzKSeYqv"
+  }
 }

@@ -1,0 +1,261 @@
+{
+ "key": "forge-warden",
+ "limit": 1.3,
+ "parts": {},
+ "frames": 120,
+ "triangles": 29492,
+ "moves": {
+  "idle": {
+   "ok": true,
+   "big": {
+    "worst": 1,
+    "limit": 1.3,
+    "part": "chest",
+    "where": [
+     0.285,
+     -0.135,
+     2.083
+    ],
+    "restEdge": 0.0235,
+    "u": 0,
+    "trianglesOver": 0
+   },
+   "crease": {
+    "worst": 1,
+    "limit": 3,
+    "part": "r_fore",
+    "where": [
+     0.595,
+     0.087,
+     0.737
+    ],
+    "restEdge": 0.0003,
+    "u": 0,
+    "trianglesOver": 0
+   },
+   "framesOver": "0/120",
+   "bones": []
+  },
+  "walk": {
+   "ok": true,
+   "big": {
+    "worst": 1,
+    "limit": 1.3,
+    "part": "chest",
+    "where": [
+     0.32,
+     -0.156,
+     2.027
+    ],
+    "restEdge": 0.0231,
+    "u": 0,
+    "trianglesOver": 0
+   },
+   "crease": {
+    "worst": 1,
+    "limit": 3,
+    "part": "r_upper",
+    "where": [
+     0.59,
+     0.067,
+     0.857
+    ],
+    "restEdge": 0.0003,
+    "u": 0,
+    "trianglesOver": 0
+   },
+   "framesOver": "0/120",
+   "bones": []
+  },
+  "hammer-arm": {
+   "ok": true,
+   "big": {
+    "worst": 1,
+    "limit": 1.3,
+    "part": "chest",
+    "where": [
+     0.32,
+     -0.156,
+     2.027
+    ],
+    "restEdge": 0.0231,
+    "u": 0.832,
+    "trianglesOver": 0
+   },
+   "crease": {
+    "worst": 1,
+    "limit": 3,
+    "part": "l_upper",
+    "where": [
+     -0.614,
+     0.048,
+     0.857
+    ],
+    "restEdge": 0.0005,
+    "u": 0.277,
+    "trianglesOver": 0
+   },
+   "framesOver": "0/120",
+   "bones": []
+  },
+  "bellows-breath": {
+   "ok": true,
+   "big": {
+    "worst": 1,
+    "limit": 1.3,
+    "part": "chest",
+    "where": [
+     0.362,
+     -0.139,
+     2.093
+    ],
+    "restEdge": 0.0233,
+    "u": 0.092,
+    "trianglesOver": 0
+   },
+   "crease": {
+    "worst": 1,
+    "limit": 3,
+    "part": "r_fore",
+    "where": [
+     0.595,
+     0.087,
+     0.737
+    ],
+    "restEdge": 0.0003,
+    "u": 0.008,
+    "trianglesOver": 0
+   },
+   "framesOver": "0/120",
+   "bones": []
+  },
+  "hold-the-bridge": {
+   "ok": true,
+   "big": {
+    "worst": 1,
+    "limit": 1.3,
+    "part": "chest",
+    "where": [
+     0.283,
+     -0.109,
+     2.029
+    ],
+    "restEdge": 0.0248,
+    "u": 0.672,
+    "trianglesOver": 0
+   },
+   "crease": {
+    "worst": 1,
+    "limit": 3,
+    "part": "r_fore",
+    "where": [
+     0.595,
+     0.087,
+     0.737
+    ],
+    "restEdge": 0.0003,
+    "u": 0.21,
+    "trianglesOver": 0
+   },
+   "framesOver": "0/120",
+   "bones": []
+  },
+  "stoke": {
+   "ok": true,
+   "big": {
+    "worst": 1,
+    "limit": 1.3,
+    "part": "chest",
+    "where": [
+     0.32,
+     -0.156,
+     2.027
+    ],
+    "restEdge": 0.0231,
+    "u": 0.563,
+    "trianglesOver": 0
+   },
+   "crease": {
+    "worst": 1,
+    "limit": 3,
+    "part": "r_upper",
+    "where": [
+     0.59,
+     0.067,
+     0.857
+    ],
+    "restEdge": 0.0003,
+    "u": 0.336,
+    "trianglesOver": 0
+   },
+   "framesOver": "0/120",
+   "bones": []
+  },
+  "hurt": {
+   "ok": true,
+   "big": {
+    "worst": 1,
+    "limit": 1.3,
+    "part": "chest",
+    "where": [
+     0.316,
+     -0.172,
+     2.093
+    ],
+    "restEdge": 0.024,
+    "u": 0.176,
+    "trianglesOver": 0
+   },
+   "crease": {
+    "worst": 1,
+    "limit": 3,
+    "part": "r_fore",
+    "where": [
+     0.595,
+     0.087,
+     0.737
+    ],
+    "restEdge": 0.0003,
+    "u": 0.504,
+    "trianglesOver": 0
+   },
+   "framesOver": "0/120",
+   "bones": []
+  },
+  "ko": {
+   "ok": true,
+   "big": {
+    "worst": 1,
+    "limit": 1.3,
+    "part": "chest",
+    "where": [
+     0.294,
+     -0.117,
+     2.033
+    ],
+    "restEdge": 0.023,
+    "u": 0.017,
+    "trianglesOver": 0
+   },
+   "crease": {
+    "worst": 1,
+    "limit": 3,
+    "part": "r_fore",
+    "where": [
+     0.595,
+     0.087,
+     0.737
+    ],
+    "restEdge": 0.0003,
+    "u": 0.849,
+    "trianglesOver": 0
+   },
+   "framesOver": "0/120",
+   "bones": []
+  }
+ },
+ "ok": true,
+ "worstMove": "idle",
+ "bigEdge": 0.023,
+ "crease": 3
+}
