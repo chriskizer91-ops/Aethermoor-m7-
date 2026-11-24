@@ -3,6 +3,46 @@
 The beasts on four legs, the scorpions, serpents, the frog and the winged ones, each in full detail, made the way
 session 6 made Briarmaw.
 
+## Handoff (November 24)
+
+For a fresh session picking this lane up.
+
+- **Where I stopped:** the lane and its second pass are done; the hub has everything up to 84a8bb9 and asked this
+  lane to stand by. Nothing is half-made; the working tree is clean.
+- **My foes, all passing the kit's stretch check** (`node kit/tools/stretch.mjs foes/<key> --moves=<abs>/pages/beasts/kit/moves-<set>.js#<set>`, run from `prototypes/foe-hd`):
+  - the Rot-Stag (`foes/rotstag`, moves `stag`), worst big edge 1.30x;
+  - Old Snag (`foes/oldsnag`, `boar`), 1.29x or under;
+  - Gorrow the Mire-King (`foes/mirelord`, `frog`; the jaw hangs from the chest, see rig.py), 1.26x;
+  - the rotgrub (`foes/rotgrub`, `grub`), 1.30x;
+  - the rime wolf (`foes/rime-wolf`, `wolf`), 1.29x.
+  - The thornhound (`foes/thornhound`) was mine; session 6 now owns his re-posed legs and `pages/beasts/kit/moves-quad.js`.
+  - The winged ones (Gloamwing, lamp-moth, Thunder-Roc) went to Models; the desert's and the deep's beasts to Places.
+- **How one is made** (from `prototypes/foe-hd`, session 6's shared kit): `foes/<key>/` holds `sculpt.py` (shapes in
+  numpy measured off Chris's sheet in its pixels, `build(K)`), `rig.py` (a kit template: `quad`, `frog`, `serpent`;
+  gates in `weigh()`, `BANDS`, `SPLIT`, `HELPERS`, `WELD_SAME_KIND`, `part()`), `foe.json` (height to the top of the
+  whole outline, crops, bounds, voxel per level, light coat budget, `bake.reach`; short reach for a furless foe).
+  `kit/make.sh <key>` sculpts (light level and sculpt level), compares with the sheet (`build/compare-3.png`, outline
+  overlap printed), bakes in Blender and packs `assets/`. After a rig change: `python3.12 kit/tools/rebind.py foes/<key>`.
+  Then the stretch check, then `assets/sculpt.bin` from `pages/beasts/kit/export_sculpt.py` and `pack.mjs` (into a
+  scratch folder; copy only `sculpt.*`), and `assets/cmp.webp` from `build/compare-3.png`.
+  - Rules learnt: legs sculpted apart and clear of the body, the leg rig starting where the leg leaves the body, short
+    leg fur; rigid pieces (bristles, crystals, blades) the same set at every level of detail, or they bake black;
+    things that glow are kind 7 (pick a deeper colour, the glow adds to it).
+- **The pages** (`prototypes/foe-hd/pages/beasts`; `node build.mjs --tex=512` for the phone gallery,
+  `node build.mjs --only=<key> --sculpt=<key> --out=beasts-sculpt-<key>` for a laptop page; `node check.mjs dist/beasts.html <out> <keys>` checks headless):
+  - the gallery (phone, all six): https://claude.ai/artifact/64Ukg3yQAAb8DWz69xqvxs
+  - laptop pages with each sculpt: thornhound https://claude.ai/artifact/8pCvG7xuqHuCcARiUYa9SX (`--out=beasts-sculpt`),
+    Rot-Stag https://claude.ai/artifact/CSoGr5Hp53nx94b6c7HQ6B, Old Snag https://claude.ai/artifact/Ps1AmDYiERFwSenm6KvVYx,
+    Mire-King https://claude.ai/artifact/JoZFMxoY43AwUToDw7HBJj, rotgrub https://claude.ai/artifact/BA2mMoUK8nRjE6T4XcopKr,
+    rime wolf https://claude.ai/artifact/KkZpRLW7cpLBXUMEaq5zax.
+- **Open:**
+  - the thornhound's look (his fur still reads a little like bark from far off; the face's markings, pale brows and tan
+    cheeks; teeth for the open-mouth moves): ask session 6 first, since it now owns his legs and moves;
+  - moving the gallery onto the shared kit: `pages/beasts/kit/` is still my working copy of session 6's early scripts
+    (`foe.js` loader, `export_sculpt.py`, `pack.mjs`, the move sets); the foes themselves are all built with the shared
+    `prototypes/foe-hd/kit/`. The gallery could load through `kit/js/loader.js` instead of my `foe.js`.
+  - smaller look notes still possible: the wolf's legs and tail could be shaggier; the Mire-King's warts bolder still.
+
 ## Done
 
 - **The beasts' gallery, first look:** https://claude.ai/artifact/64Ukg3yQAAb8DWz69xqvxs (5.6 MB)
