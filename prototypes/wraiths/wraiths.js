@@ -456,7 +456,11 @@ B['lantern-mother'] = (G, o) => {
   hood(R.head, black, { r: 0.12, k: 1.18, open: 1.0, inner: '#0a0808' });
   for (let i = 0; i < 9; i++) { const a = -1.3 + i / 8 * 2.6; add(sph(0.016, 8, 6), solid('bone', '#efe8d6'), R.head, Math.sin(a) * 0.14, 0.11 + Math.cos(a) * 0.01, Math.cos(a) * 0.12); add(sph(0.006, 6, 4), glow('#f0c860', 0.8), R.head, Math.sin(a) * 0.15, 0.115, Math.cos(a) * 0.13); }
   // the lantern in her left hand, the hooked lamp-pole with its bell in her right
-  const L = lantern(R.armL.hand, brass, glow('#ffb43a', 2.8), { r: 0.085, h: 0.24, style: 'square' }); L.group.position.set(0, -0.06, 0.02); R.props.lantern = L; R.swing.push(L.group); R.glows.push(L.core.material);
+  const L = lantern(R.armL.hand, brass, glow('#ffb43a', 2.8), { r: 0.085, h: 0.24, style: 'square' }); L.group.position.set(0, -0.2, 0.02); R.props.lantern = L;
+  add(fitMaster(tube([V(0, -0.02, 0.02), V(0, -0.1, 0.02)], 0.005, { n: 4 }), 'rim'), brass, R.armL.hand); add(tor(0.016, 0.004, 5, 12), brass, R.armL.hand, 0, -0.025, 0.02);
+  // made Gothic like the sheet's: a pointed four-sided roof with a finial, and pointed arches over its windows
+  { const g = L.group, r = 0.085, h = 0.24; const roof = add(fitMaster(lathe([[r * 1.12, -h * 0.26], [r * 0.7, -h * 0.05], [r * 0.2, h * 0.25], [0.004, h * 0.4]], { n: 4, phi0: Math.PI / 4 }), 'forged'), brass, g); add(sph(0.012, 8, 6), brass, g, 0, h * 0.42, 0);
+    for (let i = 0; i < 4; i++) { const a = i / 4 * Math.PI * 2, c = Math.cos(a), sn = Math.sin(a), f = r * 0.75; const P = (x, y) => V(c * f + -sn * x, y, sn * f + c * x); add(fitMaster(tube(curve([P(-r * 0.55, -h * 0.82), P(-r * 0.55, -h * 0.45), P(0, -h * 0.32), P(r * 0.55, -h * 0.45), P(r * 0.55, -h * 0.82)], 12), 0.005, { n: 4 }), 'rim'), brass, g); } } R.swing.push(L.group); R.glows.push(L.core.material);
   const S = staff(R.armR.hand, brass, { len: 2.1, r: 0.014, grip: 0.55, head: top => {
     add(fitMaster(tube(curve([V(0, 0, 0), V(0, 0.08, 0), V(0.03, 0.16, 0), V(0.1, 0.17, 0), V(0.13, 0.1, 0)], 14), 0.013, { n: 8 }), 'rim'), brass, top);
     const bh = new THREE.Group(); bh.position.set(0.13, 0.09, 0); top.add(bh); bell(bh, brass, { r: 0.03, h: 0.045 }); R.props.bell = bh; R.swing.push(bh); } });
