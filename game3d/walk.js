@@ -35,6 +35,8 @@ import { playBrandBanner, playCrownwalls, showLetter, playCouncil, showToBeConti
 import { reliquaryLine } from '../game/src/ui/screens/codex.js';
 import { person, foe, artOf } from './figures.js';
 import { hearth, glint } from './props.js';
+// the arenas (the Fight's step 6, Places' sets): which open set suits each place
+import { ARENA_SET, ARENA_DEFAULT } from '../world3d/m7/arenas/table.js';
 
 // what a hero wears, as M7's game holds it (inventory ids to items); empty slots keep the starting look
 export function gearFor(game, id) {
@@ -79,6 +81,11 @@ export function createWorld(o) {
   let leader = null, followers = [], party = null;
   const made = {};
   const placeOf = (mapId) => PL['m7-' + mapId] || null;
+  // a short fade to black, for the move into an arena and back
+  const fadeEl = Object.assign(document.createElement('div'), { id: 'g3-fade' });
+  fadeEl.style.cssText = 'position:fixed;inset:0;background:#000;opacity:0;pointer-events:none;transition:opacity .35s ease;z-index:40';
+  document.body.append(fadeEl);
+  const fade = (on) => new Promise((r) => { fadeEl.style.opacity = on ? 1 : 0; setTimeout(r, 380); });
 
   // ---- the heroes, in their M7 gear ----
   // what each hero wears, as M7's game holds it (inventory ids to items); empty slots keep the starting look
@@ -752,6 +759,41 @@ export function createWorld(o) {
       for (const s of [...standing.values()]) { if (!Wk.P.scene.children.includes(s.fig.root)) standing.delete(s.e.id); }
     },
     pause(on) { if (Wk) Wk.pause(on); },
+    // ---- the arenas (Chris: "arenas that look like the land you are in"; the Fight's step 6, Places' sets) ----
+    // into the set for this place, after a short fade: the walk moves there with the fighters, the party before its centre
+    // facing across it and the pack beyond. Gives where to come back to (and the arena's centre and way), or null for a
+    // fight on the spot: ?arena=0, no set for the place on this page, or water foes (the gars, the Leviathan), whose
+    // fights stay in their own water.
+    async toArena(setup) {
+      const Q = new URLSearchParams(location.search);
+      if (Q.get('arena') === '0' || !Wk || !walk) return null;
+      const here = 'm7-' + walk.map, region = W.mapOf(walk.map)?.region;
+      const k = Q.get('arenaset') || ARENA_SET[here] || ARENA_DEFAULT[region];
+      if (!k || !PL[k] || k === here) return null;
+      if (setup.foes.some((F) => ['fish', 'leviathan'].includes(F.fig?.beast?.plan || F.plan) || ['blackwater-gar', 'blackwater-leviathan'].includes(F.fig?.key || F.key))) return null;
+      const home = { place: Wk.P.place, px: Wk.io.px, py: Wk.io.py, wyaw: Wk.io.yaw, L: setup.center.clone(), yaw: setup.yaw };
+      await fade(true);
+      const A = PL[k], c = A.anchors?.centre;
+      await Wk.switchTo(A, c ? c.at[0] : 0, c ? c.at[1] : 0, c ? c.face : setup.yaw);
+      const M = Wk.P.M, T = window.THREE;
+      let px = c ? c.at[0] : M.W / 2, py = c ? c.at[1] : M.H / 2; [px, py] = Wk.nearestFit(px, py);
+      const ay = c ? c.face : setup.yaw, dir = new T.Vector3(Math.sin(ay), 0, Math.cos(ay)), side = new T.Vector3(Math.cos(ay), 0, -Math.sin(ay));
+      const mid = new T.Vector3(M.x(px), Wk.P.walkH(px, py), M.z(py)), stand = mid.clone().addScaledVector(dir, -4);
+      stand.y = Wk.P.walkH(M.px(stand.x), M.py(stand.z));
+      Wk.setIo(M.px(stand.x), M.py(stand.z), ay);
+      Object.values(setup.heroes).forEach((H2, i) => { H2.root.position.copy(stand).addScaledVector(side, (i - 1.5) * 0.9); H2.root.rotation.set(0, ay, 0); });
+      setup.foes.forEach((F, i) => { F.pos.copy(mid).addScaledVector(dir, 4).addScaledVector(side, (i - (setup.foes.length - 1) / 2) * 1.2); F.pos.y = Wk.P.walkH(M.px(F.pos.x), M.py(F.pos.z)); if (F.home) F.home.copy(F.pos); F.root.position.copy(F.pos); F.face = ay + Math.PI; });
+      await fade(false);
+      window.__g3.arenas = (window.__g3.arenas || 0) + 1; window.__g3.arenaSet = k;
+      return { ...home, arena: { center: stand, yaw: ay } };
+    },
+    // and back: the walk returns to the place's own ground where the party stood, the fighters and their spoils with it
+    async fromArena(b, arena) {
+      await fade(true);
+      await Wk.switchTo(b.place, b.px, b.py, b.wyaw);
+      if (arena && arena.moveTo) arena.moveTo(b.L, b.yaw);
+      await fade(false);
+    },
     // the spoils: a hero who put something on is re-dressed on the field there and then (arena.swapHero)
     redress(g, arena) {
       const before = {}; for (const id of game.party.active) before[id] = gearKey(id);
