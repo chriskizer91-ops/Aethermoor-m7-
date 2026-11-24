@@ -163,11 +163,18 @@ state) and unopened chests glint (`game3d/props.js`). All seven pages republishe
 
 ## Next
 
-- Briarmaw, the spoils and the new creatures as the Fight and Models deliver them (the foes' figures come through
-  `game3d/figures.js`, one place to switch).
-- Session 8's walkers and more foes as their stretch checks pass (automatic at the next build), then republish.
-- Places' living places as they land.
-- Full-detail foes on the region pages, if they fit (or a full-pictures page for each region).
+All of the earlier Next is done (Briarmaw, the spoils, the walkers and every passing foe, Places' living places and
+set dressing, full-detail foes on the region pages and a full-pictures page for each). Standing by. What I'd do when asked:
+
+- **When a single page passes 16 MB** (Models' next hero detail): drop a foe from its `foesHd` in `game3d/build.mjs`, the
+  least-seen first: Act One the rotstag, then the thornhound; the Gloomfen Old Jaws, then the marsh-light; the Ironspire
+  the rockling. Then a texture step (`tex` 320 to 288, then `herotex` 256 to 224). Its full-pictures page keeps them all.
+- **Batch 4's paintings for the Hearth Below** (the four Act Three maps): once Places converts them, rebuild Act Three's
+  two pages and run `finale.mjs` (from=heart for a quick check, from=forge with `PARTY_FROM` for the Unsmith).
+- **Chris's notes**: anything on the walk, the fights in place, the save-code box (open call 10, `CARRY_M7`), the pages.
+- **The phone**: a frame-rate check on a real phone is still not done (headless draws 1 to 4 frames a second).
+- **Re-checks after any merge**: `smoke` (each page with `?act2=1`/`?new=1`, waiting for `__g3.shown`, console errors),
+  then `fight.mjs` on any changed foe, `den.mjs`, `act-end.mjs`, and `finale.mjs` for the endings.
 
 ## Changed outside my files
 
