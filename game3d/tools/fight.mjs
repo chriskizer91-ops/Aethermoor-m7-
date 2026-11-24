@@ -3,7 +3,8 @@
 // the map's first way in: walk up to the encounter, fight it in 3D to the end, with no page errors, and say which foes
 // were in full detail.
 //   NODE_PATH=$(npm root -g) node game3d/tools/fight.mjs <page.html|http url> <map> <encounter id> [level] [out-dir]
-//   e.g. the Sand Wyrm on the Sunscorch page: ... game3d-sunscorch-400.html dust-trail wyrm-lair 14
+//   e.g. the Sand Wyrm on the Sunscorch page (past the quicksand and the trail's two guards):
+//     UNLOCK=dt-quicksand WON=dt-scorpions,dt-aqueduct ... game3d-sunscorch-400.html dust-trail wyrm-lair 14
 import { createRequire } from 'node:module';
 import path from 'node:path';
 import { mkdirSync } from 'node:fs';
@@ -43,6 +44,10 @@ for (const [r, flags, beaten, brands] of ORDER) {
 }
 for (const enc of ['keep-vault']) { f.done[enc] = true; f.cleared[enc] = true; }
 f.seen = { ...(f.seen || {}), ['card:' + region]: true };
+// UNLOCK=<lock ids>: locks already opened (a relic power or a skill the party isn't carrying); WON=<encounter ids>: fights
+// already won on the way (road guards), so the run goes straight to the one being checked
+for (const id of (process.env.UNLOCK || '').split(',').filter(Boolean)) f.unlocked = { ...(f.unlocked || {}), [id]: true };
+for (const enc of (process.env.WON || '').split(',').filter(Boolean)) { f.done[enc] = true; f.cleared[enc] = true; f.beaten = { ...(f.beaten || {}), [enc]: 1 }; }
 const [ax, ay, af] = Object.values(MAPS[MAP].anchors)[0];
 g.progress.pos = { map: MAP, x: ax, y: ay, face: af || 's' };
 
