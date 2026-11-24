@@ -12,16 +12,16 @@ no missing files.
 
 | Page | Link | Version | Full-detail kit foes |
 |---|---|---|---|
-| Act One | https://claude.ai/artifact/RaeSK5hezqb3qH7jmuM5aj | 12 | 7 of 8 (not the boglurcher) |
-| Act One, full pictures | https://claude.ai/artifact/9rGvzRh4eocZrz4RYPQLz6 | 9 | all 8 |
-| The Sunscorch | https://claude.ai/artifact/7dPEGKka7t1FyHF5SSLPAo | 8 | all 5 (the Sand Wyrm, Kharzul...) |
-| The Sunscorch, full pictures (new) | https://claude.ai/artifact/38JaigTBGjp1FiT4MHdVFh | 4 | all 5 |
-| The Ironspire | https://claude.ai/artifact/6jSwPVzbwwZWmmD6VsQ1sU | 7 | 4 of 6 (Old Horn, Mother Anvil, rockling, rime-wolf) |
-| The Ironspire, full pictures (new) | https://claude.ai/artifact/AC9dw4TH9VqT4P3UcarVLp | 4 | all 6 |
-| The Gloomfen | https://claude.ai/artifact/N2iCRiMardtJNbntUoXYsA | 7 | 7 of 10 |
-| The Gloomfen, full pictures (new) | https://claude.ai/artifact/7f9UFQ93Dk1esA6ju6u8hL | 4 | all 10 (the Blackwater Leviathan too) |
-| Act Three | https://claude.ai/artifact/U8tPe6ZcZKrYA1o7XJeTjp | 6 | the unmade |
-| Act Three, full pictures | https://claude.ai/artifact/28QkrWfL1YqMUnGLki2s5w | 6 | the unmade |
+| Act One | https://claude.ai/artifact/RaeSK5hezqb3qH7jmuM5aj | 13 | 7 of 8 (not the boglurcher) |
+| Act One, full pictures | https://claude.ai/artifact/9rGvzRh4eocZrz4RYPQLz6 | 10 | all 8 |
+| The Sunscorch | https://claude.ai/artifact/7dPEGKka7t1FyHF5SSLPAo | 9 | all 5 (the Sand Wyrm, Kharzul...) |
+| The Sunscorch, full pictures (new) | https://claude.ai/artifact/38JaigTBGjp1FiT4MHdVFh | 5 | all 5 |
+| The Ironspire | https://claude.ai/artifact/6jSwPVzbwwZWmmD6VsQ1sU | 8 | 4 of 6 (Old Horn, Mother Anvil, rockling, rime-wolf) |
+| The Ironspire, full pictures (new) | https://claude.ai/artifact/AC9dw4TH9VqT4P3UcarVLp | 5 | all 6 |
+| The Gloomfen | https://claude.ai/artifact/N2iCRiMardtJNbntUoXYsA | 8 | 7 of 10 |
+| The Gloomfen, full pictures (new) | https://claude.ai/artifact/7f9UFQ93Dk1esA6ju6u8hL | 5 | all 10 (the Blackwater Leviathan too) |
+| Act Three | https://claude.ai/artifact/U8tPe6ZcZKrYA1o7XJeTjp | 7 | the unmade |
+| Act Three, full pictures | https://claude.ai/artifact/28QkrWfL1YqMUnGLki2s5w | 7 | the unmade |
 
 Models' wraiths, armoured and forge foes (the remade Ashen Warden and Unsmith) and winged foes are on every page.
 
@@ -177,6 +177,16 @@ state) and unopened chests glint (`game3d/props.js`). All seven pages republishe
   full page; the single page gives up Old Jaws, the marsh-light and the bell-ringer for the drowned and the arenas),
   the rotgrub (Act One's full page). All ten pages republished (the versions above), each starting with no console
   errors, also at phone size.
+- **Iron and forge, and the polished wraiths** (sessions 6 and 8): every page is packed now (`--lean`, the full-pictures
+  pages too, which brought the Ironspire's and the Gloomfen's back under 16 MB). What went where:
+  - Act Three, both pages: the Unsmith, the cinder-thrall, the thrall-overseer, the forge-warden (and the unmade).
+  - The Ironspire's full page: forgeborn, Harrow's Journeyman, the Bellows, the rime-wraith, the choir-wraith and the
+    Drowned Abbess (the rime-wraith's), with the Iron Sentinel and the Sentinel-Captain on both pages.
+  - The Sunscorch, both pages: the Sentinel-Captain (it fights there too) with the Ashen Warden.
+  - The Gloomfen's full page: the drowned choir and the cantor, with the drowned and the bell-ringer.
+- **A lost fight in an arena** (`fight.mjs` EXPECT=defeat, the party at 1 HP; 6 of 6, no page errors): lost in the
+  canyon set, the party where M7 sends it (the Great Hall), the walk out of the set with the fade done, the save on the
+  Great Hall's own ground. A fight in the Ash Stair set with the new forge foes played to the end with no page errors.
 
 ## Next
 
