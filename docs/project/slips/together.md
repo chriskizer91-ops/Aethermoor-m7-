@@ -1,6 +1,6 @@
 # Slip: Together (session 5, branch `job/together`)
 
-Last updated November 24 (handoff).
+Last updated November 25 (the ten pages published).
 
 ## Handoff (November 24)
 
@@ -8,9 +8,9 @@ For a fresh session taking the Together job (session 5, branch `job/together`; b
 
 **Where I stopped.** Every foe Chris asked to polish is in (ten iron and forge, eleven wraiths), with the Fight's arenas
 and its last `arena.js` fix (a big move keeps its foe in frame). The ten pages are built (`world3d/dist/*.v24.artifact.html`
-and `world3d/dist/game3d-*-full.artifact.html`), checked and pushed. **Still to publish:** all ten, after 00:10 UTC
-November 25 (the account's daily publishing limit, 200 pages, was spent). A reminder is scheduled for 00:12 UTC in this
-session (trigger `trig_015squysqpq7rN46PnrZsG4m`); if it's gone, rebuild and publish as below. The last four wraiths:
+and `world3d/dist/game3d-*-full.artifact.html`), checked, pushed and **published November 25 at 00:15 UTC** to
+the same links (single files: Act One v14, the Sunscorch v10, the Ironspire v9, the Gloomfen v9, Act Three v8; full
+pictures: Act One v11, the Sunscorch v6, the Ironspire v6, the Gloomfen v6, Act Three v8). The last four wraiths:
 the Sunscorch (the Wisp-Queen on both pages, the mirage-wisp on its full page; the Sentinel-Captain moved to the full
 page only), the Gloomfen's full page (the Lantern Mother), the Ironspire's full page (the Rime-Abbot).
 
@@ -56,11 +56,16 @@ the rime-wolf), or a texture step.
 - Also `act-end.mjs` (the Rotwarden, Act One's end), `den.mjs` (Briarmaw), `codebox.mjs` (the save-code box),
   `play.mjs` (the opening).
 
-**What I'd do next**: publish the ten (above), update this slip's versions, tell the hub what went where; then stand by
-for Chris's notes, batch 4's paintings for the Hearth Below (rebuild Act Three's two pages, run `finale.mjs`), and a
+**What I'd do next**: stand by for Chris's notes, batch 4's paintings for the Hearth Below (rebuild Act Three's two pages, run `finale.mjs`), and a
 phone frame-rate check (still not done).
 
 ## Done
+
+## November 25: the ten pages published
+
+All ten republished to their links (versions in the handoff above): the last four wraiths (the Wisp-Queen and
+mirage-wisp on the Sunscorch, the Lantern Mother on the Gloomfen's full page, the Rime-Abbot on the Ironspire's full
+page) and, on every page, the Fight's arena camera fix (a big move keeps its foe in frame).
 
 ## Latest round (November 24): ten pages, lean single files, every act's foes, the pose fix
 
