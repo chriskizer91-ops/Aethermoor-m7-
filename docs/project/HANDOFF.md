@@ -38,7 +38,7 @@ UTC. These were built, pushed, and scheduled to publish at about 00:10 UTC by th
 | The four wraiths pages (the act labels fixed, the mirage-wisp, the wisp-queen) | session 8 | the wraiths pages below |
 | All ten game pages (the Fight's `arena.js` fix changes every page), with the last four wraiths: the wisp-queen on both Sunscorch pages and the mirage-wisp on its full page, the Lantern Mother on the Gloomfen's full page, the Rime-Abbot on the Ironspire's full page (the Sentinel-Captain moved to the Sunscorch's full page only) | Together, at 00:12 UTC | the game pages below |
 
-Check each went up (read it with the Artifact tool, or look at the session's last result with `list_events`). If one
+On November 25 at 00:10 UTC the Fight confirmed its ten pages are up, and session 8 its four wraiths pages (its first try also made two spare copies of pages 1 and 2, https://claude.ai/artifact/DVnGSML3Fh7PRcJqjjrDik and https://claude.ai/artifact/CokJnsXP64baNBwd3UchCv, which Chris can delete). Together's ten game pages were due at 00:12 UTC: check they went up (read one with the Artifact tool, or look at the session's last result with `list_events`). If one
 didn't, rebuild it from the hub's branch with the commands in that job's slip ("Handoff (November 24)" section) and
 publish to the same link (pass `url`). Then archive the old sessions.
 
