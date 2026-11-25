@@ -15,7 +15,7 @@ this slip and `fight-stills/`; I may add flags to `world3d/build.mjs`. Merge onl
 - Every big move's camera keeps the foe in the frame.
 - The ten pages were rebuilt at commit 70a0f30 + slip. The account's daily publish limit ran out, so their republish is
   scheduled for 00:10 UTC on November 25 (a reminder to this session). If that didn't happen, publish the ten
-  `world3d/dist/*.artifact.html` files listed below to their links.
+  `world3d/dist/*.artifact.html` files listed below go to their links.
 
 **Rebuild the ten pages** (from `world3d/`; needs `world3d/node_modules`, a link to `prototypes/hero-3d/node_modules`,
 which build.mjs needs for esbuild and three):
@@ -398,8 +398,8 @@ cd ../game && npm test                                                          
   on all nine moves on both pages he's on.
 - **The swallows**: the Sand Wyrm's in the Canyon set (Sunscorch page, his full model) and the Leviathan's in his water
   (Gloomfen page): over the shoulder, the foe in shot.
-- All ten pages rebuilt (15.1 to 15.7 MB; Act Three 10.7). **Not yet republished**: the account reached its daily
-  limit of page publishes; they go up after midnight UTC.
+- All ten pages rebuilt (15.1 to 15.7 MB; Act Three 10.7) and republished at 00:10 UTC, November 25 (the account had reached its daily
+  limit of page publishes the evening before).
 
 ## For Together: starting a fight from outside
 
